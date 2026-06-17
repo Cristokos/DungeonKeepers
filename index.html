@@ -20,58 +20,124 @@
 
 <div class="layout">
 
-    <!-- LEFT -->
+    <!-- LEFT: Population + Resources -->
     <div class="panel left">
-        <h2>Resources</h2>
 
-        <div>Food: <span id="food">0</span> / <span id="foodCap">100</span></div>
-        <div>Wood: <span id="wood">0</span> / <span id="woodCap">100</span></div>
-        <div>Stone: <span id="stone">0</span> / <span id="stoneCap">100</span></div>
+        <h2>Population</h2>
+
+        <div class="res-row" id="pop-row">
+            <span class="res-name">Creatures</span>
+            <span class="res-right">
+                <span id="popCount">0</span> / <span id="popMax">0</span>
+            </span>
+        </div>
+
+        <div class="res-row">
+            <span class="res-name">Employed</span>
+            <span class="res-right">
+                <span id="employed">0</span> / <span id="totalJobs">0</span>
+                <span class="res-label-sm">jobs</span>
+            </span>
+        </div>
+
+        <h2 class="section-gap">Resources</h2>
+
+        <div class="res-row">
+            <span class="res-name">Food</span>
+            <span class="res-right">
+                <span id="food">0</span>/<span id="foodCap">100</span>
+                <span id="foodRate" class="rate" style="display:none"></span>
+            </span>
+        </div>
+
+        <div class="res-row">
+            <span class="res-name">Wood</span>
+            <span class="res-right">
+                <span id="wood">0</span>/<span id="woodCap">100</span>
+                <span id="woodRate" class="rate" style="display:none"></span>
+            </span>
+        </div>
+
+        <div class="res-row">
+            <span class="res-name">Stone</span>
+            <span class="res-right">
+                <span id="stone">0</span>/<span id="stoneCap">100</span>
+                <span id="stoneRate" class="rate" style="display:none"></span>
+            </span>
+        </div>
+
     </div>
 
-    <!-- CENTER -->
+    <!-- CENTER: Actions + Buildings -->
     <div class="panel center">
 
-        <h2>Outskirts</h2>
+        <h2>Actions</h2>
+        <div class="actions-list">
 
+            <button class="action-btn" id="action-food" onclick="gather('food')">
+                <span class="action-title">Scavenge Food</span>
+                <span class="action-yield">+5 Food</span>
+            </button>
+
+            <button class="action-btn" id="action-wood" onclick="gather('wood')">
+                <span class="action-title">Fell a Tree</span>
+                <span class="action-yield">+5 Wood</span>
+            </button>
+
+            <button class="action-btn" id="action-stone" onclick="gather('stone')">
+                <span class="action-title">Break Stones</span>
+                <span class="action-yield">+3 Stone</span>
+            </button>
+
+        </div>
+
+        <h2 class="section-gap">Buildings</h2>
         <div class="grid">
 
-            <button class="build-btn" onclick="build('farm')" id="btn-farm">
+            <button class="build-btn disabled" onclick="build('lair')" id="btn-lair">
+                <div class="btn-title">Lair</div>
+                <div class="btn-count" id="lairCount">0</div>
+                <div class="btn-cost" id="lairCost">15 Wood</div>
+            </button>
+
+            <button class="build-btn disabled" onclick="build('farm')" id="btn-farm">
                 <div class="btn-title">Farm</div>
                 <div class="btn-count" id="farmCount">0</div>
-                <div class="btn-cost">10 Wood</div>
+                <div class="btn-cost" id="farmCost">10 Wood</div>
             </button>
 
-            <button class="build-btn" onclick="build('lumber')" id="btn-lumber">
+            <button class="build-btn disabled" onclick="build('lumber')" id="btn-lumber">
                 <div class="btn-title">Lumber Camp</div>
                 <div class="btn-count" id="lumberCount">0</div>
-                <div class="btn-cost">10 Wood</div>
+                <div class="btn-cost" id="lumberCost">10 Wood</div>
             </button>
 
-            <button class="build-btn" onclick="build('quarry')" id="btn-quarry">
+            <button class="build-btn disabled" onclick="build('quarry')" id="btn-quarry">
                 <div class="btn-title">Quarry</div>
                 <div class="btn-count" id="quarryCount">0</div>
-                <div class="btn-cost">10 Wood</div>
+                <div class="btn-cost" id="quarryCost">15 Wood</div>
             </button>
 
-            <button class="build-btn" onclick="build('storage')" id="btn-storage">
+            <button class="build-btn disabled" onclick="build('storage')" id="btn-storage">
                 <div class="btn-title">Storage</div>
                 <div class="btn-count" id="storageCount">0</div>
-                <div class="btn-cost">20 Wood</div>
+                <div class="btn-cost" id="storageCost">20 Wood, 10 Stone</div>
             </button>
 
         </div>
 
     </div>
 
-    <!-- RIGHT -->
+    <!-- RIGHT: Log -->
     <div class="panel right">
-        <h2>Context</h2>
-        <p>System panel</p>
+        <h2>Log</h2>
+        <p style="color:var(--text-muted); font-size:12px;">Nothing yet.</p>
     </div>
 
 </div>
 
+<script src="data/resources.js"></script>
+<script src="data/rooms.js"></script>
 <script src="save.js"></script>
 <script src="game.js"></script>
 
