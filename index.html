@@ -7,8 +7,7 @@
 
 <body>
 
-<!-- VERSION -->
-<div class="version">v0.3.1</div>
+<div class="version">v0.3.2</div>
 
 <!-- STATUS BAR -->
 <div class="statusbar">
@@ -27,7 +26,7 @@
 
 </div>
 
-<!-- TOP NAV -->
+<!-- TOP BAR -->
 <div class="topbar">
 
     <button class="tab active" onclick="showScreen('overview')">Overview</button>
@@ -37,7 +36,6 @@
 
 </div>
 
-<!-- MAIN LAYOUT -->
 <div class="layout">
 
     <!-- SIDEBAR -->
@@ -45,26 +43,25 @@
 
         <h2>Resources</h2>
 
-        <div>Food: <span id="food">0</span></div>
-        <div>Wood: <span id="wood">0</span></div>
-        <div>Stone: <span id="stone">0</span></div>
+        <div id="foodLine">Food: <span id="food">0</span> / <span id="foodCap">100</span></div>
+        <div id="woodLine">Wood: <span id="wood">0</span> / <span id="woodCap">100</span></div>
+        <div id="stoneLine">Stone: <span id="stone">0</span> / <span id="stoneCap">100</span></div>
 
         <hr>
 
         <h3>Dungeon</h3>
         <div>Nests: <span id="nestCount">0</span></div>
 
+        <div>Storage Piles: <span id="storageCount">0</span></div>
+
     </div>
 
-    <!-- MAIN CONTENT -->
+    <!-- MAIN -->
     <div class="main">
 
-        <!-- OVERVIEW -->
         <div class="screen active" id="overview">
 
             <h1>Overview</h1>
-
-            <p>Your dungeon grows in the dark below the world.</p>
 
             <button onclick="gatherFood()">Gather Food</button>
             <button onclick="gatherWood()">Gather Wood</button>
@@ -72,31 +69,21 @@
 
         </div>
 
-        <!-- DUNGEON -->
         <div class="screen" id="dungeon">
 
             <h1>Dungeon</h1>
 
-            <p>Construct rooms to expand your dungeon core.</p>
-
-            <button onclick="buildNest()">Build Nest (10 Wood / 5 Stone)</button>
+            <button onclick="buildNest()">Build Nest (10W / 5S)</button>
+            <button onclick="buildStorage()">Build Storage (20 Wood)</button>
 
         </div>
 
-        <!-- RESEARCH -->
         <div class="screen" id="research">
-
             <h1>Research</h1>
-            <p>Coming soon...</p>
-
         </div>
 
-        <!-- WORLD -->
         <div class="screen" id="world">
-
             <h1>World</h1>
-            <p>Coming soon...</p>
-
         </div>
 
     </div>

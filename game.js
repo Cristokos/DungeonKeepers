@@ -8,8 +8,15 @@ const gameState = {
         stone: 0
     },
 
+    caps: {
+        food: 100,
+        wood: 100,
+        stone: 100
+    },
+
     rooms: {
-        nest: 0
+        nest: 0,
+        storage: 0
     },
 
     time: {
@@ -20,23 +27,21 @@ const gameState = {
 };
 
 // --------------------
-// RESOURCES
+// GATHER
 // --------------------
 
-function gatherFood() {
-    gameState.resources.food++;
+function gather(resource) {
+
+    if (gameState.resources[resource] < gameState.caps[resource]) {
+        gameState.resources[resource]++;
+    }
+
     updateUI();
 }
 
-function gatherWood() {
-    gameState.resources.wood++;
-    updateUI();
-}
-
-function gatherStone() {
-    gameState.resources.stone++;
-    updateUI();
-}
+function gatherFood() { gather("food"); }
+function gatherWood() { gather("wood"); }
+function gatherStone() { gather("stone"); }
 
 // --------------------
 // BUILDINGS
@@ -44,14 +49,28 @@ function gatherStone() {
 
 function buildNest() {
 
-    if (
-        gameState.resources.wood >= 10 &&
-        gameState.resources.stone >= 5
-    ) {
+    if (gameState.resources.wood >= 10 &&
+        gameState.resources.stone >= 5) {
+
         gameState.resources.wood -= 10;
         gameState.resources.stone -= 5;
 
         gameState.rooms.nest++;
+
+        updateUI();
+    }
+}
+
+function buildStorage() {
+
+    if (gameState.resources.wood >= 20) {
+        gameState.resources.wood -= 20;
+
+        gameState.rooms.storage++;
+
+        gameState.caps.food += 50;
+        gameState.caps.wood += 50;
+        gameState.caps.stone += 50;
 
         updateUI();
     }
@@ -63,9 +82,12 @@ function buildNest() {
 
 function gameLoop() {
 
-    gameState.resources.food += 1 + (gameState.rooms.nest * 2);
+    const nestBonus = gameState.rooms.nest * 2;
 
-    // TIME SYSTEM
+    gameState.resources.food =
+        Math.min(gameState.caps.food,
+            gameState.resources.food + 1 + nestBonus);
+
     gameState.time.day++;
 
     if (gameState.time.day % 10 === 0) {
@@ -86,17 +108,15 @@ function gameLoop() {
 
 function updateUI() {
 
-    document.getElementById("food").textContent =
-        gameState.resources.food;
-
-    document.getElementById("wood").textContent =
-        gameState.resources.wood;
-
-    document.getElementById("stone").textContent =
-        gameState.resources.stone;
+    updateResource("food");
+    updateResource("wood");
+    updateResource("stone");
 
     document.getElementById("nestCount").textContent =
         gameState.rooms.nest;
+
+    document.getElementById("storageCount").textContent =
+        gameState.rooms.storage;
 
     document.getElementById("day").textContent =
         gameState.time.day;
@@ -108,19 +128,36 @@ function updateUI() {
         seasons[gameState.time.seasonIndex];
 }
 
+function updateResource(name) {
+
+    const value = gameState.resources[name];
+    const cap = gameState.caps[name];
+
+    document.getElementById(name).textContent = value;
+    document.getElementById(name + "Cap").textContent = cap;
+
+    const line = document.getElementById(name + "Line");
+
+    if (value >= cap) {
+        line.classList.add("full");
+    } else {
+        line.classList.remove("full");
+    }
+}
+
 // --------------------
 // SCREEN SYSTEM
 // --------------------
 
 function showScreen(name) {
 
-    const screens = document.querySelectorAll(".screen");
-    screens.forEach(s => s.classList.remove("active"));
+    document.querySelectorAll(".screen")
+        .forEach(s => s.classList.remove("active"));
 
     document.getElementById(name).classList.add("active");
 
-    const tabs = document.querySelectorAll(".tab");
-    tabs.forEach(t => t.classList.remove("active"));
+    document.querySelectorAll(".tab")
+        .forEach(t => t.classList.remove("active"));
 
     event.target.classList.add("active");
 }
@@ -132,6 +169,7 @@ function showScreen(name) {
 window.onload = () => {
 
     loadGame();
+
     updateUI();
 
     setInterval(gameLoop, 1000);
