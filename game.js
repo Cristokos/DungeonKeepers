@@ -1,6 +1,7 @@
 // game.js
 
 const gameState = {
+
     resources: {
         food: 0,
         wood: 0,
@@ -36,6 +37,7 @@ function gatherStone() {
 // -----------------------------
 
 function buildNest() {
+
     const woodCost = 10;
     const stoneCost = 5;
 
@@ -57,9 +59,9 @@ function buildNest() {
 // -----------------------------
 
 function gameLoop() {
+
     const nests = gameState.rooms.nest;
 
-    // Passive food generation
     gameState.resources.food += 1 + (nests * 2);
 
     updateUI();
@@ -85,18 +87,50 @@ function updateUI() {
 }
 
 // -----------------------------
+// SCREEN SYSTEM
+// -----------------------------
+
+function showScreen(screenName) {
+
+    const screens = document.querySelectorAll(".screen");
+
+    screens.forEach(s => {
+        s.classList.remove("active");
+    });
+
+    document
+        .getElementById("screen-" + screenName)
+        .classList.add("active");
+
+    updateTabs(screenName);
+}
+
+function updateTabs(active) {
+
+    const tabs = document.querySelectorAll(".tab");
+
+    tabs.forEach(tab => {
+        tab.classList.remove("active");
+    });
+
+    tabs.forEach(tab => {
+        if (tab.textContent.toLowerCase() === active) {
+            tab.classList.add("active");
+        }
+    });
+}
+
+// -----------------------------
 // INIT
 // -----------------------------
 
 window.onload = () => {
 
     loadGame();
-
     updateUI();
 
-    // Main tick loop (1 second)
     setInterval(gameLoop, 1000);
-
-    // Auto-save loop (5 seconds)
     setInterval(saveGame, 5000);
+
+    showScreen("overview");
 };
