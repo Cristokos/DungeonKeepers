@@ -18,7 +18,6 @@ const gameState = {
         farm: 0,
         lumber: 0,
         quarry: 0,
-        nest: 0,
         storage: 0
     },
 
@@ -29,93 +28,89 @@ const gameState = {
     }
 };
 
-// --------------------
-// GATHER
-// --------------------
+/* -----------------------
+   BUILDING DEFINITIONS
+------------------------*/
 
-function gather(resource) {
-    if (gameState.resources[resource] < gameState.caps[resource]) {
-        gameState.resources[resource]++;
+const buildings = {
+
+    farm: {
+        cost: { wood: 10 },
+        produces: { food: 2 }
+    },
+
+    lumber: {
+        cost: { wood: 10 },
+        produces: { wood: 2 }
+    },
+
+    quarry: {
+        cost: { wood: 10 },
+        produces: { stone: 2 }
+    },
+
+    storage: {
+        cost: { wood: 20 },
+        effect: () => {
+            gameState.caps.food += 50;
+            gameState.caps.wood += 50;
+            gameState.caps.stone += 50;
+        }
     }
+};
+
+/* -----------------------
+   AFFORD CHECK
+------------------------*/
+
+function canAfford(building) {
+    const cost = buildings[building].cost;
+    for (let res in cost) {
+        if (gameState.resources[res] < cost[res]) return false;
+    }
+    return true;
+}
+
+/* -----------------------
+   BUILD SYSTEM
+------------------------*/
+
+function build(type) {
+
+    if (!canAfford(type)) return;
+
+    const cost = buildings[type].cost;
+
+    for (let res in cost) {
+        gameState.resources[res] -= cost[res];
+    }
+
+    gameState.buildings[type]++;
+
+    if (buildings[type].effect) {
+        buildings[type].effect();
+    }
+
     updateUI();
 }
 
-function gatherFood() { gather("food"); }
-function gatherWood() { gather("wood"); }
-function gatherStone() { gather("stone"); }
-
-// --------------------
-// BUILDINGS
-// --------------------
-
-function buildFarm() {
-    if (gameState.resources.wood >= 10) {
-        gameState.resources.wood -= 10;
-        gameState.buildings.farm++;
-        updateUI();
-    }
-}
-
-function buildLumber() {
-    if (gameState.resources.wood >= 10) {
-        gameState.resources.wood -= 10;
-        gameState.buildings.lumber++;
-        updateUI();
-    }
-}
-
-function buildQuarry() {
-    if (gameState.resources.wood >= 10) {
-        gameState.resources.wood -= 10;
-        gameState.buildings.quarry++;
-        updateUI();
-    }
-}
-
-function buildNest() {
-    if (gameState.resources.wood >= 10 &&
-        gameState.resources.stone >= 5) {
-
-        gameState.resources.wood -= 10;
-        gameState.resources.stone -= 5;
-
-        gameState.buildings.nest++;
-
-        updateUI();
-    }
-}
-
-function buildStorage() {
-    if (gameState.resources.wood >= 20) {
-        gameState.resources.wood -= 20;
-
-        gameState.buildings.storage++;
-
-        gameState.caps.food += 50;
-        gameState.caps.wood += 50;
-        gameState.caps.stone += 50;
-
-        updateUI();
-    }
-}
-
-// --------------------
-// LOOP
-// --------------------
+/* -----------------------
+   LOOP
+------------------------*/
 
 function gameLoop() {
 
-    gameState.resources.food =
-        Math.min(gameState.caps.food,
-            gameState.resources.food + gameState.buildings.farm * 2);
+    for (let b in gameState.buildings) {
+        const def = buildings[b];
+        if (!def || !def.produces) continue;
 
-    gameState.resources.wood =
-        Math.min(gameState.caps.wood,
-            gameState.resources.wood + gameState.buildings.lumber * 2);
-
-    gameState.resources.stone =
-        Math.min(gameState.caps.stone,
-            gameState.resources.stone + gameState.buildings.quarry * 2);
+        for (let res in def.produces) {
+            gameState.resources[res] = Math.min(
+                gameState.caps[res],
+                gameState.resources[res] + def.produces[res] * gameState.buildings[b]
+            );
+        }
+    }
 
     gameState.time.day++;
 
@@ -131,51 +126,57 @@ function gameLoop() {
     updateUI();
 }
 
-// --------------------
-// UI
-// --------------------
+/* -----------------------
+   UI UPDATE
+------------------------*/
 
 function updateUI() {
 
-    updateResource("food");
-    updateResource("wood");
-    updateResource("stone");
+    document.getElementById("food").textContent = gameState.resources.food;
+    document.getElementById("wood").textContent = gameState.resources.wood;
+    document.getElementById("stone").textContent = gameState.resources.stone;
+
+    document.getElementById("foodCap").textContent = gameState.caps.food;
+    document.getElementById("woodCap").textContent = gameState.caps.wood;
+    document.getElementById("stoneCap").textContent = gameState.caps.stone;
 
     document.getElementById("farmCount").textContent = gameState.buildings.farm;
     document.getElementById("lumberCount").textContent = gameState.buildings.lumber;
     document.getElementById("quarryCount").textContent = gameState.buildings.quarry;
-    document.getElementById("nestCount").textContent = gameState.buildings.nest;
     document.getElementById("storageCount").textContent = gameState.buildings.storage;
 
     document.getElementById("day").textContent = gameState.time.day;
     document.getElementById("year").textContent = gameState.time.year;
     document.getElementById("season").textContent = seasons[gameState.time.seasonIndex];
+
+    updateButtons();
 }
 
-function updateResource(name) {
+/* -----------------------
+   BUTTON STATE SYSTEM
+------------------------*/
 
-    const value = gameState.resources[name];
-    const cap = gameState.caps[name];
+function updateButtons() {
 
-    document.getElementById(name).textContent = value;
-    document.getElementById(name + "Cap").textContent = cap;
+    for (let id in buildings) {
 
-    const line = document.getElementById(name + "Line");
+        const btn = document.querySelector(`[onclick="build('${id}')"]`);
+        if (!btn) continue;
 
-    if (value >= cap) {
-        line.classList.add("full");
-    } else {
-        line.classList.remove("full");
+        if (canAfford(id)) {
+            btn.classList.remove("disabled");
+        } else {
+            btn.classList.add("disabled");
+        }
     }
 }
 
-// --------------------
-// INIT
-// --------------------
+/* -----------------------
+   INIT
+------------------------*/
 
 window.onload = () => {
     loadGame();
     updateUI();
     setInterval(gameLoop, 1000);
-    setInterval(saveGame, 5000);
 };

@@ -7,28 +7,20 @@
 
 <body>
 
-<div class="version">v0.08</div>
+<div class="version">v0.09</div>
 
-<!-- TOP BAR (CENTERED TIME) -->
+<!-- TOP BAR -->
 <div class="statusbar">
-
-    <div class="status-left"></div>
-
     <div class="status-center">
-
         <div>Day: <span id="day">1</span></div>
         <div>Year: <span id="year">1</span></div>
         <div>Season: <span id="season">Spring</span></div>
-
     </div>
-
-    <div class="status-right"></div>
-
 </div>
 
 <div class="layout">
 
-    <!-- LEFT: RESOURCES ONLY -->
+    <!-- LEFT -->
     <div class="panel left">
 
         <h2>Resources</h2>
@@ -39,56 +31,45 @@
 
     </div>
 
-    <!-- CENTER: ACTIONS -->
+    <!-- CENTER -->
     <div class="panel center">
 
-        <h2>Actions</h2>
+        <h2>Outskirts</h2>
 
-        <button onclick="gatherFood()">Gather Food</button>
-        <button onclick="gatherWood()">Gather Wood</button>
-        <button onclick="gatherStone()">Gather Stone</button>
-
-        <hr>
-
-        <h3>Production</h3>
-
-        <button class="build-btn" onclick="buildFarm()">
-            Build Farm
-            <span class="count" id="farmCount">0</span>
+        <button class="build-btn" onclick="build('farm')">
+            <div class="btn-title">Farm</div>
+            <div class="btn-cost">10 Wood</div>
+            <div class="btn-count" id="farmCount">0</div>
         </button>
 
-        <button class="build-btn" onclick="buildLumber()">
-            Build Lumber Camp
-            <span class="count" id="lumberCount">0</span>
+        <button class="build-btn" onclick="build('lumber')">
+            <div class="btn-title">Lumber Camp</div>
+            <div class="btn-cost">10 Wood</div>
+            <div class="btn-count" id="lumberCount">0</div>
         </button>
 
-        <button class="build-btn" onclick="buildQuarry()">
-            Build Quarry
-            <span class="count" id="quarryCount">0</span>
+        <button class="build-btn" onclick="build('quarry')">
+            <div class="btn-title">Quarry</div>
+            <div class="btn-cost">10 Wood</div>
+            <div class="btn-count" id="quarryCount">0</div>
         </button>
 
         <hr>
 
-        <h3>Utility</h3>
+        <h2>Utility</h2>
 
-        <button class="build-btn" onclick="buildNest()">
-            Build Nest
-            <span class="count" id="nestCount">0</span>
-        </button>
-
-        <button class="build-btn" onclick="buildStorage()">
-            Storage Upgrade
-            <span class="count" id="storageCount">0</span>
+        <button class="build-btn" onclick="build('storage')">
+            <div class="btn-title">Storage</div>
+            <div class="btn-cost">20 Wood</div>
+            <div class="btn-count" id="storageCount">0</div>
         </button>
 
     </div>
 
-    <!-- RIGHT PANEL -->
+    <!-- RIGHT -->
     <div class="panel right">
-
         <h2>Context</h2>
-        <p>Future system panel</p>
-
+        <p>Future systems go here</p>
     </div>
 
 </div>
