@@ -8,7 +8,7 @@
 
 <body>
 
-<div class="version">v0.15</div>
+<div class="version">v0.16</div>
 
 <div class="statusbar">
     <div class="status-center">
@@ -73,12 +73,271 @@
 
         <!-- Tab bar -->
         <div class="tab-bar">
+            <button class="tab-btn"        data-tab="creature" onclick="switchTab('creature')">Creature</button>
             <button class="tab-btn active" data-tab="build"    onclick="switchTab('build')">Build</button>
             <button class="tab-btn"        data-tab="research" onclick="switchTab('research')">Research</button>
             <button class="tab-btn"        data-tab="info"     onclick="switchTab('info')">Info</button>
             <button class="tab-btn"        data-tab="settings" onclick="switchTab('settings')">Settings</button>
             <button class="tab-btn dev-tab" data-tab="dev"     onclick="switchTab('dev')">Dev</button>
         </div>
+
+        <!-- CREATURE SELECTOR TAB (Era 1) -->
+        <div class="tab-body tab-content" id="tab-creature" style="display:none">
+
+            <h2>Era 1 — Creature Selector</h2>
+            <p class="info-text">
+                Choose the lineage of your dungeon's inhabitants. Each evolutionary path leads
+                to a unique D&D race that will define your playstyle, bonuses, and flavour for
+                the rest of the run. The evolution tree is not yet implemented — the list below
+                is the current candidate roster for review and expansion.
+            </p>
+
+            <!-- DRACONIC & REPTILIAN -->
+            <h3 class="creature-category">Draconic &amp; Reptilian</h3>
+            <div class="creature-list">
+                <div class="creature-entry">
+                    <span class="creature-tag tag-draconic">Draconic</span>
+                    <span class="creature-name">Chromatic Dragon</span>
+                    <span class="creature-desc">Apex predator of the skies — scales, talons, elemental breath, and insatiable greed.</span>
+                </div>
+                <div class="creature-entry">
+                    <span class="creature-tag tag-draconic">Draconic</span>
+                    <span class="creature-name">Metallic Dragon</span>
+                    <span class="creature-desc">Noble and ancient; gold, silver, or bronze — wisdom tempered by draconic pride.</span>
+                </div>
+                <div class="creature-entry">
+                    <span class="creature-tag tag-draconic">Draconic</span>
+                    <span class="creature-name">Lizardfolk</span>
+                    <span class="creature-desc">Cold-blooded and pragmatic; survival above all else, no concept of waste.</span>
+                </div>
+                <div class="creature-entry">
+                    <span class="creature-tag tag-draconic">Draconic</span>
+                    <span class="creature-name">Kobold</span>
+                    <span class="creature-desc">Small, cunning, and numerous — masters of traps and tunnel warfare.</span>
+                </div>
+                <div class="creature-entry">
+                    <span class="creature-tag tag-draconic">Draconic</span>
+                    <span class="creature-name">Yuan-ti</span>
+                    <span class="creature-desc">Serpentine flesh and cold intellect; they traded their humanity for power.</span>
+                </div>
+            </div>
+
+            <!-- UNDEAD -->
+            <h3 class="creature-category">Undead</h3>
+            <div class="creature-list">
+                <div class="creature-entry">
+                    <span class="creature-tag tag-undead">Undead</span>
+                    <span class="creature-name">Skeleton</span>
+                    <span class="creature-desc">Mindless bone given purpose; tireless, fearless, and indifferent to pain.</span>
+                </div>
+                <div class="creature-entry">
+                    <span class="creature-tag tag-undead">Undead</span>
+                    <span class="creature-name">Zombie</span>
+                    <span class="creature-desc">Shambling brute — slow but relentless, overwhelms through sheer numbers.</span>
+                </div>
+                <div class="creature-entry">
+                    <span class="creature-tag tag-undead">Undead</span>
+                    <span class="creature-name">Vampire</span>
+                    <span class="creature-desc">Aristocratic predator of the night; charm, blood, and centuries of scheming.</span>
+                </div>
+                <div class="creature-entry">
+                    <span class="creature-tag tag-undead">Undead</span>
+                    <span class="creature-name">Lich</span>
+                    <span class="creature-desc">An archmage who cheated death; trades mortality for phylactery-bound immortality.</span>
+                </div>
+                <div class="creature-entry">
+                    <span class="creature-tag tag-undead">Undead</span>
+                    <span class="creature-name">Wight</span>
+                    <span class="creature-desc">A fallen warrior cursed with undeath; retains battle cunning, loses all mercy.</span>
+                </div>
+                <div class="creature-entry">
+                    <span class="creature-tag tag-undead">Undead</span>
+                    <span class="creature-name">Ghoul</span>
+                    <span class="creature-desc">Ravenous flesh-hungry predator; paralysing claws and an endless appetite.</span>
+                </div>
+            </div>
+
+            <!-- GOBLINOIDS & BEASTKIN -->
+            <h3 class="creature-category">Goblinoids &amp; Beastkin</h3>
+            <div class="creature-list">
+                <div class="creature-entry">
+                    <span class="creature-tag tag-goblinoid">Goblinoid</span>
+                    <span class="creature-name">Goblin</span>
+                    <span class="creature-desc">Chaotic, opportunistic, and infuriatingly clever — strength in numbers.</span>
+                </div>
+                <div class="creature-entry">
+                    <span class="creature-tag tag-goblinoid">Goblinoid</span>
+                    <span class="creature-name">Hobgoblin</span>
+                    <span class="creature-desc">Disciplined and militaristic; the goblinoid race that chose order over chaos.</span>
+                </div>
+                <div class="creature-entry">
+                    <span class="creature-tag tag-goblinoid">Goblinoid</span>
+                    <span class="creature-name">Bugbear</span>
+                    <span class="creature-desc">Brutish ambush predator; enormous, stealthy, and startlingly violent.</span>
+                </div>
+                <div class="creature-entry">
+                    <span class="creature-tag tag-goblinoid">Goblinoid</span>
+                    <span class="creature-name">Orc</span>
+                    <span class="creature-desc">Fierce tribal warrior; raw strength, relentless aggression, savage honour.</span>
+                </div>
+                <div class="creature-entry">
+                    <span class="creature-tag tag-goblinoid">Goblinoid</span>
+                    <span class="creature-name">Gnoll</span>
+                    <span class="creature-desc">Hyena-headed marauders blessed (or cursed) by the demon lord Yeenoghu.</span>
+                </div>
+            </div>
+
+            <!-- ABERRATIONS -->
+            <h3 class="creature-category">Aberrations</h3>
+            <div class="creature-list">
+                <div class="creature-entry">
+                    <span class="creature-tag tag-aberration">Aberration</span>
+                    <span class="creature-name">Mind Flayer</span>
+                    <span class="creature-desc">Illithid psionicists from the Far Realm; enslave lesser minds, harvest intellect.</span>
+                </div>
+                <div class="creature-entry">
+                    <span class="creature-tag tag-aberration">Aberration</span>
+                    <span class="creature-name">Beholder</span>
+                    <span class="creature-desc">Floating eye tyrant; paranoid, megalomaniacal, and bristling with antimagic.</span>
+                </div>
+                <div class="creature-entry">
+                    <span class="creature-tag tag-aberration">Aberration</span>
+                    <span class="creature-name">Aboleth</span>
+                    <span class="creature-desc">Ancient aquatic elder — remembers the world before gods, and resents them for it.</span>
+                </div>
+                <div class="creature-entry">
+                    <span class="creature-tag tag-aberration">Aberration</span>
+                    <span class="creature-name">Gibbering Mouther</span>
+                    <span class="creature-desc">A chaotic mass of eyes and mouths; its babble drives listeners to madness.</span>
+                </div>
+                <div class="creature-entry">
+                    <span class="creature-tag tag-aberration">Aberration</span>
+                    <span class="creature-name">Nothic</span>
+                    <span class="creature-desc">A wizard rotted into a one-eyed wretch by dark knowledge; reads minds, hoards secrets.</span>
+                </div>
+            </div>
+
+            <!-- OOZES & ELEMENTALS -->
+            <h3 class="creature-category">Oozes &amp; Elementals</h3>
+            <div class="creature-list">
+                <div class="creature-entry">
+                    <span class="creature-tag tag-ooze">Ooze</span>
+                    <span class="creature-name">Gelatinous Cube</span>
+                    <span class="creature-desc">A perfectly cuboid acidic horror; silent, patient, and invisible until it's too late.</span>
+                </div>
+                <div class="creature-entry">
+                    <span class="creature-tag tag-ooze">Ooze</span>
+                    <span class="creature-name">Black Pudding</span>
+                    <span class="creature-desc">Corrosive amorphous ooze; splitting it only makes more problems.</span>
+                </div>
+                <div class="creature-entry">
+                    <span class="creature-tag tag-elemental">Elemental</span>
+                    <span class="creature-name">Fire Elemental</span>
+                    <span class="creature-desc">Living flame given will; consumes everything, illuminates nothing of worth.</span>
+                </div>
+                <div class="creature-entry">
+                    <span class="creature-tag tag-elemental">Elemental</span>
+                    <span class="creature-name">Earth Elemental</span>
+                    <span class="creature-desc">Stone and soil incarnate — slow to move, impossible to stop.</span>
+                </div>
+                <div class="creature-entry">
+                    <span class="creature-tag tag-elemental">Elemental</span>
+                    <span class="creature-name">Shadow Demon</span>
+                    <span class="creature-desc">Void given form; thrives in darkness, withers in light, devours hope.</span>
+                </div>
+            </div>
+
+            <!-- MONSTROUS -->
+            <h3 class="creature-category">Monstrous</h3>
+            <div class="creature-list">
+                <div class="creature-entry">
+                    <span class="creature-tag tag-monstrous">Monstrous</span>
+                    <span class="creature-name">Harpy</span>
+                    <span class="creature-desc">Winged predators with an irresistible song; they lure sailors to their doom.</span>
+                </div>
+                <div class="creature-entry">
+                    <span class="creature-tag tag-monstrous">Monstrous</span>
+                    <span class="creature-name">Medusa</span>
+                    <span class="creature-desc">Snake-haired petrifier; her gaze turns the brave to garden ornaments.</span>
+                </div>
+                <div class="creature-entry">
+                    <span class="creature-tag tag-monstrous">Monstrous</span>
+                    <span class="creature-name">Minotaur</span>
+                    <span class="creature-desc">Bull-headed labyrinth guardian; strength, rage, and an unerring sense of direction.</span>
+                </div>
+                <div class="creature-entry">
+                    <span class="creature-tag tag-monstrous">Monstrous</span>
+                    <span class="creature-name">Troll</span>
+                    <span class="creature-desc">Regenerating swamp giant; only fire and acid can truly end one.</span>
+                </div>
+                <div class="creature-entry">
+                    <span class="creature-tag tag-monstrous">Monstrous</span>
+                    <span class="creature-name">Werewolf</span>
+                    <span class="creature-desc">Lycanthrope torn between beast and man; spreads its curse with every bite.</span>
+                </div>
+                <div class="creature-entry">
+                    <span class="creature-tag tag-monstrous">Monstrous</span>
+                    <span class="creature-name">Naga</span>
+                    <span class="creature-desc">Serpentine spellcaster; ancient, narcissistic, and nearly impossible to permanently kill.</span>
+                </div>
+            </div>
+
+            <!-- FIENDS -->
+            <h3 class="creature-category">Fiends</h3>
+            <div class="creature-list">
+                <div class="creature-entry">
+                    <span class="creature-tag tag-fiend">Fiend</span>
+                    <span class="creature-name">Imp</span>
+                    <span class="creature-desc">Tiny devil familiar; insignificant alone, terrifying as a colony.</span>
+                </div>
+                <div class="creature-entry">
+                    <span class="creature-tag tag-fiend">Fiend</span>
+                    <span class="creature-name">Cambion</span>
+                    <span class="creature-desc">Half-demon hybrid; all the charm of their fiendish parent, twice the ambition.</span>
+                </div>
+                <div class="creature-entry">
+                    <span class="creature-tag tag-fiend">Fiend</span>
+                    <span class="creature-name">Barbed Devil</span>
+                    <span class="creature-desc">Thorned infernal enforcer; methodical, cruel, and loyal only to hierarchy.</span>
+                </div>
+                <div class="creature-entry">
+                    <span class="creature-tag tag-fiend">Fiend</span>
+                    <span class="creature-name">Night Hag</span>
+                    <span class="creature-desc">Dreamstealing witch who traffics in souls; older than most gods, wiser than most.</span>
+                </div>
+            </div>
+
+            <!-- HUMANOID OFFSHOOTS -->
+            <h3 class="creature-category">Humanoid Offshoots</h3>
+            <div class="creature-list">
+                <div class="creature-entry">
+                    <span class="creature-tag tag-humanoid">Humanoid</span>
+                    <span class="creature-name">Kenku</span>
+                    <span class="creature-desc">Raven-folk cursed with voicelessness; communicate through flawless mimicry.</span>
+                </div>
+                <div class="creature-entry">
+                    <span class="creature-tag tag-humanoid">Humanoid</span>
+                    <span class="creature-name">Tabaxi</span>
+                    <span class="creature-desc">Agile cat-folk driven by insatiable curiosity; fast, graceful, easily distracted.</span>
+                </div>
+                <div class="creature-entry">
+                    <span class="creature-tag tag-humanoid">Humanoid</span>
+                    <span class="creature-name">Aarakocra</span>
+                    <span class="creature-desc">Eagle-winged bird-folk from mountaintop eyries; natural scouts and messengers.</span>
+                </div>
+                <div class="creature-entry">
+                    <span class="creature-tag tag-humanoid">Humanoid</span>
+                    <span class="creature-name">Tortle</span>
+                    <span class="creature-desc">Shell-bound wanderers; slow, deeply wise, and extraordinarily hard to kill.</span>
+                </div>
+                <div class="creature-entry">
+                    <span class="creature-tag tag-humanoid">Humanoid</span>
+                    <span class="creature-name">Centaur</span>
+                    <span class="creature-desc">Half-human, half-horse; fierce tribal warriors of the open plains.</span>
+                </div>
+            </div>
+
+        </div><!-- /tab-creature -->
 
         <!-- BUILD TAB -->
         <div class="tab-body tab-content" id="tab-build">
@@ -226,7 +485,7 @@
 
             <h2 class="section-gap">About</h2>
             <p class="info-text">
-                Dungeon Keeper v0.15 — You are the keeper of a fledgling dungeon. Gather
+                Dungeon Keeper v0.16 — You are the keeper of a fledgling dungeon. Gather
                 resources, house creatures, and expand your underground empire. Keep your
                 creatures fed or watch them desert you — or worse.
             </p>

@@ -405,6 +405,76 @@ h3 {
     display: block;
 }
 
+/* ── CREATURE SELECTOR TAB ───────────────────────────────────────────────────── */
+
+.creature-category {
+    font-size: 11px;
+    font-weight: bold;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    margin: 14px 0 5px 0;
+    padding-bottom: 4px;
+    border-bottom: 1px solid var(--border);
+}
+
+.creature-list {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.creature-entry {
+    display: grid;
+    grid-template-columns: 90px 160px 1fr;
+    align-items: center;
+    gap: 10px;
+    padding: 5px 8px;
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    font-size: 12px;
+}
+
+.creature-entry:hover {
+    border-color: rgba(255,255,255,0.2);
+    background: var(--bg-hover);
+}
+
+.creature-name {
+    font-weight: bold;
+    color: var(--text);
+}
+
+.creature-desc {
+    color: var(--text-muted);
+    font-size: 11px;
+    line-height: 1.4;
+}
+
+/* Category badge */
+.creature-tag {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 2px 6px;
+    border-radius: 2px;
+    border: 1px solid;
+    text-align: center;
+}
+
+.tag-draconic   { color: #e07b39; border-color: rgba(224,123,57,0.4);   background: rgba(224,123,57,0.08); }
+.tag-undead     { color: #9b6dbe; border-color: rgba(155,109,190,0.4);  background: rgba(155,109,190,0.08); }
+.tag-goblinoid  { color: #7ab648; border-color: rgba(122,182,72,0.4);   background: rgba(122,182,72,0.08); }
+.tag-aberration { color: #3cb0c8; border-color: rgba(60,176,200,0.4);   background: rgba(60,176,200,0.08); }
+.tag-ooze       { color: #a0c840; border-color: rgba(160,200,64,0.4);   background: rgba(160,200,64,0.08); }
+.tag-elemental  { color: #e8c040; border-color: rgba(232,192,64,0.4);   background: rgba(232,192,64,0.08); }
+.tag-monstrous  { color: #c84040; border-color: rgba(200,64,64,0.4);    background: rgba(200,64,64,0.08); }
+.tag-fiend      { color: #d04060; border-color: rgba(208,64,96,0.4);    background: rgba(208,64,96,0.08); }
+.tag-humanoid   { color: #60a8d0; border-color: rgba(96,168,208,0.4);   background: rgba(96,168,208,0.08); }
+
 /* ── RESEARCH TAB ────────────────────────────────────────────────────────────── */
 
 .research-list {
