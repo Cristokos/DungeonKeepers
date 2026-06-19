@@ -9,38 +9,64 @@ const BASE_CAPS = { food: 100, wood: 100, stone: 100 };
 // ── Biome data ────────────────────────────────────────────────────────────────
 
 const BIOME_DATA = {
-    "Verdant Forest":       { type:"Natural",  badge:"badge-natural",  desc:"Dense canopy conceals your dungeon amid ancient trees. Food and wood are plentiful, but predators stalk the undergrowth.",        start:"+30 Wood · +20 Food",              mods:[{n:"Fertile Soil",pos:true},{n:"Ancient Grove",pos:true},{n:"Abundant Wildlife",pos:true},{n:"Natural Predators",pos:false}],                                                                                                              best:["Lycanthrope","Flora","Goblinoid"],             hard:["Aquatic","Fiend"]                             },
-    "Mountain Stronghold":  { type:"Natural",  badge:"badge-natural",  desc:"Rocky heights above the treeline; your dungeon is hewn from the mountain itself. Stone is everywhere; warmth is not.",            start:"+40 Stone · +15 Wood",             mods:[{n:"Rich Ore Veins",pos:true},{n:"Exposed Rockface",pos:true},{n:"Solid Foundation",pos:true},{n:"Harsh Winters",pos:false}],                                                                                                         best:["Giant","Draconic","Monstrous"],                hard:["Aquatic","Flora"]                             },
-    "Coastal Bluffs":       { type:"Natural",  badge:"badge-natural",  desc:"Sea-carved cliffs hold your dungeon above crashing waves. Fish and game are plentiful, but sea raiders take notice.",              start:"+25 Food · +20 Stone",             mods:[{n:"Abundant Wildlife",pos:true},{n:"Fertile Soil",pos:true},{n:"Contested Territory",pos:false}],                                                                                                                                  best:["Aquatic","Humanoid"],                          hard:["Undead","Fiend"]                              },
-    "Desert Wastes":        { type:"Natural",  badge:"badge-natural",  desc:"Blazing sun and endless sand hide mineral wealth beneath. Survival is the first and constant challenge of this biome.",            start:"+30 Stone",                        mods:[{n:"Rich Ore Veins",pos:true},{n:"Barren Soil",pos:false},{n:"Salt Flats",pos:false},{n:"Oppressive Heat",pos:false}],                                                                                                      best:["Draconic","Monstrous"],                        hard:["Aquatic","Flora","Fey"]                       },
-    "Frozen Tundra":        { type:"Natural",  badge:"badge-natural",  desc:"Permafrost and silence; the cold kills slowly and the ground gives nothing. Only the strongest survive here.",                     start:"+10 Wood",                         mods:[{n:"Isolation Instinct",pos:true},{n:"Harsh Winters",pos:false},{n:"Barren Soil",pos:false},{n:"Crushing Cold",pos:false},{n:"Harsh Survival",pos:false}],                                                               best:["Giant (Frost)","Undead"],                      hard:["Draconic","Flora","Aquatic"]                  },
-    "Fetid Swamp":          { type:"Natural",  badge:"badge-natural",  desc:"Dark water and tangled roots; disease festers here, but life erupts from the decay. Many things call this home.",                  start:"+20 Food",                         mods:[{n:"Abundant Wildlife",pos:true},{n:"Flooded Tunnels",pos:true},{n:"Infested Land",pos:false},{n:"Disease Vectors",pos:false}],                                                                                              best:["Aquatic","Flora","Ooze"],                      hard:["Construct","Giant"]                           },
-    "Rolling Grasslands":   { type:"Natural",  badge:"badge-natural",  desc:"Open plains stretch to the horizon; your dungeon hides in a hillside. Easy expansion, obvious target.",                           start:"+30 Food · +15 Wood",              mods:[{n:"Fertile Soil",pos:true},{n:"Warm Climate",pos:true},{n:"Contested Territory",pos:false},{n:"Inviting Target",pos:false}],                                                                                                   best:["Humanoid","Lycanthrope","Giant"],              hard:["Aquatic","Aberration"]                        },
-    "Volcanic Caldera":     { type:"Natural",  badge:"badge-natural",  desc:"Heat, ash, and the smell of sulfur. The earth bleeds stone and opportunity; structural stability is not guaranteed.",              start:"+50 Stone",                        mods:[{n:"Rich Ore Veins",pos:true},{n:"Volcanic Ash",pos:true},{n:"Oppressive Heat",pos:false},{n:"Unstable Ground",pos:false}],                                                                                               best:["Draconic","Fiend","Construct"],                hard:["Aquatic","Flora","Fey"]                       },
-    "Deep Caverns":         { type:"Natural",  badge:"badge-natural",  desc:"A natural underground network; your dungeon expands into pre-existing tunnels. Darkness is the price of depth.",                  start:"+40 Stone · 1 Free Lair",          mods:[{n:"Cavern Network",pos:true},{n:"Mineral Deposits",pos:true},{n:"Underground Access",pos:true},{n:"Perpetual Darkness",pos:false}],                                                                                          best:["Goblinoid","Aberration","Ooze"],               hard:["Fey","Giant"]                                 },
-    "Jungle Canopy":        { type:"Natural",  badge:"badge-natural",  desc:"Stifling heat and impossible density; food is everywhere, and so are things that want to eat you.",                               start:"+40 Food · +20 Wood",              mods:[{n:"Fertile Soil",pos:true},{n:"Ancient Grove",pos:true},{n:"Abundant Wildlife",pos:true},{n:"Disease Vectors",pos:false},{n:"Hostile Flora",pos:false}],                                                                   best:["Flora","Fey","Humanoid"],                      hard:["Undead","Giant","Construct"]                  },
-    "Arctic Glacier":       { type:"Natural",  badge:"badge-natural",  desc:"A frozen expanse carved by time. Isolation is both your shield and your prison; the cold never relents.",                         start:"+20 Stone",                        mods:[{n:"Isolation Instinct",pos:true},{n:"Hidden Refuge",pos:true},{n:"Harsh Winters",pos:false},{n:"Barren Soil",pos:false},{n:"Crushing Cold",pos:false}],                                                                    best:["Giant (Frost)"],                               hard:["Draconic","Flora","Fey","Aquatic"]             },
-    "Sunken Ruins":         { type:"Natural",  badge:"badge-natural",  desc:"A half-drowned ancient civilization; your dungeon inhabits crumbling walls ankle-deep in water and mystery.",                     start:"+30 Food · 1 Free Storage",        mods:[{n:"Ancient Foundations",pos:true},{n:"Arcane Residue",pos:true},{n:"Flooded Tunnels",pos:false},{n:"Unstable Ground",pos:false}],                                                                                         best:["Aquatic","Undead"],                            hard:["Construct","Giant"]                           },
-    "Badlands":             { type:"Natural",  badge:"badge-natural",  desc:"Eroded rock formations and choking dust — defensible terrain if you can survive on what little the land provides.",                start:"+25 Stone · +10 Wood",             mods:[{n:"Exposed Rockface",pos:true},{n:"Defensive Terrain",pos:true},{n:"Barren Soil",pos:false},{n:"Inviting Target",pos:false}],                                                                                              best:["Monstrous","Goblinoid","Draconic"],            hard:["Aquatic","Flora","Fey"]                       },
-    "Underdark Depths":     { type:"D&D",      badge:"badge-dnd",      desc:"Far below any sunlit surface, in the realm of dark elves and stranger things. Rich beyond measure; strange beyond reckoning.",   start:"+45 Stone · +15 Food (fungi)",     mods:[{n:"Mineral Deposits",pos:true},{n:"Fungal Bloom",pos:true},{n:"Cavern Network",pos:true},{n:"Underground Access",pos:true},{n:"Perpetual Darkness",pos:false}],                                                             best:["Aberration","Goblinoid","Ooze"],               hard:["Giant","Humanoid","Fey"]                      },
-    "Ancient Battlefield":  { type:"D&D",      badge:"badge-dnd",      desc:"The ground still remembers the war. Bones outnumber stones; residual magic pools in craters and corroded armor.",                start:"+20 Food · +20 Wood · +20 Stone",  mods:[{n:"Battleground Residue",pos:true},{n:"Ancient Foundations",pos:true},{n:"Contested Territory",pos:false},{n:"Natural Predators",pos:false}],                                                                               best:["Undead","Monstrous","Humanoid"],               hard:["Fey","Flora"]                                 },
-    "Haunted Moor":         { type:"D&D",      badge:"badge-dnd",      desc:"Fog rolls in with the dead. The moor is alive with restless spirits and the slow surrender of all living things.",                start:"+20 Food · +15 Stone",             mods:[{n:"Arcane Residue",pos:true},{n:"Disease Vectors",pos:false},{n:"Cursed Ground",pos:false},{n:"Natural Predators",pos:false},{n:"Plague Risk",pos:false}],                                                                   best:["Undead","Fiend"],                              hard:["Fey","Flora","Construct"]                     },
-    "Abyssal Rift":         { type:"D&D",      badge:"badge-dnd",      desc:"A crack in the mortal plane bleeds Abyss energy constantly. Demons trickle through; power flows in both directions.",            start:"+30 Stone",                        mods:[{n:"Planar Tear",pos:true},{n:"Forbidden Lore",pos:true},{n:"Toxic Atmosphere",pos:false},{n:"Planar Pressure",pos:false},{n:"Unstable Plane",pos:false}],                                                                   best:["Fiend","Aberration"],                          hard:["Humanoid","Fey","Flora","Construct"]           },
-    "Dragonspine Ridge":    { type:"D&D",      badge:"badge-dnd",      desc:"Scorched peaks where ancient dragons once nested. Their power lingers in the stone and sky in equal measure.",                    start:"+35 Stone · +15 Food",             mods:[{n:"Rich Ore Veins",pos:true},{n:"Fearsome Reputation",pos:true},{n:"Warlord's Domain",pos:true},{n:"Oppressive Heat",pos:false}],                                                                                          best:["Draconic","Monstrous"],                        hard:["Aquatic","Flora","Fey"]                       },
-    "Giant's Graveyard":    { type:"D&D",      badge:"badge-dnd",      desc:"Colossal bones provide shelter and raw material; the lingering power of titans seeps into your dungeon's foundations.",           start:"+60 Stone",                        mods:[{n:"Mineral Deposits",pos:true},{n:"Solid Foundation",pos:true},{n:"Ancestral Home",pos:true},{n:"Pack Mentality",pos:true}],                                                                                               best:["Giant","Construct"],                           hard:["Fey","Aquatic","Flora"]                       },
-    "Shadowfell Crossing":  { type:"Magical",  badge:"badge-magical",  desc:"The boundary between worlds is paper-thin. The dead walk freely, the light never fully arrives, and dark knowledge seeps through.",start:"+10 Food · +10 Wood · +10 Stone",  mods:[{n:"Arcane Residue",pos:true},{n:"Forbidden Lore",pos:true},{n:"Planar Alignment",pos:true},{n:"Perpetual Darkness",pos:false},{n:"Cursed Ground",pos:false}],                                                               best:["Undead","Fiend"],                              hard:["Fey","Humanoid","Flora"]                      },
-    "Feywild Glade":        { type:"Magical",  badge:"badge-magical",  desc:"The Feywild bleeds through in flashes of impossible color. Time is unreliable; life explodes everywhere; magic is uncontrolled.", start:"+30 Food · +20 Wood",              mods:[{n:"Fertile Soil",pos:true},{n:"Warm Climate",pos:true},{n:"Rapid Breeding",pos:true},{n:"Wild Magic Zone",pos:false},{n:"Binding Contract",pos:false}],                                                                    best:["Fey","Flora"],                                 hard:["Undead","Fiend","Construct"]                  },
-    "Arcane Nexus":         { type:"Magical",  badge:"badge-magical",  desc:"Ley lines converge in a web of invisible power. Magic saturates the very stone; knowledge comes easily, caution less so.",        start:"+25 Food · +10 Stone",             mods:[{n:"Ley Line Nexus",pos:true},{n:"Arcane Amplification",pos:true},{n:"Resonant Ley Lines",pos:true},{n:"Wild Magic Zone",pos:false}],                                                                                       best:["Aberration","Construct","Humanoid"],           hard:["Goblinoid","Monstrous"]                       },
-    "Blighted Wastes":      { type:"Magical",  badge:"badge-magical",  desc:"A cursed land where life struggles and death triumphs. Dangerous for the living; a paradise for those beyond it.",                start:"+10 Stone",                        mods:[{n:"Forbidden Lore",pos:true},{n:"Barren Soil",pos:false},{n:"Cursed Ground",pos:false},{n:"Toxic Atmosphere",pos:false},{n:"Blighted Air",pos:false},{n:"Disease Vectors",pos:false}],                             best:["Undead","Fiend"],                              hard:["Flora","Fey","Humanoid","Aquatic"]             },
-    "Elemental Confluence": { type:"Magical",  badge:"badge-magical",  desc:"All four elements war constantly. Chaotic and powerful — nothing is predictable, everything is possible here.",                   start:"+20 Food · +20 Wood · +20 Stone",  mods:[{n:"Arcane Residue",pos:true},{n:"Abundant Prey",pos:true},{n:"Unstable Ground",pos:false},{n:"Geological Instability",pos:false},{n:"Wild Magic Zone",pos:false}],                                                          best:["Ooze/Elemental","Draconic","Aberration"],      hard:["Lycanthrope","Flora","Humanoid"]               },
-    "Celestial Foothold":   { type:"Magical",  badge:"badge-magical",  desc:"Where divine light once burned, creation flourishes. The easiest start — for those the land deems worthy. Darkness is repelled.", start:"+25 Food · +25 Wood",              mods:[{n:"Warm Climate",pos:true},{n:"Sacred Ground",pos:true},{n:"Blessed Ground",pos:true},{n:"Hidden Refuge",pos:true},{n:"Unyielding",pos:true}],                                                                         best:["Humanoid","Fey","Flora"],                      hard:["Undead","Fiend","Aberration"]                 },
+    "Verdant Forest":       { type:"Natural",  badge:"badge-natural",  desc:"Dense canopy conceals your dungeon amid ancient trees. Food and wood are plentiful, but predators stalk the undergrowth.",        start:"+30 Wood · +20 Food",              mods:[{name:"Fertile Soil",pos:true},{name:"Ancient Grove",pos:true},{name:"Abundant Wildlife",pos:true},{name:"Natural Predators",pos:false}],                                                                                                              best:["Lycanthrope","Flora","Goblinoid"],             hard:["Aquatic","Fiend"]                             },
+    "Mountain Stronghold":  { type:"Natural",  badge:"badge-natural",  desc:"Rocky heights above the treeline; your dungeon is hewn from the mountain itself. Stone is everywhere; warmth is not.",            start:"+40 Stone · +15 Wood",             mods:[{name:"Rich Ore Veins",pos:true},{name:"Exposed Rockface",pos:true},{name:"Solid Foundation",pos:true},{name:"Harsh Winters",pos:false}],                                                                                                         best:["Giant","Draconic","Monstrous"],                hard:["Aquatic","Flora"]                             },
+    "Coastal Bluffs":       { type:"Natural",  badge:"badge-natural",  desc:"Sea-carved cliffs hold your dungeon above crashing waves. Fish and game are plentiful, but sea raiders take notice.",              start:"+25 Food · +20 Stone",             mods:[{name:"Abundant Wildlife",pos:true},{name:"Fertile Soil",pos:true},{name:"Contested Territory",pos:false}],                                                                                                                                  best:["Aquatic","Humanoid"],                          hard:["Undead","Fiend"]                              },
+    "Desert Wastes":        { type:"Natural",  badge:"badge-natural",  desc:"Blazing sun and endless sand hide mineral wealth beneath. Survival is the first and constant challenge of this biome.",            start:"+30 Stone",                        mods:[{name:"Rich Ore Veins",pos:true},{name:"Barren Soil",pos:false},{name:"Salt Flats",pos:false},{name:"Oppressive Heat",pos:false}],                                                                                                      best:["Draconic","Monstrous"],                        hard:["Aquatic","Flora","Fey"]                       },
+    "Frozen Tundra":        { type:"Natural",  badge:"badge-natural",  desc:"Permafrost and silence; the cold kills slowly and the ground gives nothing. Only the strongest survive here.",                     start:"+10 Wood",                         mods:[{name:"Isolation Instinct",pos:true},{name:"Harsh Winters",pos:false},{name:"Barren Soil",pos:false},{name:"Crushing Cold",pos:false},{name:"Harsh Survival",pos:false}],                                                               best:["Giant (Frost)","Undead"],                      hard:["Draconic","Flora","Aquatic"]                  },
+    "Fetid Swamp":          { type:"Natural",  badge:"badge-natural",  desc:"Dark water and tangled roots; disease festers here, but life erupts from the decay. Many things call this home.",                  start:"+20 Food",                         mods:[{name:"Abundant Wildlife",pos:true},{name:"Flooded Tunnels",pos:true},{name:"Infested Land",pos:false},{name:"Disease Vectors",pos:false}],                                                                                              best:["Aquatic","Flora","Ooze"],                      hard:["Construct","Giant"]                           },
+    "Rolling Grasslands":   { type:"Natural",  badge:"badge-natural",  desc:"Open plains stretch to the horizon; your dungeon hides in a hillside. Easy expansion, obvious target.",                           start:"+30 Food · +15 Wood",              mods:[{name:"Fertile Soil",pos:true},{name:"Warm Climate",pos:true},{name:"Contested Territory",pos:false},{name:"Inviting Target",pos:false}],                                                                                                   best:["Humanoid","Lycanthrope","Giant"],              hard:["Aquatic","Aberration"]                        },
+    "Volcanic Caldera":     { type:"Natural",  badge:"badge-natural",  desc:"Heat, ash, and the smell of sulfur. The earth bleeds stone and opportunity; structural stability is not guaranteed.",              start:"+50 Stone",                        mods:[{name:"Rich Ore Veins",pos:true},{name:"Volcanic Ash",pos:true},{name:"Oppressive Heat",pos:false},{name:"Unstable Ground",pos:false}],                                                                                               best:["Draconic","Fiend","Construct"],                hard:["Aquatic","Flora","Fey"]                       },
+    "Deep Caverns":         { type:"Natural",  badge:"badge-natural",  desc:"A natural underground network; your dungeon expands into pre-existing tunnels. Darkness is the price of depth.",                  start:"+40 Stone · 1 Free Lair",          mods:[{name:"Cavern Network",pos:true},{name:"Mineral Deposits",pos:true},{name:"Underground Access",pos:true},{name:"Perpetual Darkness",pos:false}],                                                                                          best:["Goblinoid","Aberration","Ooze"],               hard:["Fey","Giant"]                                 },
+    "Jungle Canopy":        { type:"Natural",  badge:"badge-natural",  desc:"Stifling heat and impossible density; food is everywhere, and so are things that want to eat you.",                               start:"+40 Food · +20 Wood",              mods:[{name:"Fertile Soil",pos:true},{name:"Ancient Grove",pos:true},{name:"Abundant Wildlife",pos:true},{name:"Disease Vectors",pos:false},{name:"Hostile Flora",pos:false}],                                                                   best:["Flora","Fey","Humanoid"],                      hard:["Undead","Giant","Construct"]                  },
+    "Arctic Glacier":       { type:"Natural",  badge:"badge-natural",  desc:"A frozen expanse carved by time. Isolation is both your shield and your prison; the cold never relents.",                         start:"+20 Stone",                        mods:[{name:"Isolation Instinct",pos:true},{name:"Hidden Refuge",pos:true},{name:"Harsh Winters",pos:false},{name:"Barren Soil",pos:false},{name:"Crushing Cold",pos:false}],                                                                    best:["Giant (Frost)"],                               hard:["Draconic","Flora","Fey","Aquatic"]             },
+    "Sunken Ruins":         { type:"Natural",  badge:"badge-natural",  desc:"A half-drowned ancient civilization; your dungeon inhabits crumbling walls ankle-deep in water and mystery.",                     start:"+30 Food · 1 Free Storage",        mods:[{name:"Ancient Foundations",pos:true},{name:"Arcane Residue",pos:true},{name:"Flooded Tunnels",pos:false},{name:"Unstable Ground",pos:false}],                                                                                         best:["Aquatic","Undead"],                            hard:["Construct","Giant"]                           },
+    "Badlands":             { type:"Natural",  badge:"badge-natural",  desc:"Eroded rock formations and choking dust — defensible terrain if you can survive on what little the land provides.",                start:"+25 Stone · +10 Wood",             mods:[{name:"Exposed Rockface",pos:true},{name:"Defensive Terrain",pos:true},{name:"Barren Soil",pos:false},{name:"Inviting Target",pos:false}],                                                                                              best:["Monstrous","Goblinoid","Draconic"],            hard:["Aquatic","Flora","Fey"]                       },
+    "Underdark Depths":     { type:"D&D",      badge:"badge-dnd",      desc:"Far below any sunlit surface, in the realm of dark elves and stranger things. Rich beyond measure; strange beyond reckoning.",   start:"+45 Stone · +15 Food (fungi)",     mods:[{name:"Mineral Deposits",pos:true},{name:"Fungal Bloom",pos:true},{name:"Cavern Network",pos:true},{name:"Underground Access",pos:true},{name:"Perpetual Darkness",pos:false}],                                                             best:["Aberration","Goblinoid","Ooze"],               hard:["Giant","Humanoid","Fey"]                      },
+    "Ancient Battlefield":  { type:"D&D",      badge:"badge-dnd",      desc:"The ground still remembers the war. Bones outnumber stones; residual magic pools in craters and corroded armor.",                start:"+20 Food · +20 Wood · +20 Stone",  mods:[{name:"Battleground Residue",pos:true},{name:"Ancient Foundations",pos:true},{name:"Contested Territory",pos:false},{name:"Natural Predators",pos:false}],                                                                               best:["Undead","Monstrous","Humanoid"],               hard:["Fey","Flora"]                                 },
+    "Haunted Moor":         { type:"D&D",      badge:"badge-dnd",      desc:"Fog rolls in with the dead. The moor is alive with restless spirits and the slow surrender of all living things.",                start:"+20 Food · +15 Stone",             mods:[{name:"Arcane Residue",pos:true},{name:"Disease Vectors",pos:false},{name:"Cursed Ground",pos:false},{name:"Natural Predators",pos:false},{name:"Plague Risk",pos:false}],                                                                   best:["Undead","Fiend"],                              hard:["Fey","Flora","Construct"]                     },
+    "Abyssal Rift":         { type:"D&D",      badge:"badge-dnd",      desc:"A crack in the mortal plane bleeds Abyss energy constantly. Demons trickle through; power flows in both directions.",            start:"+30 Stone",                        mods:[{name:"Planar Tear",pos:true},{name:"Forbidden Lore",pos:true},{name:"Toxic Atmosphere",pos:false},{name:"Planar Pressure",pos:false},{name:"Unstable Plane",pos:false}],                                                                   best:["Fiend","Aberration"],                          hard:["Humanoid","Fey","Flora","Construct"]           },
+    "Dragonspine Ridge":    { type:"D&D",      badge:"badge-dnd",      desc:"Scorched peaks where ancient dragons once nested. Their power lingers in the stone and sky in equal measure.",                    start:"+35 Stone · +15 Food",             mods:[{name:"Rich Ore Veins",pos:true},{name:"Fearsome Reputation",pos:true},{name:"Warlord's Domain",pos:true},{name:"Oppressive Heat",pos:false}],                                                                                          best:["Draconic","Monstrous"],                        hard:["Aquatic","Flora","Fey"]                       },
+    "Giant's Graveyard":    { type:"D&D",      badge:"badge-dnd",      desc:"Colossal bones provide shelter and raw material; the lingering power of titans seeps into your dungeon's foundations.",           start:"+60 Stone",                        mods:[{name:"Mineral Deposits",pos:true},{name:"Solid Foundation",pos:true},{name:"Ancestral Home",pos:true},{name:"Pack Mentality",pos:true}],                                                                                               best:["Giant","Construct"],                           hard:["Fey","Aquatic","Flora"]                       },
+    "Shadowfell Crossing":  { type:"Magical",  badge:"badge-magical",  desc:"The boundary between worlds is paper-thin. The dead walk freely, the light never fully arrives, and dark knowledge seeps through.",start:"+10 Food · +10 Wood · +10 Stone",  mods:[{name:"Arcane Residue",pos:true},{name:"Forbidden Lore",pos:true},{name:"Planar Alignment",pos:true},{name:"Perpetual Darkness",pos:false},{name:"Cursed Ground",pos:false}],                                                               best:["Undead","Fiend"],                              hard:["Fey","Humanoid","Flora"]                      },
+    "Feywild Glade":        { type:"Magical",  badge:"badge-magical",  desc:"The Feywild bleeds through in flashes of impossible color. Time is unreliable; life explodes everywhere; magic is uncontrolled.", start:"+30 Food · +20 Wood",              mods:[{name:"Fertile Soil",pos:true},{name:"Warm Climate",pos:true},{name:"Rapid Breeding",pos:true},{name:"Wild Magic Zone",pos:false},{name:"Binding Contract",pos:false}],                                                                    best:["Fey","Flora"],                                 hard:["Undead","Fiend","Construct"]                  },
+    "Arcane Nexus":         { type:"Magical",  badge:"badge-magical",  desc:"Ley lines converge in a web of invisible power. Magic saturates the very stone; knowledge comes easily, caution less so.",        start:"+25 Food · +10 Stone",             mods:[{name:"Ley Line Nexus",pos:true},{name:"Arcane Amplification",pos:true},{name:"Resonant Ley Lines",pos:true},{name:"Wild Magic Zone",pos:false}],                                                                                       best:["Aberration","Construct","Humanoid"],           hard:["Goblinoid","Monstrous"]                       },
+    "Blighted Wastes":      { type:"Magical",  badge:"badge-magical",  desc:"A cursed land where life struggles and death triumphs. Dangerous for the living; a paradise for those beyond it.",                start:"+10 Stone",                        mods:[{name:"Forbidden Lore",pos:true},{name:"Barren Soil",pos:false},{name:"Cursed Ground",pos:false},{name:"Toxic Atmosphere",pos:false},{name:"Blighted Air",pos:false},{name:"Disease Vectors",pos:false}],                             best:["Undead","Fiend"],                              hard:["Flora","Fey","Humanoid","Aquatic"]             },
+    "Elemental Confluence": { type:"Magical",  badge:"badge-magical",  desc:"All four elements war constantly. Chaotic and powerful — nothing is predictable, everything is possible here.",                   start:"+20 Food · +20 Wood · +20 Stone",  mods:[{name:"Arcane Residue",pos:true},{name:"Abundant Prey",pos:true},{name:"Unstable Ground",pos:false},{name:"Geological Instability",pos:false},{name:"Wild Magic Zone",pos:false}],                                                          best:["Ooze/Elemental","Draconic","Aberration"],      hard:["Lycanthrope","Flora","Humanoid"]               },
+    "Celestial Foothold":   { type:"Magical",  badge:"badge-magical",  desc:"Where divine light once burned, creation flourishes. The easiest start — for those the land deems worthy. Darkness is repelled.", start:"+25 Food · +25 Wood",              mods:[{name:"Warm Climate",pos:true},{name:"Sacred Ground",pos:true},{name:"Blessed Ground",pos:true},{name:"Hidden Refuge",pos:true},{name:"Unyielding",pos:true}],                                                                         best:["Humanoid","Fey","Flora"],                      hard:["Undead","Fiend","Aberration"]                 },
+};
+
+// First-run curated mods — all beneficial, no surprises for new players
+const STARTER_MODS = [
+    { name: "Fertile Soil",      pos: true },
+    { name: "Ancient Grove",     pos: true },
+    { name: "Abundant Wildlife", pos: true },
+    { name: "Warm Climate",      pos: true },
+];
+
+// Extra mod pool drawn on prestige runs to add 1-2 wildcard mods on top of the biome's own mods
+const EXTRA_MOD_POOL = {
+    positive: [
+        "Fertile Soil", "Ancient Grove", "Rich Ore Veins", "Abundant Wildlife",
+        "Warm Climate", "Abundant Prey", "Communal Living", "Pack Mentality",
+        "Starvation Resilience", "Elder's Blessing", "Hidden Cache",
+        "Rapid Breeding", "Migratory Patterns", "Slow Burn",
+        "Solid Foundation", "Territorial Instincts",
+    ],
+    negative: [
+        "Harsh Winters", "Disease Vectors", "Oppressive Heat", "Crushing Cold",
+        "Barren Soil", "Infested Land", "Poor Infrastructure", "Overcrowding Risk",
+        "Contested Territory", "Inviting Target", "Harsh Survival",
+        "Accelerated Decay", "Structural Weakness",
+    ],
 };
 
 const gameState = {
     resources:  { food: 0, wood: 0, stone: 0 },
     buildings:  { lair: 0, farm: 0, lumber: 0, quarry: 0, storage: 0 },
     population: { count: 0, growthTimer: 0, starveTick: 0 },
-    run:        { biome: "Verdant Forest", race: null },
+    run:        { biome: null, race: null, mods: [] },
+    meta:       { seenBiomes: [] },
     time:       { tick: 0, day: 1, year: 1, seasonIndex: 0 },
     stats: {
         peakPopulation:       0,
@@ -518,6 +544,100 @@ function devWipeResources() {
     saveGame();
 }
 
+function devShowBiomeInfo() {
+    const el = document.getElementById("dev-biome-info");
+    if (!el) return;
+    const r = gameState.run;
+    const seen = gameState.meta.seenBiomes;
+    const modList = (r.mods || []).map(m => (m.pos ? "+" : "−") + m.name).join(", ") || "(none)";
+    el.innerHTML = `
+        <b>Biome:</b> ${r.biome || "—"}<br>
+        <b>Race:</b> ${r.race || "Unselected"}<br>
+        <b>Run Mods (${(r.mods||[]).length}):</b> ${modList}<br>
+        <b>Seen Biomes (${seen.length}/25):</b> ${seen.join(", ") || "(none)"}
+    `;
+}
+
+// ── Biome Selection ───────────────────────────────────────────────────────────
+
+function shuffle(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+}
+
+function selectStartBiome(isFirstRun) {
+    if (isFirstRun) {
+        gameState.run.biome = "Verdant Forest";
+        gameState.run.mods  = [...STARTER_MODS];
+        if (!gameState.meta.seenBiomes.includes("Verdant Forest")) {
+            gameState.meta.seenBiomes.push("Verdant Forest");
+        }
+        return;
+    }
+
+    // Weighted random: unseen biomes get 3× weight
+    const biomeNames = Object.keys(BIOME_DATA);
+    const seen = new Set(gameState.meta.seenBiomes);
+    const pool = [];
+    for (const name of biomeNames) {
+        const weight = seen.has(name) ? 1 : 3;
+        for (let i = 0; i < weight; i++) pool.push(name);
+    }
+    const selected = pool[Math.floor(Math.random() * pool.length)];
+    gameState.run.biome = selected;
+    if (!seen.has(selected)) gameState.meta.seenBiomes.push(selected);
+
+    // Build mod list: biome's own mods + 1-2 wildcard extras
+    const biome = BIOME_DATA[selected];
+    const mods  = biome.mods.map(m => ({ name: m.name, pos: m.pos }));
+    const usedNames = new Set(mods.map(m => m.name));
+
+    const posAvailable = EXTRA_MOD_POOL.positive.filter(n => !usedNames.has(n));
+    const negAvailable = EXTRA_MOD_POOL.negative.filter(n => !usedNames.has(n));
+
+    shuffle(posAvailable);
+    shuffle(negAvailable);
+
+    // Draw 1-2 extras: each draw is 65% positive, 35% negative
+    const extraCount = 1 + Math.floor(Math.random() * 2);
+    for (let i = 0; i < extraCount; i++) {
+        const drawPos = Math.random() < 0.65;
+        if (drawPos && posAvailable.length > 0) {
+            mods.push({ name: posAvailable.shift(), pos: true });
+        } else if (negAvailable.length > 0) {
+            mods.push({ name: negAvailable.shift(), pos: false });
+        } else if (posAvailable.length > 0) {
+            mods.push({ name: posAvailable.shift(), pos: true });
+        }
+    }
+
+    gameState.run.mods = mods;
+}
+
+// Called when player prestiges — resets run state, keeps meta progression
+function doPrestige() {
+    const savedMeta = JSON.parse(JSON.stringify(gameState.meta));
+
+    gameState.resources  = { food: 0, wood: 0, stone: 0 };
+    gameState.buildings  = { lair: 0, farm: 0, lumber: 0, quarry: 0, storage: 0 };
+    gameState.population = { count: 0, growthTimer: 0, starveTick: 0 };
+    gameState.time       = { tick: 0, day: 1, year: 1, seasonIndex: 0 };
+    gameState.stats      = {
+        peakPopulation: 0, buildingsConstructed: 0, manualGathers: 0,
+        starvationDeaths: 0, foodProduced: 0, woodProduced: 0, stoneProduced: 0,
+    };
+    gameState.run  = { biome: null, race: null, mods: [] };
+    gameState.meta = savedMeta;
+
+    selectStartBiome(false);
+    saveGame();
+    updateUI();
+    updateIdentityPanel();
+}
+
 // ── Dungeon Identity Panel ────────────────────────────────────────────────────
 
 function updateIdentityPanel() {
@@ -554,15 +674,17 @@ function updateIdentityPanel() {
     let html = "";
 
     if (biome) {
-        const modsHtml = biome.mods.map(m =>
-            `<span class="biome-mod ${m.pos ? "mod-pos" : "mod-neg"}">${m.n}</span>`
-        ).join("");
+        // Use the run's actual assigned mods, not the biome's static defaults
+        const runMods  = gameState.run.mods;
+        const modsHtml = runMods.length > 0
+            ? runMods.map(m => `<span class="biome-mod ${m.pos ? "mod-pos" : "mod-neg"}">${m.name}</span>`).join("")
+            : `<span style="color:var(--text-muted);font-size:11px">None assigned</span>`;
 
         html += `
             <div class="di-tt-name">${biomeName}<span class="di-badge ${biome.badge}">${biome.type}</span></div>
             <p class="di-tt-desc">${biome.desc}</p>
             <div class="di-tt-start">Start: ${biome.start}</div>
-            <div class="di-tt-section">Modifiers</div>
+            <div class="di-tt-section">Active Run Modifiers</div>
             <div class="di-tt-mods">${modsHtml}</div>
             <div class="di-tt-section">Creature Affinity</div>
             <div class="di-tt-affinity">
@@ -595,6 +717,10 @@ function switchTab(tabId) {
 
 loadSettings();
 loadGame();
+// Assign biome on first load (fresh game or old save with no mods yet)
+if (!gameState.run.mods || gameState.run.mods.length === 0) {
+    selectStartBiome(gameState.meta.seenBiomes.length === 0);
+}
 updateUI();
 updateIdentityPanel();
 setInterval(tick, 1000);

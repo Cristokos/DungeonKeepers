@@ -8,7 +8,7 @@
 
 <body>
 
-<div class="version">v0.20</div>
+<div class="version">v0.21</div>
 
 <div class="statusbar">
     <div class="status-center">
@@ -1243,7 +1243,7 @@
 
             <h2 class="section-gap">About</h2>
             <p class="info-text">
-                Dungeon Keeper v0.20 — You are the keeper of a fledgling dungeon. Gather
+                Dungeon Keeper v0.21 — You are the keeper of a fledgling dungeon. Gather
                 resources, house creatures, and expand your underground empire. Keep your
                 creatures fed or watch them desert you — or worse.
             </p>
@@ -1336,6 +1336,15 @@
                     <button class="dev-btn" onclick="devAddOneEach()">+1 Each</button>
                     <button class="dev-btn" onclick="devMaxAll()">+10 All Buildings</button>
                 </div>
+            </div>
+
+            <div class="dev-section">
+                <h3>Prestige</h3>
+                <div class="dev-grid">
+                    <button class="dev-btn" onclick="doPrestige()">Simulate Prestige</button>
+                    <button class="dev-btn" onclick="devShowBiomeInfo()">Log Biome State</button>
+                </div>
+                <div id="dev-biome-info" style="margin-top:8px;font-size:11px;color:var(--text-muted);line-height:1.6"></div>
             </div>
 
             <div class="dev-section">
