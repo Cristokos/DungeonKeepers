@@ -8,7 +8,7 @@
 
 <body>
 
-<div class="version">v0.19</div>
+<div class="version">v0.20</div>
 
 <div class="statusbar">
     <div class="status-center">
@@ -20,7 +20,22 @@
 
 <div class="layout">
 
-    <!-- LEFT: Population + Resources -->
+    <!-- LEFT COLUMN: Identity + Population + Resources -->
+    <div class="left-col">
+
+    <div class="dungeon-identity">
+        <div class="di-row">
+            <span class="di-label">Biome</span>
+            <span id="di-biome-name" class="di-value">—</span>
+            <span id="di-biome-badge" class="di-badge badge-none"></span>
+        </div>
+        <div class="di-row">
+            <span class="di-label">Race</span>
+            <span id="di-race-name" class="di-value di-unset">Unselected</span>
+        </div>
+        <div class="di-tooltip" id="di-tooltip"></div>
+    </div>
+
     <div class="panel left">
 
         <h2>Population</h2>
@@ -66,7 +81,9 @@
             </span>
         </div>
 
-    </div>
+    </div><!-- /panel.left -->
+
+    </div><!-- /left-col -->
 
     <!-- CENTER: Tabbed content -->
     <div class="panel center">
@@ -1226,7 +1243,7 @@
 
             <h2 class="section-gap">About</h2>
             <p class="info-text">
-                Dungeon Keeper v0.19 — You are the keeper of a fledgling dungeon. Gather
+                Dungeon Keeper v0.20 — You are the keeper of a fledgling dungeon. Gather
                 resources, house creatures, and expand your underground empire. Keep your
                 creatures fed or watch them desert you — or worse.
             </p>
