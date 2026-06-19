@@ -110,7 +110,7 @@ html, body {
     min-width: 240px;
     background: var(--bg-panel);
     border-right: 1px solid var(--border);
-    overflow: hidden;
+    overflow: visible;
 }
 
 .left {
