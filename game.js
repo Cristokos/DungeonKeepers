@@ -61,6 +61,121 @@ const EXTRA_MOD_POOL = {
     ],
 };
 
+// ── Modifier descriptions (for tooltip) ───────────────────────────────────────
+const MOD_DESCRIPTIONS = {
+    // Resource Production
+    "Fertile Soil":           "Food production from all farms +20%.",
+    "Ancient Grove":          "Wood production from all lumber camps +25%.",
+    "Rich Ore Veins":         "Stone production from all quarries +30%.",
+    "Underground Springs":    "Food storage cap +50.",
+    "Cavern Network":         "Begin run with 1 free Lair already constructed.",
+    "Abundant Wildlife":      "Manual food gather (Scavenge Food) yields +2 instead of +1.",
+    "Dense Timber":           "Manual wood gather (Fell a Tree) yields +2 instead of +1.",
+    "Exposed Rockface":       "Manual stone gather (Break Stones) yields +2 instead of +1.",
+    "Mineral Deposits":       "All resource storage caps +50.",
+    "Infested Land":          "Farm food production −25% (insects and vermin consume crops).",
+    "Barren Soil":            "All food production −30%.",
+    "Petrified Forest":       "Wood production −20%; stone production +15% (trees turned to stone).",
+    "Resource Scarcity":      "All resource storage caps −25.",
+    "Hidden Cache":           "Begin run with +50 food, +25 wood, +25 stone.",
+    "Flooded Tunnels":        "Stone production −15%; food production +10% (water access).",
+    "Volcanic Ash":           "Food production +15% (fertile ash soil); stone production −10%.",
+    "Salt Flats":             "Food production −20%; stone production +20%.",
+    "Fungal Bloom":           "Food production +10% but food cap −25 (mushroom farms, not scalable).",
+    "Glacial Melt":           "Food cap +75 (abundant water access supports larger crop stores).",
+    "Bountiful Harvest":      "Every season change grants +50 food bonus.",
+    // Population
+    "Warm Climate":           "Population growth rate +20%.",
+    "Harsh Winters":          "Population growth rate −15%.",
+    "Disease Vectors":        "Starvation threshold triggers 1 tick earlier than normal.",
+    "Communal Living":        "Each Lair provides +1 extra housing capacity.",
+    "Isolation Instinct":     "Population cap −10% but random negative events disabled.",
+    "Natural Predators":      "Each season: 10% chance 1–2 creatures lost to predation.",
+    "Harsh Survival":         "Growth rate −25%; maximum population cap +20%.",
+    "Abundant Prey":          "Creature food consumption −15% per tick.",
+    "Migratory Patterns":     "Begin run with 3 extra starting population.",
+    "Cursed Ground":          "Population growth −20%; starvation death timer triggers 1 tick sooner.",
+    "Ancestral Home":         "Matching creature type: growth rate +25%.",
+    "Foreign Territory":      "Non-native creature types: growth rate −10%.",
+    "Symbiotic Ecosystem":    "Population growth requires 1 fewer food surplus than normal.",
+    "Overcrowding Risk":      "After population reaches 20, growth rate reduced by −10%.",
+    "Pack Mentality":         "All workers produce +10% more per tick.",
+    "Territorial Instincts":  "Each Lair provides 6 housing instead of the normal 5.",
+    "Plague Risk":            "Every 30 days: 5% chance of a −10% population loss event.",
+    "Elder's Blessing":       "First 5 population require no food (they forage independently).",
+    "Starvation Resilience":  "Death timer before first starvation death extended by +3 ticks.",
+    "Rapid Breeding":         "Population growth timer reduced by 5 ticks (faster natural growth).",
+    // Buildings
+    "Solid Foundation":       "All building wood costs −10%.",
+    "Abundant Stone":         "All building stone costs −20%.",
+    "Poor Infrastructure":    "All building costs +15%.",
+    "Dungeon Resonance":      "Lair buildings cost −25% wood.",
+    "Arcane Amplification":   "Unlock: Mage Tower building (research speed bonus).",
+    "Sacred Ground":          "Unlock: Shrine of the Keeper building (population growth bonus).",
+    "Defensive Terrain":      "Unlock: Watch Post building (raid defense bonus).",
+    "Underground Access":     "Unlock: Mine Shaft building (stone/ore production bonus).",
+    "Planar Tear":            "Unlock: Portal Chamber building (cross-planar resource access).",
+    "Ancient Foundations":    "Begin run with 1 free Storage building already constructed.",
+    "Creaking Timbers":       "Wood buildings degrade: −5% production every 10 days.",
+    "Resonant Ley Lines":     "Research buildings produce +20% faster.",
+    "Unstable Ground":        "5% chance each building construction costs double resources.",
+    "Builder's Bounty":       "Every 5th building constructed: cost fully refunded.",
+    "Structural Weakness":    "All production buildings have −1 effective job slot (minimum 1).",
+    // Combat & Defense
+    "Contested Territory":    "Random raid events occur every ~20 days.",
+    "Defended Perimeter":     "Raid event frequency reduced by 50%.",
+    "Monster Crossroads":     "Neutral monsters pass nearby; occasional opportunity to recruit one.",
+    "Warlord's Domain":       "Begin run with 2 extra population pre-assigned as combat defenders.",
+    "Inviting Target":        "Raid event frequency +30%.",
+    "Hidden Refuge":          "Raids never occur in this biome.",
+    "Battleground Residue":   "Random free resource drops after each successful raid defense.",
+    "Fearsome Reputation":    "After 5 successful defenses, all raids permanently cease.",
+    "Fortified Terrain":      "Incoming raid damage reduced −15%.",
+    "Desecrated Altar":       "Once per run: sacrifice 10 population to reset all raid cooldowns.",
+    // Magic & Research
+    "Ley Line Nexus":         "Research speed +25%.",
+    "Magic Deadzone":         "All magical upgrades cost +20% more research.",
+    "Arcane Residue":         "Begin run with 10 bonus research points.",
+    "Corrupted Knowledge":    "Each research has a 20% chance of a random side effect.",
+    "Prophecy Shard":         "Once per run: one research completes instantly.",
+    "Forbidden Lore":         "Unique dark research tree unlocked.",
+    "Eldritch Interference":  "Research speed −15%.",
+    "Blessed Ground":         "Divine research tree +25% speed.",
+    "Wild Magic Zone":        "10% chance each research grants a random bonus side effect.",
+    "Planewalker's Knowledge":"Cross-planar research tree unlocked.",
+    // Prestige & Meta
+    "First Conquest":         "Prestige currency reward +10%.",
+    "Cursed Loop":            "Prestige carry-over resources reduced by −5%.",
+    "Ancient Legacy":         "Begin each new post-prestige run with 1 random bonus relic.",
+    "Forgotten History":      "Prestige bonuses earned this run are +15% stronger.",
+    "Binding Contract":       "Cannot prestige until at least Day 200 of the run.",
+    "Accelerated Decay":      "All internal game timers run 10% faster (harder pacing).",
+    "Slow Burn":              "All internal game timers run 10% slower (easier pacing).",
+    "One With The Land":      "Prestige bonus includes a biome familiarity bonus on the next run.",
+    "Planar Alignment":       "Planar creature types receive +10% prestige bonus.",
+    "Unyielding":             "Starvation deaths do not count against prestige scoring.",
+    // Hazards / Hard Mode
+    "Oppressive Heat":        "All workers produce −10% per tick.",
+    "Crushing Cold":          "Creature food consumption +15% per tick.",
+    "Perpetual Darkness":     "Growth rate −10%; undead and shadow creatures are unaffected.",
+    "Mana Drain":             "All magic-based actions cost double.",
+    "Unstable Plane":         "Random resource loss: 5–10 resources lost daily to planar instability.",
+    "Hostile Flora":          "Farm food output −20% (plants actively resist cultivation).",
+    "Toxic Atmosphere":       "Maximum population cap −15%.",
+    "Geological Instability": "Every 10 days: 10% chance a random building loses full output for 1 day.",
+    "Planar Pressure":        "Non-native creature types suffer −15% to all production.",
+    "The Doom Clock":         "Milestone timer: fail to reach population 10 by Day 60 → lose 25% of all resources.",
+    "Temporal Flux":          "Seasons are unpredictable; seasonal bonuses occur at random intervals.",
+    "Blighted Air":           "All resource storage caps −20%.",
+    "Cursed Tools":           "All manual gather actions yield −1 resource (minimum 1).",
+    "Soul Tax":               "Every 10 days: lose 1 population to the land (unavoidable).",
+    "The Undying Curse":      "Creatures that die to starvation return as hostile undead.",
+};
+
+// ── Race data (populated when Era 1 race selection is implemented) ─────────────
+// Each entry: { tag: CSS class, tagLabel: display string, desc: string, mods: [{name, pos}] }
+const RACE_DATA = {};
+
 const gameState = {
     resources:  { food: 0, wood: 0, stone: 0 },
     buildings:  { lair: 0, farm: 0, lumber: 0, quarry: 0, storage: 0 },
@@ -693,17 +808,26 @@ function updateIdentityPanel() {
 
     if (biome) {
         // Use the run's actual assigned mods, not the biome's static defaults
-        const runMods  = gameState.run.mods;
-        const modsHtml = runMods.length > 0
-            ? runMods.map(m => `<span class="biome-mod ${m.pos ? "mod-pos" : "mod-neg"}">${m.name}</span>`).join("")
-            : `<span style="color:var(--text-muted);font-size:11px">None assigned</span>`;
+        const runMods = gameState.run.mods;
+        let modsHtml;
+        if (runMods.length > 0) {
+            modsHtml = `<div class="di-tt-mod-list">` +
+                runMods.map(m => {
+                    const fx  = MOD_DESCRIPTIONS[m.name] || "Effect not yet documented.";
+                    const cls = m.pos ? "di-tt-mod-pos" : "di-tt-mod-neg";
+                    return `<div class="di-tt-mod-row"><span class="di-tt-mod-name ${cls}">${m.name}</span><span class="di-tt-mod-fx">${fx}</span></div>`;
+                }).join("") +
+                `</div>`;
+        } else {
+            modsHtml = `<span style="color:var(--text-muted);font-size:11px">None assigned</span>`;
+        }
 
         html += `
             <div class="di-tt-name">${biomeName}<span class="di-badge ${biome.badge}">${biome.type}</span></div>
             <p class="di-tt-desc">${biome.desc}</p>
             <div class="di-tt-start">Start: ${biome.start}</div>
             <div class="di-tt-section">Active Run Modifiers</div>
-            <div class="di-tt-mods">${modsHtml}</div>
+            ${modsHtml}
             <div class="di-tt-section">Creature Affinity</div>
             <div class="di-tt-affinity">
                 <span class="di-tt-affinity-best">▲ Best: ${biome.best.join(", ")}</span>
@@ -713,9 +837,26 @@ function updateIdentityPanel() {
         html += `<p class="di-tt-desc">No biome selected.</p>`;
     }
 
-    html += `<hr class="di-tt-divider">
-             <div class="di-tt-section">Race</div>
-             <div class="di-tt-race${raceName ? "" : " di-unset"}">${raceName || "Not yet selected — choose your race in Era 1."}</div>`;
+    html += `<hr class="di-tt-divider"><div class="di-tt-section">Race</div>`;
+
+    const raceData = RACE_DATA[raceName];
+    if (raceName && raceData) {
+        html += `<div class="di-tt-name">${raceName}${raceData.tag ? `<span class="creature-tag ${raceData.tag}">${raceData.tagLabel || ""}</span>` : ""}</div>
+                 <p class="di-tt-race-desc">${raceData.desc}</p>`;
+        if (raceData.mods && raceData.mods.length > 0) {
+            html += `<div class="di-tt-section">Race Traits</div><div class="di-tt-mod-list">` +
+                raceData.mods.map(m => {
+                    const fx  = MOD_DESCRIPTIONS[m.name] || "Effect not yet documented.";
+                    const cls = m.pos ? "di-tt-mod-pos" : "di-tt-mod-neg";
+                    return `<div class="di-tt-mod-row"><span class="di-tt-mod-name ${cls}">${m.name}</span><span class="di-tt-mod-fx">${fx}</span></div>`;
+                }).join("") +
+                `</div>`;
+        }
+    } else if (raceName) {
+        html += `<div class="di-tt-race">${raceName}</div>`;
+    } else {
+        html += `<div class="di-tt-race di-unset">Not yet selected — choose your race in Era 1.</div>`;
+    }
 
     tip.innerHTML = html;
 }
