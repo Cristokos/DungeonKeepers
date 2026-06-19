@@ -412,6 +412,7 @@ h3 {
     flex-direction: column;
     gap: 4px;
     margin: 10px 0 20px;
+    max-width: 560px;
 }
 
 .suit-tier {
@@ -424,7 +425,7 @@ h3 {
     font-size: 12px;
 }
 
-.suit-tier .suit-label { font-weight: bold; min-width: 90px; }
+.suit-tier .suit-label { font-weight: bold; min-width: 96px; }
 .suit-tier .suit-fx    { color: var(--text-muted); font-size: 11px; }
 
 .suit-excellent   .suit-label { color: #00e676; }
@@ -438,7 +439,6 @@ h3 {
 .suit-challenging { border-color: rgba(224,123,57,0.3);  background: rgba(224,123,57,0.05); }
 .suit-hostile     { border-color: rgba(200,64,64,0.3);   background: rgba(200,64,64,0.05); }
 
-/* Standalone suitability color classes (used in biome affinity chips + creature entries) */
 .suit-chip {
     font-size: 10px;
     padding: 1px 5px;
@@ -448,34 +448,61 @@ h3 {
 .suit-chip.suit-excellent { color: #00e676; border-color: rgba(0,230,118,0.4);  background: rgba(0,230,118,0.07); }
 .suit-chip.suit-hostile   { color: #c84040; border-color: rgba(200,64,64,0.4);  background: rgba(200,64,64,0.07); }
 
+/* Biome section labels (inside the biome list) */
+.biome-section-label {
+    font-size: 10px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    padding: 10px 4px 4px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 4px;
+}
+
+/* Single-column biome card list */
 .biome-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
     margin-bottom: 24px;
 }
 
 .biome-card {
     background: var(--bg-panel);
     border: 1px solid var(--border);
-    border-radius: 4px;
-    padding: 10px 12px;
+    border-left: 3px solid var(--border);
+    border-radius: 3px;
+    padding: 7px 10px;
     font-size: 12px;
+    position: relative;
 }
 
-.biome-card:hover { border-color: rgba(255,255,255,0.2); }
+.biome-card:hover { border-color: rgba(255,255,255,0.22); background: rgba(255,255,255,0.02); }
+
+/* Left border color by biome type */
+.biome-card:has(.biome-natural) { border-left-color: #7ab648; }
+.biome-card:has(.biome-dnd)     { border-left-color: #9b6dbe; }
+.biome-card:has(.biome-magical) { border-left-color: #e8c040; }
 
 .biome-header {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    margin-bottom: 5px;
+    gap: 8px;
+    margin-bottom: 2px;
 }
 
 .biome-name {
     font-weight: bold;
     font-size: 13px;
     color: var(--text);
+    flex: 1;
+}
+
+.biome-start {
+    color: var(--label);
+    font-size: 10px;
+    font-style: italic;
 }
 
 .biome-type {
@@ -483,9 +510,10 @@ h3 {
     font-weight: bold;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    padding: 2px 6px;
+    padding: 1px 5px;
     border-radius: 2px;
     border: 1px solid;
+    flex-shrink: 0;
 }
 
 .biome-natural { color: #7ab648; border-color: rgba(122,182,72,0.4);   background: rgba(122,182,72,0.08); }
@@ -494,22 +522,16 @@ h3 {
 
 .biome-desc {
     color: var(--text-muted);
-    font-size: 11px;
+    font-size: 10px;
     line-height: 1.4;
-    margin: 4px 0 8px;
-}
-
-.biome-start {
-    color: var(--label);
-    font-size: 11px;
-    margin-bottom: 6px;
+    margin: 2px 0 5px;
 }
 
 .biome-mods {
     display: flex;
     flex-wrap: wrap;
-    gap: 4px;
-    margin-bottom: 6px;
+    gap: 3px;
+    margin-bottom: 5px;
 }
 
 .biome-mod {
@@ -526,16 +548,16 @@ h3 {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 4px;
+    gap: 3px;
     font-size: 10px;
     border-top: 1px solid var(--border);
-    padding-top: 5px;
-    margin-top: 2px;
+    padding-top: 4px;
+    margin-top: 1px;
 }
 
 .biome-affinity-label {
     color: var(--text-muted);
-    margin-right: 2px;
+    font-size: 10px;
 }
 
 /* Modifier glossary */
@@ -546,9 +568,20 @@ h3 {
     margin-bottom: 20px;
 }
 
+.mod-section-header {
+    font-size: 10px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    padding: 10px 8px 4px;
+    border-bottom: 1px solid var(--border);
+    margin-top: 2px;
+}
+
 .mod-row {
     display: grid;
-    grid-template-columns: 28px 175px 65px 1fr;
+    grid-template-columns: 28px 170px 62px 1fr;
     align-items: baseline;
     gap: 8px;
     padding: 3px 8px;
@@ -556,7 +589,7 @@ h3 {
     border-radius: 2px;
 }
 
-.mod-row:nth-child(odd) { background: rgba(255,255,255,0.02); }
+.mod-row:nth-child(odd) { background: rgba(255,255,255,0.015); }
 .mod-row:hover { background: var(--bg-hover); }
 
 .mod-n    { color: var(--text-muted); font-size: 10px; text-align: right; }
@@ -580,14 +613,17 @@ h3 {
 
 .mod-fx { color: var(--text-muted); font-size: 11px; }
 
-/* Creature biome preference (4th column in creature entries) */
+/* Creature biome preference — row 2 of creature-entry grid */
 .creature-biome {
+    grid-column: 2 / 4;
+    grid-row: 2;
     display: flex;
-    flex-direction: column;
-    gap: 2px;
-    justify-content: center;
+    flex-direction: row;
+    gap: 18px;
     font-size: 10px;
-    line-height: 1.3;
+    line-height: 1.4;
+    padding-top: 3px;
+    border-top: 1px solid rgba(255,255,255,0.05);
 }
 
 .biome-best         { color: #7ab648; }
@@ -616,20 +652,54 @@ h3 {
 
 .creature-entry {
     display: grid;
-    grid-template-columns: 90px 160px 1fr 145px;
-    align-items: center;
-    gap: 10px;
-    padding: 5px 8px;
+    grid-template-columns: 88px 160px 1fr;
+    grid-template-rows: auto auto;
+    align-items: start;
+    gap: 1px 8px;
+    padding: 5px 8px 5px 11px;
     background: var(--bg-panel);
     border: 1px solid var(--border);
     border-radius: 3px;
     font-size: 12px;
+    position: relative;
 }
 
+/* Left color stripe — default subtle, overridden per type below */
+.creature-entry::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    border-radius: 3px 0 0 3px;
+    background: rgba(255,255,255,0.07);
+}
+
+/* Type color stripes */
+.creature-entry:has(.tag-draconic)::before    { background: #e07b39; }
+.creature-entry:has(.tag-undead)::before      { background: #9b6dbe; }
+.creature-entry:has(.tag-goblinoid)::before   { background: #7ab648; }
+.creature-entry:has(.tag-aberration)::before  { background: #3cb0c8; }
+.creature-entry:has(.tag-ooze)::before        { background: #a0c840; }
+.creature-entry:has(.tag-elemental)::before   { background: #e8c040; }
+.creature-entry:has(.tag-monstrous)::before   { background: #c84040; }
+.creature-entry:has(.tag-fiend)::before       { background: #d04060; }
+.creature-entry:has(.tag-humanoid)::before    { background: #60a8d0; }
+.creature-entry:has(.tag-fey)::before         { background: #c878d8; }
+.creature-entry:has(.tag-giant)::before       { background: #c87840; }
+.creature-entry:has(.tag-construct)::before   { background: #88a0b0; }
+.creature-entry:has(.tag-lycanthrope)::before { background: #8fbe60; }
+.creature-entry:has(.tag-flora)::before       { background: #58b878; }
+.creature-entry:has(.tag-aquatic)::before     { background: #40a8c8; }
+
 .creature-entry:hover {
-    border-color: rgba(255,255,255,0.2);
+    border-color: rgba(255,255,255,0.22);
     background: var(--bg-hover);
 }
+
+/* Explicit grid placement for the 4 spans */
+.creature-entry .creature-tag  { grid-column: 1; grid-row: 1 / 3; align-self: center; }
+.creature-entry .creature-name { grid-column: 2; grid-row: 1; align-self: center; }
+.creature-entry .creature-desc { grid-column: 3; grid-row: 1; }
 
 .creature-name {
     font-weight: bold;

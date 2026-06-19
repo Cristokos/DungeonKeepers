@@ -8,7 +8,7 @@
 
 <body>
 
-<div class="version">v0.18</div>
+<div class="version">v0.19</div>
 
 <div class="statusbar">
     <div class="status-center">
@@ -127,6 +127,8 @@
             <h3 class="creature-category">Biomes (25)</h3>
             <div class="biome-grid">
 
+                <div class="biome-section-label">Natural Biomes (13)</div>
+
                 <div class="biome-card">
                     <div class="biome-header"><span class="biome-name">Verdant Forest</span><span class="biome-type biome-natural">Natural</span></div>
                     <p class="biome-desc">Dense canopy conceals your dungeon amid ancient trees. Food and wood are plentiful, but predators stalk the undergrowth.</p>
@@ -231,6 +233,8 @@
                     <div class="biome-affinity"><span class="biome-affinity-label">Best:</span><span class="suit-chip suit-excellent">Monstrous</span><span class="suit-chip suit-excellent">Goblinoid</span><span class="suit-chip suit-excellent">Draconic</span><span class="biome-affinity-label" style="margin-left:4px">Hard:</span><span class="suit-chip suit-hostile">Aquatic</span><span class="suit-chip suit-hostile">Flora</span><span class="suit-chip suit-hostile">Fey</span></div>
                 </div>
 
+                <div class="biome-section-label">D&amp;D Lore Biomes (6)</div>
+
                 <div class="biome-card">
                     <div class="biome-header"><span class="biome-name">Underdark Depths</span><span class="biome-type biome-dnd">D&amp;D</span></div>
                     <p class="biome-desc">Far below any sunlit surface, in the realm of dark elves and stranger things. Rich beyond measure; strange beyond reckoning.</p>
@@ -278,6 +282,8 @@
                     <div class="biome-mods"><span class="biome-mod mod-pos">Mineral Deposits</span><span class="biome-mod mod-pos">Solid Foundation</span><span class="biome-mod mod-pos">Ancestral Home</span><span class="biome-mod mod-pos">Pack Mentality</span></div>
                     <div class="biome-affinity"><span class="biome-affinity-label">Best:</span><span class="suit-chip suit-excellent">Giant</span><span class="suit-chip suit-excellent">Construct</span><span class="biome-affinity-label" style="margin-left:4px">Hard:</span><span class="suit-chip suit-hostile">Fey</span><span class="suit-chip suit-hostile">Aquatic</span><span class="suit-chip suit-hostile">Flora</span></div>
                 </div>
+
+                <div class="biome-section-label">Magical Biomes (6)</div>
 
                 <div class="biome-card">
                     <div class="biome-header"><span class="biome-name">Shadowfell Crossing</span><span class="biome-type biome-magical">Magical</span></div>
@@ -334,7 +340,7 @@
             <p class="info-text" style="margin-bottom:8px">All modifiers available for assignment to biomes. Tags: <span class="mod-cat mod-cat-pos">Positive</span> = straightforward bonus, <span class="mod-cat mod-cat-neg">Negative</span> = penalty or hazard, <span class="mod-cat mod-cat-mix">Mixed</span> = trade-off, <span class="mod-cat mod-cat-fut">Future</span> = requires systems not yet implemented.</p>
 
             <div class="modifier-glossary">
-                <!-- RESOURCE PRODUCTION (1-20) -->
+                <div class="mod-section-header">Resource Production (1–20)</div>
                 <div class="mod-row"><span class="mod-n">01</span><span class="mod-name">Fertile Soil</span><span class="mod-cat mod-cat-pos">Positive</span><span class="mod-fx">Food production from all farms +20%.</span></div>
                 <div class="mod-row"><span class="mod-n">02</span><span class="mod-name">Ancient Grove</span><span class="mod-cat mod-cat-pos">Positive</span><span class="mod-fx">Wood production from all lumber camps +25%.</span></div>
                 <div class="mod-row"><span class="mod-n">03</span><span class="mod-name">Rich Ore Veins</span><span class="mod-cat mod-cat-pos">Positive</span><span class="mod-fx">Stone production from all quarries +30%.</span></div>
@@ -355,7 +361,7 @@
                 <div class="mod-row"><span class="mod-n">18</span><span class="mod-name">Fungal Bloom</span><span class="mod-cat mod-cat-mix">Mixed</span><span class="mod-fx">Food production +10% but food cap −25 (mushroom farms, not scalable).</span></div>
                 <div class="mod-row"><span class="mod-n">19</span><span class="mod-name">Glacial Melt</span><span class="mod-cat mod-cat-pos">Positive</span><span class="mod-fx">Food cap +75 (abundant water access supports larger crop stores).</span></div>
                 <div class="mod-row"><span class="mod-n">20</span><span class="mod-name">Bountiful Harvest</span><span class="mod-cat mod-cat-pos">Positive</span><span class="mod-fx">Every season change grants +50 food bonus.</span></div>
-                <!-- POPULATION (21-40) -->
+                <div class="mod-section-header">Population (21–40)</div>
                 <div class="mod-row"><span class="mod-n">21</span><span class="mod-name">Warm Climate</span><span class="mod-cat mod-cat-pos">Positive</span><span class="mod-fx">Population growth rate +20%.</span></div>
                 <div class="mod-row"><span class="mod-n">22</span><span class="mod-name">Harsh Winters</span><span class="mod-cat mod-cat-neg">Negative</span><span class="mod-fx">Population growth rate −15%.</span></div>
                 <div class="mod-row"><span class="mod-n">23</span><span class="mod-name">Disease Vectors</span><span class="mod-cat mod-cat-neg">Negative</span><span class="mod-fx">Starvation threshold triggers 1 tick earlier than normal.</span></div>
@@ -376,7 +382,7 @@
                 <div class="mod-row"><span class="mod-n">38</span><span class="mod-name">Elder's Blessing</span><span class="mod-cat mod-cat-pos">Positive</span><span class="mod-fx">First 5 population require no food (they forage independently).</span></div>
                 <div class="mod-row"><span class="mod-n">39</span><span class="mod-name">Starvation Resilience</span><span class="mod-cat mod-cat-pos">Positive</span><span class="mod-fx">Death timer before first starvation death extended by +3 ticks.</span></div>
                 <div class="mod-row"><span class="mod-n">40</span><span class="mod-name">Rapid Breeding</span><span class="mod-cat mod-cat-pos">Positive</span><span class="mod-fx">Population growth timer reduced by 5 ticks (faster natural growth).</span></div>
-                <!-- BUILDINGS (41-55) -->
+                <div class="mod-section-header">Buildings (41–55)</div>
                 <div class="mod-row"><span class="mod-n">41</span><span class="mod-name">Solid Foundation</span><span class="mod-cat mod-cat-pos">Positive</span><span class="mod-fx">All building wood costs −10%.</span></div>
                 <div class="mod-row"><span class="mod-n">42</span><span class="mod-name">Abundant Stone</span><span class="mod-cat mod-cat-pos">Positive</span><span class="mod-fx">All building stone costs −20%.</span></div>
                 <div class="mod-row"><span class="mod-n">43</span><span class="mod-name">Poor Infrastructure</span><span class="mod-cat mod-cat-neg">Negative</span><span class="mod-fx">All building costs +15%.</span></div>
@@ -392,7 +398,7 @@
                 <div class="mod-row"><span class="mod-n">53</span><span class="mod-name">Unstable Ground</span><span class="mod-cat mod-cat-neg">Negative</span><span class="mod-fx">5% chance each building construction costs double resources.</span></div>
                 <div class="mod-row"><span class="mod-n">54</span><span class="mod-name">Builder's Bounty</span><span class="mod-cat mod-cat-pos">Positive</span><span class="mod-fx">Every 5th building constructed: cost fully refunded. (Future)</span></div>
                 <div class="mod-row"><span class="mod-n">55</span><span class="mod-name">Structural Weakness</span><span class="mod-cat mod-cat-neg">Negative</span><span class="mod-fx">All production buildings have −1 effective job slot (minimum 1).</span></div>
-                <!-- COMBAT & DEFENSE (56-65) -->
+                <div class="mod-section-header">Combat &amp; Defense (56–65)</div>
                 <div class="mod-row"><span class="mod-n">56</span><span class="mod-name">Contested Territory</span><span class="mod-cat mod-cat-neg">Negative</span><span class="mod-fx">Random raid events occur every ~20 days. (Future: combat)</span></div>
                 <div class="mod-row"><span class="mod-n">57</span><span class="mod-name">Defended Perimeter</span><span class="mod-cat mod-cat-pos">Positive</span><span class="mod-fx">Raid event frequency reduced by 50%. (Future: combat)</span></div>
                 <div class="mod-row"><span class="mod-n">58</span><span class="mod-name">Monster Crossroads</span><span class="mod-cat mod-cat-fut">Future</span><span class="mod-fx">Neutral monsters pass nearby; occasional opportunity to recruit one.</span></div>
@@ -403,7 +409,7 @@
                 <div class="mod-row"><span class="mod-n">63</span><span class="mod-name">Fearsome Reputation</span><span class="mod-cat mod-cat-fut">Future</span><span class="mod-fx">After 5 successful defenses, all raids permanently cease.</span></div>
                 <div class="mod-row"><span class="mod-n">64</span><span class="mod-name">Fortified Terrain</span><span class="mod-cat mod-cat-fut">Future</span><span class="mod-fx">Incoming raid damage reduced −15%.</span></div>
                 <div class="mod-row"><span class="mod-n">65</span><span class="mod-name">Desecrated Altar</span><span class="mod-cat mod-cat-fut">Future</span><span class="mod-fx">Once per run: sacrifice 10 population to reset all raid cooldowns.</span></div>
-                <!-- MAGIC & RESEARCH (66-75) -->
+                <div class="mod-section-header">Magic &amp; Research (66–75)</div>
                 <div class="mod-row"><span class="mod-n">66</span><span class="mod-name">Ley Line Nexus</span><span class="mod-cat mod-cat-fut">Future</span><span class="mod-fx">Research speed +25%.</span></div>
                 <div class="mod-row"><span class="mod-n">67</span><span class="mod-name">Magic Deadzone</span><span class="mod-cat mod-cat-fut">Future</span><span class="mod-fx">All magical upgrades cost +20% more research.</span></div>
                 <div class="mod-row"><span class="mod-n">68</span><span class="mod-name">Arcane Residue</span><span class="mod-cat mod-cat-fut">Future</span><span class="mod-fx">Begin run with 10 bonus research points.</span></div>
@@ -414,7 +420,7 @@
                 <div class="mod-row"><span class="mod-n">73</span><span class="mod-name">Blessed Ground</span><span class="mod-cat mod-cat-fut">Future</span><span class="mod-fx">Divine research tree +25% speed.</span></div>
                 <div class="mod-row"><span class="mod-n">74</span><span class="mod-name">Wild Magic Zone</span><span class="mod-cat mod-cat-mix">Mixed</span><span class="mod-fx">10% chance each research grants a random bonus side effect. (Future)</span></div>
                 <div class="mod-row"><span class="mod-n">75</span><span class="mod-name">Planewalker's Knowledge</span><span class="mod-cat mod-cat-fut">Future</span><span class="mod-fx">Cross-planar research tree unlocked.</span></div>
-                <!-- PRESTIGE & META (76-85) -->
+                <div class="mod-section-header">Prestige &amp; Meta (76–85)</div>
                 <div class="mod-row"><span class="mod-n">76</span><span class="mod-name">First Conquest</span><span class="mod-cat mod-cat-fut">Future</span><span class="mod-fx">Prestige currency reward +10%.</span></div>
                 <div class="mod-row"><span class="mod-n">77</span><span class="mod-name">Cursed Loop</span><span class="mod-cat mod-cat-fut">Future</span><span class="mod-fx">Prestige carry-over resources reduced by −5%.</span></div>
                 <div class="mod-row"><span class="mod-n">78</span><span class="mod-name">Ancient Legacy</span><span class="mod-cat mod-cat-fut">Future</span><span class="mod-fx">Begin each new post-prestige run with 1 random bonus relic.</span></div>
@@ -425,7 +431,7 @@
                 <div class="mod-row"><span class="mod-n">83</span><span class="mod-name">One With The Land</span><span class="mod-cat mod-cat-fut">Future</span><span class="mod-fx">Prestige bonus includes a biome familiarity bonus on the next run.</span></div>
                 <div class="mod-row"><span class="mod-n">84</span><span class="mod-name">Planar Alignment</span><span class="mod-cat mod-cat-fut">Future</span><span class="mod-fx">Planar creature types receive +10% prestige bonus.</span></div>
                 <div class="mod-row"><span class="mod-n">85</span><span class="mod-name">Unyielding</span><span class="mod-cat mod-cat-pos">Positive</span><span class="mod-fx">Starvation deaths do not count against prestige scoring.</span></div>
-                <!-- HAZARDS / HARD MODE (86-100) -->
+                <div class="mod-section-header">Hazards / Hard Mode (86–100)</div>
                 <div class="mod-row"><span class="mod-n">86</span><span class="mod-name">Oppressive Heat</span><span class="mod-cat mod-cat-neg">Negative</span><span class="mod-fx">All workers produce −10% per tick.</span></div>
                 <div class="mod-row"><span class="mod-n">87</span><span class="mod-name">Crushing Cold</span><span class="mod-cat mod-cat-neg">Negative</span><span class="mod-fx">Creature food consumption +15% per tick.</span></div>
                 <div class="mod-row"><span class="mod-n">88</span><span class="mod-name">Perpetual Darkness</span><span class="mod-cat mod-cat-mix">Mixed</span><span class="mod-fx">Growth rate −10%; undead and shadow creatures are unaffected by this penalty.</span></div>
@@ -1220,7 +1226,7 @@
 
             <h2 class="section-gap">About</h2>
             <p class="info-text">
-                Dungeon Keeper v0.18 — You are the keeper of a fledgling dungeon. Gather
+                Dungeon Keeper v0.19 — You are the keeper of a fledgling dungeon. Gather
                 resources, house creatures, and expand your underground empire. Keep your
                 creatures fed or watch them desert you — or worse.
             </p>
