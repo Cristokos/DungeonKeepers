@@ -8,7 +8,7 @@
 
 <body>
 
-<div class="version">v0.21</div>
+<div class="version">v0.22</div>
 
 <div class="statusbar">
     <div class="status-center">
@@ -1231,6 +1231,7 @@
 
             <h2 class="section-gap">Lifetime Stats</h2>
             <div class="info-stat-block">
+                <div class="info-stat"><span>Total Prestiges</span>     <span id="info-prestiges">0</span></div>
                 <div class="info-stat"><span>Total Days</span>          <span id="info-total-days">0</span></div>
                 <div class="info-stat"><span>Peak Population</span>     <span id="info-peak-pop">0</span></div>
                 <div class="info-stat"><span>Buildings Constructed</span><span id="info-built-total">0</span></div>
@@ -1243,7 +1244,7 @@
 
             <h2 class="section-gap">About</h2>
             <p class="info-text">
-                Dungeon Keeper v0.21 — You are the keeper of a fledgling dungeon. Gather
+                Dungeon Keeper v0.22 — You are the keeper of a fledgling dungeon. Gather
                 resources, house creatures, and expand your underground empire. Keep your
                 creatures fed or watch them desert you — or worse.
             </p>
@@ -1339,9 +1340,10 @@
             </div>
 
             <div class="dev-section">
-                <h3>Prestige</h3>
+                <h3>Prestige &amp; Biome</h3>
                 <div class="dev-grid">
-                    <button class="dev-btn" onclick="doPrestige()">Simulate Prestige</button>
+                    <button class="dev-btn danger" onclick="doPrestige()">Simulate Prestige</button>
+                    <button class="dev-btn" onclick="devRerollBiome()">Reroll Biome</button>
                     <button class="dev-btn" onclick="devShowBiomeInfo()">Log Biome State</button>
                 </div>
                 <div id="dev-biome-info" style="margin-top:8px;font-size:11px;color:var(--text-muted);line-height:1.6"></div>

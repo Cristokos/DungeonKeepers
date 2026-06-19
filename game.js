@@ -66,7 +66,7 @@ const gameState = {
     buildings:  { lair: 0, farm: 0, lumber: 0, quarry: 0, storage: 0 },
     population: { count: 0, growthTimer: 0, starveTick: 0 },
     run:        { biome: null, race: null, mods: [] },
-    meta:       { seenBiomes: [] },
+    meta:       { seenBiomes: [], totalPrestiges: 0 },
     time:       { tick: 0, day: 1, year: 1, seasonIndex: 0 },
     stats: {
         peakPopulation:       0,
@@ -444,6 +444,7 @@ function updateUI() {
     setText("info-stone-rate", fmtRate(prod.stone || 0) || "0/s");
 
     // Lifetime stats
+    setText("info-prestiges",    gameState.meta.totalPrestiges || 0);
     setText("info-total-days",   fmt(totalDays));
     setText("info-peak-pop",     st.peakPopulation   || 0);
     setText("info-built-total",  st.buildingsConstructed || 0);
@@ -544,17 +545,25 @@ function devWipeResources() {
     saveGame();
 }
 
+function devRerollBiome() {
+    selectStartBiome(false);
+    saveGame();
+    updateIdentityPanel();
+    devShowBiomeInfo();
+}
+
 function devShowBiomeInfo() {
     const el = document.getElementById("dev-biome-info");
     if (!el) return;
-    const r = gameState.run;
-    const seen = gameState.meta.seenBiomes;
+    const r    = gameState.run;
+    const meta = gameState.meta;
     const modList = (r.mods || []).map(m => (m.pos ? "+" : "−") + m.name).join(", ") || "(none)";
     el.innerHTML = `
         <b>Biome:</b> ${r.biome || "—"}<br>
         <b>Race:</b> ${r.race || "Unselected"}<br>
         <b>Run Mods (${(r.mods||[]).length}):</b> ${modList}<br>
-        <b>Seen Biomes (${seen.length}/25):</b> ${seen.join(", ") || "(none)"}
+        <b>Seen Biomes (${meta.seenBiomes.length}/25):</b> ${meta.seenBiomes.join(", ") || "(none)"}<br>
+        <b>Total Prestiges:</b> ${meta.totalPrestiges || 0}
     `;
 }
 
@@ -619,16 +628,17 @@ function selectStartBiome(isFirstRun) {
 
 // Called when player prestiges — resets run state, keeps meta progression
 function doPrestige() {
+    if (!confirm("Simulate a Prestige reset?\n\nAll run progress (resources, buildings, population) will be wiped and a new biome assigned. Meta-stats (prestiges, seen biomes) are preserved.")) return;
+
     const savedMeta = JSON.parse(JSON.stringify(gameState.meta));
+    savedMeta.totalPrestiges = (savedMeta.totalPrestiges || 0) + 1;
 
     gameState.resources  = { food: 0, wood: 0, stone: 0 };
     gameState.buildings  = { lair: 0, farm: 0, lumber: 0, quarry: 0, storage: 0 };
     gameState.population = { count: 0, growthTimer: 0, starveTick: 0 };
     gameState.time       = { tick: 0, day: 1, year: 1, seasonIndex: 0 };
-    gameState.stats      = {
-        peakPopulation: 0, buildingsConstructed: 0, manualGathers: 0,
-        starvationDeaths: 0, foodProduced: 0, woodProduced: 0, stoneProduced: 0,
-    };
+    // Zero all per-run stats without hardcoding keys
+    for (const k of Object.keys(gameState.stats)) gameState.stats[k] = 0;
     gameState.run  = { biome: null, race: null, mods: [] };
     gameState.meta = savedMeta;
 
@@ -717,8 +727,13 @@ function switchTab(tabId) {
 
 loadSettings();
 loadGame();
+// Normalize meta fields that may be missing from older saves
+if (!gameState.meta)                         gameState.meta = {};
+if (!gameState.meta.seenBiomes)              gameState.meta.seenBiomes = [];
+if (gameState.meta.totalPrestiges == null)   gameState.meta.totalPrestiges = 0;
 // Assign biome on first load (fresh game or old save with no mods yet)
-if (!gameState.run.mods || gameState.run.mods.length === 0) {
+if (!gameState.run || !gameState.run.mods || gameState.run.mods.length === 0) {
+    if (!gameState.run) gameState.run = { biome: null, race: null, mods: [] };
     selectStartBiome(gameState.meta.seenBiomes.length === 0);
 }
 updateUI();
