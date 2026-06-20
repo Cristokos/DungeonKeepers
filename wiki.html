@@ -19,6 +19,7 @@
         <a class="wiki-nav-link"        data-section="biomes"    onclick="showWiki('biomes')">Biomes</a>
         <a class="wiki-nav-link"        data-section="creatures" onclick="showWiki('creatures')">Creatures</a>
         <a class="wiki-nav-link"        data-section="research"  onclick="showWiki('research')">Research</a>
+        <a class="wiki-nav-link"        data-section="racetree"  onclick="showWiki('racetree')">Race Tree</a>
         <a class="wiki-nav-link"        data-section="changelog" onclick="showWiki('changelog')">Changelog</a>
     </nav>
 
@@ -1187,9 +1188,40 @@
             </div>
         </section>
 
+        <!-- RACE LINEAGE TREE -->
+        <section id="wiki-racetree" class="wiki-section" style="display:none">
+            <h2>Race Lineage Tree</h2>
+            <p class="wiki-lead">
+                All 91 playable creatures across 15 race types, organized by four lineage paths.
+                <b>Drag</b> to pan &middot; <b>Scroll</b> to zoom &middot; <b>Hover</b> a node for details &middot; <b>Search</b> to highlight.
+            </p>
+            <input id="rtrace-search" type="text" placeholder="Search creatures or types…"
+                style="width:260px;margin-bottom:10px;padding:5px 10px;background:#1a2020;border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:12px;font-family:Lato,sans-serif;outline:none">
+            <div class="rtree-legend">
+                <span class="rtleg"><span class="rtleg-sw" style="background:#58b878"></span>Primal</span>
+                <span class="rtleg"><span class="rtleg-sw" style="background:#9b6dbe"></span>Shadow</span>
+                <span class="rtleg"><span class="rtleg-sw" style="background:#3cb0c8"></span>Arcane</span>
+                <span class="rtleg"><span class="rtleg-sw" style="background:#88a0b0"></span>Civilized</span>
+            </div>
+            <div class="rtree-wrap" id="rtrace-wrap">
+                <svg id="rtrace-svg"></svg>
+                <div id="rtrace-tip"></div>
+            </div>
+        </section>
+
         <!-- CHANGELOG -->
         <section id="wiki-changelog" class="wiki-section wiki-changelog" style="display:none">
             <h2>Changelog</h2>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.36</span><span class="cl-date">2026-06-20</span></div>
+                <p class="biome-desc">Added Race Lineage Tree to the wiki. Interactive SVG starburst showing all 91 playable creatures across 15 race types organized into four lineage paths (Primal, Shadow, Arcane, Civilized). Supports pan, zoom, hover tooltips with type traits and creature lists, and a live search that dims non-matching nodes and highlights ancestors.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.35</span><span class="cl-date">2026-06-20</span></div>
+                <p class="biome-desc">Added Era system (barebones). Buildings and research are now gated by era (1–3) via lookup maps; only era-appropriate content is visible in each era. The identity panel now shows the current era. Dev tab has three "Load Era N" buttons that instantly apply a canonical loadout (population, buildings, research, resources, worker assignments) for testing each era.</p>
+            </div>
 
             <div class="biome-card">
                 <div><span class="cl-ver">v0.34</span><span class="cl-date">2026-06-20</span></div>
@@ -1322,6 +1354,7 @@ function showWiki(id) {
     if (location.hash !== '#' + id) history.replaceState(null, '', '#' + id);
     window.scrollTo(0, 0);
     if (id === 'research') rtreeMaybeBuild();
+    if (id === 'racetree') rtraceMaybeBuild();
 }
 (function () {
     var id = (location.hash || '#intro').slice(1);
@@ -1601,6 +1634,277 @@ function showWiki(id) {
             scale = Math.min(3, Math.max(0.18, scale * f));
             apply();
         }, { passive: false });
+    }
+})();
+</script>
+
+<script>
+/* ── Race Lineage Tree Builder ──────────────────────────────────────────────── */
+(function () {
+    var built = false;
+
+    window.rtraceMaybeBuild = function () {
+        if (!built) { buildRaceTree(); built = true; }
+    };
+
+    var NS = 'http://www.w3.org/2000/svg';
+    var CX = 950, CY = 950;
+    var R1 = 200, R2 = 490, R3 = 750;
+
+    var RACE_PATHS = [
+        { name: 'Primal',    color: '#58b878', angle: 0,   types: ['Monstrous','Lycanthrope','Flora','Aquatic'] },
+        { name: 'Shadow',    color: '#9b6dbe', angle: 90,  types: ['Undead','Fiend','Ooze'] },
+        { name: 'Arcane',    color: '#3cb0c8', angle: 180, types: ['Draconic','Aberration','Fey','Elemental'] },
+        { name: 'Civilized', color: '#88a0b0', angle: 270, types: ['Goblinoid','Giant','Humanoid','Construct'] },
+    ];
+
+    var ROSTER = {
+        'Draconic':    ['Chromatic Dragon','Metallic Dragon','Lizardfolk','Kobold','Yuan-ti','Wyvern','Dragonborn'],
+        'Undead':      ['Skeleton','Zombie','Vampire','Lich','Wight','Ghoul','Revenant','Banshee','Wraith','Mummy','Demilich','Shadow'],
+        'Goblinoid':   ['Goblin','Hobgoblin','Bugbear','Orc','Gnoll'],
+        'Fey':         ['Pixie','Dryad','Satyr','Quickling','Green Hag'],
+        'Aberration':  ['Mind Flayer','Beholder','Aboleth','Gibbering Mouther','Nothic','Chuul','Grell','Flumph'],
+        'Ooze':        ['Gelatinous Cube','Black Pudding'],
+        'Elemental':   ['Fire Elemental','Earth Elemental','Shadow Demon'],
+        'Monstrous':   ['Harpy','Medusa','Minotaur','Troll','Werewolf','Naga','Basilisk','Chimera','Manticore','Sphinx','Griffon','Hydra','Ettin'],
+        'Fiend':       ['Imp','Cambion','Barbed Devil','Night Hag','Succubus/Incubus','Pit Fiend','Balor','Rakshasa','Quasit'],
+        'Giant':       ['Hill Giant','Stone Giant','Frost Giant','Fire Giant','Cloud Giant','Storm Giant'],
+        'Construct':   ['Stone Golem','Iron Golem','Homunculus','Animated Armor'],
+        'Lycanthrope': ['Werebear','Wererat','Wereboar','Owlbear','Displacer Beast'],
+        'Flora':       ['Treant','Myconid','Vegepygmy'],
+        'Aquatic':     ['Merfolk','Sahuagin','Kuo-toa','Triton'],
+        'Humanoid':    ['Kenku','Tabaxi','Aarakocra','Tortle','Centaur'],
+    };
+
+    var TYPE_COLORS = {
+        'Draconic':'#e07b39','Undead':'#9b6dbe','Goblinoid':'#7ab648','Fey':'#c878d8',
+        'Aberration':'#3cb0c8','Ooze':'#a0c840','Elemental':'#e8c040','Monstrous':'#c84040',
+        'Fiend':'#d04060','Giant':'#c87840','Construct':'#88a0b0','Lycanthrope':'#8fbe60',
+        'Flora':'#58b878','Aquatic':'#40a8c8','Humanoid':'#60a8d0',
+    };
+
+    var TYPE_DESCS = {
+        'Goblinoid':   'Fast breeders with +1 all gather. Ravenous but cramped lairs hold 8.',
+        'Undead':      'Nearly foodless but growth ×3. Bone collectors with dark synergies.',
+        'Draconic':    'All production +25% and huge coin hoard, but hungry and rare.',
+        'Fey':         'Lumber & herbs ×1.4, light eaters, nimble foragers.',
+        'Aberration':  'Crystal and arcane masters with alien metabolism and slow emergence.',
+        'Ooze':        'Vast storage, barely eat, +8% all production passively.',
+        'Elemental':   'Coal & sulphur ×2, almost no food needed, but coalesce slowly.',
+        'Monstrous':   'Quarry & mine +40%, all production +15%, big appetites.',
+        'Fiend':       '+2 cp/creature/day, dark ritual mastery, summoned not born.',
+        'Giant':       '+30% all production and huge resource caps. Eat ×2, tiny Lairs.',
+        'Construct':   'Almost no food, quarry/mine/smelter +30%, each must be forged.',
+        'Lycanthrope': 'Hunting ×2, +2 all gather, fast pack growth, hungry.',
+        'Flora':       'Lumber & herbs ×2, 75% less food, wood gather bonus, slow growth.',
+        'Aquatic':     'Clay ×2, hunt +30%, seafood diet, tidal foraging, swift growth.',
+        'Humanoid':    'All-rounder — +8% production, civic taxes, versatile gatherers.',
+    };
+
+    function rpos(angleDeg, r) {
+        var rad = (angleDeg - 90) * Math.PI / 180;
+        return { x: CX + Math.cos(rad) * r, y: CY + Math.sin(rad) * r };
+    }
+
+    function mkEdge(parent, x1, y1, x2, y2, color) {
+        var el = document.createElementNS(NS, 'line');
+        el.setAttribute('x1', x1); el.setAttribute('y1', y1);
+        el.setAttribute('x2', x2); el.setAttribute('y2', y2);
+        el.setAttribute('stroke', color);
+        el.setAttribute('stroke-width', '1');
+        el.setAttribute('opacity', '0.28');
+        parent.appendChild(el);
+    }
+
+    function mkTxt(parent, x, y, text, size, color) {
+        var el = document.createElementNS(NS, 'text');
+        el.setAttribute('x', x); el.setAttribute('y', y);
+        el.setAttribute('text-anchor', 'middle');
+        el.setAttribute('dominant-baseline', 'middle');
+        el.setAttribute('font-size', size);
+        el.setAttribute('font-family', 'Lato, sans-serif');
+        el.setAttribute('fill', color);
+        el.style.pointerEvents = 'none';
+        el.style.userSelect = 'none';
+        el.textContent = text;
+        parent.appendChild(el);
+        return el;
+    }
+
+    function positionTip(e) {
+        var tip = document.getElementById('rtrace-tip');
+        var wr  = document.getElementById('rtrace-wrap').getBoundingClientRect();
+        var x = e.clientX - wr.left + 18, y = e.clientY - wr.top + 18;
+        if (x + 295 > wr.width)  x = e.clientX - wr.left - 311;
+        if (y + 200 > wr.height) y = e.clientY - wr.top  - 216;
+        tip.style.left = x + 'px'; tip.style.top = y + 'px';
+    }
+
+    function wireTooltip(el, builder) {
+        var tip = document.getElementById('rtrace-tip');
+        el.addEventListener('mouseenter', function (e) { tip.innerHTML = builder(); tip.style.display = 'block'; positionTip(e); });
+        el.addEventListener('mousemove',  positionTip);
+        el.addEventListener('mouseleave', function ()  { tip.style.display = 'none'; });
+    }
+
+    function buildTypeTip(typeName, creatures) {
+        var c = TYPE_COLORS[typeName] || '#888';
+        var h = '<div class="rtip-name" style="color:' + c + '">' + typeName + '</div>';
+        h += '<div class="rtip-desc">' + (TYPE_DESCS[typeName] || '') + '</div>';
+        h += '<div class="rtip-efx-head">Creatures (' + creatures.length + '):</div>';
+        h += '<ul class="rtip-efx">';
+        creatures.forEach(function (cr) { h += '<li>' + cr + '</li>'; });
+        h += '</ul>';
+        return h;
+    }
+
+    function buildCreatureTip(cname, typeName) {
+        var c = TYPE_COLORS[typeName] || '#888';
+        return '<div class="rtip-name">' + cname + '</div>'
+            + '<div class="rtip-row" style="margin-top:4px"><span style="background:' + c + '22;border:1px solid ' + c + ';color:' + c + ';padding:1px 6px;border-radius:2px;font-size:10px;text-transform:uppercase;letter-spacing:.04em">' + typeName + '</span></div>'
+            + '<div class="rtip-desc" style="margin-top:6px">' + (TYPE_DESCS[typeName] || '') + '</div>';
+    }
+
+    function buildRaceTree() {
+        var svg   = document.getElementById('rtrace-svg');
+        svg.setAttribute('width', CX * 2);
+        svg.setAttribute('height', CY * 2);
+
+        var g     = document.createElementNS(NS, 'g'); g.id = 'rtrace-g'; svg.appendChild(g);
+        var edgeG = document.createElementNS(NS, 'g'); g.appendChild(edgeG);
+        var nodeG = document.createElementNS(NS, 'g'); g.appendChild(nodeG);
+
+        var allNodes = [];
+
+        /* Center */
+        var cc = document.createElementNS(NS, 'circle');
+        cc.setAttribute('cx', CX); cc.setAttribute('cy', CY); cc.setAttribute('r', 32);
+        cc.setAttribute('fill', '#e8c040'); cc.setAttribute('stroke', '#a08010'); cc.setAttribute('stroke-width', '2');
+        nodeG.appendChild(cc);
+        mkTxt(nodeG, CX, CY - 7,  'Your', '11', '#18160a');
+        mkTxt(nodeG, CX, CY + 9,  'Path', '11', '#18160a');
+        allNodes.push({ el: cc, name: 'center', level: 0 });
+
+        RACE_PATHS.forEach(function (path) {
+            var pp = rpos(path.angle, R1);
+
+            /* center → path edge */
+            mkEdge(edgeG, CX, CY, pp.x, pp.y, path.color);
+
+            /* Path circle */
+            var pc = document.createElementNS(NS, 'circle');
+            pc.setAttribute('cx', pp.x); pc.setAttribute('cy', pp.y); pc.setAttribute('r', 26);
+            pc.setAttribute('fill', path.color); pc.setAttribute('fill-opacity', '0.22');
+            pc.setAttribute('stroke', path.color); pc.setAttribute('stroke-width', '2');
+            nodeG.appendChild(pc);
+            /* Path label just beyond circle */
+            var lp = rpos(path.angle, R1 + 42);
+            mkTxt(nodeG, lp.x, lp.y, path.name, '13', path.color);
+            allNodes.push({ el: pc, name: path.name, level: 1, pathName: path.name });
+
+            var N = path.types.length;
+            path.types.forEach(function (typeName, ti) {
+                var typeAngle  = path.angle - 45 + (ti + 0.5) * 90 / N;
+                var tp         = rpos(typeAngle, R2);
+                var typeColor  = TYPE_COLORS[typeName] || '#888';
+                var creatures  = ROSTER[typeName] || [];
+
+                /* path → type edge */
+                mkEdge(edgeG, pp.x, pp.y, tp.x, tp.y, typeColor);
+
+                /* Type rect group */
+                var TW = 112, TH = 30;
+                var tgrp = document.createElementNS(NS, 'g'); tgrp.style.cursor = 'pointer';
+                var trect = document.createElementNS(NS, 'rect');
+                trect.setAttribute('x', tp.x - TW/2); trect.setAttribute('y', tp.y - TH/2);
+                trect.setAttribute('width', TW); trect.setAttribute('height', TH); trect.setAttribute('rx', 3);
+                trect.setAttribute('fill', typeColor); trect.setAttribute('fill-opacity', '0.15');
+                trect.setAttribute('stroke', typeColor); trect.setAttribute('stroke-width', '1.5');
+                tgrp.appendChild(trect);
+                var ttxt = document.createElementNS(NS, 'text');
+                ttxt.setAttribute('x', tp.x); ttxt.setAttribute('y', tp.y);
+                ttxt.setAttribute('text-anchor', 'middle'); ttxt.setAttribute('dominant-baseline', 'middle');
+                ttxt.setAttribute('font-size', '10'); ttxt.setAttribute('font-family', 'Lato, sans-serif');
+                ttxt.setAttribute('fill', typeColor); ttxt.style.pointerEvents = 'none';
+                ttxt.textContent = typeName + ' (' + creatures.length + ')';
+                tgrp.appendChild(ttxt);
+                nodeG.appendChild(tgrp);
+                wireTooltip(tgrp, buildTypeTip.bind(null, typeName, creatures));
+                allNodes.push({ el: tgrp, name: typeName, level: 2, typeName: typeName, pathName: path.name });
+
+                /* Creature circles */
+                var M = creatures.length;
+                var subSector = 90 / N;
+                creatures.forEach(function (cname, ci) {
+                    var cAngle = typeAngle - subSector / 2 + (ci + 0.5) * subSector / M;
+                    var cp     = rpos(cAngle, R3);
+
+                    mkEdge(edgeG, tp.x, tp.y, cp.x, cp.y, typeColor);
+
+                    var cr = document.createElementNS(NS, 'circle');
+                    cr.setAttribute('cx', cp.x); cr.setAttribute('cy', cp.y); cr.setAttribute('r', '8');
+                    cr.setAttribute('fill', typeColor); cr.setAttribute('fill-opacity', '0.50');
+                    cr.setAttribute('stroke', typeColor); cr.setAttribute('stroke-width', '1');
+                    cr.style.cursor = 'pointer';
+                    nodeG.appendChild(cr);
+                    wireTooltip(cr, buildCreatureTip.bind(null, cname, typeName));
+                    allNodes.push({ el: cr, name: cname, level: 3, typeName: typeName, pathName: path.name });
+                });
+            });
+        });
+
+        /* Search */
+        document.getElementById('rtrace-search').addEventListener('input', function () {
+            var q = this.value.trim().toLowerCase();
+            if (!q) { allNodes.forEach(function (n) { n.el.style.opacity = ''; }); return; }
+
+            var hitTypes = new Set(), hitPaths = new Set();
+            allNodes.forEach(function (n) {
+                if (n.name.toLowerCase().indexOf(q) !== -1) {
+                    if (n.level === 3) { hitTypes.add(n.typeName); hitPaths.add(n.pathName); }
+                    if (n.level === 2) hitPaths.add(n.pathName);
+                    if (n.level === 1) hitPaths.add(n.name);
+                }
+            });
+
+            allNodes.forEach(function (n) {
+                var match = n.level === 0
+                    || n.name.toLowerCase().indexOf(q) !== -1
+                    || (n.level === 2 && hitTypes.has(n.typeName))
+                    || (n.level === 1 && hitPaths.has(n.name));
+                n.el.style.opacity = match ? '1' : '0.07';
+            });
+        });
+
+        /* Pan / zoom */
+        (function () {
+            var wrap = document.getElementById('rtrace-wrap');
+            var scale = 0.40, dragging = false, lx = 0, ly = 0, panX = 0, panY = 0;
+
+            function apply() {
+                g.setAttribute('transform', 'translate(' + panX + ',' + panY + ') scale(' + scale + ')');
+            }
+
+            requestAnimationFrame(function () {
+                panX = wrap.offsetWidth  / 2 - CX * scale;
+                panY = wrap.offsetHeight / 2 - CY * scale;
+                apply();
+            });
+
+            svg.addEventListener('mousedown', function (e) { dragging = true; lx = e.clientX; ly = e.clientY; e.preventDefault(); });
+            window.addEventListener('mouseup',   function ()  { dragging = false; });
+            window.addEventListener('mousemove', function (e) {
+                if (!dragging) return;
+                panX += e.clientX - lx; panY += e.clientY - ly;
+                lx = e.clientX; ly = e.clientY;
+                apply();
+            });
+            wrap.addEventListener('wheel', function (e) {
+                e.preventDefault();
+                scale = Math.min(4, Math.max(0.14, scale * (e.deltaY < 0 ? 1.12 : 0.89)));
+                apply();
+            }, { passive: false });
+        })();
     }
 })();
 </script>

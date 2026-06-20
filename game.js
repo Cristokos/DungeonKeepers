@@ -208,7 +208,7 @@ const gameState = {
     research:          {},
     workerAssignments: {},
     population: { count: 0, growthTimer: 0, starveTick: 0 },
-    run:        { biome: null, race: null, mods: [] },
+    run:        { biome: null, race: null, mods: [], era: 1 },
     meta:       { seenBiomes: [], totalPrestiges: 0, racesPlayed: {} },
     time:       { tick: 0, day: 1, year: 1, seasonIndex: 0 },
     stats: {
@@ -936,7 +936,8 @@ function updateUI() {
         if (!card) continue;
         const done       = !!(gameState.research && gameState.research[key]);
         const prereqsMet = !def.requiresResearch || def.requiresResearch.every(k => gameState.research && gameState.research[k]);
-        card.style.display = (!done && prereqsMet) ? "" : "none";
+        const eraOk      = (RESEARCH_ERA[key] || 1) <= (gameState.run.era || 1);
+        card.style.display = (!done && prereqsMet && eraOk) ? "" : "none";
         if (done) continue;
         const btn = document.getElementById("btn-research-" + key);
         if (!btn) continue;
@@ -1040,9 +1041,111 @@ function formatCoins(n) {
     return parts.length ? parts.join(" ") : "0 cp";
 }
 
+// ── Era system ────────────────────────────────────────────────────────────────
+// Era-gated buildings: Era 1 = everything NOT listed here (default).
+const BUILDING_ERA = {
+    // Era 2 — Advanced industry / arcane
+    crystalSeam:   2, smelter:       2, alchemyLab:  2,
+    kiln:          2, loom:          2, mageTower:   2,
+    armory:        2, sulphurVent:   2, arcaneGrinder: 2,
+    forge:         2, arcaneBench:   2,
+    // Era 3 — Endgame / dark
+    ritualCircle:  3, spiderNest:    3, arcaneCrucible: 3,
+    darkAltar:     3, mithrilForge:  3,
+};
+
+// Era-gated research: defaults to Era 1 if not listed.
+const RESEARCH_ERA = {
+    // Era 2
+    deepMining: 2, coalBunker: 2, sulphurStudy: 2, crystalLore: 2,
+    bellowsDesign: 2, concentratedExtracts: 2, highFireKiln: 2, loomMastery: 2,
+    forgeMastery: 2, mortaredMasonry: 2, arcaneInscription: 2, crystalFocus: 2,
+    arcaneTapping: 2, guildCharter: 2, ironLockbox: 2, tradeGoods: 2, runicScript: 2,
+    // Era 3
+    essenceHarvest: 3, ichorRefinement: 3, silkCulture: 3, manaConductorCoils: 3,
+    mithrilTemper: 3, ritualPrep: 3, darkTexts: 3, silkenWarren: 3,
+    manaConduit: 3, dungeonBlueprint: 3,
+};
+
+// Research keys grouped by era — used to bulk-complete them in dev loadouts.
+const ERA_1_RESEARCH = [
+    "taxes", "toolcraft", "foragerLore", "cropRotation", "composting",
+    "herbGarden", "animalHusbandry", "timberfelling", "carpentry", "stonemason",
+    "quarrying", "oreProspecting", "packHunting", "trapLines", "bonecraft",
+    "reinforcedShelving", "dryCellar", "communalLiving", "bookkeeping",
+    "taxCollector", "roadNetwork", "rationing", "militiaDrill",
+];
+const ERA_2_RESEARCH = [
+    "deepMining", "coalBunker", "sulphurStudy", "crystalLore",
+    "bellowsDesign", "concentratedExtracts", "highFireKiln", "loomMastery",
+    "forgeMastery", "mortaredMasonry", "arcaneInscription", "crystalFocus",
+    "arcaneTapping", "guildCharter", "ironLockbox", "tradeGoods", "runicScript",
+];
+const ERA_3_RESEARCH = [
+    "essenceHarvest", "ichorRefinement", "silkCulture", "manaConductorCoils",
+    "mithrilTemper", "ritualPrep", "darkTexts", "silkenWarren",
+    "manaConduit", "dungeonBlueprint",
+];
+
+// Default dev loadouts: representative fully-researched state for each era.
+const ERA_LOADOUTS = {
+    1: {
+        population: 5,
+        buildings: {
+            lair: 3, farm: 3, lumber: 3, quarry: 2, storage: 2,
+            mine: 0, huntingLodge: 2, herbalistDen: 1, clayPit: 1,
+        },
+        research: [...ERA_1_RESEARCH],
+        resources: {
+            food: 150, wood: 200, stone: 150, ore: 30,
+            herbs: 40, clay: 30, bones: 25, coins: 1500,
+        },
+        workerAssignments: { farm: 3, lumber: 3, quarry: 2 },
+    },
+    2: {
+        population: 20,
+        buildings: {
+            lair: 6, farm: 5, lumber: 4, quarry: 4, storage: 4,
+            mine: 4, coalSeam: 3, huntingLodge: 3, herbalistDen: 2, clayPit: 2, crystalSeam: 2,
+            smelter: 2, alchemyLab: 1, kiln: 1, loom: 1,
+            mageTower: 1, armory: 2, sulphurVent: 1, arcaneGrinder: 1, forge: 1, arcaneBench: 1,
+        },
+        research: [...ERA_1_RESEARCH, ...ERA_2_RESEARCH],
+        resources: {
+            food: 200, wood: 200, stone: 200, ore: 200,
+            herbs: 100, coal: 150, clay: 100, bones: 100, crystals: 75, sulphur: 80,
+            iron: 150, potions: 60, arcaneDust: 60,
+            steel: 50, bricks: 80, cloth: 50, runes: 30,
+            coins: 15000,
+        },
+        workerAssignments: { farm: 5, lumber: 4, quarry: 4, mine: 4 },
+    },
+    3: {
+        population: 40,
+        buildings: {
+            lair: 8, farm: 8, lumber: 6, quarry: 6, storage: 6,
+            mine: 6, coalSeam: 4, huntingLodge: 4, herbalistDen: 3, clayPit: 3, crystalSeam: 3,
+            smelter: 3, alchemyLab: 2, kiln: 2, loom: 2,
+            mageTower: 2, armory: 3, sulphurVent: 2, arcaneGrinder: 2, forge: 2, arcaneBench: 2,
+            ritualCircle: 1, spiderNest: 1, arcaneCrucible: 1, darkAltar: 1, mithrilForge: 1,
+        },
+        research: [...ERA_1_RESEARCH, ...ERA_2_RESEARCH, ...ERA_3_RESEARCH],
+        resources: {
+            food: 200, wood: 200, stone: 200, ore: 200,
+            herbs: 150, coal: 150, clay: 150, bones: 150, crystals: 75, sulphur: 80,
+            iron: 150, potions: 75, arcaneDust: 75, steel: 100, bricks: 120, cloth: 100, runes: 60,
+            essence: 50, silk: 40, manaGold: 40, ichor: 30, mithril: 20,
+            coins: 50000,
+        },
+        workerAssignments: { farm: 8, lumber: 6, quarry: 6, mine: 6 },
+    },
+};
+
 function checkUnlock(id) {
     const def = ROOMS[id];
     if (!def) return false;
+    // Era gate: building not visible until the run reaches the required era
+    if ((BUILDING_ERA[id] || 1) > (gameState.run.era || 1)) return false;
     if (def.unlock) {
         for (const [reqId, reqCount] of Object.entries(def.unlock)) {
             if ((gameState.buildings[reqId] || 0) < reqCount) return false;
@@ -1096,6 +1199,34 @@ function doResearch(key) {
 }
 
 // ── Dev tools ────────────────────────────────────────────────────────────────
+
+// Apply a full era loadout — resets game-relevant state to a canonical
+// starting point for that era with all lower-era research completed.
+function applyEraLoadout(era) {
+    const L = ERA_LOADOUTS[era];
+    if (!L) return;
+    // Reset buildings to zero then apply loadout counts
+    for (const k of Object.keys(gameState.buildings)) gameState.buildings[k] = 0;
+    Object.assign(gameState.buildings, L.buildings);
+    // Complete specified research keys
+    gameState.research = Object.fromEntries(L.research.map(k => [k, true]));
+    // Set resources (zero everything first)
+    for (const k of Object.keys(gameState.resources)) gameState.resources[k] = 0;
+    Object.assign(gameState.resources, L.resources);
+    // Population and workers
+    gameState.population = { count: L.population, growthTimer: 0, starveTick: 0 };
+    gameState.workerAssignments = Object.assign({}, L.workerAssignments || {});
+    // Reset time
+    gameState.time = { tick: 0, day: 1, year: 1, seasonIndex: 0 };
+}
+
+function devSetEra(n) {
+    gameState.run.era = n;
+    applyEraLoadout(n);
+    updateUI();
+    updateIdentityPanel();
+    saveGame();
+}
 
 function devAddResource(res, amount) {
     const caps = getCaps();
@@ -2030,7 +2161,7 @@ function doPrestige() {
     gameState.population = { count: 0, growthTimer: 0, starveTick: 0 };
     gameState.time       = { tick: 0, day: 1, year: 1, seasonIndex: 0 };
     for (const k of Object.keys(gameState.stats)) gameState.stats[k] = 0;
-    gameState.run  = { biome: null, race: null, mods: [] };
+    gameState.run  = { biome: null, race: null, mods: [], era: 1 };
     gameState.meta = savedMeta;
 
     selectStartBiome(false);
@@ -2153,6 +2284,7 @@ if (gameState.meta.totalPrestiges == null)   gameState.meta.totalPrestiges = 0;
 if (!gameState.meta.racesPlayed)             gameState.meta.racesPlayed = {};
 if (!gameState.workerAssignments)            gameState.workerAssignments = {};
 if (!gameState.research)                     gameState.research = {};
+if (!gameState.run.era)                      gameState.run.era = 1;
 // Assign biome on first load (fresh game or old save with no mods yet)
 if (!gameState.run || !gameState.run.mods || gameState.run.mods.length === 0) {
     if (!gameState.run) gameState.run = { biome: null, race: null, mods: [] };
