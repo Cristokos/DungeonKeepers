@@ -341,12 +341,24 @@ function getResearchBonus(type, key) {
 }
 
 // Returns the actual amount gained by a manual gather action, after all research bonuses.
+const GATHER_MOD_BONUSES = {
+    food:  "Abundant Wildlife",
+    wood:  "Dense Timber",
+    stone: "Exposed Rockface",
+};
+
+function hasActiveMod(name) {
+    return (gameState.run && gameState.run.mods || []).some(m => m.name === name);
+}
+
 function getGatherAmount(resourceKey) {
     const action = GATHER_ACTIONS[resourceKey];
     if (!action) return 0;
     let amount = action.amount;
     amount += getResearchBonus('allGatherBonus');
     amount += getResearchBonus('gatherBonus', resourceKey);
+    const modName = GATHER_MOD_BONUSES[resourceKey];
+    if (modName && hasActiveMod(modName)) amount += 1;
     return Math.max(1, Math.floor(amount));
 }
 
@@ -849,6 +861,11 @@ function updateUI() {
         if (btn) {
             const atCap = (gameState.resources[action.resource] || 0) >= caps[action.resource];
             btn.classList.toggle("disabled", atCap);
+        }
+        const yieldEl = document.getElementById("action-yield-" + key);
+        if (yieldEl) {
+            const resName = RESOURCES[action.resource]?.name || action.resource;
+            yieldEl.textContent = `+${getGatherAmount(key)} ${resName}`;
         }
     }
 
