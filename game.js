@@ -405,6 +405,126 @@ function getProduction() {
     return prod;
 }
 
+// ── Resource production breakdown (for hover tooltip) ─────────────────────────
+
+function getResourceBreakdown(res) {
+    const lines = [];
+    const workers = getWorkersPerBuilding();
+    const allBonus = 1 + getResearchBonus('allProductionBonus');
+
+    // Passive production buildings
+    for (const [id, def] of Object.entries(ROOMS)) {
+        const w = workers[id] || 0;
+        if (w === 0 || !def.production || def.converts) continue;
+        if (def.production[res] === undefined) continue;
+        const bldgMult = getResearchBonus('productionBonus', id);
+        const rate = def.production[res] * w * bldgMult * allBonus;
+        lines.push({ label: def.name, sub: `${w}w`, value: rate, drain: false });
+    }
+
+    // Converter outputs (this resource is produced by a converter)
+    for (const [id, def] of Object.entries(ROOMS)) {
+        const w = workers[id] || 0;
+        if (w === 0 || !def.converts) continue;
+        if (def.converts.output !== res) continue;
+        const convMult = getResearchBonus('converterBonus', id);
+        const rate = def.converts.outputRate * convMult * w;
+        lines.push({ label: def.name, sub: `${w}w · max`, value: rate, drain: false });
+    }
+
+    // Converter inputs (this resource is consumed by a converter)
+    for (const [id, def] of Object.entries(ROOMS)) {
+        const w = workers[id] || 0;
+        if (w === 0 || !def.converts) continue;
+        if (def.converts.inputs[res] === undefined) continue;
+        const rate = def.converts.inputs[res] * w;
+        lines.push({ label: def.name, sub: `${w}w · max`, value: -rate, drain: true });
+    }
+
+    // Food: population consumption
+    if (res === 'food' && gameState.population.count > 0) {
+        const mult = getResearchBonus('foodConsumption');
+        const drain = Math.ceil(gameState.population.count * mult);
+        lines.push({ label: 'Population', sub: `${gameState.population.count} creatures`, value: -drain, drain: true });
+    }
+
+    // Coins: daily income sources
+    if (res === 'coins') {
+        const taxRate = getResearchBonus('taxBonus');
+        if (taxRate > 0) {
+            const perDay = gameState.population.count * taxRate;
+            lines.push({ label: 'Taxation', sub: `${taxRate} cp/creature`, value: perDay, drain: false, perDay: true });
+        }
+        if (gameState.research && gameState.research.tradeGoods) {
+            const cloth = gameState.resources.cloth || 0;
+            const potions = gameState.resources.potions || 0;
+            const perDay = Math.floor((cloth + potions) * 2);
+            lines.push({ label: 'Trade Caravans', sub: `${cloth} cloth + ${potions} pot`, value: perDay, drain: false, perDay: true });
+        }
+    }
+
+    return lines;
+}
+
+let _resTooltipEl = null;
+let _resTooltipRes = null;
+
+function _buildResTooltipHTML(res) {
+    const lines = getResourceBreakdown(res);
+    if (lines.length === 0) return '';
+    const sources = lines.filter(l => !l.drain);
+    const drains  = lines.filter(l => l.drain);
+    let html = '';
+    if (sources.length > 0) {
+        html += `<div class="res-tt-header">Production</div>`;
+        for (const l of sources) {
+            const val = l.perDay ? `+${l.value.toFixed(0)}/day` : `+${l.value.toFixed(2)}/s`;
+            html += `<div class="res-tt-row"><span class="res-tt-label">${l.label}<span class="res-tt-sub"> ${l.sub}</span></span><span class="res-tt-val pos">${val}</span></div>`;
+        }
+    }
+    if (drains.length > 0) {
+        html += `<div class="res-tt-section">Consumption</div>`;
+        for (const l of drains) {
+            const val = l.perDay ? `${l.value.toFixed(0)}/day` : `${l.value.toFixed(2)}/s`;
+            html += `<div class="res-tt-row"><span class="res-tt-label">${l.label}<span class="res-tt-sub"> ${l.sub}</span></span><span class="res-tt-val neg">${val}</span></div>`;
+        }
+    }
+    return html;
+}
+
+function _showResTooltip(rowEl, res) {
+    if (!_resTooltipEl) return;
+    _resTooltipRes = res;
+    const html = _buildResTooltipHTML(res);
+    if (!html) { _hideResTooltip(); return; }
+    _resTooltipEl.innerHTML = html;
+    const rect = rowEl.getBoundingClientRect();
+    _resTooltipEl.style.top  = rect.top + 'px';
+    _resTooltipEl.style.left = (rect.right + 8) + 'px';
+    _resTooltipEl.style.display = 'block';
+}
+
+function _hideResTooltip() {
+    if (_resTooltipEl) _resTooltipEl.style.display = 'none';
+    _resTooltipRes = null;
+}
+
+function initResTooltips() {
+    _resTooltipEl = document.getElementById('res-tooltip');
+    document.querySelectorAll('[id^="res-row-"]').forEach(el => {
+        const res = el.id.replace('res-row-', '');
+        el.addEventListener('mouseenter', () => _showResTooltip(el, res));
+        el.addEventListener('mouseleave', _hideResTooltip);
+    });
+}
+
+function _refreshResTooltip() {
+    if (!_resTooltipRes || !_resTooltipEl || _resTooltipEl.style.display === 'none') return;
+    const html = _buildResTooltipHTML(_resTooltipRes);
+    if (html) _resTooltipEl.innerHTML = html;
+    else _hideResTooltip();
+}
+
 function getCaps() {
     const caps = Object.assign({}, BASE_CAPS);
     // Flat cap bonuses from research (dryCellar, animalHusbandry, bonecraft, ritualPrep, etc.)
@@ -731,6 +851,8 @@ function updateUI() {
             btn.classList.toggle("disabled", atCap);
         }
     }
+
+    _refreshResTooltip();
 }
 
 function setText(id, value) {
@@ -1197,4 +1319,5 @@ if (!gameState.run || !gameState.run.mods || gameState.run.mods.length === 0) {
 updateUI();
 updateIdentityPanel();
 devPopulateRaceSelect();
+initResTooltips();
 setInterval(tick, 1000);
