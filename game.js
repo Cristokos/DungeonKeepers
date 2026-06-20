@@ -419,7 +419,7 @@ function setWorkers(id, rawCount) {
 
 function adjustWorkers(id, delta) {
     const current = (gameState.workerAssignments || {})[id] || 0;
-    setWorkers(id, current + delta);
+    setWorkers(id, current + delta * _clickMult);
 }
 
 function getProduction() {
@@ -428,13 +428,15 @@ function getProduction() {
     const workers   = getWorkersPerBuilding();
     const allBonus  = 1 + getResearchBonus('allProductionBonus');
     for (const [id, def] of Object.entries(ROOMS)) {
-        const n = workers[id] || 0;
-        // Skip converter buildings — they are processed separately in tick()
-        if (n > 0 && def.production && !def.converts) {
-            const bldgMult = getResearchBonus('productionBonus', id);
-            for (const [res, rate] of Object.entries(def.production)) {
-                prod[res] = (prod[res] || 0) + rate * n * bldgMult * allBonus;
-            }
+        if (!def.production || def.converts) continue;
+        const count = gameState.buildings[id] || 0;
+        if (count === 0) continue;
+        // Worker buildings scale by assigned workers; all others scale by building count
+        const n = def.jobs ? (workers[id] || 0) : count;
+        if (n === 0) continue;
+        const bldgMult = getResearchBonus('productionBonus', id);
+        for (const [res, rate] of Object.entries(def.production)) {
+            prod[res] = (prod[res] || 0) + rate * n * bldgMult * allBonus;
         }
     }
     return prod;
@@ -449,31 +451,41 @@ function getResourceBreakdown(res) {
 
     // Passive production buildings
     for (const [id, def] of Object.entries(ROOMS)) {
-        const w = workers[id] || 0;
-        if (w === 0 || !def.production || def.converts) continue;
+        if (!def.production || def.converts) continue;
         if (def.production[res] === undefined) continue;
+        const count = gameState.buildings[id] || 0;
+        if (count === 0) continue;
+        const n = def.jobs ? (workers[id] || 0) : count;
+        if (n === 0) continue;
         const bldgMult = getResearchBonus('productionBonus', id);
-        const rate = def.production[res] * w * bldgMult * allBonus;
-        lines.push({ label: def.name, sub: `${w}w`, value: rate, drain: false });
+        const rate = def.production[res] * n * bldgMult * allBonus;
+        const sub = def.jobs ? `${n}w` : `×${count}`;
+        lines.push({ label: def.name, sub, value: rate, drain: false });
     }
 
     // Converter outputs (this resource is produced by a converter)
     for (const [id, def] of Object.entries(ROOMS)) {
-        const w = workers[id] || 0;
-        if (w === 0 || !def.converts) continue;
-        if (def.converts.output !== res) continue;
+        if (!def.converts || def.converts.output !== res) continue;
+        const count = gameState.buildings[id] || 0;
+        if (count === 0) continue;
+        const n = def.jobs ? (workers[id] || 0) : count;
+        if (n === 0) continue;
         const convMult = getResearchBonus('converterBonus', id);
-        const rate = def.converts.outputRate * convMult * w;
-        lines.push({ label: def.name, sub: `${w}w · max`, value: rate, drain: false });
+        const rate = def.converts.outputRate * convMult * n;
+        const sub = (def.jobs ? `${n}w` : `×${count}`) + ' · max';
+        lines.push({ label: def.name, sub, value: rate, drain: false });
     }
 
     // Converter inputs (this resource is consumed by a converter)
     for (const [id, def] of Object.entries(ROOMS)) {
-        const w = workers[id] || 0;
-        if (w === 0 || !def.converts) continue;
-        if (def.converts.inputs[res] === undefined) continue;
-        const rate = def.converts.inputs[res] * w;
-        lines.push({ label: def.name, sub: `${w}w · max`, value: -rate, drain: true });
+        if (!def.converts || def.converts.inputs[res] === undefined) continue;
+        const count = gameState.buildings[id] || 0;
+        if (count === 0) continue;
+        const n = def.jobs ? (workers[id] || 0) : count;
+        if (n === 0) continue;
+        const rate = def.converts.inputs[res] * n;
+        const sub = (def.jobs ? `${n}w` : `×${count}`) + ' · max';
+        lines.push({ label: def.name, sub, value: -rate, drain: true });
     }
 
     // Food: population consumption
@@ -604,18 +616,33 @@ function canAfford(id) {
 
 // ── Actions ───────────────────────────────────────────────────────────────────
 
+// ── Click-modifier (Shift=×5, Ctrl=×25, Shift+Ctrl=×100) ────────────────────
+let _clickMult = 1;
+document.addEventListener('mousedown', e => {
+    if (e.shiftKey && e.ctrlKey) _clickMult = 100;
+    else if (e.ctrlKey)          _clickMult = 25;
+    else if (e.shiftKey)         _clickMult = 5;
+    else                         _clickMult = 1;
+});
+
 function build(id) {
-    if (!canAfford(id)) return;
-    const cost = getBuildCost(id);
-    for (const [res, amount] of Object.entries(cost)) {
-        gameState.resources[res] -= amount;
+    const times = _clickMult;
+    let bought = 0;
+    for (let i = 0; i < times; i++) {
+        if (!canAfford(id)) break;
+        const cost = getBuildCost(id);
+        for (const [res, amount] of Object.entries(cost)) {
+            gameState.resources[res] -= amount;
+        }
+        const def = ROOMS[id];
+        if (def.coinCost) {
+            gameState.resources.coins = Math.max(0, (gameState.resources.coins || 0) - def.coinCost);
+        }
+        gameState.buildings[id] = (gameState.buildings[id] || 0) + 1;
+        bought++;
     }
-    const def = ROOMS[id];
-    if (def.coinCost) {
-        gameState.resources.coins = Math.max(0, (gameState.resources.coins || 0) - def.coinCost);
-    }
-    gameState.buildings[id] = (gameState.buildings[id] || 0) + 1;
-    gameState.stats.buildingsConstructed = (gameState.stats.buildingsConstructed || 0) + 1;
+    if (bought === 0) return;
+    gameState.stats.buildingsConstructed = (gameState.stats.buildingsConstructed || 0) + bought;
     updateUI();
     saveGame();
 }
@@ -652,8 +679,11 @@ function tick() {
     const workers2 = getWorkersPerBuilding();
     for (const [id, def] of Object.entries(ROOMS)) {
         if (!def.converts) continue;
-        const w = workers2[id] || 0;
-        if (w === 0 || (gameState.buildings[id] || 0) === 0) continue;
+        const count = gameState.buildings[id] || 0;
+        if (count === 0) continue;
+        // Worker buildings need assigned workers; others run automatically per building
+        const w = def.jobs ? (workers2[id] || 0) : count;
+        if (w === 0) continue;
         const conv = def.converts;
         let ratio = 1;
         for (const [res, rate] of Object.entries(conv.inputs)) {
@@ -836,14 +866,14 @@ function updateUI() {
     for (const [key, def] of Object.entries(RESEARCH)) {
         const card = document.getElementById("research-" + key);
         if (!card) continue;
+        const done       = !!(gameState.research && gameState.research[key]);
         const prereqsMet = !def.requiresResearch || def.requiresResearch.every(k => gameState.research && gameState.research[k]);
-        card.style.display = prereqsMet ? "" : "none";
+        card.style.display = (!done && prereqsMet) ? "" : "none";
+        if (done) continue;
         const btn = document.getElementById("btn-research-" + key);
         if (!btn) continue;
-        const done = !!(gameState.research && gameState.research[key]);
-        card.classList.toggle("researched", done);
-        btn.textContent = done ? "Researched" : "Research";
-        btn.disabled    = done || !canAffordResearch(key);
+        btn.textContent = "Research";
+        btn.disabled    = !canAffordResearch(key);
     }
 
     // ── Info tab ──────────────────────────────────────────────────────────────
