@@ -1654,7 +1654,7 @@ function showWiki(id) {
 
     var NS = 'http://www.w3.org/2000/svg';
     var CX = 950, CY = 950;
-    var R1 = 200, R2 = 490, R3 = 750;
+    var R1 = 200, R2 = 490, R3 = 820;
 
     var RACE_PATHS = [
         { name: 'Primal',    color: '#58b878', angle: 0,   types: ['Monstrous','Lycanthrope','Flora','Aquatic'] },
@@ -1688,22 +1688,151 @@ function showWiki(id) {
         'Flora':'#58b878','Aquatic':'#40a8c8','Humanoid':'#60a8d0',
     };
 
+    var PATH_DESCS = {
+        'Primal':    'Creatures of claw, fang, and primal instinct. Hunters, beasts, and forces of raw nature.',
+        'Shadow':    'Creatures of darkness, death, and the beyond. Feed on the living — or nothing at all.',
+        'Arcane':    'Creatures bound to magic, mystery, and ancient power. Arcane amplifiers and enigmatic minds.',
+        'Civilized': 'Creatures with society, order, or purpose-built design. Structured, industrious, and disciplined.',
+    };
+
     var TYPE_DESCS = {
-        'Goblinoid':   'Fast breeders with +1 all gather. Ravenous but cramped lairs hold 8.',
-        'Undead':      'Nearly foodless but growth ×3. Bone collectors with dark synergies.',
-        'Draconic':    'All production +25% and huge coin hoard, but hungry and rare.',
-        'Fey':         'Lumber & herbs ×1.4, light eaters, nimble foragers.',
-        'Aberration':  'Crystal and arcane masters with alien metabolism and slow emergence.',
-        'Ooze':        'Vast storage, barely eat, +8% all production passively.',
-        'Elemental':   'Coal & sulphur ×2, almost no food needed, but coalesce slowly.',
-        'Monstrous':   'Quarry & mine +40%, all production +15%, big appetites.',
-        'Fiend':       '+2 cp/creature/day, dark ritual mastery, summoned not born.',
-        'Giant':       '+30% all production and huge resource caps. Eat ×2, tiny Lairs.',
-        'Construct':   'Almost no food, quarry/mine/smelter +30%, each must be forged.',
-        'Lycanthrope': 'Hunting ×2, +2 all gather, fast pack growth, hungry.',
-        'Flora':       'Lumber & herbs ×2, 75% less food, wood gather bonus, slow growth.',
-        'Aquatic':     'Clay ×2, hunt +30%, seafood diet, tidal foraging, swift growth.',
-        'Humanoid':    'All-rounder — +8% production, civic taxes, versatile gatherers.',
+        'Goblinoid':   'Prolific horde-breeders who compensate for individual weakness with sheer numbers and mob scavenging. Cramped but numerous.',
+        'Undead':      'Near-foodless undying labor — slow to raise but tireless. Thrive in darkness, collect bones, and draw on essence.',
+        'Draconic':    'Apex prestige race: powerful, greedy, and rare. Tremendous production and coin hoarding at the cost of vast appetites and slow growth.',
+        'Fey':         'Nimble nature-touched foragers with light appetites and a deep affinity for lumber, herbs, and forest gathering.',
+        'Aberration':  'Alien minds that resonate strongly with arcane and crystal production. Unusual biology demands unusual feeding.',
+        'Ooze':        'Passive, patient, and vast. Oozes barely eat, store enormous quantities, and seep into every production process.',
+        'Elemental':   'Beings of pure elemental force. Nearly foodless and tuned to raw material extraction, but slow to coalesce.',
+        'Monstrous':   'Savage heavyweights. Brute extraction specialists with tremendous production output and matching appetites.',
+        'Fiend':       'Infernal contract workers who tithe heavily, master dark rituals, and must be summoned rather than bred.',
+        'Giant':       'Colossal laborers of immense productivity. Require vast food, vast lairs, and vast patience to assemble.',
+        'Construct':   'Built, not born. Indestructible, nearly foodless, and exceptionally efficient at mining and refining — but slow to forge.',
+        'Lycanthrope': 'Pack hunters with keen senses and fast growth. Excel at hunting and gathering but consume more food.',
+        'Flora':       'Living plant creatures who barely eat but grow slowly. Masters of lumber, herb, and botanical gathering.',
+        'Aquatic':     'Sea-adapted creatures with efficient metabolisms, excellent clay production, and swift growth cycles.',
+        'Humanoid':    'Versatile generalists. Adaptable, civic-minded, and balanced — no extremes, all bases covered.',
+    };
+
+    var CREATURE_DATA = {
+        'Metallic Dragon':    { desc: 'Noble and wise, metallic dragons accumulate vast treasures and forge alliances that yield enormous wealth.', mods: [{n:'Noble Hoard',p:true,d:'Further increases Coin cap beyond the base Draconic bonus.'}] },
+        'Lizardfolk':         { desc: 'Cold-blooded and pragmatic, lizardfolk are cunning hunters who need surprisingly little food to stay sharp.', mods: [{n:'Cold-Blooded',p:true,d:'Further reduces food consumption beyond base Draconic levels.'}] },
+        'Kobold':             { desc: 'Scrappy and numerous for draconic creatures, kobolds breed faster than their kin and excel at mining their masters\'s lairs.', mods: [{n:'Draconic Servitude',p:true,d:'Mines produce more; breeds faster than typical Draconic.'}] },
+        'Yuan-ti':            { desc: 'Serpentine sorcerers who blend alchemy and arcane arts with cold, calculating precision.', mods: [{n:'Serpent\'s Wisdom',p:true,d:'Alchemy Labs run more efficiently.'}] },
+        'Wyvern':             { desc: 'Swift aerial hunters whose keen eyes spot resources others miss. Less cunning than true dragons, but fast and fierce.', mods: [{n:'Aerial Hunter',p:true,d:'Extra yield on all manual gathers.'}] },
+        'Dragonborn':         { desc: 'Proud inheritors of draconic blood, dragonborn organize societies with military precision, extracting loyalty and coin from all.', mods: [{n:'Draconic Honor-Code',p:true,d:'Extra coin per creature per day.'}] },
+        'Skeleton':           { desc: 'Simple animated bones — cheap to maintain and perpetually obedient. The backbone of any undead workforce.' },
+        'Zombie':             { desc: 'Slow but relentless, zombies toil without complaint. Their surplus flesh occasionally requires supplemental feeding.', mods: [{n:'Putrid Hunger',p:false,d:'Requires more food than other Undead.'}] },
+        'Vampire':            { desc: 'Seductive lords of the night who command loyalty through fear and coin. Their undead nature is masked behind aristocratic glamour.', mods: [{n:'Lord of the Night',p:true,d:'Extra coin per creature per day.'}] },
+        'Wight':              { desc: 'Fallen warriors animated by hate. They dominate lesser undead and push work quotas higher through sheer menace.', mods: [{n:'Wight\'s Command',p:true,d:'Extra all-production bonus.'}] },
+        'Ghoul':              { desc: 'Feral undead that haunt graveyards and charnel houses, stripping bones with terrifying efficiency.', mods: [{n:'Charnel Efficiency',p:true,d:'Hunting Lodges produce more; extra Bone cap.'}] },
+        'Revenant':           { desc: 'Driven by unyielding purpose, revenants pursue their singular goal with relentless determination — and grow slightly faster than most undead.', mods: [{n:'Singular Purpose',p:true,d:'Faster growth than typical Undead.'}] },
+        'Banshee':            { desc: 'Wailing spirits whose screams curdle blood. Their terror keeps workers productive through sheer dread.', mods: [{n:'Shriek of Dread',p:true,d:'Extra coin per creature per day.'}] },
+        'Wraith':             { desc: 'Incorporeal undead who phase through walls. Their shadow-touch can extract essence from bare stone.', mods: [{n:'Phase Walker',p:true,d:'Extra stone on manual gather; extra Essence cap.'}] },
+        'Mummy':              { desc: 'Ancient undead wrapped in cursed linen. Mummies carry immense reserves of preserved essence from ages past.', mods: [{n:'Preserved Essence',p:true,d:'Extra Essence cap.'}] },
+        'Demilich':           { desc: 'A lich reduced to its phylactery core — a floating skull of incomprehensible arcane density. The ultimate arcane amplifier.', mods: [{n:'Soul Condenser',p:true,d:'Arcane Benches and Ritual Circles run more efficiently.'}] },
+        'Shadow':             { desc: 'Creatures of pure darkness, shadows need almost no sustenance and multiply faster than their undead kin.', mods: [{n:'Shade Multiplication',p:true,d:'Further halved food consumption; grows much faster than base Undead.'}] },
+        'Goblin':             { desc: 'The quintessential dungeon fodder — cowardly alone, dangerous in overwhelming numbers. Speed and chaos are their weapons.' },
+        'Hobgoblin':          { desc: 'Disciplined goblinoid soldiers who bring military order to the dungeon. Their regimented labor is more efficient than frenzied mob work.', mods: [{n:'Military Discipline',p:true,d:'Extra all-production bonus.'}] },
+        'Bugbear':            { desc: 'Massive goblinoids who excel at brute labor. Their size means fewer fit in each lair.', mods: [{n:'Bugbear Brawn',p:true,d:'Quarries and Mines produce more. Fewer Bugbears per Lair.'}] },
+        'Orc':                { desc: 'Fierce and relentless, orcs raid and conquer to fuel their dungeon\'s growth. Raw aggression yields more from the land.', mods: [{n:'Warchief\'s Drive',p:true,d:'Extra yield on all manual gathers.'}] },
+        'Gnoll':              { desc: 'Hyena-folk with an obsessive hunger. Gnolls consume more but their pack hunting brings exceptional bone and food yields.', mods: [{n:'Gnoll Pack Hunt',p:true,d:'Hunting Lodges produce more; extra Bone cap; eats more.'}] },
+        'Pixie':              { desc: 'Tiny and mischievous, pixies flit through your dungeon making everything slightly more chaotic — and somehow more productive.', mods: [{n:'Pixie Dust',p:true,d:'Extra yield on all manual gathers.'}] },
+        'Dryad':              { desc: 'Tree spirits bonded to ancient wood. Dryads coax lumber from the forest at supernatural rates.', mods: [{n:'Grove Bond',p:true,d:'Lumber Camps produce more; extra wood per gather.'}] },
+        'Satyr':              { desc: 'Hedonistic fey who turn labor into revelry. Their joie de vivre boosts morale and subtly increases all output.', mods: [{n:'Reveler\'s Touch',p:true,d:'Extra all-production bonus.'}] },
+        'Quickling':          { desc: 'Blurringly fast fey who zip through your dungeon harvesting resources with supernatural speed.', mods: [{n:'Fey Speed',p:true,d:'Extra food, wood, and stone per gather; grows faster than base Fey.'}] },
+        'Green Hag':          { desc: 'Ancient fey crones who use dark herbalism to stretch resources and reduce food needs with bitter curses.', mods: [{n:'Wicked Herbalism',p:true,d:'Further food reduction; Alchemy Labs produce more; extra Herb cap.'}] },
+        'Homunculus':         { desc: 'A tiny alchemical familiar born from arcane rituals. Homunculi resonate with fey magic and amplify alchemical processes.', mods: [{n:'Alchemical Familiar',p:true,d:'Alchemy Labs and Arcane Grinders produce more; grows faster than base Fey.'}] },
+        'Mind Flayer':        { desc: 'Psychic overlords who enslave lesser beings with ease. Their intellect drains create a disturbing productivity boost.', mods: [{n:'Cerebral Domination',p:true,d:'Extra all-production bonus.'}] },
+        'Beholder':           { desc: 'The paranoid many-eyed tyrant. A beholder\'s disintegration ray mines stone and ore at alarming rates.', mods: [{n:'Disintegration Mining',p:true,d:'Quarries and Mines produce significantly more.'}] },
+        'Aboleth':            { desc: 'Ancient aquatic tyrants with memories older than civilization. Their thralls work with preternatural focus.', mods: [{n:'Memory of Ages',p:true,d:'Extra all-production bonus.'}] },
+        'Gibbering Mouther':  { desc: 'A mass of eyes and mouths that dissolves everything it contacts. Exceptional at conversion but terrible at containment.', mods: [{n:'Endless Consumption',p:false,d:'Storage buildings hold less; converters run more efficiently.'}] },
+        'Nothic':             { desc: 'Warped scholars driven mad by forbidden knowledge. Their cursed insight accelerates arcane extraction.', mods: [{n:'Rotting Insight',p:true,d:'Crystal Seams and Arcane Grinders produce more.'}] },
+        'Chuul':              { desc: 'Hulking crustacean aberrations who excel at heavy extraction work. Their alien constitution requires unusual feeding.', mods: [{n:'Exoskeletal Labor',p:true,d:'Quarries and Mines produce more; requires slightly more food.'}] },
+        'Grell':              { desc: 'Floating tentacled predators who stalk dungeon tunnels. Their efficient digestion extends food resources.', mods: [{n:'Efficient Digestion',p:true,d:'Further food reduction; extra Food cap.'}] },
+        'Flumph':             { desc: 'Gentle psychic creatures, outsiders in this dark world. Flumphs boost morale dramatically with their benevolent auras.', mods: [{n:'Benevolent Aura',p:true,d:'Extra all-production bonus and extra coin per creature per day.'}] },
+        'Gelatinous Cube':    { desc: 'A perfectly geometric ooze that dissolves and digests everything it touches, leaving dungeons spotlessly clean and resource-dense.', mods: [{n:'Perfect Dissolution',p:true,d:'Extra storage per building; extra Food cap.'}] },
+        'Black Pudding':      { desc: 'A ravenous acidic ooze that corrodes metal — then absorbs it. Exceptional at refining ore, terrible at containment.', mods: [{n:'Acid Refinement',p:true,d:'Smelters produce more.'}] },
+        'Gray Ooze':          { desc: 'A corroding slime that seeps through ore deposits and pre-processes metal with its acidic secretions.', mods: [{n:'Acid Seep',p:true,d:'Mines and Smelters produce more.'}] },
+        'Ochre Jelly':        { desc: 'A splitting ooze that divides when struck. This reproductive efficiency makes Ochre Jellies replenish their numbers far faster.', mods: [{n:'Divide and Conquer',p:true,d:'Grows significantly faster than other Oozes.'}] },
+        'Void Ooze':          { desc: 'A rare ooze infused with planar void energy. Its null-matter body consumes almost nothing and stores resources with supernatural efficiency.', mods: [{n:'Null Containment',p:true,d:'Further food reduction; extra storage per building.'}] },
+        'Fire Elemental':     { desc: 'Living flames that burn with purpose. Fire elementals supercharge smelting and forge operations beyond normal limits.', mods: [{n:'Living Flame',p:true,d:'Coal Seams, Smelters, and Forges produce more.'}] },
+        'Earth Elemental':    { desc: 'Living stone that mines with intimate knowledge of rock and ore. Earth elementals tear through solid rock effortlessly.', mods: [{n:'Earth Sense',p:true,d:'Quarries and Mines produce more; extra Stone cap.'}] },
+        'Water Elemental':    { desc: 'Fluid and pervasive, water elementals flow into clay pits and herbalist operations, softening earth and accelerating growth.', mods: [{n:'Flowing Touch',p:true,d:'Clay Pits and Herbalist Dens produce more; extra Herb cap.'}] },
+        'Air Elemental':      { desc: 'Swift and invisible, air elementals carry resources through the dungeon with supernatural speed, boosting all gathering efforts.', mods: [{n:'Wind Courier',p:true,d:'Extra yield on all manual gathers; grows faster than base Elemental.'}] },
+        'Harpy':              { desc: 'Winged hunters whose shrieking dives scatter prey. Harpies excel at aerial gathering and consume less than most monsters.', mods: [{n:'Aerial Scavenger',p:true,d:'Extra yield on all gathers; slight food reduction.'}] },
+        'Medusa':             { desc: 'Stone-gazing terrors who accidentally (and deliberately) produce an endless supply of petrified stone resources.', mods: [{n:'Petrifying Gaze',p:true,d:'Quarries produce more; extra Stone cap.'}] },
+        'Minotaur':           { desc: 'Legendary maze-guardians of immense strength. Minotaurs are brutally efficient in mines and quarries.', mods: [{n:'Labyrinth Strength',p:true,d:'Quarries and Mines produce more.'}] },
+        'Troll':              { desc: 'Regenerating brutes with an insatiable appetite and indestructible bodies. Trolls eat more but work without fatigue.', mods: [{n:'Regenerating Workforce',p:true,d:'Extra all-production bonus; eats significantly more.'}] },
+        'Werewolf':           { desc: 'Lycanthropic monstrosities who hunt and howl. Werewolves bridge the gap between Monstrous and Lycanthrope instincts.', mods: [{n:'Full Moon Hunt',p:true,d:'Hunting Lodges produce more; extra yield on all gathers.'}] },
+        'Naga':               { desc: 'Serpentine sages who blend monstrous cunning with arcane insight. Nagas amplify magical conversion processes.', mods: [{n:'Serpent\'s Lore',p:true,d:'Alchemy Labs and Arcane Grinders produce more.'}] },
+        'Basilisk':           { desc: 'Eight-legged stone-gazers whose very presence slowly petrifies the dungeon walls, extracting stone from thin air.', mods: [{n:'Stone Gaze',p:true,d:'Quarries produce more; extra stone per manual gather.'}] },
+        'Chimera':            { desc: 'A chaotic amalgam of lion, goat, and dragon. Chimeras are unpredictable but their triple nature touches everything they do.', mods: [{n:'Triple Nature',p:true,d:'Extra all-production bonus; extra yield on all gathers.'}] },
+        'Manticore':          { desc: 'Winged predators with venom-spiked tails. Manticores patrol vast territories, gathering more with each sweep.', mods: [{n:'Venomous Patrol',p:true,d:'Extra yield on all gathers; extra Food and Bone caps.'}] },
+        'Griffon':            { desc: 'Noble winged hunters whose aerial perspective reveals hidden veins of ore and pockets of resources.', mods: [{n:'Eagle Eye',p:true,d:'Mines produce more; extra yield on all gathers.'}] },
+        'Hydra':              { desc: 'Nine-headed terrors that regenerate endlessly. A hydra processes resources in parallel through all its heads simultaneously.', mods: [{n:'Multi-Headed Efficiency',p:true,d:'Extra all-production bonus; eats more.'}] },
+        'Ettin':              { desc: 'Two-headed giants with a constant internal debate. Despite themselves, dual perspectives improve oversight and tax collection.', mods: [{n:'Divided Mind',p:true,d:'Extra all-production bonus; extra coin per creature per day.'}] },
+        'Imp':                { desc: 'Minor devils who delight in sabotage — of enemies. Imps sneak into rival operations and bring back extra resources.', mods: [{n:'Diabolical Theft',p:true,d:'Extra yield on all gathers.'}] },
+        'Cambion':            { desc: 'Half-fiend nobles with a foot in both worlds. Their dual nature extracts tribute from living and dead alike.', mods: [{n:'Dual Heritage',p:true,d:'Extra coin per creature per day; extra all-production bonus.'}] },
+        'Barbed Devil':       { desc: 'Spined enforcers who inspire productivity through pain. Workers under barbed devil supervision consistently exceed output quotas.', mods: [{n:'Spiked Motivation',p:true,d:'Extra all-production bonus.'}] },
+        'Night Hag':          { desc: 'Dream-devouring witches who harvest essence from sleeping creatures. Their nightmare brews are invaluable to dark alchemy.', mods: [{n:'Nightmare Harvest',p:true,d:'Alchemy Labs and Ritual Circles produce more; extra Essence cap.'}] },
+        'Succubus/Incubus':   { desc: 'Shape-shifting seducers who manipulate through charm. Their influence makes taxation feel voluntary — and highly profitable.', mods: [{n:'Irresistible Charm',p:true,d:'Extra coin per creature per day; further food reduction.'}] },
+        'Pit Fiend':          { desc: 'High-ranking lords of Hell who command absolute obedience. A Pit Fiend\'s presence dramatically increases all output.', mods: [{n:'Infernal Authority',p:true,d:'Extra all-production bonus; extra coin per creature per day.'}] },
+        'Balor':              { desc: 'A demon of pure destruction and fire. Balors incinerate waste and inefficiency, leaving only productive essence behind.', mods: [{n:'Immolation Refinery',p:true,d:'Extra all-production bonus; Dark Altars produce more.'}] },
+        'Rakshasa':           { desc: 'Tiger-headed sorcerer-lords who scheme and trade across planes. Their mercantile genius multiplies coin income dramatically.', mods: [{n:'Planar Merchant',p:true,d:'Extra coin per creature per day; extra Coin cap.'}] },
+        'Quasit':             { desc: 'A lesser demon and spy. Quasits sneak into rival operations and bring back knowledge, subtly improving gather efficiency.', mods: [{n:'Spy\'s Report',p:true,d:'Extra yield on all gathers.'}] },
+        'Shadow Demon':       { desc: 'Pure shadow given malevolent will. Shadow Demons feed on no food, slip through solid stone, and warp dark ritual rites to terrifying effect.', mods: [{n:'Shadow Rite',p:true,d:'Further food reduction; Ritual Circles produce more; extra Essence cap.'}] },
+        'Hill Giant':         { desc: 'The most common and dullest of giants. Hill giants smash things productively, eat everything in sight, and need no praise for it.' },
+        'Stone Giant':        { desc: 'Gifted sculptors and master quarrymen, stone giants work stone with an artistry bordering on the divine.', mods: [{n:'Stone Artistry',p:true,d:'Quarries produce more; extra Stone cap.'}] },
+        'Frost Giant':        { desc: 'Cold raiders from icy peaks who preserve resources through natural refrigeration. Food spoilage is simply not a concern.', mods: [{n:'Frost Preservation',p:true,d:'Extra Food cap; eats less than typical Giants.'}] },
+        'Fire Giant':         { desc: 'Master smiths in fire-hardened armor. Fire giants supercharge all metal production processes with infernal expertise.', mods: [{n:'Master Smithing',p:true,d:'Mines, Smelters, and Forges all produce more.'}] },
+        'Cloud Giant':        { desc: 'Aristocratic giants who rule from sky castles and levy aerial tolls. Their elevated perspective brings unusual strategic insight.', mods: [{n:'Cloud Castle Tribute',p:true,d:'Extra coin per creature per day; extra all-production bonus.'}] },
+        'Storm Giant':        { desc: 'The mightiest of giants, Storm Giants command weather itself. Their power radiates into all production.', mods: [{n:'Storm\'s Command',p:true,d:'Extra all-production bonus; extra Coin cap.'}] },
+        'Stone Golem':        { desc: 'The most durable construct, chiseled from solid granite. A stone golem\'s immense weight makes it ideal for quarry work.', mods: [{n:'Granite Frame',p:true,d:'Quarries produce more; extra Stone cap.'}] },
+        'Iron Golem':         { desc: 'The gold standard of construct laborers. An iron golem\'s immense strength and immunity to fatigue maximizes ore production.', mods: [{n:'Iron Constitution',p:true,d:'Mines and Smelters produce more.'}] },
+        'Animated Armor':     { desc: 'Hollow suits of enchanted armor that guard and work in equal measure. Their intimidating presence improves tax compliance.', mods: [{n:'Armored Presence',p:true,d:'Extra coin per creature per day; extra all-production bonus.'}] },
+        'Werebear':           { desc: 'Powerful shapeshifters who combine human intelligence with bear strength. Werebears excel at both resource extraction and woodcutting.', mods: [{n:'Bear Strength',p:true,d:'Quarries and Lumber Camps produce more.'}] },
+        'Wererat':            { desc: 'Sly rat-shifters who excel at finding resources in the most unlikely places. Their scavenging network is unmatched.', mods: [{n:'Scavenger Network',p:true,d:'Extra yield on all gathers; extra Food cap.'}] },
+        'Wereboar':           { desc: 'Stubborn and savage, wereboars plow through work with unyielding momentum. Their brute extraction is excellent but appetite steep.', mods: [{n:'Boar\'s Rush',p:true,d:'Quarries and Mines produce more; eats more.'}] },
+        'Owlbear':            { desc: 'Ferocious hybrid predators who combine owl precision with bear power. Exceptional hunters whose bone piles grow quickly.', mods: [{n:'Feathered Fury',p:true,d:'Hunting Lodges produce more; extra Bone cap.'}] },
+        'Displacer Beast':    { desc: 'Six-legged predators who shift phase to avoid predators — and the tax collector. Fearsome hunters, elusive taxpayers.', mods: [{n:'Phase Predator',p:false,d:'Hunting Lodges produce more; pays less in daily coin.'}] },
+        'Treant':             { desc: 'Ancient tree-folk who are living lumber yet fiercely protect their forests. Treants boost wood production through deep symbiosis.', mods: [{n:'Forest Guardian',p:true,d:'Lumber Camps produce more; extra Wood cap.'}] },
+        'Myconid':            { desc: 'Fungal beings who spread their spores through the dungeon, dramatically increasing herb and alchemy yields.', mods: [{n:'Spore Network',p:true,d:'Herbalist Dens and Alchemy Labs produce more; extra Herb cap.'}] },
+        'Vegepygmy':          { desc: 'Small plant-folk who grow rapidly and tend to the dungeon\'s green corners. Their fast growth partially offsets the Flora growth penalty.', mods: [{n:'Rapid Growth Cycle',p:true,d:'Grows much faster than other Flora; extra food per gather.'}] },
+        'Shambling Mound':    { desc: 'A massive heap of animate vegetation that absorbs nutrients from everything around it, dramatically boosting farming and herb gathering.', mods: [{n:'Nutrient Absorption',p:true,d:'Farms and Herbalist Dens produce more; extra Food cap.'}] },
+        'Vine Blight':        { desc: 'Creeping plant horrors that spread through dungeon corridors and pull in wood resources from every corner.', mods: [{n:'Creeping Spread',p:true,d:'Lumber Camps produce more; extra wood per manual gather.'}] },
+        'Wood Woad':          { desc: 'Ancient bark-skinned guardians who emerge from the deep forest. Their stoic resilience lets them work longer before needing rest.', mods: [{n:'Bark Endurance',p:true,d:'Grows faster than base Flora; Quarries produce more.'}] },
+        'Merfolk':            { desc: 'Civilized aquatic beings who build sophisticated underwater settlements. Their social organization improves tax collection.', mods: [{n:'Mer-Society',p:true,d:'Extra coin per creature per day.'}] },
+        'Sahuagin':           { desc: 'Aggressive sea devils who raid coastal settlements. Their brutality at sea translates to extraordinary hunting and gathering yields.', mods: [{n:'Sea Raid',p:true,d:'Hunting Lodges produce more; extra yield on all gathers.'}] },
+        'Kuo-toa':            { desc: 'Mad fish-folk who worship inscrutable gods. Their collective religious fervor, though bizarre, produces ritual outputs others cannot match.', mods: [{n:'Frenzied Worship',p:true,d:'Ritual Circles produce more; extra Essence cap.'}] },
+        'Triton':             { desc: 'Noble sea-folk guardians of the deep. Tritons bring military discipline and aquatic mastery to clay and stone extraction.', mods: [{n:'Deep Warden',p:true,d:'Clay Pits produce more; extra all-production bonus.'}] },
+        'Kenku':              { desc: 'Flightless crow-folk with an uncanny ability to copy and replicate any process they observe. All production benefits slightly.', mods: [{n:'Mimicry',p:true,d:'Extra all-production bonus.'}] },
+        'Tabaxi':             { desc: 'Cat-folk nomads who sprint through your dungeon collecting resources with fluid, predatory grace.', mods: [{n:'Cat\'s Alacrity',p:true,d:'Extra yield on all gathers; slight food reduction.'}] },
+        'Aarakocra':          { desc: 'Bird-folk who soar above the dungeon, spotting resource deposits with sharp avian eyes. Their aerial view enhances all gathering.', mods: [{n:'Bird\'s Eye View',p:true,d:'Extra yield on all gathers; extra stone per gather.'}] },
+        'Tortle':             { desc: 'Patient shell-folk with an innate gift for construction and storage. Tortles carry more, build more efficiently, and store more.', mods: [{n:'Shell Storage',p:true,d:'Extra storage per building; extra Stone cap.'}] },
+        'Centaur':            { desc: 'Half-horse warriors who range across the dungeon collecting resources with unmatched speed. Mobility multiplies yield.', mods: [{n:'Swift Hooves',p:true,d:'Extra yield on all gathers; extra food per gather.'}] },
+        'Human':              { desc: 'Adaptable generalists who excel at nothing in particular but fall behind in nothing either. Humans bring a modest boost to everything they touch.', mods: [{n:'Generalist Drive',p:true,d:'Extra all-production bonus.'}] },
+        'Elf':                { desc: 'Long-lived forest folk with an affinity for wood and arcane crystal. Elves produce more from natural resources and help gather wood by hand.', mods: [{n:'Forest Attunement',p:true,d:'Lumber Camps and Crystal Seams produce more; extra wood per gather.'}] },
+        'Dwarf':              { desc: 'Stout miners and master smelters whose ancestral bond with stone and metal is unmatched among the surface races.', mods: [{n:'Stonecunning',p:true,d:'Mines, Quarries, and Smelters all produce more.'}] },
+        'Half-Orc':           { desc: 'Born of two worlds, half-orcs carry orcish physical power into a form that can direct it with humanoid focus.', mods: [{n:'Orcish Vigor',p:true,d:'Extra yield on all gathers; grows slightly faster.'}] },
+        'Gnome':              { desc: 'Tinkering inventors with an insatiable curiosity for alchemy and arcane machinery. Gnomes improve all conversion processes.', mods: [{n:'Tinker\'s Touch',p:true,d:'Alchemy Labs and Arcane Grinders produce more; extra yield on all gathers.'}] },
+    };
+
+    var ICONS = {
+        'Draconic':   'M0,-8 L6,0 L0,8 L-6,0 Z M0,-3 L2,0 L0,3 L-2,0 Z',
+        'Undead':     'M-5,-2 C-5,-8 5,-8 5,-2 C5,2 3,4 3,6 L-3,6 C-3,4 -5,2 -5,-2 Z M-3,6 L-3,8 M3,6 L3,8',
+        'Goblinoid':  'M-5,-7 C-6,-9 -3,-9 -3,-5 M5,-7 C6,-9 3,-9 3,-5 M-6,0 C-6,-4 6,-4 6,0 C6,4 4,7 0,7 C-4,7 -6,4 -6,0',
+        'Fey':        'M0,-8 L2,-2 L8,-2 L3,1 L5,7 L0,4 L-5,7 L-3,1 L-8,-2 L-2,-2 Z',
+        'Aberration': 'M-7,0 C-7,-4 7,-4 7,0 C7,4 -7,4 -7,0 Z M-2,0 a2,2 0 1,0 4,0 a2,2 0 1,0 -4,0 M0,-4 L0,-7 M-5,-3 L-7,-6 M5,-3 L7,-6',
+        'Ooze':       'M-3,-7 C-8,-6 -9,-1 -7,3 C-5,7 -1,8 3,7 C7,6 9,2 7,-2 C5,-6 2,-8 -3,-7 Z',
+        'Elemental':  'M0,-8 C5,-1 4,5 0,8 C-4,5 -5,-1 0,-8 Z M-3,1 C0,3 3,1',
+        'Monstrous':  'M-7,-4 C-9,-8 -5,-9 -3,-5 C-1,-2 0,1 0,3 C0,1 1,-2 3,-5 C5,-9 9,-8 7,-4 C6,-1 4,2 4,4 L-4,4 C-4,2 -6,-1 -7,-4',
+        'Fiend':      'M0,-8 L0,7 M-4,-2 L0,1 L4,-2 M-3,7 L0,5 L3,7',
+        'Giant':      'M-5,-7 L5,-7 L5,-1 L7,8 L-7,8 L-5,-1 Z M0,-7 L0,-1',
+        'Construct':  'M-2,-8 L2,-8 L5,-5 L8,2 L5,6 L2,8 L-2,8 L-5,6 L-8,2 L-5,-5 Z M-2,0 a2,2 0 1,0 4,0 a2,2 0 1,0 -4,0',
+        'Lycanthrope':'M0,7 C-5,4 -7,0 -7,-3 C-7,-7 -4,-8 0,-6 C4,-8 7,-7 7,-3 C7,0 5,4 0,7 Z M-4,-5 a1,1 0 1,0 2,0 a1,1 0 1,0 -2,0 M4,-5 a1,1 0 1,0 2,0 a1,1 0 1,0 -2,0 M-2,-7 a1,1 0 1,0 2,0 a1,1 0 1,0 -2,0 M2,-7 a1,1 0 1,0 2,0 a1,1 0 1,0 -2,0',
+        'Flora':      'M0,-8 L0,8 M0,-3 C-4,-5 -7,-1 -5,2 M0,-3 C4,-5 7,-1 5,2',
+        'Aquatic':    'M-8,-2 C-4,-6 4,-6 8,-2 M-8,2 C-4,6 4,6 8,2 M-8,-2 C-6,0 -8,2 M8,-2 C6,0 8,2',
+        'Humanoid':   'M-2,-6 a2,2 0 1,0 4,0 a2,2 0 1,0 -4,0 M-3,-3 C-4,-1 -4,2 -3,5 L3,5 C4,2 4,-1 3,-3 M-4,0 L4,0 M-3,5 L-4,8 M3,5 L4,8',
     };
 
     function rpos(angleDeg, r) {
@@ -1736,12 +1865,27 @@ function showWiki(id) {
         return el;
     }
 
+    function mkIcon(parent, cx, cy, typeName, color) {
+        var d = ICONS[typeName]; if (!d) return;
+        var p = document.createElementNS(NS, 'path');
+        p.setAttribute('d', d);
+        p.setAttribute('transform', 'translate(' + cx + ',' + cy + ') scale(0.70)');
+        p.setAttribute('fill', 'none');
+        p.setAttribute('stroke', color);
+        p.setAttribute('stroke-width', '1.6');
+        p.setAttribute('stroke-linecap', 'round');
+        p.setAttribute('stroke-linejoin', 'round');
+        p.setAttribute('opacity', '0.80');
+        p.style.pointerEvents = 'none';
+        parent.appendChild(p);
+    }
+
     function positionTip(e) {
         var tip = document.getElementById('rtrace-tip');
         var wr  = document.getElementById('rtrace-wrap').getBoundingClientRect();
         var x = e.clientX - wr.left + 18, y = e.clientY - wr.top + 18;
         if (x + 295 > wr.width)  x = e.clientX - wr.left - 311;
-        if (y + 200 > wr.height) y = e.clientY - wr.top  - 216;
+        if (y + 220 > wr.height) y = e.clientY - wr.top  - 236;
         tip.style.left = x + 'px'; tip.style.top = y + 'px';
     }
 
@@ -1750,6 +1894,15 @@ function showWiki(id) {
         el.addEventListener('mouseenter', function (e) { tip.innerHTML = builder(); tip.style.display = 'block'; positionTip(e); });
         el.addEventListener('mousemove',  positionTip);
         el.addEventListener('mouseleave', function ()  { tip.style.display = 'none'; });
+    }
+
+    function buildPathTip(path) {
+        var h = '<div class="rtip-name" style="color:' + path.color + '">' + path.name + '</div>';
+        h += '<div class="rtip-desc">' + (PATH_DESCS[path.name] || '') + '</div>';
+        h += '<div class="rtip-efx-head">Types:</div><ul class="rtip-efx">';
+        path.types.forEach(function(t) { h += '<li>' + t + '</li>'; });
+        h += '</ul>';
+        return h;
     }
 
     function buildTypeTip(typeName, creatures) {
@@ -1765,9 +1918,19 @@ function showWiki(id) {
 
     function buildCreatureTip(cname, typeName) {
         var c = TYPE_COLORS[typeName] || '#888';
-        return '<div class="rtip-name">' + cname + '</div>'
-            + '<div class="rtip-row" style="margin-top:4px"><span style="background:' + c + '22;border:1px solid ' + c + ';color:' + c + ';padding:1px 6px;border-radius:2px;font-size:10px;text-transform:uppercase;letter-spacing:.04em">' + typeName + '</span></div>'
-            + '<div class="rtip-desc" style="margin-top:6px">' + (TYPE_DESCS[typeName] || '') + '</div>';
+        var data = CREATURE_DATA[cname] || {};
+        var h = '<div class="rtip-name">' + cname + '</div>';
+        h += '<div class="rtip-row" style="margin-top:4px"><span style="background:' + c + '22;border:1px solid ' + c + ';color:' + c + ';padding:1px 6px;border-radius:2px;font-size:10px;text-transform:uppercase;letter-spacing:.04em">' + typeName + '</span></div>';
+        if (data.desc) h += '<div class="rtip-desc" style="margin-top:6px">' + data.desc + '</div>';
+        if (data.mods && data.mods.length) {
+            h += '<div class="rtip-efx-head" style="margin-top:6px">Traits:</div><ul class="rtip-efx">';
+            data.mods.forEach(function(m) {
+                var pfx = m.p ? '<span style="color:#7cb878">▲</span> ' : '<span style="color:#c84040">▼</span> ';
+                h += '<li>' + pfx + '<strong>' + m.n + '</strong> — ' + m.d + '</li>';
+            });
+            h += '</ul>';
+        }
+        return h;
     }
 
     function buildRaceTree() {
@@ -1801,10 +1964,12 @@ function showWiki(id) {
             pc.setAttribute('cx', pp.x); pc.setAttribute('cy', pp.y); pc.setAttribute('r', 26);
             pc.setAttribute('fill', path.color); pc.setAttribute('fill-opacity', '0.22');
             pc.setAttribute('stroke', path.color); pc.setAttribute('stroke-width', '2');
+            pc.style.cursor = 'pointer';
             nodeG.appendChild(pc);
             /* Path label just beyond circle */
             var lp = rpos(path.angle, R1 + 42);
             mkTxt(nodeG, lp.x, lp.y, path.name, '13', path.color);
+            wireTooltip(pc, buildPathTip.bind(null, path));
             allNodes.push({ el: pc, name: path.name, level: 1, pathName: path.name });
 
             var N = path.types.length;
@@ -1837,23 +2002,56 @@ function showWiki(id) {
                 wireTooltip(tgrp, buildTypeTip.bind(null, typeName, creatures));
                 allNodes.push({ el: tgrp, name: typeName, level: 2, typeName: typeName, pathName: path.name });
 
-                /* Creature circles */
+                /* Creature rounded-rect nodes */
                 var M = creatures.length;
                 var subSector = 90 / N;
+                var NW = 92, NH = 22;
                 creatures.forEach(function (cname, ci) {
                     var cAngle = typeAngle - subSector / 2 + (ci + 0.5) * subSector / M;
                     var cp     = rpos(cAngle, R3);
 
                     mkEdge(edgeG, tp.x, tp.y, cp.x, cp.y, typeColor);
 
-                    var cr = document.createElementNS(NS, 'circle');
-                    cr.setAttribute('cx', cp.x); cr.setAttribute('cy', cp.y); cr.setAttribute('r', '8');
-                    cr.setAttribute('fill', typeColor); cr.setAttribute('fill-opacity', '0.50');
-                    cr.setAttribute('stroke', typeColor); cr.setAttribute('stroke-width', '1');
-                    cr.style.cursor = 'pointer';
-                    nodeG.appendChild(cr);
-                    wireTooltip(cr, buildCreatureTip.bind(null, cname, typeName));
-                    allNodes.push({ el: cr, name: cname, level: 3, typeName: typeName, pathName: path.name });
+                    var cgrp = document.createElementNS(NS, 'g');
+                    cgrp.style.cursor = 'pointer';
+
+                    var crect = document.createElementNS(NS, 'rect');
+                    crect.setAttribute('x', cp.x - NW/2); crect.setAttribute('y', cp.y - NH/2);
+                    crect.setAttribute('width', NW); crect.setAttribute('height', NH);
+                    crect.setAttribute('rx', 6);
+                    crect.setAttribute('fill', typeColor); crect.setAttribute('fill-opacity', '0.18');
+                    crect.setAttribute('stroke', typeColor); crect.setAttribute('stroke-width', '1.2');
+                    cgrp.appendChild(crect);
+
+                    /* Vertical divider between icon and name */
+                    var divX = cp.x - NW/2 + 22;
+                    var divL = document.createElementNS(NS, 'line');
+                    divL.setAttribute('x1', divX); divL.setAttribute('y1', cp.y - NH/2 + 3);
+                    divL.setAttribute('x2', divX); divL.setAttribute('y2', cp.y + NH/2 - 3);
+                    divL.setAttribute('stroke', typeColor); divL.setAttribute('stroke-width', '0.8');
+                    divL.setAttribute('opacity', '0.35'); divL.style.pointerEvents = 'none';
+                    cgrp.appendChild(divL);
+
+                    /* Type icon (left 22px area) */
+                    mkIcon(cgrp, cp.x - NW/2 + 11, cp.y, typeName, typeColor);
+
+                    /* Creature name (right portion) */
+                    var nameEl = document.createElementNS(NS, 'text');
+                    nameEl.setAttribute('x', cp.x - NW/2 + 22 + (NW - 22) / 2);
+                    nameEl.setAttribute('y', cp.y);
+                    nameEl.setAttribute('text-anchor', 'middle');
+                    nameEl.setAttribute('dominant-baseline', 'middle');
+                    nameEl.setAttribute('font-size', '8');
+                    nameEl.setAttribute('font-family', 'Lato, sans-serif');
+                    nameEl.setAttribute('fill', typeColor);
+                    nameEl.style.pointerEvents = 'none';
+                    nameEl.style.userSelect = 'none';
+                    nameEl.textContent = cname;
+                    cgrp.appendChild(nameEl);
+
+                    nodeG.appendChild(cgrp);
+                    wireTooltip(cgrp, buildCreatureTip.bind(null, cname, typeName));
+                    allNodes.push({ el: cgrp, name: cname, level: 3, typeName: typeName, pathName: path.name });
                 });
             });
         });
@@ -1884,7 +2082,7 @@ function showWiki(id) {
         /* Pan / zoom */
         (function () {
             var wrap = document.getElementById('rtrace-wrap');
-            var scale = 0.40, dragging = false, lx = 0, ly = 0, panX = 0, panY = 0;
+            var scale = 0.44, dragging = false, lx = 0, ly = 0, panX = 0, panY = 0;
 
             function apply() {
                 g.setAttribute('transform', 'translate(' + panX + ',' + panY + ') scale(' + scale + ')');
