@@ -1192,29 +1192,90 @@
             <h2>Changelog</h2>
 
             <div class="biome-card">
+                <div><span class="cl-ver">v0.28</span><span class="cl-date">2026-06-20</span></div>
+                <p class="biome-desc">Added a pan/zoom research tree to the wiki's new Research tab. The tree shows all 50 Era 2 researches, their prerequisite chains, costs, and effects on hover. Restructured research prerequisites so only 5 are visible at game start; each completed research unlocks 1–2 more, keeping the queue tight throughout the run.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.27</span><span class="cl-date">2026-06-19</span></div>
+                <p class="biome-desc">Added 50 Era 2 researches across 11 chains (gathering, agriculture, forestry, mining, hunting, crafting, storage, economy, arcane, and the Era 3 gateway). Introduced a full research bonus engine: production multipliers, gather bonuses, converter bonuses, cap bonuses, housing bonuses, food consumption reduction, and trade income. Stage 5 buildings now require matching research in addition to building counts. Fixed the dev tab Reset Save button, which was silently blocked by browser dialog suppression.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.26</span></div>
+                <p class="biome-desc">Major resource and building expansion. Added 19 new materials across three tiers: raw (ore, herbs, crystals, coal, clay, bones, sulphur), crafted (iron, potions, arcane dust, steel, bricks, cloth, runes), and magical (essence, silk, mana gold, ichor, mithril). Added 22 new buildings across 5 stages including converter buildings that consume inputs to produce outputs. Added Taxation as the first researchable upgrade, enabling daily coin income from population.</p>
+            </div>
+
+            <div class="biome-card">
                 <div><span class="cl-ver">v0.25</span><span class="cl-date">2026-06-19</span></div>
-                <p class="biome-desc">Added this Wiki. The Biome and Creature reference pages were moved out of the in-game tabs and now live here. Open the wiki at any time from the version button in the top-right corner of the game.</p>
+                <p class="biome-desc">Launched the Dungeon Keeper Wiki (wiki.html) with Biome and Creature reference sections. The Biome and Creature tabs were removed from the main game and now live exclusively in the wiki. Introduced version-based cache-busting: all local assets load with a <code>?v=VERSION</code> query string so browsers always fetch the latest files after an update.</p>
             </div>
 
             <div class="biome-card">
                 <div><span class="cl-ver">v0.24</span></div>
-                <p class="biome-desc">Added modifier descriptions and richer tooltips for active run modifiers and race traits.</p>
+                <p class="biome-desc">Added detailed descriptions for all 100 biome modifiers. Enhanced tooltip display for active run modifiers and race traits shown in the identity panel.</p>
             </div>
 
             <div class="biome-card">
                 <div><span class="cl-ver">v0.23</span></div>
-                <p class="biome-desc">Improved biome reroll and hardened the identity panel against missing elements.</p>
+                <p class="biome-desc">Improved error handling in biome reroll. Hardened the identity panel against missing DOM elements to prevent console errors on edge-case saves.</p>
             </div>
 
             <div class="biome-card">
                 <div><span class="cl-ver">v0.22</span></div>
-                <p class="biome-desc">Added a total-prestiges display and expanded prestige functionality.</p>
+                <p class="biome-desc">Added a total prestiges counter that persists across resets. Enhanced prestige tracking and display in the identity panel.</p>
             </div>
 
             <div class="biome-card">
                 <div><span class="cl-ver">v0.21</span></div>
-                <p class="biome-desc">Improved biome selection and display features.</p>
+                <p class="biome-desc">Improved biome selection flow and display polish. General UI refinements to the identity panel.</p>
             </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.20</span></div>
+                <p class="biome-desc">Added 25 fully-defined biomes (13 natural, 6 D&amp;D lore, 6 magical), each with starting resources, run modifiers, and creature suitability affinities. Introduced the identity panel showing the active biome and race for the current run.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.19</span></div>
+                <p class="biome-desc">Biome section labels and layout adjustments. Styling pass on the biome type chips and grouping headers.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.17–v0.18</span></div>
+                <p class="biome-desc">Added the biome tab visual system: suitability legend (Excellent / Good / Neutral / Challenging / Hostile scale), biome cards with modifier chips, and creature affinity chips. Added color-coded creature type tags for all 15 creature categories.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.16</span></div>
+                <p class="biome-desc">Added the creature selector tab with the full bestiary, grouped by creature type with preferred and difficult biome callouts.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.15</span></div>
+                <p class="biome-desc">Added game settings (save/load/reset). Enhanced statistics display in the info tab.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.13–v0.14</span></div>
+                <p class="biome-desc">Implemented the tabbed interface (Build, Research, Info, Settings, Dev). Tuned the game tick rate and added flash animations on time-unit changes (day, season, year). Improved tab button styles and overall layout.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.12</span></div>
+                <p class="biome-desc">Added room definitions and the foundation for building mechanics: construction costs, scaling, job slots, housing bonuses, and production buildings.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.11</span></div>
+                <p class="biome-desc">Added Google Fonts (Lato) and a typography/styling pass across the UI.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.01–v0.10</span></div>
+                <p class="biome-desc">Early development. Established the core game loop: resource gathering, population growth, food consumption, starvation, prestige counter, and the basic in-game day/season/year timer. Built the initial UI shell and save/load system.</p>
+            </div>
+
         </section>
 
     </main>
