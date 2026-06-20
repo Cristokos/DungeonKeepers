@@ -1192,6 +1192,16 @@
             <h2>Changelog</h2>
 
             <div class="biome-card">
+                <div><span class="cl-ver">v0.30</span><span class="cl-date">2026-06-20</span></div>
+                <p class="biome-desc">Reduced manual gather actions to the three founding resources: Scavenge Food, Fell a Tree, and Break Stones. Ore, herbs, crystals, and coins are now production-only (from buildings). Three researches that referenced the removed actions were updated: Forager's Lore now boosts Herbalist's Den production +20%, Crystal Lore boosts Crystal Seam production +25%, and Village Ledger now adds +1 cp per creature per day to taxation instead of boosting a scrounging action.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.29</span><span class="cl-date">2026-06-20</span></div>
+                <p class="biome-desc">Fixed two research bonus bugs. The Rationing research (<code>foodConsumption: 0.80</code>) was incorrectly adding instead of multiplying in <code>getResearchBonus</code>, causing population to eat 80% <em>more</em> food rather than 20% less. Trade Caravans income was being halved by an erroneous division by <code>TICKS_PER_DAY</code> inside a block that already only runs once per day. All 50 researches now apply their stated effects correctly.</p>
+            </div>
+
+            <div class="biome-card">
                 <div><span class="cl-ver">v0.28</span><span class="cl-date">2026-06-20</span></div>
                 <p class="biome-desc">Added a pan/zoom research tree to the wiki's new Research tab. The tree shows all 50 Era 2 researches, their prerequisite chains, costs, and effects on hover. Restructured research prerequisites so only 5 are visible at game start; each completed research unlocks 1–2 more, keeping the queue tight throughout the run.</p>
             </div>

@@ -333,7 +333,8 @@ function getResearchBonus(type, key) {
                 else total += effect[key];
             }
         } else {
-            total += effect;
+            if (multiplicative) total *= effect;
+            else total += effect;
         }
     }
     return total;
@@ -346,7 +347,6 @@ function getGatherAmount(resourceKey) {
     let amount = action.amount;
     amount += getResearchBonus('allGatherBonus');
     amount += getResearchBonus('gatherBonus', resourceKey);
-    if (resourceKey === 'coins') amount += getResearchBonus('coinGatherBonus');
     return Math.max(1, Math.floor(amount));
 }
 
@@ -559,7 +559,7 @@ function tick() {
         }
         // Trade Caravans: cloth and potions in stock each generate 2 cp per unit per day
         if (gameState.research && gameState.research.tradeGoods) {
-            const tradeIncome = Math.floor(((gameState.resources.cloth || 0) + (gameState.resources.potions || 0)) * 2 / TICKS_PER_DAY);
+            const tradeIncome = Math.floor(((gameState.resources.cloth || 0) + (gameState.resources.potions || 0)) * 2);
             gameState.resources.coins = Math.min((gameState.resources.coins || 0) + tradeIncome, caps.coins);
         }
         gameState.time.day++;

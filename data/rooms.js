@@ -240,11 +240,7 @@ const ROOMS = {
 };
 
 const GATHER_ACTIONS = {
-    food:     { label: "Scavenge Food",     resource: "food",     amount: 1  },
-    wood:     { label: "Fell a Tree",       resource: "wood",     amount: 1  },
-    stone:    { label: "Break Stones",      resource: "stone",    amount: 1  },
-    ore:      { label: "Chip Ore",          resource: "ore",      amount: 1  },
-    herbs:    { label: "Forage Herbs",      resource: "herbs",    amount: 1  },
-    crystals: { label: "Pry Crystals",      resource: "crystals", amount: 1  },
-    coins:    { label: "Scrounge for Coin", resource: "coins",    amount: 15 },
+    food:  { label: "Scavenge Food", resource: "food",  amount: 1 },
+    wood:  { label: "Fell a Tree",   resource: "wood",  amount: 1 },
+    stone: { label: "Break Stones",  resource: "stone", amount: 1 },
 };

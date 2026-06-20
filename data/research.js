@@ -20,18 +20,18 @@ RESEARCH.toolcraft = {
 
 RESEARCH.foragerLore = {
     name: "Forager's Lore",
-    desc: "Teach your kind to identify medicinal plants on sight. Herb gathering yields +2 per action.",
+    desc: "Teach your kind to identify medicinal plants on sight. Herbalist's Dens produce 20% more herbs.",
     cost: { food: 30, wood: 20 },
     requiresResearch: ["toolcraft"],
-    effects: { gatherBonus: { herbs: 2 } },
+    effects: { productionBonus: { herbalistDen: 1.20 } },
 };
 
 RESEARCH.crystalLore = {
     name: "Crystal Lore",
-    desc: "Study the resonance of raw crystals. Crystal gathering yields +2 per action.",
+    desc: "Study the resonance of raw crystals. Crystal Seams produce 25% more crystals.",
     cost: { stone: 40, ore: 20 },
     requiresResearch: ["deepMining"],
-    effects: { gatherBonus: { crystals: 2 } },
+    effects: { productionBonus: { crystalSeam: 1.25 } },
 };
 
 // ── Chain 2: Agriculture ───────────────────────────────────────────────────────
@@ -239,10 +239,10 @@ RESEARCH.communalLiving = {
 
 RESEARCH.bookkeeping = {
     name: "Village Ledger",
-    desc: "Track debts, trades, and scrounging routes. Scrounge for Coin yields +25 cp per action.",
+    desc: "Track debts, dues, and trade agreements. Taxation yields +1 additional cp per creature per day.",
     cost: { wood: 40, coins: 300 },
     requiresResearch: ["taxes"],
-    effects: { coinGatherBonus: 25 },
+    effects: { taxBonus: 1 },
 };
 
 RESEARCH.tradeGoods = {
