@@ -278,6 +278,45 @@ body.wiki-page {
     font-weight: bold;
 }
 
+/* Pause button */
+.pause-btn {
+    position: absolute;
+    left: 10px;
+    width: 26px;
+    height: 22px;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    color: var(--text-muted);
+    font-size: 11px;
+    line-height: 1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    transition: color 0.12s, border-color 0.12s, background 0.12s;
+}
+.pause-btn:hover {
+    color: var(--text);
+    border-color: var(--text-muted);
+}
+.pause-btn-active {
+    color: var(--label);
+    border-color: var(--label);
+    background: rgba(255,255,158,0.07);
+}
+
+/* Accelerated Time bank display */
+.accel-bank {
+    font-size: 11px;
+    color: var(--label);
+    font-weight: bold;
+    letter-spacing: 0.03em;
+    opacity: 0.85;
+    cursor: default;
+}
+
 /* Flash animation for time values when they change */
 @keyframes time-flash {
     0%   { color: var(--accent); }

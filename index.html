@@ -107,10 +107,12 @@
 </div>
 
 <div class="statusbar">
+    <button id="pause-btn" class="pause-btn" onclick="togglePause()" title="Pause time">⏸</button>
     <div class="status-center">
         <div>Day: <span id="day">1</span></div>
         <div>Year: <span id="year">1</span></div>
         <div>Season: <span id="season">Spring</span></div>
+        <span id="accel-bank" class="accel-bank" style="display:none"></span>
     </div>
     <a href="wiki.html" target="_blank" rel="noopener" class="wiki-btn" title="Open the Dungeon Keeper Wiki"><script>document.write('v' + window.GAME_VERSION);</script></a>
 </div>

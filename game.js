@@ -211,6 +211,7 @@ const gameState = {
     run:        { biome: null, race: null, mods: [], era: 1 },
     meta:       { seenBiomes: [], totalPrestiges: 0, racesPlayed: {} },
     time:       { tick: 0, day: 1, year: 1, seasonIndex: 0 },
+    pauseBank:  0,   // seconds of Accelerated Time banked from pausing
     stats: {
         peakPopulation:       0,
         buildingsConstructed: 0,
@@ -705,9 +706,69 @@ function gather(key) {
     updateUI();
 }
 
+// ── Pause / Accelerated Time ──────────────────────────────────────────────────
+
+var _gamePaused       = false;  // manual pause
+var _pauseAccumulator = 0;      // fractional seconds banked this pause session
+
+function isSplashVisible() {
+    var el = document.getElementById('splash-overlay');
+    return el && el.classList.contains('splash-visible');
+}
+
+function isGamePaused() {
+    return _gamePaused || isSplashVisible();
+}
+
+function togglePause() {
+    _gamePaused = !_gamePaused;
+    updatePauseBtn();
+    updateUI();
+}
+
+function updatePauseBtn() {
+    var btn = document.getElementById('pause-btn');
+    if (!btn) return;
+    var paused = isGamePaused();
+    btn.textContent = paused ? '▶' : '⏸';
+    btn.title       = paused ? 'Resume time' : 'Pause time';
+    btn.classList.toggle('pause-btn-active', paused);
+}
+
+// Called each real-second interval — banks time if paused, drains bank if playing.
+var _accelTickDebt = 0;   // fractional extra ticks owed from bank drawdown
+
+function handlePauseBanking() {
+    if (isGamePaused()) {
+        // Accrue 1 real second into the bank while paused
+        gameState.pauseBank = (gameState.pauseBank || 0) + 1;
+        updateBankDisplay();
+        updatePauseBtn();
+        return false;   // signal: skip normal tick
+    }
+    return true;        // signal: run normal tick
+}
+
+function updateBankDisplay() {
+    var el = document.getElementById('accel-bank');
+    if (!el) return;
+    var s = Math.floor(gameState.pauseBank || 0);
+    if (s <= 0) { el.style.display = 'none'; return; }
+    el.style.display = '';
+    // Format as Xh Xm Xs
+    var h = Math.floor(s / 3600);
+    var m = Math.floor((s % 3600) / 60);
+    var sec = s % 60;
+    var parts = [];
+    if (h)   parts.push(h + 'h');
+    if (m)   parts.push(m + 'm');
+    if (sec || !parts.length) parts.push(sec + 's');
+    el.textContent = '⚡ ' + parts.join(' ');
+}
+
 // ── Tick ──────────────────────────────────────────────────────────────────────
 
-function tick() {
+function runOneTick() {
     const prod = getProduction();
     const caps = getCaps();
     const pop  = gameState.population;
@@ -825,6 +886,25 @@ function tick() {
     if (interval > 0 && gameState.time.tick % interval === 0) saveGame();
 }
 
+// Public tick — called by setInterval every 1 real second.
+// Skips when paused (banked instead). When playing, drains 1 banked second
+// as a bonus tick so the player gets back exactly what they paused away.
+function tick() {
+    if (!handlePauseBanking()) {
+        // Paused — bank was already incremented; keep UI fresh
+        updateBankDisplay();
+        return;
+    }
+    // Normal tick
+    runOneTick();
+    // Bank drawdown: burn 1 banked second as an extra tick (2× speed until drained)
+    if ((gameState.pauseBank || 0) >= 1) {
+        gameState.pauseBank -= 1;
+        runOneTick();
+        updateBankDisplay();
+    }
+}
+
 // ── UI ────────────────────────────────────────────────────────────────────────
 
 function fmt(n) {
@@ -868,6 +948,8 @@ function getNetRates(prod) {
 }
 
 function updateUI() {
+    updatePauseBtn();
+    updateBankDisplay();
     const caps     = getCaps();
     const prod     = getProduction();
     const pop      = gameState.population;
