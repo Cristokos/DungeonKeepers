@@ -708,8 +708,7 @@ function gather(key) {
 
 // ── Pause / Accelerated Time ──────────────────────────────────────────────────
 
-var _gamePaused       = false;  // manual pause
-var _pauseAccumulator = 0;      // fractional seconds banked this pause session
+var _gamePaused = false;  // manual pause
 
 function isSplashVisible() {
     var el = document.getElementById('splash-overlay');
@@ -736,8 +735,6 @@ function updatePauseBtn() {
 }
 
 // Called each real-second interval — banks time if paused, drains bank if playing.
-var _accelTickDebt = 0;   // fractional extra ticks owed from bank drawdown
-
 function handlePauseBanking() {
     if (isGamePaused()) {
         // Accrue 1 real second into the bank while paused
@@ -763,7 +760,7 @@ function updateBankDisplay() {
     if (h)   parts.push(h + 'h');
     if (m)   parts.push(m + 'm');
     if (sec || !parts.length) parts.push(sec + 's');
-    el.textContent = '⚡ ' + parts.join(' ');
+    el.textContent = '⏳ ' + parts.join(' ');
 }
 
 // ── Tick ──────────────────────────────────────────────────────────────────────
@@ -2507,6 +2504,7 @@ if (!gameState.meta.racesPlayed)             gameState.meta.racesPlayed = {};
 if (!gameState.workerAssignments)            gameState.workerAssignments = {};
 if (!gameState.research)                     gameState.research = {};
 if (!gameState.run.era)                      gameState.run.era = 1;
+if (gameState.pauseBank == null || isNaN(gameState.pauseBank)) gameState.pauseBank = 0;
 // Assign biome on first load (fresh game or old save with no mods yet)
 if (!gameState.run || !gameState.run.mods || gameState.run.mods.length === 0) {
     if (!gameState.run) gameState.run = { biome: null, race: null, mods: [] };
@@ -2517,3 +2515,9 @@ updateIdentityPanel();
 devPopulateRaceSelect();
 initResTooltips();
 setInterval(tick, 1000);
+
+// Stamp lastSeen when the player closes or navigates away
+window.addEventListener('beforeunload', function () {
+    gameState.lastSeen = Date.now();
+    saveGame();
+});
