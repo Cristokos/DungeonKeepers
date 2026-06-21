@@ -1596,7 +1596,7 @@ function renderEra1Actions() {
         <span class="action-yield">+1 Essence (${essence}/500)</span>
     </button>`;
 
-    if (hasL1) {
+    {
         const cls = canConvert ? '' : ' disabled';
         html += `<button class="action-btn${cls}" onclick="gatherEra1('toInfluence')">
             <span class="action-title">Channel Influence</span>
