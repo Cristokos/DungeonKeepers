@@ -2232,6 +2232,10 @@ body.reduce-motion *::after {
 
 /* ── ERA 1 AWAKENING TAB ─────────────────────────────────────────────────────── */
 
+.era1-actions {
+    margin-bottom: 12px;
+}
+
 .era1-layout {
     display: flex;
     gap: 16px;

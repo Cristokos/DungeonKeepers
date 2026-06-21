@@ -981,6 +981,7 @@ function updateUI() {
     updateBankDisplay();
     updateEraTabVisibility();
     renderEra1Tree();
+    renderEra1Actions();
     const caps     = getCaps();
     const prod     = getProduction();
     const pop      = gameState.population;
@@ -1547,6 +1548,52 @@ function era1ShowPanel(nodeId) {
         <div class="era1-panel-cost">Cost: ${costHtml}</div>
         ${warning}
     `;
+}
+
+function gatherEra1(res) {
+    const amounts = { essence: 5, influence: 3, mana: 2 };
+    const caps = { essence: 500, influence: 500, mana: 500 };
+    const r = gameState.resources;
+    r[res] = Math.min((r[res] || 0) + (amounts[res] || 1), caps[res] || 500);
+    updateUI();
+    saveGame();
+}
+
+function renderEra1Actions() {
+    const container = document.getElementById('era1-actions');
+    if (!container) return;
+    if ((gameState.run.era || 1) !== 1) { container.innerHTML = ''; return; }
+
+    const unlocked = (gameState.era1 || {}).unlocked || [];
+    const l1Nodes = ['deep', 'wild', 'beyond'];
+    const l3FormNodes = ['horde','champion','bloodline','anomaly','root-node','cycle','pack','apex','kept','consumed','pact','vessel'];
+    const hasL1 = unlocked.some(id => l1Nodes.includes(id));
+    const hasL3 = unlocked.some(id => l3FormNodes.includes(id));
+
+    const r = gameState.resources;
+    let html = '<h2>Actions</h2><div class="actions-list">';
+
+    html += `<button class="action-btn" onclick="gatherEra1('essence')">
+        <span class="action-title">Concentrate</span>
+        <span class="action-yield">+5 Essence (${Math.floor(r.essence||0)}/500)</span>
+    </button>`;
+
+    if (hasL1) {
+        html += `<button class="action-btn" onclick="gatherEra1('influence')">
+            <span class="action-title">Reach Out</span>
+            <span class="action-yield">+3 Influence (${Math.floor(r.influence||0)}/500)</span>
+        </button>`;
+    }
+
+    if (hasL3) {
+        html += `<button class="action-btn" onclick="gatherEra1('mana')">
+            <span class="action-title">Channel Power</span>
+            <span class="action-yield">+2 Mana (${Math.floor(r.mana||0)}/500)</span>
+        </button>`;
+    }
+
+    html += '</div>';
+    container.innerHTML = html;
 }
 
 function renderEra1Tree() {
