@@ -1001,9 +1001,11 @@
                     <span class="worker-slots" id="wslots-farm">0 / 0</span>
                 </div>
                 <div class="worker-controls">
+                    <button class="wbtn wbtn-mm" onclick="setWorkersMin(this)" title="Unassign all">&#9664;&#9664;</button>
                     <button class="wbtn" onclick="adjustWorkers('farm', -1)">&#9664;</button>
                     <input  class="winput" type="number" id="winput-farm" value="0" min="0" oninput="setWorkers('farm', this.value)">
                     <button class="wbtn" onclick="adjustWorkers('farm', 1)">&#9654;</button>
+                    <button class="wbtn wbtn-mm" onclick="setWorkersMax(this)" title="Assign max">&#9654;&#9654;</button>
                 </div>
             </div>
 
@@ -1013,9 +1015,11 @@
                     <span class="worker-slots" id="wslots-lumber">0 / 0</span>
                 </div>
                 <div class="worker-controls">
+                    <button class="wbtn wbtn-mm" onclick="setWorkersMin(this)" title="Unassign all">&#9664;&#9664;</button>
                     <button class="wbtn" onclick="adjustWorkers('lumber', -1)">&#9664;</button>
                     <input  class="winput" type="number" id="winput-lumber" value="0" min="0" oninput="setWorkers('lumber', this.value)">
                     <button class="wbtn" onclick="adjustWorkers('lumber', 1)">&#9654;</button>
+                    <button class="wbtn wbtn-mm" onclick="setWorkersMax(this)" title="Assign max">&#9654;&#9654;</button>
                 </div>
             </div>
 
@@ -1025,9 +1029,11 @@
                     <span class="worker-slots" id="wslots-quarry">0 / 0</span>
                 </div>
                 <div class="worker-controls">
+                    <button class="wbtn wbtn-mm" onclick="setWorkersMin(this)" title="Unassign all">&#9664;&#9664;</button>
                     <button class="wbtn" onclick="adjustWorkers('quarry', -1)">&#9664;</button>
                     <input  class="winput" type="number" id="winput-quarry" value="0" min="0" oninput="setWorkers('quarry', this.value)">
                     <button class="wbtn" onclick="adjustWorkers('quarry', 1)">&#9654;</button>
+                    <button class="wbtn wbtn-mm" onclick="setWorkersMax(this)" title="Assign max">&#9654;&#9654;</button>
                 </div>
             </div>
 
@@ -1037,9 +1043,11 @@
                     <span class="worker-slots" id="wslots-mine">0 / 0</span>
                 </div>
                 <div class="worker-controls">
+                    <button class="wbtn wbtn-mm" onclick="setWorkersMin(this)" title="Unassign all">&#9664;&#9664;</button>
                     <button class="wbtn" onclick="adjustWorkers('mine', -1)">&#9664;</button>
                     <input  class="winput" type="number" id="winput-mine" value="0" min="0" oninput="setWorkers('mine', this.value)">
                     <button class="wbtn" onclick="adjustWorkers('mine', 1)">&#9654;</button>
+                    <button class="wbtn wbtn-mm" onclick="setWorkersMax(this)" title="Assign max">&#9654;&#9654;</button>
                 </div>
             </div>
 
@@ -1049,9 +1057,11 @@
                     <span class="worker-slots" id="wslots-coalSeam">0 / 0</span>
                 </div>
                 <div class="worker-controls">
+                    <button class="wbtn wbtn-mm" onclick="setWorkersMin(this)" title="Unassign all">&#9664;&#9664;</button>
                     <button class="wbtn" onclick="adjustWorkers('coalSeam', -1)">&#9664;</button>
                     <input  class="winput" type="number" id="winput-coalSeam" value="0" min="0" oninput="setWorkers('coalSeam', this.value)">
                     <button class="wbtn" onclick="adjustWorkers('coalSeam', 1)">&#9654;</button>
+                    <button class="wbtn wbtn-mm" onclick="setWorkersMax(this)" title="Assign max">&#9654;&#9654;</button>
                 </div>
             </div>
 
@@ -1061,9 +1071,11 @@
                     <span class="worker-slots" id="wslots-herbalistDen">0 / 0</span>
                 </div>
                 <div class="worker-controls">
+                    <button class="wbtn wbtn-mm" onclick="setWorkersMin(this)" title="Unassign all">&#9664;&#9664;</button>
                     <button class="wbtn" onclick="adjustWorkers('herbalistDen', -1)">&#9664;</button>
                     <input  class="winput" type="number" id="winput-herbalistDen" value="0" min="0" oninput="setWorkers('herbalistDen', this.value)">
                     <button class="wbtn" onclick="adjustWorkers('herbalistDen', 1)">&#9654;</button>
+                    <button class="wbtn wbtn-mm" onclick="setWorkersMax(this)" title="Assign max">&#9654;&#9654;</button>
                 </div>
             </div>
 
@@ -1073,9 +1085,11 @@
                     <span class="worker-slots" id="wslots-huntingLodge">0 / 0</span>
                 </div>
                 <div class="worker-controls">
+                    <button class="wbtn wbtn-mm" onclick="setWorkersMin(this)" title="Unassign all">&#9664;&#9664;</button>
                     <button class="wbtn" onclick="adjustWorkers('huntingLodge', -1)">&#9664;</button>
                     <input  class="winput" type="number" id="winput-huntingLodge" value="0" min="0" oninput="setWorkers('huntingLodge', this.value)">
                     <button class="wbtn" onclick="adjustWorkers('huntingLodge', 1)">&#9654;</button>
+                    <button class="wbtn wbtn-mm" onclick="setWorkersMax(this)" title="Assign max">&#9654;&#9654;</button>
                 </div>
             </div>
 
@@ -1085,9 +1099,11 @@
                     <span class="worker-slots" id="wslots-clayPit">0 / 0</span>
                 </div>
                 <div class="worker-controls">
+                    <button class="wbtn wbtn-mm" onclick="setWorkersMin(this)" title="Unassign all">&#9664;&#9664;</button>
                     <button class="wbtn" onclick="adjustWorkers('clayPit', -1)">&#9664;</button>
                     <input  class="winput" type="number" id="winput-clayPit" value="0" min="0" oninput="setWorkers('clayPit', this.value)">
                     <button class="wbtn" onclick="adjustWorkers('clayPit', 1)">&#9654;</button>
+                    <button class="wbtn wbtn-mm" onclick="setWorkersMax(this)" title="Assign max">&#9654;&#9654;</button>
                 </div>
             </div>
 
@@ -1097,9 +1113,11 @@
                     <span class="worker-slots" id="wslots-crystalSeam">0 / 0</span>
                 </div>
                 <div class="worker-controls">
+                    <button class="wbtn wbtn-mm" onclick="setWorkersMin(this)" title="Unassign all">&#9664;&#9664;</button>
                     <button class="wbtn" onclick="adjustWorkers('crystalSeam', -1)">&#9664;</button>
                     <input  class="winput" type="number" id="winput-crystalSeam" value="0" min="0" oninput="setWorkers('crystalSeam', this.value)">
                     <button class="wbtn" onclick="adjustWorkers('crystalSeam', 1)">&#9654;</button>
+                    <button class="wbtn wbtn-mm" onclick="setWorkersMax(this)" title="Assign max">&#9654;&#9654;</button>
                 </div>
             </div>
 
@@ -1109,9 +1127,11 @@
                     <span class="worker-slots" id="wslots-smelter">0 / 0</span>
                 </div>
                 <div class="worker-controls">
+                    <button class="wbtn wbtn-mm" onclick="setWorkersMin(this)" title="Unassign all">&#9664;&#9664;</button>
                     <button class="wbtn" onclick="adjustWorkers('smelter', -1)">&#9664;</button>
                     <input  class="winput" type="number" id="winput-smelter" value="0" min="0" oninput="setWorkers('smelter', this.value)">
                     <button class="wbtn" onclick="adjustWorkers('smelter', 1)">&#9654;</button>
+                    <button class="wbtn wbtn-mm" onclick="setWorkersMax(this)" title="Assign max">&#9654;&#9654;</button>
                 </div>
             </div>
 
@@ -1121,9 +1141,11 @@
                     <span class="worker-slots" id="wslots-alchemyLab">0 / 0</span>
                 </div>
                 <div class="worker-controls">
+                    <button class="wbtn wbtn-mm" onclick="setWorkersMin(this)" title="Unassign all">&#9664;&#9664;</button>
                     <button class="wbtn" onclick="adjustWorkers('alchemyLab', -1)">&#9664;</button>
                     <input  class="winput" type="number" id="winput-alchemyLab" value="0" min="0" oninput="setWorkers('alchemyLab', this.value)">
                     <button class="wbtn" onclick="adjustWorkers('alchemyLab', 1)">&#9654;</button>
+                    <button class="wbtn wbtn-mm" onclick="setWorkersMax(this)" title="Assign max">&#9654;&#9654;</button>
                 </div>
             </div>
 
@@ -1133,9 +1155,11 @@
                     <span class="worker-slots" id="wslots-kiln">0 / 0</span>
                 </div>
                 <div class="worker-controls">
+                    <button class="wbtn wbtn-mm" onclick="setWorkersMin(this)" title="Unassign all">&#9664;&#9664;</button>
                     <button class="wbtn" onclick="adjustWorkers('kiln', -1)">&#9664;</button>
                     <input  class="winput" type="number" id="winput-kiln" value="0" min="0" oninput="setWorkers('kiln', this.value)">
                     <button class="wbtn" onclick="adjustWorkers('kiln', 1)">&#9654;</button>
+                    <button class="wbtn wbtn-mm" onclick="setWorkersMax(this)" title="Assign max">&#9654;&#9654;</button>
                 </div>
             </div>
 
@@ -1145,9 +1169,11 @@
                     <span class="worker-slots" id="wslots-loom">0 / 0</span>
                 </div>
                 <div class="worker-controls">
+                    <button class="wbtn wbtn-mm" onclick="setWorkersMin(this)" title="Unassign all">&#9664;&#9664;</button>
                     <button class="wbtn" onclick="adjustWorkers('loom', -1)">&#9664;</button>
                     <input  class="winput" type="number" id="winput-loom" value="0" min="0" oninput="setWorkers('loom', this.value)">
                     <button class="wbtn" onclick="adjustWorkers('loom', 1)">&#9654;</button>
+                    <button class="wbtn wbtn-mm" onclick="setWorkersMax(this)" title="Assign max">&#9654;&#9654;</button>
                 </div>
             </div>
 
@@ -1157,9 +1183,11 @@
                     <span class="worker-slots" id="wslots-arcaneGrinder">0 / 0</span>
                 </div>
                 <div class="worker-controls">
+                    <button class="wbtn wbtn-mm" onclick="setWorkersMin(this)" title="Unassign all">&#9664;&#9664;</button>
                     <button class="wbtn" onclick="adjustWorkers('arcaneGrinder', -1)">&#9664;</button>
                     <input  class="winput" type="number" id="winput-arcaneGrinder" value="0" min="0" oninput="setWorkers('arcaneGrinder', this.value)">
                     <button class="wbtn" onclick="adjustWorkers('arcaneGrinder', 1)">&#9654;</button>
+                    <button class="wbtn wbtn-mm" onclick="setWorkersMax(this)" title="Assign max">&#9654;&#9654;</button>
                 </div>
             </div>
 
@@ -1169,9 +1197,11 @@
                     <span class="worker-slots" id="wslots-forge">0 / 0</span>
                 </div>
                 <div class="worker-controls">
+                    <button class="wbtn wbtn-mm" onclick="setWorkersMin(this)" title="Unassign all">&#9664;&#9664;</button>
                     <button class="wbtn" onclick="adjustWorkers('forge', -1)">&#9664;</button>
                     <input  class="winput" type="number" id="winput-forge" value="0" min="0" oninput="setWorkers('forge', this.value)">
                     <button class="wbtn" onclick="adjustWorkers('forge', 1)">&#9654;</button>
+                    <button class="wbtn wbtn-mm" onclick="setWorkersMax(this)" title="Assign max">&#9654;&#9654;</button>
                 </div>
             </div>
 
@@ -1181,9 +1211,11 @@
                     <span class="worker-slots" id="wslots-arcaneBench">0 / 0</span>
                 </div>
                 <div class="worker-controls">
+                    <button class="wbtn wbtn-mm" onclick="setWorkersMin(this)" title="Unassign all">&#9664;&#9664;</button>
                     <button class="wbtn" onclick="adjustWorkers('arcaneBench', -1)">&#9664;</button>
                     <input  class="winput" type="number" id="winput-arcaneBench" value="0" min="0" oninput="setWorkers('arcaneBench', this.value)">
                     <button class="wbtn" onclick="adjustWorkers('arcaneBench', 1)">&#9654;</button>
+                    <button class="wbtn wbtn-mm" onclick="setWorkersMax(this)" title="Assign max">&#9654;&#9654;</button>
                 </div>
             </div>
 
@@ -1193,9 +1225,11 @@
                     <span class="worker-slots" id="wslots-mageTower">0 / 0</span>
                 </div>
                 <div class="worker-controls">
+                    <button class="wbtn wbtn-mm" onclick="setWorkersMin(this)" title="Unassign all">&#9664;&#9664;</button>
                     <button class="wbtn" onclick="adjustWorkers('mageTower', -1)">&#9664;</button>
                     <input  class="winput" type="number" id="winput-mageTower" value="0" min="0" oninput="setWorkers('mageTower', this.value)">
                     <button class="wbtn" onclick="adjustWorkers('mageTower', 1)">&#9654;</button>
+                    <button class="wbtn wbtn-mm" onclick="setWorkersMax(this)" title="Assign max">&#9654;&#9654;</button>
                 </div>
             </div>
 
@@ -1205,9 +1239,11 @@
                     <span class="worker-slots" id="wslots-armory">0 / 0</span>
                 </div>
                 <div class="worker-controls">
+                    <button class="wbtn wbtn-mm" onclick="setWorkersMin(this)" title="Unassign all">&#9664;&#9664;</button>
                     <button class="wbtn" onclick="adjustWorkers('armory', -1)">&#9664;</button>
                     <input  class="winput" type="number" id="winput-armory" value="0" min="0" oninput="setWorkers('armory', this.value)">
                     <button class="wbtn" onclick="adjustWorkers('armory', 1)">&#9654;</button>
+                    <button class="wbtn wbtn-mm" onclick="setWorkersMax(this)" title="Assign max">&#9654;&#9654;</button>
                 </div>
             </div>
 
@@ -1217,9 +1253,11 @@
                     <span class="worker-slots" id="wslots-sulphurVent">0 / 0</span>
                 </div>
                 <div class="worker-controls">
+                    <button class="wbtn wbtn-mm" onclick="setWorkersMin(this)" title="Unassign all">&#9664;&#9664;</button>
                     <button class="wbtn" onclick="adjustWorkers('sulphurVent', -1)">&#9664;</button>
                     <input  class="winput" type="number" id="winput-sulphurVent" value="0" min="0" oninput="setWorkers('sulphurVent', this.value)">
                     <button class="wbtn" onclick="adjustWorkers('sulphurVent', 1)">&#9654;</button>
+                    <button class="wbtn wbtn-mm" onclick="setWorkersMax(this)" title="Assign max">&#9654;&#9654;</button>
                 </div>
             </div>
 
@@ -1229,9 +1267,11 @@
                     <span class="worker-slots" id="wslots-ritualCircle">0 / 0</span>
                 </div>
                 <div class="worker-controls">
+                    <button class="wbtn wbtn-mm" onclick="setWorkersMin(this)" title="Unassign all">&#9664;&#9664;</button>
                     <button class="wbtn" onclick="adjustWorkers('ritualCircle', -1)">&#9664;</button>
                     <input  class="winput" type="number" id="winput-ritualCircle" value="0" min="0" oninput="setWorkers('ritualCircle', this.value)">
                     <button class="wbtn" onclick="adjustWorkers('ritualCircle', 1)">&#9654;</button>
+                    <button class="wbtn wbtn-mm" onclick="setWorkersMax(this)" title="Assign max">&#9654;&#9654;</button>
                 </div>
             </div>
 
@@ -1241,9 +1281,11 @@
                     <span class="worker-slots" id="wslots-spiderNest">0 / 0</span>
                 </div>
                 <div class="worker-controls">
+                    <button class="wbtn wbtn-mm" onclick="setWorkersMin(this)" title="Unassign all">&#9664;&#9664;</button>
                     <button class="wbtn" onclick="adjustWorkers('spiderNest', -1)">&#9664;</button>
                     <input  class="winput" type="number" id="winput-spiderNest" value="0" min="0" oninput="setWorkers('spiderNest', this.value)">
                     <button class="wbtn" onclick="adjustWorkers('spiderNest', 1)">&#9654;</button>
+                    <button class="wbtn wbtn-mm" onclick="setWorkersMax(this)" title="Assign max">&#9654;&#9654;</button>
                 </div>
             </div>
 
@@ -1253,9 +1295,11 @@
                     <span class="worker-slots" id="wslots-arcaneCrucible">0 / 0</span>
                 </div>
                 <div class="worker-controls">
+                    <button class="wbtn wbtn-mm" onclick="setWorkersMin(this)" title="Unassign all">&#9664;&#9664;</button>
                     <button class="wbtn" onclick="adjustWorkers('arcaneCrucible', -1)">&#9664;</button>
                     <input  class="winput" type="number" id="winput-arcaneCrucible" value="0" min="0" oninput="setWorkers('arcaneCrucible', this.value)">
                     <button class="wbtn" onclick="adjustWorkers('arcaneCrucible', 1)">&#9654;</button>
+                    <button class="wbtn wbtn-mm" onclick="setWorkersMax(this)" title="Assign max">&#9654;&#9654;</button>
                 </div>
             </div>
 
@@ -1265,9 +1309,11 @@
                     <span class="worker-slots" id="wslots-darkAltar">0 / 0</span>
                 </div>
                 <div class="worker-controls">
+                    <button class="wbtn wbtn-mm" onclick="setWorkersMin(this)" title="Unassign all">&#9664;&#9664;</button>
                     <button class="wbtn" onclick="adjustWorkers('darkAltar', -1)">&#9664;</button>
                     <input  class="winput" type="number" id="winput-darkAltar" value="0" min="0" oninput="setWorkers('darkAltar', this.value)">
                     <button class="wbtn" onclick="adjustWorkers('darkAltar', 1)">&#9654;</button>
+                    <button class="wbtn wbtn-mm" onclick="setWorkersMax(this)" title="Assign max">&#9654;&#9654;</button>
                 </div>
             </div>
 
@@ -1277,9 +1323,11 @@
                     <span class="worker-slots" id="wslots-mithrilForge">0 / 0</span>
                 </div>
                 <div class="worker-controls">
+                    <button class="wbtn wbtn-mm" onclick="setWorkersMin(this)" title="Unassign all">&#9664;&#9664;</button>
                     <button class="wbtn" onclick="adjustWorkers('mithrilForge', -1)">&#9664;</button>
                     <input  class="winput" type="number" id="winput-mithrilForge" value="0" min="0" oninput="setWorkers('mithrilForge', this.value)">
                     <button class="wbtn" onclick="adjustWorkers('mithrilForge', 1)">&#9654;</button>
+                    <button class="wbtn wbtn-mm" onclick="setWorkersMax(this)" title="Assign max">&#9654;&#9654;</button>
                 </div>
             </div>
 

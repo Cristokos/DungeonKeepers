@@ -454,6 +454,15 @@ function adjustWorkers(id, delta) {
     setWorkers(id, current + delta * _clickMult);
 }
 
+function setWorkersMin(btn) {
+    const id = btn.closest('[id^="wrow-"]').id.replace('wrow-', '');
+    setWorkers(id, 0);
+}
+function setWorkersMax(btn) {
+    const id = btn.closest('[id^="wrow-"]').id.replace('wrow-', '');
+    setWorkers(id, 99999);
+}
+
 function getProduction() {
     const prod      = {};
     for (const res of Object.keys(BASE_CAPS)) prod[res] = 0;
