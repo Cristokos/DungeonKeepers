@@ -18,29 +18,25 @@
     <div class="splash-bg-runes"></div>
     <div class="splash-particles" id="splash-particles"></div>
 
-    <!-- d20 silhouette — icosahedron side view (classic d20 icon shape) -->
+    <!-- d20 — 10 icosahedral faces, each drawn as a triangle
+         Vertices:  T=(100,10) UL=(45,46) UR=(155,46)
+                    L=(16,100)             R=(184,100)
+                    LL=(45,154) LR=(155,154) B=(100,188) -->
     <div class="splash-d20" id="splash-d20" aria-hidden="true">
-        <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor">
-            <!-- Outer boundary: top · upper-right · right · lower-right · bottom · lower-left · left · upper-left -->
-            <polygon points="100,6 154,48 192,116 154,162 100,194 46,162 8,116 46,48" stroke-width="1.5"/>
-            <!-- Upper horizontal (UL to UR) -->
-            <line x1="46"  y1="48"  x2="154" y2="48"  stroke-width="1"/>
-            <!-- Top down to left and right equator vertices -->
-            <line x1="100" y1="6"   x2="8"   y2="116" stroke-width="1"/>
-            <line x1="100" y1="6"   x2="192" y2="116" stroke-width="1"/>
-            <!-- Upper cross: UL to Right, UR to Left -->
-            <line x1="46"  y1="48"  x2="192" y2="116" stroke-width="1"/>
-            <line x1="154" y1="48"  x2="8"   y2="116" stroke-width="1"/>
-            <!-- Equatorial horizontal -->
-            <line x1="8"   y1="116" x2="192" y2="116" stroke-width="1"/>
-            <!-- Lower cross: Left to LR, Right to LL -->
-            <line x1="8"   y1="116" x2="154" y2="162" stroke-width="1"/>
-            <line x1="192" y1="116" x2="46"  y2="162" stroke-width="1"/>
-            <!-- Bottom up to left and right equator vertices -->
-            <line x1="100" y1="194" x2="8"   y2="116" stroke-width="1"/>
-            <line x1="100" y1="194" x2="192" y2="116" stroke-width="1"/>
-            <!-- Lower horizontal (LL to LR) -->
-            <line x1="46"  y1="162" x2="154" y2="162" stroke-width="1"/>
+        <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"
+             stroke="currentColor" stroke-width="1.4" stroke-linejoin="round">
+            <!-- Upper 5 faces -->
+            <polygon points="100,10  45,46  155,46"   fill="rgba(184,144,42,0.05)"/><!-- T-UL-UR -->
+            <polygon points="100,10  16,100  45,46"   fill="rgba(184,144,42,0.03)"/><!-- T-L-UL -->
+            <polygon points="100,10 155,46 184,100"   fill="rgba(184,144,42,0.06)"/><!-- T-UR-R -->
+            <polygon points="155,46  16,100 184,100"  fill="rgba(184,144,42,0.02)"/><!-- UR-L-R -->
+            <polygon points=" 45,46 155,46 184,100"   fill="rgba(184,144,42,0.05)"/><!-- UL-UR-R -->
+            <!-- Lower 5 faces (mirror of upper) -->
+            <polygon points="100,188  45,154 155,154" fill="rgba(184,144,42,0.05)"/><!-- B-LL-LR -->
+            <polygon points="100,188  16,100  45,154" fill="rgba(184,144,42,0.06)"/><!-- B-L-LL -->
+            <polygon points="100,188 155,154 184,100" fill="rgba(184,144,42,0.03)"/><!-- B-LR-R -->
+            <polygon points="155,154  16,100 184,100" fill="rgba(184,144,42,0.05)"/><!-- LR-L-R -->
+            <polygon points=" 45,154 155,154 184,100" fill="rgba(184,144,42,0.02)"/><!-- LL-LR-R -->
         </svg>
     </div>
 
