@@ -1292,7 +1292,7 @@ function shouldShowResource(res) {
     const era = gameState.run.era || 1;
     // Era 1: only show Era 1 resources; hide all Era 2 resources
     if (era === 1) {
-        return res === 'essence' || res === 'influence' || res === 'mana';
+        return res === 'influence' || res === 'mana';
     }
     // Era 2+: hide all Era 1 resources entirely
     if (res === 'essence' || res === 'influence' || res === 'mana') return false;
@@ -1554,11 +1554,22 @@ function era1ShowPanel(nodeId) {
     `;
 }
 
-function gatherEra1(res) {
-    const amounts = { essence: 5, influence: 3, mana: 2 };
-    const caps = { essence: 500, influence: 500, mana: 500 };
+function gatherEra1(action) {
     const r = gameState.resources;
-    r[res] = Math.min((r[res] || 0) + (amounts[res] || 1), caps[res] || 500);
+    const essence = Math.floor(r.essence || 0);
+
+    if (action === 'essence') {
+        r.essence = Math.min((r.essence || 0) + 1, 500);
+    } else if (action === 'toInfluence') {
+        if (essence < 5) return;
+        r.essence   = (r.essence || 0) - 5;
+        r.influence = Math.min((r.influence || 0) + 3, 500);
+    } else if (action === 'toMana') {
+        if (essence < 5) return;
+        r.essence = (r.essence || 0) - 5;
+        r.mana    = Math.min((r.mana || 0) + 2, 500);
+    }
+
     updateUI();
     saveGame();
 }
@@ -1575,24 +1586,29 @@ function renderEra1Actions() {
     const hasL3 = unlocked.some(id => l3FormNodes.includes(id));
 
     const r = gameState.resources;
+    const essence = Math.floor(r.essence || 0);
+    const canConvert = essence >= 5;
+
     let html = '<h2>Actions</h2><div class="actions-list">';
 
     html += `<button class="action-btn" onclick="gatherEra1('essence')">
         <span class="action-title">Concentrate</span>
-        <span class="action-yield">+5 Essence (${Math.floor(r.essence||0)}/500)</span>
+        <span class="action-yield">+1 Essence (${essence}/500)</span>
     </button>`;
 
     if (hasL1) {
-        html += `<button class="action-btn" onclick="gatherEra1('influence')">
-            <span class="action-title">Reach Out</span>
-            <span class="action-yield">+3 Influence (${Math.floor(r.influence||0)}/500)</span>
+        const cls = canConvert ? '' : ' disabled';
+        html += `<button class="action-btn${cls}" onclick="gatherEra1('toInfluence')">
+            <span class="action-title">Channel Influence</span>
+            <span class="action-yield">-5 Essence → +3 Influence (${Math.floor(r.influence||0)}/500)</span>
         </button>`;
     }
 
     if (hasL3) {
-        html += `<button class="action-btn" onclick="gatherEra1('mana')">
-            <span class="action-title">Channel Power</span>
-            <span class="action-yield">+2 Mana (${Math.floor(r.mana||0)}/500)</span>
+        const cls = canConvert ? '' : ' disabled';
+        html += `<button class="action-btn${cls}" onclick="gatherEra1('toMana')">
+            <span class="action-title">Channel Mana</span>
+            <span class="action-yield">-5 Essence → +2 Mana (${Math.floor(r.mana||0)}/500)</span>
         </button>`;
     }
 
