@@ -217,6 +217,47 @@ const ROOMS = {
         converts: { inputs: { steel: 1.0, crystals: 0.5 }, output: "mithril", outputRate: 0.02 },
         unlock: { forge: 2, arcaneGrinder: 1 },
     },
+
+    // ── Era 1 — Awakening Production Chain ──────────────────────────────────────
+
+    essenceWell: {
+        name: "Essence Well",
+        cost: { essence: 40 },
+        costScale: 1.10,
+        production: { essence: 1 },
+    },
+    essenceConduit: {
+        name: "Essence Conduit",
+        cost: { essence: 40, influence: 10 },
+        costScale: 1.10,
+        converts: { inputs: { essence: 2 }, output: "influence", outputRate: 1 },
+        unlock: { essenceWell: 1 },
+    },
+    manaCrucible: {
+        name: "Mana Current",
+        cost: { essence: 40, influence: 5 },
+        costScale: 1.10,
+        converts: { inputs: { essence: 5 }, output: "mana", outputRate: 1 },
+        unlock: { essenceConduit: 3 },
+    },
+    essenceReservoir: {
+        name: "Essence Reservoir",
+        cost: { essence: 40, influence: 10 },
+        costScale: 1.10,
+        unlock: { essenceWell: 1 },
+    },
+    influenceShrine: {
+        name: "Influence Reservoir",
+        cost: { essence: 40, influence: 10 },
+        costScale: 1.10,
+        unlock: { essenceConduit: 1 },
+    },
+    manaFont: {
+        name: "Mana Reservoir",
+        cost: { essence: 40, influence: 10 },
+        costScale: 1.10,
+        unlock: { manaCrucible: 1 },
+    },
 };
 
 const GATHER_ACTIONS = {

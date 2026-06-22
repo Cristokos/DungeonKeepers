@@ -378,6 +378,48 @@
         <!-- AWAKENING TAB (Era 1 only) -->
         <div class="tab-body tab-content" id="tab-awakening">
             <div id="era1-actions" class="era1-actions"></div>
+
+            <h2>Production</h2>
+            <div class="grid" id="era1-buildings">
+
+                <button class="build-btn disabled" onclick="build('essenceWell')" id="btn-essenceWell">
+                    <div class="btn-title">Essence Well</div>
+                    <div class="btn-count" id="essenceWellCount">0</div>
+                    <div class="btn-cost" id="essenceWellCost"></div>
+                </button>
+
+                <button class="build-btn disabled" onclick="build('essenceConduit')" id="btn-essenceConduit" style="display:none">
+                    <div class="btn-title">Essence Conduit</div>
+                    <div class="btn-count" id="essenceConduitCount">0</div>
+                    <div class="btn-cost" id="essenceConduitCost"></div>
+                </button>
+
+                <button class="build-btn disabled" onclick="build('manaCrucible')" id="btn-manaCrucible" style="display:none">
+                    <div class="btn-title">Mana Current</div>
+                    <div class="btn-count" id="manaCrucibleCount">0</div>
+                    <div class="btn-cost" id="manaCrucibleCost"></div>
+                </button>
+
+                <button class="build-btn disabled" onclick="build('essenceReservoir')" id="btn-essenceReservoir" style="display:none">
+                    <div class="btn-title">Essence Reservoir</div>
+                    <div class="btn-count" id="essenceReservoirCount">0</div>
+                    <div class="btn-cost" id="essenceReservoirCost"></div>
+                </button>
+
+                <button class="build-btn disabled" onclick="build('influenceShrine')" id="btn-influenceShrine" style="display:none">
+                    <div class="btn-title">Influence Reservoir</div>
+                    <div class="btn-count" id="influenceShrineCount">0</div>
+                    <div class="btn-cost" id="influenceShrineCost"></div>
+                </button>
+
+                <button class="build-btn disabled" onclick="build('manaFont')" id="btn-manaFont" style="display:none">
+                    <div class="btn-title">Mana Reservoir</div>
+                    <div class="btn-count" id="manaFontCount">0</div>
+                    <div class="btn-cost" id="manaFontCost"></div>
+                </button>
+
+            </div>
+
             <div class="era1-layout">
                 <div id="era1-tree" class="era1-tree"></div>
                 <div id="era1-panel" class="era1-panel">

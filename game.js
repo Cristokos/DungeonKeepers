@@ -12,8 +12,8 @@ const BASE_CAPS = {
     iron: 150, potions: 75, arcaneDust: 75, steel: 100, bricks: 120, cloth: 100, runes: 60,
     // Tier 3 — Magical
     arcaneEssence: 50, silk: 40, manaGold: 40, ichor: 30, mithril: 20,
-    // Era 1 resources (cap overridden to 500 while era === 1)
-    influence: 500, mana: 500,
+    // Era 1 resources (cap overridden dynamically while era === 1)
+    essence: 100, influence: 100, mana: 100,
 };
 const COIN_CAP = 100000; // 1000 gp in copper pieces; coins do not use Storage bonuses
 
@@ -643,11 +643,11 @@ function getCaps() {
     caps.coins = COIN_CAP
         + ((gameState.research && gameState.research.ironLockbox) ? 50000 : 0)
         + getResearchBonus('capBonus', 'coins');
-    // Era 1: override caps for Era 1 resources to 500
+    // Era 1: base caps of 100 for Era 1 resources, raised by storage buildings
     if ((gameState.run.era || 1) === 1) {
-        caps.essence   = 500;
-        caps.influence = 500;
-        caps.mana      = 500;
+        caps.essence   = 100 + (gameState.buildings.essenceReservoir || 0) * 100;
+        caps.influence = 100 + (gameState.buildings.influenceShrine   || 0) * 100;
+        caps.mana      = 100 + (gameState.buildings.manaFont          || 0) * 100;
     }
     return caps;
 }
@@ -1595,7 +1595,7 @@ function renderEra1Actions() {
         const cls = canInfluence ? '' : ' disabled';
         html += `<button class="action-btn${cls}" onclick="gatherEra1('toInfluence')">
             <span class="action-title">Channel Influence</span>
-            <span class="action-yield">-2 Essence → +1 Influence (${Math.floor(r.influence||0)}/500)</span>
+            <span class="action-yield">-2 Essence → +1 Influence</span>
         </button>`;
     }
 
@@ -1603,7 +1603,7 @@ function renderEra1Actions() {
         const cls = canMana ? '' : ' disabled';
         html += `<button class="action-btn${cls}" onclick="gatherEra1('toMana')">
             <span class="action-title">Channel Mana</span>
-            <span class="action-yield">-5 Essence → +1 Mana (${Math.floor(r.mana||0)}/500)</span>
+            <span class="action-yield">-5 Essence → +1 Mana</span>
         </button>`;
     }
 
