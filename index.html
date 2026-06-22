@@ -1688,7 +1688,13 @@
             var el = document.getElementById('splash-run-summary');
             if (!el) return;
             var s = getSave();
-            if (!s) { el.style.display = 'none'; return; }
+            var meaningful = s && (
+                (s.time && (s.time.year > 1 || s.time.day > 1)) ||
+                (s.meta && s.meta.totalPrestiges > 0) ||
+                (s.era1 && s.era1.unlocked && s.era1.unlocked.length > 0) ||
+                (s.run  && s.run.era > 1)
+            );
+            if (!meaningful) { el.style.display = 'none'; return; }
             var run = s.run || {}, t = s.time || {}, parts = [];
             if (t.year || t.day)  parts.push('Year ' + (t.year || 1) + ', Day ' + (t.day || 1));
             if (run.race)         parts.push(run.race);
