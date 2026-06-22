@@ -618,25 +618,25 @@ function initResTooltips() {
 
 // ── Building tooltips ─────────────────────────────────────────────────────────
 
-function _bldEffect(def) {
-    const resName = r => RESOURCES[r]?.name || r;
+function _bldEffectRates(id, def) {
+    const convMult = getResearchBonus('converterBonus', id);
+    const allBonus = 1 + getResearchBonus('allProductionBonus');
     if (def.production) {
-        const parts = Object.entries(def.production)
-            .map(([r, rate]) => `+${rate * TICKS_PER_DAY}/day ${resName(r)}`);
-        return parts.join(', ') + ' per building';
+        const [res, rate] = Object.entries(def.production)[0];
+        const bldgMult = getResearchBonus('productionBonus', id);
+        return { out: fmt(rate * TICKS_PER_DAY * bldgMult * allBonus) };
     }
     if (def.converts) {
-        const inputs = Object.entries(def.converts.inputs)
-            .map(([r, rate]) => `${rate * TICKS_PER_DAY} ${resName(r)}`).join(' + ');
-        const outRate = def.converts.outputRate * TICKS_PER_DAY;
-        return `Consumes ${inputs}/day → +${outRate} ${resName(def.converts.output)}/day per building`;
+        const inputRate = Object.values(def.converts.inputs)[0];
+        return {
+            in:  fmt(inputRate * TICKS_PER_DAY),
+            out: fmt(def.converts.outputRate * convMult * TICKS_PER_DAY),
+        };
     }
-    if (def.housingBonus) {
-        return `+${def.housingBonus} housing capacity per building`;
-    }
-    // Storage buildings — cap bonus is described in desc; no extra line needed
-    return null;
+    // Storage buildings — cap bonus is currently fixed at 100
+    return { cap: 100 };
 }
+
 
 let _bldTooltipEl = null;
 
@@ -650,8 +650,7 @@ function initBldTooltips() {
             if (!_bldTooltipEl) return;
             let html = `<div class="bld-tt-name">${def.name}</div>`;
             if (def.desc)   html += `<div class="bld-tt-desc">${def.desc}</div>`;
-            const effect = _bldEffect(def);
-            if (effect) html += `<div class="bld-tt-effect">${effect}</div>`;
+            if (def.effect) html += `<div class="bld-tt-effect">${def.effect(_bldEffectRates(id, def))}</div>`;
             if (def.flavor) html += `<div class="bld-tt-flavor">${def.flavor}</div>`;
             _bldTooltipEl.innerHTML = html;
             _bldTooltipEl.style.display = 'block';
