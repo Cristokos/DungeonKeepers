@@ -1637,6 +1637,12 @@ function devMaxBank() {
     saveGame();
 }
 
+function devClearBank() {
+    gameState.pauseBank = 0;
+    updateBankDisplay();
+    saveGame();
+}
+
 function devAddOneEach() {
     for (const id of Object.keys(ROOMS)) {
         gameState.buildings[id] = (gameState.buildings[id] || 0) + 1;
