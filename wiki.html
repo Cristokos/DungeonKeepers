@@ -20,6 +20,7 @@
         <a class="wiki-nav-link"        data-section="creatures" onclick="showWiki('creatures')">Creatures</a>
         <a class="wiki-nav-link"        data-section="research"  onclick="showWiki('research')">Research</a>
         <a class="wiki-nav-link"        data-section="racetree"  onclick="showWiki('racetree')">Race Tree</a>
+        <a class="wiki-nav-link"        data-section="extension" onclick="showWiki('extension')">Extension</a>
         <a class="wiki-nav-link"        data-section="changelog" onclick="showWiki('changelog')">Changelog</a>
     </nav>
 
@@ -1423,9 +1424,93 @@
             </div>
         </section>
 
+        <!-- EXTENSION -->
+        <section id="wiki-extension" class="wiki-section" style="display:none">
+            <h2>Idle Save Manager — Companion Extension</h2>
+
+            <p class="wiki-lead">
+                <strong>Idle Save Manager</strong> is an optional Chrome extension built specifically for Dungeon Keepers.
+                It automatically syncs your save to your Google account so you can pick up your run on any computer
+                without ever touching an export string.
+            </p>
+
+            <div class="wiki-ext-preview">
+                <img src="assets/ext-preview.png" alt="Idle Save Manager extension popup showing Connected status and Push to Sync button" class="wiki-ext-img" />
+                <p class="wiki-ext-caption">The extension popup — one click to push your save to the cloud.</p>
+            </div>
+
+            <h3 class="wiki-subheading">Why use it?</h3>
+            <p class="wiki-lead">
+                Dungeon Keepers is an offline-progress game — your run accumulates over real-world time.
+                Without the extension, swapping between machines means manually exporting your save, transferring the
+                string, and importing it on the other side. Miss that step and you lose hours of banked progress.
+                The extension handles all of that for you silently in the background.
+            </p>
+
+            <div class="biome-card" style="margin-bottom:12px">
+                <div style="font-weight:600;margin-bottom:6px">&#9670; Auto-Sync</div>
+                <p class="biome-desc">
+                    Whenever you make meaningful progress, the extension pushes your save to
+                    <code>chrome.storage.sync</code> — Google's built-in cloud storage for extensions.
+                    On your other machine, open the game and the latest save is pulled down automatically.
+                </p>
+            </div>
+            <div class="biome-card" style="margin-bottom:12px">
+                <div style="font-weight:600;margin-bottom:6px">&#9670; Zero Account Required</div>
+                <p class="biome-desc">
+                    The extension piggybacks on your existing Chrome sign-in. No new accounts, no external servers,
+                    no subscription — just install and forget about it.
+                </p>
+            </div>
+            <div class="biome-card" style="margin-bottom:12px">
+                <div style="font-weight:600;margin-bottom:6px">&#9670; Conflict Detection</div>
+                <p class="biome-desc">
+                    If the cloud save is newer than your local save when you open the game, the extension alerts
+                    you and lets you choose which one to keep — so you never silently overwrite a longer run.
+                </p>
+            </div>
+
+            <h3 class="wiki-subheading">Installation</h3>
+            <p class="wiki-lead">
+                The extension is free and open-source. Because it is not yet published to the Chrome Web Store,
+                installation is a quick one-time manual step:
+            </p>
+            <ol class="wiki-list">
+                <li>Visit the <a href="https://github.com/Cristokos/Idle-Save-Manager" target="_blank" rel="noopener" class="wiki-link">Idle Save Manager GitHub page</a> and download or clone the repository.</li>
+                <li>Open Chrome and navigate to <code>chrome://extensions</code>.</li>
+                <li>Enable <strong>Developer mode</strong> using the toggle in the top-right corner.</li>
+                <li>Click <strong>Load unpacked</strong> and select the folder you downloaded.</li>
+                <li>The extension icon will appear in your toolbar. Sign into Chrome if you haven't already, and you're done.</li>
+            </ol>
+
+            <h3 class="wiki-subheading">How it works day-to-day</h3>
+            <p class="wiki-lead">
+                Once installed there is nothing to configure. The extension watches for save activity in the background
+                and syncs automatically. On machines where you want the save pulled down, simply open the game — the
+                extension fetches the latest cloud save on page load and applies it if it's newer than what's stored
+                locally.
+            </p>
+            <p class="wiki-lead">
+                The extension popup (click the toolbar icon) shows when your save was last synced and lets you
+                manually push or pull if needed — useful if you want to force a sync before shutting down a machine.
+            </p>
+
+            <h3 class="wiki-subheading">Privacy</h3>
+            <p class="wiki-lead">
+                Your save data is stored exclusively in <code>chrome.storage.sync</code>, which is encrypted in
+                transit and tied to your Google account. It is never sent to any third-party server. The extension
+                requests only the <code>storage</code> permission and access to the Dungeon Keepers tab.
+            </p>
+        </section>
+
         <!-- CHANGELOG -->
         <section id="wiki-changelog" class="wiki-section wiki-changelog" style="display:none">
             <h2>Changelog</h2>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.55</span><span class="cl-date">2026-06-22</span></div>
+                <p class="biome-desc">Added a companion Chrome extension page to the wiki covering the Idle Save Manager — explains auto-sync, conflict detection, and zero-account setup, with a screenshot of the extension popup and a step-by-step installation guide. Also fixed identity panel tooltips (biome/race) appearing blank or off-screen by switching to JS-driven fixed positioning; fixed "Year 1, Day 1" displaying on the splash screen before any real progress is made; fixed the Reset Save button silently re-writing the save due to a race condition with the autosave tick; and updated the Era 1 dev loadout to preserve time and load 30 Essence Wells plus 5 of each other Era 1 building.</p>
+            </div>
 
             <div class="biome-card">
                 <div><span class="cl-ver">v0.54</span><span class="cl-date">2026-06-22</span></div>
