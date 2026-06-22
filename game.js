@@ -1292,7 +1292,7 @@ function shouldShowResource(res) {
     const era = gameState.run.era || 1;
     // Era 1: only show Era 1 resources; hide all Era 2 resources
     if (era === 1) {
-        return res === 'influence' || res === 'mana';
+        return res === 'essence' || res === 'influence' || res === 'mana';
     }
     // Era 2+: hide all Era 1 resources entirely
     if (res === 'essence' || res === 'influence' || res === 'mana') return false;
@@ -1561,13 +1561,13 @@ function gatherEra1(action) {
     if (action === 'essence') {
         r.essence = Math.min((r.essence || 0) + 1, 500);
     } else if (action === 'toInfluence') {
-        if (essence < 5) return;
-        r.essence   = (r.essence || 0) - 5;
-        r.influence = Math.min((r.influence || 0) + 3, 500);
+        if (essence < 2) return;
+        r.essence   = (r.essence || 0) - 2;
+        r.influence = Math.min((r.influence || 0) + 1, 500);
     } else if (action === 'toMana') {
         if (essence < 5) return;
         r.essence = (r.essence || 0) - 5;
-        r.mana    = Math.min((r.mana || 0) + 2, 500);
+        r.mana    = Math.min((r.mana || 0) + 1, 500);
     }
 
     updateUI();
@@ -1579,36 +1579,31 @@ function renderEra1Actions() {
     if (!container) return;
     if ((gameState.run.era || 1) !== 1) { container.innerHTML = ''; return; }
 
-    const unlocked = (gameState.era1 || {}).unlocked || [];
-    const l1Nodes = ['deep', 'wild', 'beyond'];
-    const l3FormNodes = ['horde','champion','bloodline','anomaly','root-node','cycle','pack','apex','kept','consumed','pact','vessel'];
-    const hasL1 = unlocked.some(id => l1Nodes.includes(id));
-    const hasL3 = unlocked.some(id => l3FormNodes.includes(id));
-
     const r = gameState.resources;
     const essence = Math.floor(r.essence || 0);
-    const canConvert = essence >= 5;
+    const canInfluence = essence >= 2;
+    const canMana = essence >= 5;
 
-    let html = '<h2>Actions</h2><div class="actions-list">';
+    let html = '<h2>Actions</h2><div class="actions-row">';
 
     html += `<button class="action-btn" onclick="gatherEra1('essence')">
         <span class="action-title">Concentrate</span>
-        <span class="action-yield">+1 Essence (${essence}/500)</span>
+        <span class="action-yield">+1 Essence</span>
     </button>`;
 
     {
-        const cls = canConvert ? '' : ' disabled';
+        const cls = canInfluence ? '' : ' disabled';
         html += `<button class="action-btn${cls}" onclick="gatherEra1('toInfluence')">
             <span class="action-title">Channel Influence</span>
-            <span class="action-yield">-5 Essence → +3 Influence (${Math.floor(r.influence||0)}/500)</span>
+            <span class="action-yield">-2 Essence → +1 Influence (${Math.floor(r.influence||0)}/500)</span>
         </button>`;
     }
 
-    if (hasL3) {
-        const cls = canConvert ? '' : ' disabled';
+    {
+        const cls = canMana ? '' : ' disabled';
         html += `<button class="action-btn${cls}" onclick="gatherEra1('toMana')">
             <span class="action-title">Channel Mana</span>
-            <span class="action-yield">-5 Essence → +2 Mana (${Math.floor(r.mana||0)}/500)</span>
+            <span class="action-yield">-5 Essence → +1 Mana (${Math.floor(r.mana||0)}/500)</span>
         </button>`;
     }
 

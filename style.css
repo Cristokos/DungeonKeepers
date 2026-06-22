@@ -763,6 +763,22 @@ h3 {
     gap: 5px;
 }
 
+.actions-row {
+    display: flex;
+    flex-direction: row;
+    gap: 5px;
+}
+
+.actions-row .action-btn {
+    flex: 1;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    height: 48px;
+    padding: 4px 6px;
+}
+
 .action-btn {
     display: flex;
     align-items: center;
