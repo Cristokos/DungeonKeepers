@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html>
 <head>
     <title>Dungeon Keeper</title>
@@ -1453,6 +1453,21 @@
                 <div class="info-stat"><span>Stone Produced</span>      <span id="info-stone-total">0</span></div>
             </div>
 
+            <h2 class="section-gap">Achievements</h2>
+            <div class="ach-card locked">
+                <div class="ach-icon">&#9760;</div>
+                <div class="ach-info">
+                    <div class="ach-name">Ancient Stonework</div>
+                    <div class="ach-flavor">Each awakening carves the dungeon's purpose deeper into the rock.</div>
+                </div>
+            </div>
+            <div class="ach-card locked">
+                <div class="ach-icon">&#9670;</div>
+                <div class="ach-info">
+                    <div class="ach-name">Veteran's Intuition</div>
+                    <div class="ach-flavor">The dungeon has dreamed this dream before.</div>
+                </div>
+            </div>
 
         </div><!-- /tab-info -->
 
@@ -1789,39 +1804,75 @@
         window.splashAwaken  = function () { splashHide(); };
         window.splashContinue = function () { splashHide(); };
 
+        var _chronicleAchHtml =
+            '<div class="ach-card locked">' +
+                '<div class="ach-icon">&#9760;</div>' +
+                '<div class="ach-info">' +
+                    '<div class="ach-name">Ancient Stonework</div>' +
+                    '<div class="ach-flavor">Each awakening carves the dungeon\'s purpose deeper into the rock.</div>' +
+                '</div>' +
+            '</div>' +
+            '<div class="ach-card locked">' +
+                '<div class="ach-icon">&#9670;</div>' +
+                '<div class="ach-info">' +
+                    '<div class="ach-name">Veteran\'s Intuition</div>' +
+                    '<div class="ach-flavor">The dungeon has dreamed this dream before.</div>' +
+                '</div>' +
+            '</div>';
+
+        window.switchChronicleTab = function(tab) {
+            document.querySelectorAll('.chronicle-tab-btn').forEach(function(b) {
+                b.classList.toggle('active', b.dataset.tab === tab);
+            });
+            var hist = document.getElementById('chronicle-panel-history');
+            var ach  = document.getElementById('chronicle-panel-achievements');
+            if (hist) hist.style.display = tab === 'history' ? '' : 'none';
+            if (ach)  ach.style.display  = tab === 'achievements' ? '' : 'none';
+        };
+
         window.splashChronicle = function () {
             var panel = document.getElementById('splash-chronicle');
             var body  = document.getElementById('splash-chronicle-body');
             var raw;
             try { raw = localStorage.getItem(SAVE_KEY); } catch(e) {}
+            var histHtml;
             if (!raw) {
-                body.innerHTML = '<p class="chronicle-empty">No chronicles have been recorded yet.<br><em>Your story has yet to begin.</em></p>';
+                histHtml = '<p class="chronicle-empty">No chronicles have been recorded yet.<br><em>Your story has yet to begin.</em></p>';
             } else {
                 try {
                     var s = JSON.parse(raw), st = s.stats||{}, me = s.meta||{}, ti = s.time||{}, ru = s.run||{};
                     var races = Object.keys(me.racesPlayed || {});
-                    body.innerHTML =
+                    histHtml =
                         '<div class="chronicle-section">Meta</div>' +
                         '<div class="chronicle-row"><span class="chronicle-label">Times Awakened</span><span class="chronicle-val">' + fmt(me.totalPrestiges) + '</span></div>' +
                         '<div class="chronicle-row"><span class="chronicle-label">Realms Explored</span><span class="chronicle-val">' + (me.seenBiomes||[]).length + '</span></div>' +
                         '<div class="chronicle-row"><span class="chronicle-label">Bloodlines Known</span><span class="chronicle-val">' + (races.length ? races.join(', ') : '—') + '</span></div>' +
                         '<div class="chronicle-section">Current Run</div>' +
-                        '<div class="chronicle-row"><span class="chronicle-label">Age of the Dungeon</span><span class="chronicle-val">Year ' + fmt(ti.year) + ', Day ' + fmt(ti.day) + '</span></div>' +
+                        '<div class="chronicle-row"><span class="chronicle-label">Age of the Dungeon</span><span class="chronicle-val">Year ' + fmt(ti.year) + ', Day ' + fmt(ti.day) + '</span></div>' +
                         '<div class="chronicle-row"><span class="chronicle-label">Domain Biome</span><span class="chronicle-val">' + (ru.biome||'—') + '</span></div>' +
                         '<div class="chronicle-row"><span class="chronicle-label">Dominant Race</span><span class="chronicle-val">' + (ru.race||'—') + '</span></div>' +
                         '<div class="chronicle-section">Statistics</div>' +
                         '<div class="chronicle-row"><span class="chronicle-label">Greatest Horde</span><span class="chronicle-val">' + fmt(st.peakPopulation) + ' souls</span></div>' +
                         '<div class="chronicle-row"><span class="chronicle-label">Chambers Raised</span><span class="chronicle-val">' + fmt(st.buildingsConstructed) + '</span></div>' +
-                        '<div class="chronicle-row"><span class="chronicle-label">Forager\'s Toil</span><span class="chronicle-val">' + fmt(st.manualGathers) + ' actions</span></div>' +
+                        '<div class="chronicle-row"><span class="chronicle-label">Forager's Toil</span><span class="chronicle-val">' + fmt(st.manualGathers) + ' actions</span></div>' +
                         '<div class="chronicle-row"><span class="chronicle-label">Fallen to Hunger</span><span class="chronicle-val">' + fmt(st.starvationDeaths) + ' souls</span></div>' +
                         '<div class="chronicle-section">Resources</div>' +
                         '<div class="chronicle-row"><span class="chronicle-label">Food Gathered</span><span class="chronicle-val">' + fmt(st.foodProduced) + '</span></div>' +
                         '<div class="chronicle-row"><span class="chronicle-label">Wood Felled</span><span class="chronicle-val">' + fmt(st.woodProduced) + '</span></div>' +
                         '<div class="chronicle-row"><span class="chronicle-label">Stone Quarried</span><span class="chronicle-val">' + fmt(st.stoneProduced) + '</span></div>';
                 } catch(e) {
-                    body.innerHTML = '<p class="chronicle-empty">The chronicles are damaged and cannot be deciphered.</p>';
+                    histHtml = '<p class="chronicle-empty">The chronicles are damaged and cannot be deciphered.</p>';
                 }
             }
+
+            body.innerHTML =
+                '<div class="chronicle-tabs">' +
+                    '<button class="chronicle-tab-btn active" data-tab="history" onclick="switchChronicleTab('history')">History</button>' +
+                    '<button class="chronicle-tab-btn" data-tab="achievements" onclick="switchChronicleTab('achievements')">Achievements</button>' +
+                '</div>' +
+                '<div id="chronicle-panel-history">' + histHtml + '</div>' +
+                '<div id="chronicle-panel-achievements" style="display:none">' + _chronicleAchHtml + '</div>';
+
             panel.classList.add('splash-chronicle-open');
         };
 

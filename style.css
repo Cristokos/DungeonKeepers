@@ -2285,6 +2285,68 @@ body.reduce-motion *::after {
     color: rgba(160,140,200,0.5);
     font-style: italic;
 }
+
+/* Chronicle tab switcher */
+.chronicle-tabs {
+    display: flex;
+    gap: 0;
+    margin-bottom: 16px;
+    border-bottom: 1px solid rgba(140,100,220,0.2);
+}
+.chronicle-tab-btn {
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    padding: 6px 16px;
+    color: rgba(180,165,140,0.5);
+    font-family: 'Lato', sans-serif;
+    font-size: 11px;
+    font-weight: bold;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: color 0.15s, border-color 0.15s;
+    margin-bottom: -1px;
+}
+.chronicle-tab-btn:hover { color: rgba(180,165,140,0.85); }
+.chronicle-tab-btn.active {
+    color: rgba(200,180,240,0.9);
+    border-bottom-color: rgba(140,100,220,0.6);
+}
+
+/* Achievement cards */
+.ach-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 10px 12px;
+    margin-bottom: 8px;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(140,100,220,0.1);
+    border-radius: 4px;
+}
+.ach-card.locked { opacity: 0.45; filter: grayscale(0.5); }
+.ach-icon {
+    font-size: 22px;
+    line-height: 1;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+.ach-info { flex: 1; }
+.ach-name {
+    font-family: 'Lato', sans-serif;
+    font-size: 13px;
+    font-weight: bold;
+    color: rgba(200,185,150,0.85);
+    margin-bottom: 3px;
+}
+.ach-flavor {
+    font-family: 'Lato', sans-serif;
+    font-size: 11px;
+    color: rgba(160,140,200,0.55);
+    font-style: italic;
+    line-height: 1.5;
+}
 .splash-chronicle-close {
     display: block;
     margin: 24px auto 0;

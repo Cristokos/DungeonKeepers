@@ -1710,15 +1710,21 @@ function gatherEra1(action) {
     saveGame();
 }
 
+let _era1ActionsState = '';
+
 function renderEra1Actions() {
     const container = document.getElementById('era1-actions');
     if (!container) return;
-    if ((gameState.run.era || 1) !== 1) { container.innerHTML = ''; return; }
+    if ((gameState.run.era || 1) !== 1) { container.innerHTML = ''; _era1ActionsState = ''; return; }
 
     const r = gameState.resources;
     const essence = Math.floor(r.essence || 0);
     const canInfluence = essence >= 2;
     const canMana = essence >= 5;
+
+    const stateKey = `${canInfluence}|${canMana}`;
+    if (stateKey === _era1ActionsState) return;
+    _era1ActionsState = stateKey;
 
     let html = '<h2>Actions</h2><div class="actions-row">';
 
@@ -1730,7 +1736,7 @@ function renderEra1Actions() {
     {
         const cls = canInfluence ? '' : ' disabled';
         html += `<button class="action-btn${cls}" onclick="gatherEra1('toInfluence')">
-            <span class="action-title">Channel Influence</span>
+            <span class="action-title">Exert Will</span>
             <span class="action-yield">-2 Essence → +1 Influence</span>
         </button>`;
     }
@@ -1738,7 +1744,7 @@ function renderEra1Actions() {
     {
         const cls = canMana ? '' : ' disabled';
         html += `<button class="action-btn${cls}" onclick="gatherEra1('toMana')">
-            <span class="action-title">Channel Mana</span>
+            <span class="action-title">Tap the Weave</span>
             <span class="action-yield">-5 Essence → +1 Mana</span>
         </button>`;
     }

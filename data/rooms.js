@@ -247,7 +247,7 @@ const ROOMS = {
         unlock: { essenceConduit: 3 },
         desc: "Refines concentrated essence into potent arcane mana through sustained focus.",
         effect: (r) => `Automatically consume ${r.in} Essence to create ${r.out} Mana.`,
-        flavor: "The mind does not cast spells. The mind becomes the spell.",
+        flavor: "Every spell ever cast drew on the same endless fabric. Now your mind has found its threads.",
     },
     essenceReservoir: {
         name: "Essence Reservoir",
