@@ -275,8 +275,8 @@ html, body {
 .left-col {
     display: flex;
     flex-direction: column;
-    width: 240px;
-    min-width: 240px;
+    width: 280px;
+    min-width: 280px;
     background: var(--bg-panel);
     border-right: 1px solid var(--border);
     overflow: visible;
@@ -485,8 +485,8 @@ html, body {
 }
 
 .right {
-    width: 240px;
-    min-width: 240px;
+    width: 280px;
+    min-width: 280px;
     background: var(--bg-panel);
     border-left: 1px solid var(--border);
 }
@@ -594,24 +594,30 @@ h3 {
 
 .res-name {
     color: var(--label);
-    font-size: 12px;
+    font-size: 14px;
 }
 
 .res-right {
     color: var(--text);
-    font-size: 12px;
+    font-size: 14px;
 }
 
 .rate {
     color: var(--enabled);
-    font-size: 11px;
+    font-size: 12px;
     margin-left: 4px;
 }
 
 .res-label-sm {
     color: var(--text-muted);
-    font-size: 10px;
+    font-size: 11px;
     margin-left: 3px;
+}
+
+/* Resource at storage cap */
+.res-row.res-at-cap .res-name,
+.res-row.res-at-cap .res-right {
+    color: #c8832a;
 }
 
 /* Starvation — pulse the population row red */

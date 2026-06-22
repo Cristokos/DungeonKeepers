@@ -962,11 +962,12 @@ function fmtRate(r) {
     return (r > 0 ? "+" : "") + r.toFixed(1) + "/s";
 }
 
-function getNetRates(prod) {
+function getNetRates(prod, caps) {
     // Start from passive production (already computed by caller)
     const rates = Object.assign({}, prod);
 
-    // Add converter output and subtract input consumption (max rate; ratio assumed 1 for display)
+    // Add converter output and subtract input consumption.
+    // If the output resource is already at cap, the converter is idle — skip it entirely.
     const w2 = getWorkersPerBuilding();
     for (const [id, def] of Object.entries(ROOMS)) {
         if (!def.converts) continue;
@@ -974,11 +975,14 @@ function getNetRates(prod) {
         if (count === 0) continue;
         const w = def.jobs ? (w2[id] || 0) : count;
         if (w === 0) continue;
+        const outRes = def.converts.output;
+        const outCurrent = gameState.resources[outRes] || 0;
+        const outCap = caps[outRes];
+        if (outCap !== undefined && outCurrent >= outCap) continue;
         for (const [res, rate] of Object.entries(def.converts.inputs)) {
             rates[res] = (rates[res] || 0) - rate * w;
         }
         const convMult = getResearchBonus('converterBonus', id);
-        const outRes = def.converts.output;
         rates[outRes] = (rates[outRes] || 0) + def.converts.outputRate * convMult * w;
     }
 
@@ -1018,10 +1022,14 @@ function updateUI() {
     setText("coinsCap",     formatCoins(caps.coins));
 
     // Resources
-    const netRates = getNetRates(prod);
+    const netRates = getNetRates(prod, caps);
     for (const res of Object.keys(RESOURCES)) {
         const rowEl = document.getElementById("res-row-" + res);
-        if (rowEl) rowEl.style.display = shouldShowResource(res) ? "" : "none";
+        if (rowEl) {
+            rowEl.style.display = shouldShowResource(res) ? "" : "none";
+            const atCap = caps[res] !== undefined && (gameState.resources[res] || 0) >= caps[res];
+            rowEl.classList.toggle("res-at-cap", atCap);
+        }
 
         setText(res,         fmt(gameState.resources[res] || 0));
         setText(res + "Cap", fmt(caps[res] !== undefined ? caps[res] : 0));
