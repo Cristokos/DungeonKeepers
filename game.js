@@ -1462,15 +1462,15 @@ const ERA_LOADOUTS = {
     1: {
         population: 5,
         buildings: {
-            lair: 3, farm: 3, lumber: 3, quarry: 2, storage: 2,
-            mine: 0, huntingLodge: 2, herbalistDen: 1, clayPit: 1,
+            essenceWell: 30,
+            essenceConduit: 5, manaCrucible: 5,
+            essenceReservoir: 5, influenceShrine: 5, manaFont: 5,
         },
-        research: [...ERA_1_RESEARCH],
+        research: [],
         resources: {
-            food: 150, wood: 200, stone: 150, ore: 30,
-            herbs: 40, clay: 30, bones: 25, coins: 1500,
+            essence: 500, influence: 300, mana: 200,
         },
-        workerAssignments: { farm: 3, lumber: 3, quarry: 2 },
+        workerAssignments: {},
     },
     2: {
         population: 20,
@@ -1593,8 +1593,6 @@ function applyEraLoadout(era) {
     // Population and workers
     gameState.population = { count: L.population, growthTimer: 0, starveTick: 0 };
     gameState.workerAssignments = Object.assign({}, L.workerAssignments || {});
-    // Reset time
-    gameState.time = { tick: 0, day: 1, year: 1, seasonIndex: 0 };
 }
 
 function devSetEra(n) {
@@ -3243,6 +3241,33 @@ function updateIdentityPanel() {
     }
 }
 
+function initIdentityTooltips() {
+    function attachTooltip(rowSel, tipId) {
+        const row = document.querySelector(rowSel);
+        const tip = document.getElementById(tipId);
+        if (!row || !tip) return;
+        row.addEventListener('mouseenter', function () {
+            tip.style.display = 'block';
+            const rect = row.getBoundingClientRect();
+            const tw = tip.offsetWidth;
+            const th = tip.offsetHeight;
+            // Prefer right of row; fall back to left if it would overflow viewport
+            let left = rect.right + 4;
+            if (left + tw > window.innerWidth - 8) left = rect.left - tw - 4;
+            // Align top with row; shift up if it clips bottom
+            let top = rect.top;
+            if (top + th > window.innerHeight - 8) top = window.innerHeight - th - 8;
+            tip.style.left = left + 'px';
+            tip.style.top  = top  + 'px';
+        });
+        row.addEventListener('mouseleave', function () {
+            tip.style.display = 'none';
+        });
+    }
+    attachTooltip('.di-biome-row', 'di-biome-tooltip');
+    attachTooltip('.di-race-row',  'di-race-tooltip');
+}
+
 // ── Tabs ──────────────────────────────────────────────────────────────────────
 
 function switchTab(tabId) {
@@ -3283,6 +3308,7 @@ updateIdentityPanel();
 devPopulateRaceSelect();
 initResTooltips();
 initBldTooltips();
+initIdentityTooltips();
 setInterval(tick, 1000);
 
 // Stamp lastSeen when the player closes or navigates away.

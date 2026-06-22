@@ -60,20 +60,22 @@
 
         <div class="splash-lore">
             <p>
-                Deep beneath the Material Plane, where light has never reached and silence is eternal,
-                something stirred. Not a creature or a god, but older — a pocket of raw arcane
-                will woven into the world itself. A <em>Dungeon Mind</em>, newly conscious and hungry
-                to become something more.
+                Deep beneath the Material Plane, where light has never reached and silence is unbroken,
+                something stirs. Not a creature or a god, but older — a pocket of raw arcane
+                will seeping into existance from the Weave of magic itself. A <em>Dungeon Mind</em>, newly conscious and hungry
+                to become something more. At the heart of every proper Dungeon across the planes is a single Dungeon Mind,
+                a sentient being.
             </p>
             <p>
-                You are that mind. You have no body, no voice, no name — only stone, shadow,
+                You are that mind. You have no body, no voice, no name — only stone, will,
                 and the faint pulse of eldritch magic humming from the Underdark below. Attract creatures
-                that resonate with your nature: goblins, dragons, undead, fey, or something stranger still.
-                Build your chambers, research the arcane arts, and grow in power before adventurers find you.
+                that resonate with your nature: goblins, dragons, undead, fey, or something stranger still. 
+                They will build your chambers, research the arcane arts, and protect you.
+                By exerting your influence, you can shape the world around you, but only if you are clever and patient enough to do so.
             </p>
             <p>
-                Choose your inhabitants wisely. In time, what lives inside you <em>becomes</em> you.
-                Grow strong enough, and you will venture beyond your stone walls to challenge other Dungeons
+                Choose your inhabitants wisely. In time, what lives inside you <em>becomes</em> part of you.
+                Grow strong enough, and you will venture beyond your stone halls to challenge other Dungeons
                 across the planes. Evolve, conquer, or fall into obscurity — forgotten by the ages like
                 so many dungeons before you.
             </p>
@@ -102,6 +104,18 @@
             Inspired by <em>Dungeons &amp; Dragons</em>, <em>Delicious in Dungeon</em>, and <em>Evolve Idle</em>
         </div>
 
+    </div>
+
+    <!-- Chrome extension toast -->
+    <div id="splash-ext-toast" class="splash-ext-toast" style="display:none">
+        <div class="splash-ext-toast-inner">
+            <span class="splash-ext-toast-icon">&#9670;</span>
+            <div class="splash-ext-toast-text">
+                <strong>Companion Extension Available</strong>
+                <span>Sync your saves across devices with the <a href="https://github.com/Cristokos/Idle-Save-Manager" target="_blank" rel="noopener" class="splash-ext-link">Idle Save Manager</a> Chrome extension.</span>
+            </div>
+            <button class="splash-ext-toast-close" onclick="splashExtToastDismiss()" title="Dismiss">&#10005;</button>
+        </div>
     </div>
 
 </div>
@@ -1825,6 +1839,7 @@
             document.body.style.overflow = 'hidden';
             spawnParticles();
             if (!d20State) startD20();
+            showExtToast();
         };
 
         window.splashHide = function () {
@@ -1918,6 +1933,29 @@
             document.getElementById('splash-chronicle').classList.remove('splash-chronicle-open');
         };
 
+        // ── Extension toast ───────────────────────────────────────────────────
+        var EXT_TOAST_KEY = 'dk_ext_toast_dismissed';
+
+        function showExtToast() {
+            var dismissed = false;
+            try { dismissed = !!localStorage.getItem(EXT_TOAST_KEY); } catch(e) {}
+            if (dismissed) return;
+            var toast = document.getElementById('splash-ext-toast');
+            if (!toast) return;
+            toast.style.display = '';
+            // Slight delay so it slides in after the overlay appears
+            setTimeout(function () { toast.classList.add('splash-ext-toast-visible'); }, 800);
+        }
+
+        window.splashExtToastDismiss = function () {
+            try { localStorage.setItem(EXT_TOAST_KEY, '1'); } catch(e) {}
+            var toast = document.getElementById('splash-ext-toast');
+            if (toast) {
+                toast.classList.remove('splash-ext-toast-visible');
+                setTimeout(function () { toast.style.display = 'none'; }, 400);
+            }
+        };
+
         // ── Auto-show on first visit ───────────────────────────────────────────
         document.addEventListener('DOMContentLoaded', function () {
             setupSplash();
@@ -1931,6 +1969,7 @@
             } else {
                 document.getElementById('splash-overlay').classList.add('splash-hidden');
             }
+            showExtToast();
         });
     })();
 </script>
