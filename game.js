@@ -618,6 +618,26 @@ function initResTooltips() {
 
 // ── Building tooltips ─────────────────────────────────────────────────────────
 
+function _bldEffect(def) {
+    const resName = r => RESOURCES[r]?.name || r;
+    if (def.production) {
+        const parts = Object.entries(def.production)
+            .map(([r, rate]) => `+${rate * TICKS_PER_DAY}/day ${resName(r)}`);
+        return parts.join(', ') + ' per building';
+    }
+    if (def.converts) {
+        const inputs = Object.entries(def.converts.inputs)
+            .map(([r, rate]) => `${rate * TICKS_PER_DAY} ${resName(r)}`).join(' + ');
+        const outRate = def.converts.outputRate * TICKS_PER_DAY;
+        return `Consumes ${inputs}/day → +${outRate} ${resName(def.converts.output)}/day per building`;
+    }
+    if (def.housingBonus) {
+        return `+${def.housingBonus} housing capacity per building`;
+    }
+    // Storage buildings — cap bonus is described in desc; no extra line needed
+    return null;
+}
+
 let _bldTooltipEl = null;
 
 function initBldTooltips() {
@@ -630,6 +650,8 @@ function initBldTooltips() {
             if (!_bldTooltipEl) return;
             let html = `<div class="bld-tt-name">${def.name}</div>`;
             if (def.desc)   html += `<div class="bld-tt-desc">${def.desc}</div>`;
+            const effect = _bldEffect(def);
+            if (effect) html += `<div class="bld-tt-effect">${effect}</div>`;
             if (def.flavor) html += `<div class="bld-tt-flavor">${def.flavor}</div>`;
             _bldTooltipEl.innerHTML = html;
             _bldTooltipEl.style.display = 'block';
@@ -820,7 +842,6 @@ function runOneTick() {
     // 0. Era 1 passive resource income
     if ((gameState.run.era || 1) === 1) {
         const r = gameState.resources;
-        r.essence  = (r.essence  || 0) + 0.5;
         const era1 = gameState.era1 || {};
         const l1Nodes = ['deep', 'wild', 'beyond'];
         const hasL1 = (era1.unlocked || []).some(id => l1Nodes.includes(id));

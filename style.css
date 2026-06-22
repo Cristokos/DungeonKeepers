@@ -275,8 +275,8 @@ html, body {
 .left-col {
     display: flex;
     flex-direction: column;
-    width: 280px;
-    min-width: 280px;
+    width: 320px;
+    min-width: 320px;
     background: var(--bg-panel);
     border-right: 1px solid var(--border);
     overflow: visible;
@@ -485,8 +485,8 @@ html, body {
 }
 
 .right {
-    width: 280px;
-    min-width: 280px;
+    width: 320px;
+    min-width: 320px;
     background: var(--bg-panel);
     border-left: 1px solid var(--border);
 }
@@ -646,6 +646,15 @@ h3 {
     color: var(--text-muted);
     margin-bottom: 7px;
     line-height: 1.5;
+}
+
+.bld-tt-effect {
+    font-size: 11px;
+    color: var(--label);
+    margin-bottom: 7px;
+    line-height: 1.5;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    padding-top: 6px;
 }
 
 .bld-tt-flavor {
@@ -867,7 +876,7 @@ h3 {
 /* BUTTON GRID */
 .grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     gap: 6px;
 }
 
