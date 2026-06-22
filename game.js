@@ -1748,6 +1748,8 @@ function renderEra1Actions() {
     container.innerHTML = html;
 }
 
+let _era1TreeState = '';
+
 function renderEra1Tree() {
     const container = document.getElementById('era1-tree');
     if (!container) return;
@@ -1755,6 +1757,10 @@ function renderEra1Tree() {
 
     const era1 = gameState.era1 || { unlocked: [], chosen: null };
     const unlocked = era1.unlocked || [];
+    const stateKey = unlocked.join(',') + '|' + getCaps().essence;
+    if (stateKey === _era1TreeState) return;
+    _era1TreeState = stateKey;
+    era1HidePanel();
 
     // Build the visible node sequence: root, then each chosen child down the path,
     // plus the current frontier (children of the deepest chosen node).
