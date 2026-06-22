@@ -83,6 +83,7 @@ function _verLt(a, b) {
 // ── Core save / load ────────────────────────────────────────────────────────
 
 function saveGame() {
+    if (typeof window !== "undefined" && window._pendingReset) return;
     gameState.lastSeen = Date.now();
     gameState.saveVersion = (typeof window !== "undefined" && window.GAME_VERSION) || gameState.saveVersion || "0";
     localStorage.setItem(SAVE_KEY, _serializeSave(gameState));

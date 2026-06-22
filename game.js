@@ -327,6 +327,7 @@ function doSaveNow() {
 
 function doResetSave() {
     if (!confirm("Reset all progress? This cannot be undone.")) return;
+    window._pendingReset = true;
     _pendingReset = true;
     localStorage.removeItem(SAVE_KEY);
     localStorage.removeItem('dk_splash_seen');
@@ -335,6 +336,7 @@ function doResetSave() {
 
 // Dev-tab version: no confirm dialog (bypasses browser dialog suppression)
 function devResetSave() {
+    window._pendingReset = true;
     _pendingReset = true;
     localStorage.removeItem(SAVE_KEY);
     localStorage.removeItem('dk_splash_seen');
