@@ -255,7 +255,7 @@ const ROOMS = {
         costScale: 1.05,
         unlock: { essenceWell: 1 },
         desc: "Expands your capacity to hold raw essence before it dissipates.",
-        effect: (r) => `Increases Essence storage cap by ${r.cap}.`,
+        effect: () => `Increases Essence storage cap by ${getReservoirBonus()}.`,
         flavor: "Awareness stretched thin across the void, holding more than it should.",
     },
     influenceShrine: {
@@ -264,7 +264,7 @@ const ROOMS = {
         costScale: 1.05,
         unlock: { essenceConduit: 1 },
         desc: "Deepens your mental reach, allowing greater influence to accumulate.",
-        effect: (r) => `Increases Influence storage cap by ${r.cap}.`,
+        effect: () => `Increases Influence storage cap by ${getReservoirBonus()}.`,
         flavor: "A pressure behind the eyes of things that do not know you are there.",
     },
     manaFont: {
@@ -273,7 +273,7 @@ const ROOMS = {
         costScale: 1.05,
         unlock: { manaCrucible: 1 },
         desc: "Carves out deeper arcane reserves within the fabric of your consciousness.",
-        effect: (r) => `Increases Mana storage cap by ${r.cap}.`,
+        effect: () => `Increases Mana storage cap by ${getReservoirBonus()}.`,
         flavor: "Power pooled in silence, patient as stone, cold as the spaces between stars.",
     },
 };

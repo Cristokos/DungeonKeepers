@@ -650,7 +650,7 @@ function initBldTooltips() {
             if (!_bldTooltipEl) return;
             let html = `<div class="bld-tt-name">${def.name}</div>`;
             if (def.desc)   html += `<div class="bld-tt-desc">${def.desc}</div>`;
-            if (def.effect) html += `<div class="bld-tt-effect">${def.effect(_bldEffectRates(id, def))}</div>`;
+            if (def.effect) html += `<div class="bld-tt-effect">${def.effect(_bldEffectRates(id, def), id)}</div>`;
             if (def.flavor) html += `<div class="bld-tt-flavor">${def.flavor}</div>`;
             _bldTooltipEl.innerHTML = html;
             _bldTooltipEl.style.display = 'block';
@@ -697,9 +697,10 @@ function getCaps() {
         + getResearchBonus('capBonus', 'coins');
     // Era 1: base caps of 100 for Era 1 resources, raised by storage buildings
     if ((gameState.run.era || 1) === 1) {
-        caps.essence   = 100 + (gameState.buildings.essenceReservoir || 0) * 100;
-        caps.influence = 100 + (gameState.buildings.influenceShrine   || 0) * 100;
-        caps.mana      = 100 + (gameState.buildings.manaFont          || 0) * 100;
+        const reservoirBonus = getReservoirBonus();
+        caps.essence   = 100 + (gameState.buildings.essenceReservoir || 0) * reservoirBonus;
+        caps.influence = 100 + (gameState.buildings.influenceShrine   || 0) * reservoirBonus;
+        caps.mana      = 100 + (gameState.buildings.manaFont          || 0) * reservoirBonus;
     }
     return caps;
 }
@@ -1625,6 +1626,29 @@ function era1ShowPanel(nodeId) {
     `;
 }
 
+const ERA1_RESERVOIR_UPGRADE_BASE_COST = 60;
+const ERA1_RESERVOIR_UPGRADE_SCALE     = 1.05;
+
+function getReservoirBonus() {
+    const purchases = (gameState.era1Upgrades && gameState.era1Upgrades.reservoirExpansion) || 0;
+    return 20 + purchases * 10;
+}
+
+function getReservoirUpgradeCost() {
+    const purchases = (gameState.era1Upgrades && gameState.era1Upgrades.reservoirExpansion) || 0;
+    return Math.floor(ERA1_RESERVOIR_UPGRADE_BASE_COST * Math.pow(ERA1_RESERVOIR_UPGRADE_SCALE, purchases));
+}
+
+function buyReservoirUpgrade() {
+    const cost = getReservoirUpgradeCost();
+    if ((gameState.resources.essence || 0) < cost) return;
+    gameState.resources.essence -= cost;
+    if (!gameState.era1Upgrades) gameState.era1Upgrades = {};
+    gameState.era1Upgrades.reservoirExpansion = ((gameState.era1Upgrades.reservoirExpansion) || 0) + 1;
+    updateUI();
+    saveGame();
+}
+
 function gatherEra1(action) {
     const r = gameState.resources;
     const essence = Math.floor(r.essence || 0);
@@ -1679,6 +1703,24 @@ function renderEra1Actions() {
     }
 
     html += '</div>';
+
+    const hasReservoir = (gameState.buildings.essenceReservoir || 0)
+                       + (gameState.buildings.influenceShrine  || 0)
+                       + (gameState.buildings.manaFont         || 0) > 0;
+    if (hasReservoir) {
+        const upgCost    = getReservoirUpgradeCost();
+        const upgCount   = (gameState.era1Upgrades && gameState.era1Upgrades.reservoirExpansion) || 0;
+        const bonus      = getReservoirBonus();
+        const canAffordUpg = (gameState.resources.essence || 0) >= upgCost;
+        const cls        = canAffordUpg ? '' : ' disabled';
+        html += `<div class="era1-upgrade-row">
+            <button class="action-btn${cls}" onclick="buyReservoirUpgrade()">
+                <span class="action-title">Expanded Awareness ${upgCount > 0 ? `(${upgCount})` : ''}</span>
+                <span class="action-yield">Reservoirs +${bonus}/building · Cost: ${upgCost} Essence</span>
+            </button>
+        </div>`;
+    }
+
     container.innerHTML = html;
 }
 
