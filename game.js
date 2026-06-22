@@ -932,7 +932,7 @@ function updatePauseBtn() {
 function handlePauseBanking() {
     if (isGamePaused()) {
         // Accrue 1 real second into the bank while paused
-        gameState.pauseBank = (gameState.pauseBank || 0) + 1;
+        gameState.pauseBank = Math.min((gameState.pauseBank || 0) + 1, 28800);
         updateBankDisplay();
         updatePauseBtn();
         return false;   // signal: skip normal tick
@@ -1620,8 +1620,20 @@ function devKillAll() {
 function devAdvanceTicks(n) {
     const savedInterval = gameSettings.autosaveInterval;
     gameSettings.autosaveInterval = 0;
-    for (let i = 0; i < n; i++) tick();
+    for (let i = 0; i < n; i++) runOneTick();
     gameSettings.autosaveInterval = savedInterval;
+    saveGame();
+}
+
+function devAddBank(seconds) {
+    gameState.pauseBank = Math.min((gameState.pauseBank || 0) + seconds, 28800);
+    updateBankDisplay();
+    saveGame();
+}
+
+function devMaxBank() {
+    gameState.pauseBank = 28800;
+    updateBankDisplay();
     saveGame();
 }
 
