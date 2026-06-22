@@ -576,14 +576,14 @@ function _buildResTooltipHTML(res) {
     if (sources.length > 0) {
         html += `<div class="res-tt-header">Production</div>`;
         for (const l of sources) {
-            const val = l.perDay ? `+${l.value.toFixed(0)}/day` : `+${l.value.toFixed(2)}/s`;
+            const val = l.perDay ? `+${l.value.toFixed(0)}` : `+${(l.value * TICKS_PER_DAY).toFixed(2)}`;
             html += `<div class="res-tt-row"><span class="res-tt-label">${l.label}<span class="res-tt-sub"> ${l.sub}</span></span><span class="res-tt-val pos">${val}</span></div>`;
         }
     }
     if (drains.length > 0) {
         html += `<div class="res-tt-section">Consumption</div>`;
         for (const l of drains) {
-            const val = l.perDay ? `${l.value.toFixed(0)}/day` : `${l.value.toFixed(2)}/s`;
+            const val = l.perDay ? `${l.value.toFixed(0)}` : `${(l.value * TICKS_PER_DAY).toFixed(2)}`;
             html += `<div class="res-tt-row"><span class="res-tt-label">${l.label}<span class="res-tt-sub"> ${l.sub}</span></span><span class="res-tt-val neg">${val}</span></div>`;
         }
     }
@@ -614,6 +614,36 @@ function initResTooltips() {
         el.addEventListener('mouseenter', () => _showResTooltip(el, res));
         el.addEventListener('mouseleave', _hideResTooltip);
     });
+}
+
+// ── Building tooltips ─────────────────────────────────────────────────────────
+
+let _bldTooltipEl = null;
+
+function initBldTooltips() {
+    _bldTooltipEl = document.getElementById('bld-tooltip');
+    document.querySelectorAll('[id^="btn-"]').forEach(el => {
+        const id = el.id.replace('btn-', '');
+        const def = ROOMS[id];
+        if (!def || (!def.desc && !def.flavor)) return;
+        el.addEventListener('mouseenter', e => _showBldTooltip(e.currentTarget, id));
+        el.addEventListener('mouseleave', () => { if (_bldTooltipEl) _bldTooltipEl.style.display = 'none'; });
+    });
+}
+
+function _showBldTooltip(btnEl, id) {
+    const def = ROOMS[id];
+    if (!_bldTooltipEl || !def) return;
+    let html = `<div class="bld-tt-name">${def.name}</div>`;
+    if (def.desc)   html += `<div class="bld-tt-desc">${def.desc}</div>`;
+    if (def.flavor) html += `<div class="bld-tt-flavor">${def.flavor}</div>`;
+    _bldTooltipEl.innerHTML = html;
+    const rect = btnEl.getBoundingClientRect();
+    const tipW = 220;
+    const left = rect.right + 8 + tipW > window.innerWidth ? rect.left - tipW - 8 : rect.right + 8;
+    _bldTooltipEl.style.top  = rect.top + 'px';
+    _bldTooltipEl.style.left = left + 'px';
+    _bldTooltipEl.style.display = 'block';
 }
 
 function _refreshResTooltip() {
@@ -801,10 +831,10 @@ function runOneTick() {
         const formNodes = ['horde','champion','bloodline','anomaly','root-node','cycle','pack','apex','kept','consumed','pact','vessel'];
         const hasForm = (era1.unlocked || []).some(id => formNodes.includes(id));
         if (hasForm) r.mana = (r.mana || 0) + 0.2;
-        // Era 1 caps (500 each)
-        r.essence   = Math.min(r.essence,   500);
-        r.influence = Math.min(r.influence, 500);
-        r.mana      = Math.min(r.mana,      500);
+        // Clamp to dynamic caps
+        r.essence   = Math.min(r.essence,   caps.essence);
+        r.influence = Math.min(r.influence, caps.influence);
+        r.mana      = Math.min(r.mana,      caps.mana);
     }
 
     // 1. Building production (passive buildings only)
@@ -959,7 +989,8 @@ function fmt(n) {
 
 function fmtRate(r) {
     if (r === 0) return "";
-    return (r > 0 ? "+" : "") + r.toFixed(1) + "/s";
+    const perDay = r * TICKS_PER_DAY;
+    return (perDay > 0 ? "+" : "") + perDay.toFixed(1);
 }
 
 function getNetRates(prod, caps) {
@@ -1107,9 +1138,9 @@ function updateUI() {
     setText("info-buildings",   totalBuilt);
 
     // Production rates
-    setText("info-food-rate",  fmtRate(netRates.food  || 0) || "0/s");
-    setText("info-wood-rate",  fmtRate(netRates.wood  || 0) || "0/s");
-    setText("info-stone-rate", fmtRate(netRates.stone || 0) || "0/s");
+    setText("info-food-rate",  fmtRate(netRates.food  || 0) || "0");
+    setText("info-wood-rate",  fmtRate(netRates.wood  || 0) || "0");
+    setText("info-stone-rate", fmtRate(netRates.stone || 0) || "0");
 
     // Lifetime stats
     setText("info-prestiges",    gameState.meta.totalPrestiges || 0);
@@ -2847,6 +2878,7 @@ updateUI();
 updateIdentityPanel();
 devPopulateRaceSelect();
 initResTooltips();
+initBldTooltips();
 setInterval(tick, 1000);
 
 // Stamp lastSeen when the player closes or navigates away.

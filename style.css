@@ -620,6 +620,44 @@ h3 {
     color: #c8832a;
 }
 
+/* BUILDING TOOLTIP */
+.bld-tooltip {
+    display: none;
+    position: fixed;
+    width: 220px;
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 4px 4px 4px;
+    padding: 8px 10px 10px;
+    z-index: 600;
+    box-shadow: 4px 6px 20px rgba(0,0,0,0.65);
+    pointer-events: none;
+}
+
+.bld-tt-name {
+    font-size: 12px;
+    color: var(--text);
+    margin-bottom: 5px;
+}
+
+.bld-tt-desc {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-bottom: 7px;
+    line-height: 1.5;
+}
+
+.bld-tt-flavor {
+    font-size: 10px;
+    color: var(--accent);
+    font-style: italic;
+    opacity: 0.8;
+    line-height: 1.5;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    padding-top: 6px;
+}
+
 /* Starvation — pulse the population row red */
 .res-row.starving .res-name,
 .res-row.starving .res-right {

@@ -225,6 +225,8 @@ const ROOMS = {
         cost: { essence: 40 },
         costScale: 1.05,
         production: { essence: 1 },
+        desc: "Draws raw essence from the deep currents of your awakening mind.",
+        flavor: "A crack in the dark where something older than thought seeps through.",
     },
     essenceConduit: {
         name: "Essence Conduit",
@@ -232,6 +234,8 @@ const ROOMS = {
         costScale: 1.05,
         converts: { inputs: { essence: 2 }, output: "influence", outputRate: 1 },
         unlock: { essenceWell: 1 },
+        desc: "Channels raw essence into directed influence over the waking world.",
+        flavor: "Will given shape. Shape given weight. Weight given consequence.",
     },
     manaCrucible: {
         name: "Mana Current",
@@ -239,24 +243,32 @@ const ROOMS = {
         costScale: 1.05,
         converts: { inputs: { essence: 5 }, output: "mana", outputRate: 1 },
         unlock: { essenceConduit: 3 },
+        desc: "Refines concentrated essence into potent arcane mana through sustained focus.",
+        flavor: "The mind does not cast spells. The mind becomes the spell.",
     },
     essenceReservoir: {
         name: "Essence Reservoir",
         cost: { essence: 40, influence: 10 },
         costScale: 1.05,
         unlock: { essenceWell: 1 },
+        desc: "Expands your capacity to hold raw essence before it dissipates.",
+        flavor: "Awareness stretched thin across the void, holding more than it should.",
     },
     influenceShrine: {
         name: "Influence Reservoir",
         cost: { essence: 40, influence: 10 },
         costScale: 1.05,
         unlock: { essenceConduit: 1 },
+        desc: "Deepens your mental reach, allowing greater influence to accumulate.",
+        flavor: "A pressure behind the eyes of things that do not know you are there.",
     },
     manaFont: {
         name: "Mana Reservoir",
         cost: { essence: 40, influence: 10 },
         costScale: 1.05,
         unlock: { manaCrucible: 1 },
+        desc: "Carves out deeper arcane reserves within the fabric of your consciousness.",
+        flavor: "Power pooled in silence, patient as stone, cold as the spaces between stars.",
     },
 };
 
