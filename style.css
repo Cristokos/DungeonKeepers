@@ -2806,6 +2806,16 @@ body.reduce-motion *::after {
     --era-ink:         rgba(10,7,4,0.92);
 }
 
+/*
+ * Era transition sizing strategy:
+ * --era-svg-h drives everything. It's clamped between 80px (minimum readable)
+ * and 130px (original comfortable size), scaling with viewport height so all
+ * 5 panels + the continue button always fit without scrolling.
+ * Each panel is roughly: SVG height + 2 × vertical padding (1.4vh each side).
+ * 5 panels + ~50px for button + 32px overlay padding must fit in 100dvh.
+ * At 600px tall: svg=80px, pad~8px → panel~96px × 5 = 480px + 50 + 32 = 562px ✓
+ * At 900px tall: svg=115px, pad~12px → panel~139px × 5 = 695px + 50 + 32 = 777px ✓
+ */
 #era-transition-overlay {
     position: fixed;
     inset: 0;
@@ -2815,9 +2825,9 @@ body.reduce-motion *::after {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: flex-start;
+    justify-content: center;
     overflow-y: auto;
-    padding: 16px 0 24px;
+    padding: clamp(8px, 1.5vh, 20px) 0;
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.5s ease;
@@ -2831,12 +2841,12 @@ body.reduce-motion *::after {
     pointer-events: none;
 }
 
-/* 2-column grid; no gap so panels share borders and touch each other */
 #era-comic-panels {
+    --era-svg-h: clamp(80px, 13vh, 130px);
     display: flex;
     flex-direction: column;
     gap: 0;
-    padding: 6px;
+    padding: clamp(4px, 0.6vh, 8px);
     width: min(640px, 92vw);
     box-sizing: border-box;
 }
@@ -2850,8 +2860,8 @@ body.reduce-motion *::after {
     display: flex;
     flex-direction: row;
     align-items: center;
-    padding: 8px 16px;
-    gap: 14px;
+    padding: clamp(6px, 1.2vh, 14px) clamp(10px, 1.6vw, 20px);
+    gap: clamp(10px, 1.4vw, 18px);
     position: relative;
     overflow: hidden;
     opacity: 0;
@@ -2902,8 +2912,8 @@ body.reduce-motion *::after {
 
 .era-panel-svg {
     flex: 0 0 auto;
-    width: 140px;
-    height: 100px;
+    width: calc(var(--era-svg-h) * 1.4);
+    height: var(--era-svg-h);
     overflow: visible;
     position: relative;
     z-index: 1;
@@ -2912,7 +2922,7 @@ body.reduce-motion *::after {
 /* Lore text — shared base */
 .era-panel-lore {
     font-family: 'Cinzel', 'Georgia', serif;
-    font-size: 12px;
+    font-size: clamp(10px, 1.5vh, 13px);
     color: rgba(220,190,130,0.0);  /* starts invisible for its own fade */
     flex: 1;
     font-style: normal;
@@ -2952,14 +2962,14 @@ body.reduce-motion *::after {
 
 .era-panel-tagline {
     font-family: 'Cinzel', 'Georgia', serif;
-    font-size: 11.5px;
+    font-size: clamp(10px, 1.5vh, 13px);
     color: rgba(220,190,130,0.8);
     text-align: center;
     max-width: 520px;
-    line-height: 1.7;
+    line-height: 1.65;
     font-style: normal;
     letter-spacing: 0.06em;
-    margin: 8px 0 0;
+    margin: clamp(4px, 0.8vh, 10px) 0 0;
     /* tagline is part of panel V which fades as a whole */
     opacity: 1;
     transition: none;
@@ -2994,7 +3004,7 @@ body.reduce-motion *::after {
 .era-spark:nth-child(4) { animation-delay: 1.2s; animation-duration: 2.0s; }
 
 #era-transition-continue {
-    margin-top: 10px;
+    margin-top: clamp(6px, 1vh, 14px);
     padding: 8px 24px 8px 16px;
     background: transparent;
     border: 1px solid rgba(200,160,40,0.35);
