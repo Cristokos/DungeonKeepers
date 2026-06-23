@@ -2072,11 +2072,15 @@ const ERA_RACE_SVG = (() => {
          <path d="M118,72 L120,82" stroke="${G}" stroke-width="1.4" opacity="0.5"/>
          ${aura(110,112,40,13)}${shadow(110,143,40)}`;
     art['Bugbear'] =
-        `<path d="M110,140 L90,104 L72,96 L77,70 L94,60 L97,44 L110,30 L123,44 L126,60 L143,70 L148,104 L130,140 Z" fill="${BG}" stroke="${G}" stroke-width="1.8"/>
-         <path d="M94,42 Q90,30 84,26 Q96,28 97,44" fill="${BG}" stroke="${G}" stroke-width="1.2"/>
-         <path d="M126,42 Q130,30 136,26 Q124,28 123,44" fill="${BG}" stroke="${G}" stroke-width="1.2"/>
-         ${eye(103,50,3)}${eye(117,50,3)}
-         ${aura(110,114,42,14)}${shadow(110,143,42)}`;
+        // massive bear-goblin: low rounded skull, heavy sloping shoulders, clawed arms dragging low
+        `<path d="M110,140 L88,108 L68,102 L64,76 L80,58 L86,48 L100,42 L110,36 L120,42 L134,48 L140,58 L156,76 L152,102 L132,108 Z" fill="${BG}" stroke="${G}" stroke-width="1.8"/>
+         <ellipse cx="110" cy="38" rx="22" ry="18" fill="${BG}" stroke="${G}" stroke-width="1.6"/>
+         <path d="M94,28 Q90,18 86,14 Q100,20 100,42" fill="${BG}" stroke="${G}" stroke-width="1.2"/>
+         <path d="M126,28 Q130,18 134,14 Q120,20 120,42" fill="${BG}" stroke="${G}" stroke-width="1.2"/>
+         <path d="M64,76 L52,86 L48,100 M156,76 L168,86 L172,100" fill="none" stroke="${G}" stroke-width="1.4" opacity="0.55"/>
+         <path d="M64,100 L56,114 L52,122 M156,100 L164,114 L168,122" fill="none" stroke="${G}" stroke-width="1" opacity="0.35"/>
+         ${eye(103,34,3.2)}${eye(117,34,3.2)}
+         ${aura(110,118,48,15)}${shadow(110,143,46)}`;
     art['Hobgoblin'] =
         `<path d="M110,140 L94,106 L80,98 L84,74 L98,64 L100,44 L110,32 L120,44 L122,64 L136,74 L140,106 L126,140 Z" fill="${BG}" stroke="${G}" stroke-width="1.8"/>
          <path d="M88,78 L80,74 M132,78 L140,74" stroke="${G}" stroke-width="1.5" opacity="0.5"/>
@@ -2116,7 +2120,16 @@ const ERA_RACE_SVG = (() => {
          ${eye(104,52,2.8)}${eye(116,52,2.8)}
          ${aura(110,118,34,11)}${shadow(110,143,28)}`;
     art['Wight']   = undeadSVG;
-    art['Ghoul']   = art['Zombie'];
+    art['Ghoul'] =
+        // low crawling predator: arched spine, elongated arms braced forward, jaw thrust out
+        `<path d="M50,90 Q60,72 80,64 Q96,58 110,56 Q124,58 140,64 Q160,72 170,90" fill="none" stroke="${G}" stroke-width="1.6" opacity="0.5"/>
+         <path d="M80,64 Q66,52 60,36 Q74,50 88,60" fill="${BG}" stroke="${G}" stroke-width="1.3"/>
+         <ellipse cx="110" cy="56" rx="24" ry="22" fill="${BG}" stroke="${G}" stroke-width="1.6"/>
+         <path d="M94,68 Q72,82 50,90 Q46,106 52,120 Q72,108 90,100 Q96,130 100,145 L120,145 Q124,130 130,100 Q148,108 168,120 Q174,106 170,90 Q148,82 126,68" fill="${BG}" stroke="${G}" stroke-width="1.5"/>
+         <path d="M92,64 Q80,50 70,34 Q84,46 94,60 M128,64 Q140,50 150,34 Q136,46 126,60" fill="${BG}" stroke="${Gd}" stroke-width="1" opacity="0.5"/>
+         <path d="M90,62 Q84,70 86,78 Q90,82 96,80" fill="none" stroke="${G}" stroke-width="1" opacity="0.5"/>
+         ${eye(102,50,3)}${eye(118,50,3)}
+         ${aura(110,110,44,14)}${shadow(110,148,40)}`;
     art['Mummy'] =
         `<path d="M110,140 L94,108 L78,100 L82,76 L96,66 L98,46 L110,34 L122,46 L124,66 L138,76 L142,108 L126,140 Z" fill="${BG}" stroke="${G}" stroke-width="1.8"/>
          <line x1="94" y1="80" x2="126" y2="80" stroke="${G}" stroke-width="0.8" opacity="0.4"/>
@@ -2142,19 +2155,38 @@ const ERA_RACE_SVG = (() => {
          <path d="M110,98 L104,118 M110,98 L116,118" stroke="${Gd}" stroke-width="1.2"/>`;
 
     // ── Draconic — serpentine body, wings, tail ───────────────────────────────
-    const dragonSVG =
-        `<path d="M110,145 Q80,130 68,108 Q58,84 68,62 Q80,38 110,28 Q140,38 152,62 Q162,84 152,108 Q140,130 110,145 Z" fill="${BG}" stroke="${G}" stroke-width="1.8"/>
-         <path d="M68,62 Q48,52 38,40 Q60,48 80,60" fill="${BG}" stroke="${G}" stroke-width="1.4"/>
-         <path d="M152,62 Q172,52 182,40 Q160,48 140,60" fill="${BG}" stroke="${G}" stroke-width="1.4"/>
-         <path d="M80,60 Q60,80 56,108" fill="none" stroke="${G}" stroke-width="1" opacity="0.4"/>
-         <path d="M140,60 Q160,80 164,108" fill="none" stroke="${G}" stroke-width="1" opacity="0.4"/>
-         ${eye(100,52,4)}${eye(120,52,4)}
-         <path d="M96,80 L88,86 M124,80 L132,86" stroke="${G}" stroke-width="1.2" opacity="0.5"/>
-         <path d="M100,90 L106,84 L110,92 L114,84 L120,90" fill="none" stroke="${G}" stroke-width="1.2" opacity="0.6"/>
-         ${aura(110,118,44,14)}${shadow(110,146,44)}`;
-    art['Draconic']       = dragonSVG;
-    art['Chromatic Dragon']= dragonSVG;
-    art['Metallic Dragon'] = dragonSVG;
+    // ── Draconic type — rearing dragon, wings spread wide, forelimbs braced ─────
+    art['Draconic'] =
+        `<path d="M110,140 L96,114 L84,106 L82,84 L92,68 L102,56 L110,48 L118,56 L128,68 L138,84 L136,106 L124,114 Z" fill="${BG}" stroke="${G}" stroke-width="1.8"/>
+         <path d="M92,68 Q60,52 36,28 Q52,44 66,56 Q74,64 84,70" fill="${BG}" stroke="${G}" stroke-width="1.4"/>
+         <path d="M128,68 Q160,52 184,28 Q168,44 154,56 Q146,64 136,70" fill="${BG}" stroke="${G}" stroke-width="1.4"/>
+         <path d="M36,28 Q42,48 52,60 Q60,68 66,56" fill="none" stroke="${Gd}" stroke-width="1" opacity="0.4"/>
+         <path d="M184,28 Q178,48 168,60 Q160,68 154,56" fill="none" stroke="${Gd}" stroke-width="1" opacity="0.4"/>
+         <path d="M96,112 L86,126 L82,140 M124,112 L134,126 L138,140" fill="${BG}" stroke="${G}" stroke-width="1.3"/>
+         <path d="M102,58 Q96,70 94,80 M118,58 Q124,70 126,80" fill="none" stroke="${G}" stroke-width="1" opacity="0.3"/>
+         <path d="M100,92 L105,86 L110,94 L115,86 L120,92" fill="none" stroke="${G}" stroke-width="1.2" opacity="0.6"/>
+         ${eye(103,60,3.8)}${eye(117,60,3.8)}
+         ${aura(110,120,46,15)}${shadow(110,143,44)}`;
+    // ── Chromatic Dragon — horizontal crouch, jaws open, wings furled along back ─
+    art['Chromatic Dragon'] =
+        `<path d="M30,80 Q40,64 58,58 Q76,52 96,50 L110,46 L124,50 Q144,52 162,58 Q180,64 190,80 Q180,96 162,102 Q144,108 124,110 L110,114 L96,110 Q76,108 58,102 Q40,96 30,80 Z" fill="${BG}" stroke="${G}" stroke-width="1.8"/>
+         <path d="M30,80 Q20,68 16,54 Q28,62 38,72" fill="${BG}" stroke="${G}" stroke-width="1.4"/>
+         <path d="M16,54 Q22,44 30,38 M38,72 Q28,58 30,46" fill="none" stroke="${G}" stroke-width="1" opacity="0.5"/>
+         <path d="M96,50 Q88,34 84,18 Q92,32 96,48 M124,50 Q132,34 136,18 Q128,32 124,48" fill="${BG}" stroke="${G}" stroke-width="1.2" opacity="0.6"/>
+         <path d="M110,114 Q108,130 104,146 Q110,138 116,146 Q112,130 110,114" fill="${BG}" stroke="${G}" stroke-width="1.2"/>
+         ${eye(82,72,3.8)}${eye(82,88,3.8)}
+         <path d="M26,74 Q18,76 14,80 Q18,84 26,86" fill="${BG}" stroke="${G}" stroke-width="1" opacity="0.7"/>
+         ${aura(110,112,52,16)}${shadow(110,120,52)}`;
+    art['Metallic Dragon'] =
+        // metallic sheen variant — upright with swept neck and crest
+        `<path d="M110,140 L98,112 L86,104 L84,80 L94,64 L104,52 L110,44 L116,52 L126,64 L136,80 L134,104 L122,112 Z" fill="${BG}" stroke="${G}" stroke-width="1.8"/>
+         <path d="M94,64 Q64,50 42,30 Q58,46 72,58 Q80,66 86,72" fill="${BG}" stroke="${G}" stroke-width="1.4"/>
+         <path d="M126,64 Q156,50 178,30 Q162,46 148,58 Q140,66 134,72" fill="${BG}" stroke="${G}" stroke-width="1.4"/>
+         <path d="M104,50 Q100,38 110,24 Q120,38 116,50" fill="${BG}" stroke="${G}" stroke-width="1.3"/>
+         <line x1="98" y1="82" x2="86" y2="90" stroke="${G}" stroke-width="1.2" opacity="0.4"/>
+         <line x1="122" y1="82" x2="134" y2="90" stroke="${G}" stroke-width="1.2" opacity="0.4"/>
+         ${eye(103,58,3.8)}${eye(117,58,3.8)}
+         ${aura(110,120,44,14)}${shadow(110,143,44)}`;
     art['Kobold'] =
         `<path d="M110,140 L100,116 L90,110 L93,94 L103,88 L104,74 L110,64 L116,74 L117,88 L127,94 L130,116 L120,140 Z" fill="${BG}" stroke="${G}" stroke-width="1.6"/>
          <path d="M103,66 Q100,56 110,50 Q120,56 117,66" fill="${BG}" stroke="${G}" stroke-width="1.2"/>
@@ -2197,7 +2229,17 @@ const ERA_RACE_SVG = (() => {
          <path d="M106,88 Q96,72 82,64 M114,88 Q124,72 138,64" fill="none" stroke="${G}" stroke-width="1.4" opacity="0.55"/>
          ${eye(106,88,2)}${eye(114,88,2)}
          ${aura(110,122,24,8)}${shadow(110,143,22)}`;
-    art['Dryad']     = feySVG;
+    art['Dryad'] =
+        // tree-woman: lower body merging into roots, arms as branches, antler-crown overhead
+        `<path d="M102,140 L98,118 L90,108 L92,92 L100,82 L104,68 L110,60 L116,68 L120,82 L128,92 L130,108 L122,118 L118,140 Z" fill="${BG}" stroke="${G}" stroke-width="1.5"/>
+         <path d="M98,118 Q84,126 76,140 M102,140 Q96,148 90,155 M118,140 Q124,148 130,155 M122,118 Q136,126 144,140" fill="${BG}" stroke="${G}" stroke-width="1.3"/>
+         <path d="M76,140 Q68,144 64,152 M144,140 Q152,144 156,152" fill="${BGd}" stroke="${Gd}" stroke-width="1" opacity="0.4"/>
+         <path d="M100,82 Q82,70 68,52 Q86,68 94,82 M120,82 Q138,70 152,52 Q134,68 126,82" fill="${BG}" stroke="${G}" stroke-width="1.3"/>
+         <path d="M68,52 Q56,40 50,26 Q64,38 72,52 M152,52 Q164,40 170,26 Q156,38 148,52" fill="${BGd}" stroke="${Gd}" stroke-width="1" opacity="0.4"/>
+         <path d="M104,68 Q96,50 88,34 Q100,50 106,64 M116,68 Q124,50 132,34 Q120,50 114,64" fill="${BGd}" stroke="${Gd}" stroke-width="1" opacity="0.45"/>
+         <path d="M110,60 Q106,46 110,32 Q114,46 110,60" fill="${BG}" stroke="${G}" stroke-width="1.2"/>
+         ${eye(105,76,2.5)}${eye(115,76,2.5)}
+         ${aura(110,115,30,10)}${shadow(110,143,28)}`;
     art['Satyr'] =
         `<path d="M110,140 L98,112 L86,106 L90,84 L102,76 L104,56 L110,44 L116,56 L118,76 L130,84 L134,106 L122,112 Z" fill="${BG}" stroke="${G}" stroke-width="1.6"/>
          <path d="M104,52 Q100,38 96,28 M116,52 Q120,38 124,28" fill="none" stroke="${G}" stroke-width="1.4" opacity="0.6"/>
@@ -2326,14 +2368,17 @@ const ERA_RACE_SVG = (() => {
          ${eye(103,60,3)}${eye(117,60,3)}
          ${aura(110,120,36,12)}${shadow(110,146,36)}`;
 
-    // ── Aquatic — sinuous, fins, fluid form ──────────────────────────────────
+    // ── Aquatic — merfolk silhouette: human torso, fish tail, dorsal fin, wide eyes ─
     art['Aquatic'] =
-        `<path d="M110,145 Q82,130 70,106 Q58,80 68,56 Q80,30 110,22 Q140,30 152,56 Q162,80 150,106 Q138,130 110,145 Z" fill="${BG}" stroke="${G}" stroke-width="1.8"/>
-         <path d="M70,56 Q52,48 40,38 Q62,50 78,62 M150,56 Q168,48 180,38 Q158,50 142,62" fill="${BG}" stroke="${G}" stroke-width="1.4"/>
-         <path d="M68,100 Q50,108 42,120 M152,100 Q170,108 178,120" fill="${BGd}" stroke="${Gd}" stroke-width="1.3"/>
-         ${eye(101,56,3.5)}${eye(119,56,3.5)}
-         <path d="M98,78 Q104,70 110,74 Q116,70 122,78" fill="none" stroke="${G}" stroke-width="1.2" opacity="0.5"/>
-         ${aura(110,120,42,14)}${shadow(110,146,42)}`;
+        // narrow torso tapering to forked tail; dorsal fin ridge; swept pectoral fins
+        `<path d="M110,10 Q122,22 124,46 Q128,64 120,78 Q132,100 128,122 Q118,138 110,148 Q102,138 92,122 Q88,100 100,78 Q92,64 96,46 Q98,22 110,10 Z" fill="${BG}" stroke="${G}" stroke-width="1.6"/>
+         <path d="M128,122 Q140,134 148,148 Q134,138 120,126 M92,122 Q80,134 72,148 Q86,138 100,126" fill="${BG}" stroke="${G}" stroke-width="1.4"/>
+         <path d="M120,78 Q138,68 156,62 Q148,74 136,82 Q128,86 124,90 M100,78 Q82,68 64,62 Q72,74 84,82 Q92,86 96,90" fill="${BG}" stroke="${G}" stroke-width="1.3"/>
+         <path d="M110,10 Q102,0 96,4 Q106,12 110,10 Q114,12 124,4 Q118,0 110,10" fill="${BG}" stroke="${G}" stroke-width="1.2" opacity="0.6"/>
+         <path d="M106,52 Q102,64 104,76 M114,52 Q118,64 116,76" fill="none" stroke="${Gd}" stroke-width="0.9" opacity="0.4"/>
+         <path d="M106,94 Q102,106 104,118 M114,94 Q118,106 116,118" fill="none" stroke="${Gd}" stroke-width="0.9" opacity="0.3"/>
+         ${eye(103,38,3.8)}${eye(117,38,3.8)}
+         ${aura(110,126,34,11)}${shadow(110,150,30)}`;
     art['Kraken'] =
         `<circle cx="110" cy="82" r="36" fill="${BG}" stroke="${G}" stroke-width="1.8"/>
          ${eye(98,76,4)}${eye(122,76,4)}
@@ -2355,18 +2400,18 @@ const ERA_RACE_SVG = (() => {
 const ERA_RACE_EYES = {
     'Goblinoid':        [[106,85,2.8],[114,85,2.8]], 'Goblin': [[106,85,2.8],[114,85,2.8]],
     'Orc':              [[103,52,3.2],[117,52,3.2]],
-    'Bugbear':          [[103,50,3],[117,50,3]],
+    'Bugbear':          [[103,34,3.2],[117,34,3.2]],
     'Hobgoblin':        [[104,50,3],[116,50,3]],
     'Gnoll':            [[104,56,3],[116,56,3]],
     'Undead':           [[105,60,2.8],[115,60,2.8]], 'Skeleton': [[105,60,2.8],[115,60,2.8]],
-    'Zombie':           [[104,55,3],[116,55,3]],   'Ghoul': [[104,55,3],[116,55,3]],
+    'Zombie':           [[104,55,3],[116,55,3]],   'Ghoul': [[102,50,3],[118,50,3]],
     'Vampire':          [[104,50,3],[116,50,3]],
     'Wraith':           [[104,52,2.8],[116,52,2.8]], 'Banshee': [[104,52,2.8],[116,52,2.8]],
     'Wight':            [[105,60,2.8],[115,60,2.8]], 'Revenant': [[105,60,2.8],[115,60,2.8]],
     'Mummy':            [[104,50,3],[116,50,3]],
     'Shadow':           [[105,55,2.4],[115,55,2.4]],
     'Demilich':         [[101,68,3.5],[119,68,3.5]],
-    'Draconic':         [[100,52,4],[120,52,4]],   'Chromatic Dragon': [[100,52,4],[120,52,4]],
+    'Draconic':         [[103,60,3.8],[117,60,3.8]], 'Chromatic Dragon': [[82,72,3.8],[82,88,3.8]],
     'Metallic Dragon':  [[100,52,4],[120,52,4]],
     'Kobold':           [[105,72,2.5],[115,72,2.5]],
     'Lizardfolk':       [[104,54,3],[116,54,3]],
@@ -2375,7 +2420,7 @@ const ERA_RACE_EYES = {
     'Wyvern':           [[102,58,3.2],[118,58,3.2]],
     'Fey':              [[105,62,2.5],[115,62,2.5]],
     'Pixie':            [[106,88,2],[114,88,2]],
-    'Dryad':            [[105,62,2.5],[115,62,2.5]],
+    'Dryad':            [[105,76,2.5],[115,76,2.5]],
     'Satyr':            [[104,62,2.5],[116,62,2.5]],
     'Quickling':        [[105,62,2.5],[115,62,2.5]],
     'Green Hag':        [[104,54,3],[116,54,3]],
@@ -2395,7 +2440,7 @@ const ERA_RACE_EYES = {
     'Construct':        [[104,52,3],[116,52,3]],
     'Lycanthrope':      [[103,48,3],[117,48,3]],
     'Flora':            [[103,60,3],[117,60,3]],
-    'Aquatic':          [[101,56,3.5],[119,56,3.5]],
+    'Aquatic':          [[103,38,3.8],[117,38,3.8]],
     'Kraken':           [[98,76,4],[122,76,4]],
     'Humanoid':         [[104,54,3],[116,54,3]],
 };
