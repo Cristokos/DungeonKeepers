@@ -829,6 +829,57 @@ h3 {
     margin-top: 16px;
 }
 
+/* KEY MAPPING BAR */
+.keybind-bar {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    background: rgba(0,0,0,0.25);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 5px;
+    padding: 5px 10px;
+    margin-bottom: 10px;
+    font-size: 11px;
+    flex-wrap: wrap;
+}
+
+.keybind-title {
+    color: var(--label);
+    font-size: 11px;
+    font-weight: 600;
+    margin-right: 14px;
+    white-space: nowrap;
+}
+
+.keybind-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-right: 10px;
+    gap: 2px;
+}
+
+.keybind-label {
+    color: var(--text-muted);
+    font-size: 10px;
+    white-space: nowrap;
+}
+
+kbd {
+    display: inline-block;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.18);
+    border-bottom-width: 2px;
+    border-radius: 4px;
+    padding: 2px 9px;
+    font-size: 11px;
+    font-family: inherit;
+    color: var(--text);
+    white-space: nowrap;
+    min-width: 52px;
+    text-align: center;
+}
+
 /* WORKERS TAB */
 .worker-summary {
     display: flex;

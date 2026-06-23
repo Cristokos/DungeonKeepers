@@ -1156,13 +1156,13 @@ function canAfford(id) {
 
 // ── Actions ───────────────────────────────────────────────────────────────────
 
-// ── Click-modifier (Shift=×5, Ctrl=×25, Shift+Ctrl=×100) ────────────────────
+// ── Click-modifier (Ctrl=×10, Shift=×25, Alt=×100) ───────────────────────────
 let _clickMult = 1;
 document.addEventListener('mousedown', e => {
-    if (e.shiftKey && e.ctrlKey) _clickMult = 100;
-    else if (e.ctrlKey)          _clickMult = 25;
-    else if (e.shiftKey)         _clickMult = 5;
-    else                         _clickMult = 1;
+    if (e.altKey)        _clickMult = 100;
+    else if (e.shiftKey) _clickMult = 25;
+    else if (e.ctrlKey)  _clickMult = 10;
+    else                 _clickMult = 1;
 });
 
 function build(id) {
@@ -3355,11 +3355,17 @@ function getReservoirUpgradeCost() {
 }
 
 function buyReservoirUpgrade() {
-    const cost = getReservoirUpgradeCost();
-    if ((gameState.resources.essence || 0) < cost) return;
-    gameState.resources.essence -= cost;
-    if (!gameState.era1Upgrades) gameState.era1Upgrades = {};
-    gameState.era1Upgrades.reservoirExpansion = ((gameState.era1Upgrades.reservoirExpansion) || 0) + 1;
+    const times = _clickMult;
+    let bought = 0;
+    for (let i = 0; i < times; i++) {
+        const cost = getReservoirUpgradeCost();
+        if ((gameState.resources.essence || 0) < cost) break;
+        gameState.resources.essence -= cost;
+        if (!gameState.era1Upgrades) gameState.era1Upgrades = {};
+        gameState.era1Upgrades.reservoirExpansion = ((gameState.era1Upgrades.reservoirExpansion) || 0) + 1;
+        bought++;
+    }
+    if (bought === 0) return;
     updateUI();
     saveGame();
 }
