@@ -1962,6 +1962,12 @@ function devWipeResources() {
     saveGame();
 }
 
+function devAddEchoes(n) {
+    gameState.meta.echoes = (gameState.meta.echoes || 0) + n;
+    saveGame();
+    updateUI();
+}
+
 function devRerollBiome() {
     try {
         selectStartBiome(false);
@@ -4521,6 +4527,12 @@ if (!gameState.run.era)                      gameState.run.era = 1;
 if (gameState.pauseBank == null || isNaN(gameState.pauseBank)) gameState.pauseBank = 0;
 if (!gameState.era1) gameState.era1 = { unlocked: [], chosen: null };
 if (!Array.isArray(gameState.era1.unlocked)) gameState.era1.unlocked = [];
+// Heal saves corrupted by the pre-v0.55.1 prestige bug: if we're in Era 1 with no race
+// chosen, era1 should be blank — stale unlocked nodes would cause mana to tick passively.
+if ((gameState.run.era || 1) === 1 && !gameState.run.race) {
+    gameState.era1 = { unlocked: [], chosen: null, raceOptions: null };
+    _era1TreeState = '';
+}
 era1EnsureDynRaceNodes(); // restore dynamic race nodes from saved raceOptions
 if (gameState.resources.influence == null) gameState.resources.influence = 0;
 if (gameState.resources.mana == null) gameState.resources.mana = 0;
