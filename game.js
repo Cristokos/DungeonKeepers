@@ -513,6 +513,10 @@ function getResearchBonus(type, key) {
     return total;
 }
 
+function getEchoProductionMult() {
+    return 1 + ((gameState.meta && gameState.meta.echoesSpent) || 0) * 0.005;
+}
+
 // Returns the actual amount gained by a manual gather action, after all research bonuses.
 const GATHER_MOD_BONUSES = {
     food:  "Abundant Wildlife",
@@ -625,7 +629,7 @@ function getProduction() {
     const prod      = {};
     for (const res of Object.keys(BASE_CAPS)) prod[res] = 0;
     const workers   = getWorkersPerBuilding();
-    const allBonus  = 1 + getResearchBonus('allProductionBonus');
+    const allBonus  = (1 + getResearchBonus('allProductionBonus')) * getEchoProductionMult();
     for (const [id, def] of Object.entries(ROOMS)) {
         if (!def.production || def.converts) continue;
         const count = gameState.buildings[id] || 0;
@@ -647,7 +651,7 @@ function getProduction() {
 function getResourceBreakdown(res) {
     const lines = [];
     const workers = getWorkersPerBuilding();
-    const allBonus = 1 + getResearchBonus('allProductionBonus');
+    const allBonus = (1 + getResearchBonus('allProductionBonus')) * getEchoProductionMult();
 
     // Passive production buildings
     for (const [id, def] of Object.entries(ROOMS)) {
@@ -873,7 +877,7 @@ function initGatherTooltips() {
 
 function _bldEffectRates(id, def) {
     const convMult = getResearchBonus('converterBonus', id);
-    const allBonus = 1 + getResearchBonus('allProductionBonus');
+    const allBonus = (1 + getResearchBonus('allProductionBonus')) * getEchoProductionMult();
     if (def.production) {
         const [res, rate] = Object.entries(def.production)[0];
         const bldgMult = getResearchBonus('productionBonus', id);
@@ -1511,6 +1515,7 @@ function updateUI() {
     setText("info-food-total",   fmt(st.foodProduced  || 0));
     setText("info-wood-total",   fmt(st.woodProduced  || 0));
     setText("info-stone-total",  fmt(st.stoneProduced || 0));
+    renderEchoPanel();
 
     // Gather action buttons
     for (const [key, action] of Object.entries(GATHER_ACTIONS)) {
@@ -4293,12 +4298,24 @@ function selectStartBiome(isFirstRun) {
     gameState.run.mods = mods;
 }
 
+function calcEchoesEarned() {
+    let earned = 3;
+    earned += Math.max(0, (gameState.run.era || 1) - 1);
+    earned += Math.floor((gameState.stats.peakPopulation || 0) / 50);
+    earned += Math.floor(Object.keys(gameState.research || {}).length / 10);
+    const race = gameState.run.race;
+    if (race && (gameState.meta.racesPlayed[race] || 0) <= 1) earned += 1;
+    return earned;
+}
+
 // Called when player prestiges — resets run state, keeps meta progression
 function doPrestige() {
-    if (!confirm("Simulate a Prestige reset?\n\nAll run progress (resources, buildings, population) will be wiped and a new biome assigned. Meta-stats (prestiges, seen biomes) are preserved.")) return;
+    const echoPreview = calcEchoesEarned();
+    if (!confirm(`Simulate a Prestige reset?\n\nAll run progress (resources, buildings, population) will be wiped and a new biome assigned. Meta-stats (prestiges, seen biomes, Echoes) are preserved.\n\nYou will earn ${echoPreview} Echo${echoPreview !== 1 ? 'es' : ''} from this run.`)) return;
 
     const savedMeta = JSON.parse(JSON.stringify(gameState.meta));
     savedMeta.totalPrestiges = (savedMeta.totalPrestiges || 0) + 1;
+    savedMeta.echoes = (savedMeta.echoes || 0) + calcEchoesEarned();
 
     gameState.resources  = {};
     for (const res of Object.keys(BASE_CAPS)) gameState.resources[res] = 0;
@@ -4317,6 +4334,28 @@ function doPrestige() {
     snapshotBackup("Prestige " + savedMeta.totalPrestiges); // restore point at run start
     updateUI();
     updateIdentityPanel();
+}
+
+function buyEchoResonance() {
+    const balance = (gameState.meta.echoes || 0) - (gameState.meta.echoesSpent || 0);
+    if (balance < 1) return;
+    gameState.meta.echoesSpent = (gameState.meta.echoesSpent || 0) + 1;
+    saveGame();
+    updateUI();
+}
+
+function renderEchoPanel() {
+    const echoes   = gameState.meta.echoes      || 0;
+    const spent    = gameState.meta.echoesSpent || 0;
+    const balance  = echoes - spent;
+    const bonusPct = (spent * 0.5).toFixed(1);
+    const preview  = calcEchoesEarned();
+    setText('echo-balance',         balance);
+    setText('echo-total',           echoes);
+    setText('echo-resonance-bonus', `+${bonusPct}% all production`);
+    setText('echo-preview',         `+${preview} on next prestige`);
+    const btn = document.getElementById('echo-buy-btn');
+    if (btn) btn.disabled = balance < 1;
 }
 
 // ── Dungeon Identity Panel ────────────────────────────────────────────────────
@@ -4459,6 +4498,8 @@ if (!gameState.meta)                         gameState.meta = {};
 if (!gameState.meta.seenBiomes)              gameState.meta.seenBiomes = [];
 if (gameState.meta.totalPrestiges == null)   gameState.meta.totalPrestiges = 0;
 if (!gameState.meta.racesPlayed)             gameState.meta.racesPlayed = {};
+if (gameState.meta.echoes == null)           gameState.meta.echoes = 0;
+if (gameState.meta.echoesSpent == null)      gameState.meta.echoesSpent = 0;
 if (!gameState.workerAssignments)            gameState.workerAssignments = {};
 if (!gameState.research)                     gameState.research = {};
 if (!gameState.run.era)                      gameState.run.era = 1;
