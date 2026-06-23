@@ -4054,6 +4054,38 @@ function devSelectRace() {
     devShowBiomeInfo();
 }
 
+function devPreviewTransition() {
+    const sel = document.getElementById('dev-transition-race');
+    if (!sel || !sel.value) return;
+    showEraTransition(sel.value, () => {});
+}
+
+function _initDevTransitionSelect() {
+    const sel = document.getElementById('dev-transition-race');
+    if (!sel) return;
+    // Types first, then specific creatures — sorted within each group
+    const types = ['Goblinoid','Undead','Draconic','Fey','Aberration','Ooze',
+                   'Elemental','Monstrous','Fiend','Giant','Construct','Lycanthrope','Flora','Aquatic','Humanoid'];
+    const creatures = Object.keys(ERA_RACE_SVG).filter(k => !types.includes(k)).sort();
+    sel.innerHTML = '';
+    const tGroup = document.createElement('optgroup');
+    tGroup.label = 'Types';
+    types.forEach(t => {
+        const o = document.createElement('option');
+        o.value = o.textContent = t;
+        tGroup.appendChild(o);
+    });
+    const cGroup = document.createElement('optgroup');
+    cGroup.label = 'Specific Creatures';
+    creatures.forEach(c => {
+        const o = document.createElement('option');
+        o.value = o.textContent = c;
+        cGroup.appendChild(o);
+    });
+    sel.appendChild(tGroup);
+    sel.appendChild(cGroup);
+}
+
 // ── Biome Selection ───────────────────────────────────────────────────────────
 
 function shuffle(arr) {
@@ -4297,6 +4329,7 @@ if (!gameState.run || !gameState.run.mods || gameState.run.mods.length === 0) {
 updateUI();
 updateIdentityPanel();
 devPopulateRaceSelect();
+_initDevTransitionSelect();
 initResTooltips();
 initBldTooltips();
 initIdentityTooltips();
