@@ -12,6 +12,8 @@ const BASE_CAPS = {
     iron: 150, potions: 75, arcaneDust: 75, steel: 100, bricks: 120, cloth: 100, runes: 60,
     // Tier 3 — Magical
     arcaneEssence: 50, silk: 40, manaGold: 40, ichor: 30, mithril: 20,
+    // Era 2+ knowledge resource — cap raised by Scriptoriums and research
+    lore: 0,
     // Era 1 resources (cap overridden dynamically while era === 1)
     essence: 100, influence: 100, mana: 100,
 };
@@ -198,6 +200,7 @@ const gameState = {
         ore: 0, herbs: 0, crystals: 0, coal: 0, clay: 0, bones: 0, sulphur: 0,
         iron: 0, potions: 0, arcaneDust: 0, steel: 0, bricks: 0, cloth: 0, runes: 0,
         arcaneEssence: 0, silk: 0, manaGold: 0, ichor: 0, mithril: 0,
+        lore: 0,
         essence: 0, influence: 0, mana: 0,
         coins: 0,
     },
@@ -206,6 +209,7 @@ const gameState = {
         mine: 0, coalSeam: 0, herbalistDen: 0, huntingLodge: 0, clayPit: 0, crystalSeam: 0,
         smelter: 0, alchemyLab: 0, kiln: 0, loom: 0,
         arcaneGrinder: 0, forge: 0, arcaneBench: 0, mageTower: 0, armory: 0, sulphurVent: 0,
+        scriptorium: 0,
         ritualCircle: 0, spiderNest: 0, arcaneCrucible: 0, darkAltar: 0, mithrilForge: 0,
     },
     research:          {},
@@ -842,8 +846,14 @@ function getCaps() {
     const storageBonus = ((gameState.research && gameState.research.reinforcedShelving) ? 75 : 50) + raceStorage;
     const n = gameState.buildings.storage || 0;
     if (n > 0) {
-        for (const res of Object.keys(BASE_CAPS)) caps[res] += storageBonus * n;
+        for (const res of Object.keys(BASE_CAPS)) {
+            if (res === 'lore') continue; // lore cap is set separately below
+            caps[res] += storageBonus * n;
+        }
     }
+    // Lore cap: 25 per Scriptorium, plus any capBonus from research
+    caps.lore = (gameState.buildings.scriptorium || 0) * 25
+              + getResearchBonus('capBonus', 'lore');
     // Coin cap; ironLockbox adds 50,000 cp; race capBonus.coins also applies
     caps.coins = COIN_CAP
         + ((gameState.research && gameState.research.ironLockbox) ? 50000 : 0)
@@ -878,7 +888,7 @@ function canAfford(id) {
         if ((gameState.resources[res] || 0) < amount) return false;
     }
     const def = ROOMS[id];
-    if (def.coinCost && (gameState.resources.coins || 0) < def.coinCost) return false;
+    if (def.coinCost && (gameState.resources.coins || 0) < effectiveCoinCost(def.coinCost)) return false;
     return true;
 }
 
@@ -904,7 +914,7 @@ function build(id) {
         }
         const def = ROOMS[id];
         if (def.coinCost) {
-            gameState.resources.coins = Math.max(0, (gameState.resources.coins || 0) - def.coinCost);
+            gameState.resources.coins = Math.max(0, (gameState.resources.coins || 0) - effectiveCoinCost(def.coinCost));
         }
         gameState.buildings[id] = (gameState.buildings[id] || 0) + 1;
         bought++;
@@ -1295,7 +1305,7 @@ function updateUI() {
             let costStr = Object.entries(cost)
                 .map(([res, n]) => `${fmt(n)} ${RESOURCES[res]?.name || res}`)
                 .join(", ");
-            if (def.coinCost) costStr += (costStr ? ", " : "") + formatCoins(def.coinCost);
+            if (def.coinCost) costStr += (costStr ? ", " : "") + formatCoinCost(def.coinCost);
             costEl.textContent = costStr;
         }
     }
@@ -1415,9 +1425,54 @@ function flashEl(id) {
     el.classList.add("flash");
 }
 
+// Returns the effective cp cost after rounding up sub-denomination remainders.
+// Used for both display and actual deduction so the two always agree.
+function effectiveCoinCost(n) {
+    n = Math.floor(n);
+    const r = gameState.research || {};
+    if (r.goldOnly) {
+        // Round up to nearest 1000 cp (1 gp)
+        return n <= 0 ? 0 : Math.ceil(n / 1000) * 1000;
+    }
+    if (r.mintStandard) {
+        // Round up to nearest 100 cp (1 sp)
+        return n <= 0 ? 0 : Math.ceil(n / 100) * 100;
+    }
+    return n;
+}
+
 function formatCoins(n) {
     n = Math.floor(n);
     if (n <= 0) return "0 cp";
+    const r = gameState.research || {};
+    if (r.goldOnly) {
+        // Gold pieces only — balance floors to gp (you don't display sub-gp for your wallet)
+        const gp = Math.floor(n / 1000);
+        return (gp || 0) + " gp";
+    }
+    if (r.mintStandard) {
+        // Silver + gold, no copper
+        const gp = Math.floor(n / 1000);
+        const sp = Math.floor((n % 1000) / 100);
+        const parts = [];
+        if (gp) parts.push(gp + " gp");
+        if (sp) parts.push(sp + " sp");
+        return parts.length ? parts.join(" ") : "0 sp";
+    }
+    if (!r.silverCurrency) {
+        // Pre-currency-research: show raw copper only
+        return n + " cp";
+    }
+    if (!r.goldStandard) {
+        // Silver unlocked but not gold: show sp + leftover cp
+        const sp = Math.floor(n / 100);
+        const cp = n % 100;
+        const parts = [];
+        if (sp) parts.push(sp + " sp");
+        if (cp) parts.push(cp + " cp");
+        return parts.length ? parts.join(" ") : "0 cp";
+    }
+    // Gold standard: full gp / sp / cp breakdown
     const gp = Math.floor(n / 1000);
     const sp = Math.floor((n % 1000) / 100);
     const cp = n % 100;
@@ -1428,6 +1483,12 @@ function formatCoins(n) {
     return parts.length ? parts.join(" ") : "0 cp";
 }
 
+// Format a coin *cost* — rounds up sub-denomination remainders when higher
+// denominations have been researched, so display matches what is charged.
+function formatCoinCost(n) {
+    return formatCoins(effectiveCoinCost(n));
+}
+
 // ── Era system ────────────────────────────────────────────────────────────────
 // Era-gated buildings: Era 1 = everything NOT listed here (default).
 const BUILDING_ERA = {
@@ -1435,7 +1496,7 @@ const BUILDING_ERA = {
     crystalSeam:   2, smelter:       2, alchemyLab:  2,
     kiln:          2, loom:          2, mageTower:   2,
     armory:        2, sulphurVent:   2, arcaneGrinder: 2,
-    forge:         2, arcaneBench:   2,
+    forge:         2, arcaneBench:   2, scriptorium:  2,
     // Era 3 — Endgame / dark
     ritualCircle:  3, spiderNest:    3, arcaneCrucible: 3,
     darkAltar:     3, mithrilForge:  3,
@@ -1461,12 +1522,14 @@ const ERA_1_RESEARCH = [
     "quarrying", "oreProspecting", "packHunting", "trapLines", "bonecraft",
     "reinforcedShelving", "dryCellar", "communalLiving", "bookkeeping",
     "taxCollector", "roadNetwork", "rationing", "militiaDrill",
+    "silverCurrency", "goldStandard", "mintStandard", "goldOnly",
 ];
 const ERA_2_RESEARCH = [
     "deepMining", "coalBunker", "sulphurStudy", "crystalLore",
     "bellowsDesign", "concentratedExtracts", "highFireKiln", "loomMastery",
     "forgeMastery", "mortaredMasonry", "arcaneInscription", "crystalFocus",
     "arcaneTapping", "guildCharter", "ironLockbox", "tradeGoods", "runicScript",
+    "loreKeeping",
 ];
 const ERA_3_RESEARCH = [
     "essenceHarvest", "ichorRefinement", "silkCulture", "manaConductorCoils",
@@ -1496,6 +1559,7 @@ const ERA_LOADOUTS = {
             mine: 4, coalSeam: 3, huntingLodge: 3, herbalistDen: 2, clayPit: 2, crystalSeam: 2,
             smelter: 2, alchemyLab: 1, kiln: 1, loom: 1,
             mageTower: 1, armory: 2, sulphurVent: 1, arcaneGrinder: 1, forge: 1, arcaneBench: 1,
+            scriptorium: 2,
         },
         research: [...ERA_1_RESEARCH, ...ERA_2_RESEARCH],
         resources: {
@@ -1503,7 +1567,7 @@ const ERA_LOADOUTS = {
             herbs: 100, coal: 150, clay: 100, bones: 100, crystals: 75, sulphur: 80,
             iron: 150, potions: 60, arcaneDust: 60,
             steel: 50, bricks: 80, cloth: 50, runes: 30,
-            coins: 15000,
+            coins: 15000, lore: 50,
         },
         workerAssignments: { farm: 5, lumber: 4, quarry: 4, mine: 4 },
     },
@@ -1514,6 +1578,7 @@ const ERA_LOADOUTS = {
             mine: 6, coalSeam: 4, huntingLodge: 4, herbalistDen: 3, clayPit: 3, crystalSeam: 3,
             smelter: 3, alchemyLab: 2, kiln: 2, loom: 2,
             mageTower: 2, armory: 3, sulphurVent: 2, arcaneGrinder: 2, forge: 2, arcaneBench: 2,
+            scriptorium: 4,
             ritualCircle: 1, spiderNest: 1, arcaneCrucible: 1, darkAltar: 1, mithrilForge: 1,
         },
         research: [...ERA_1_RESEARCH, ...ERA_2_RESEARCH, ...ERA_3_RESEARCH],
@@ -1522,7 +1587,7 @@ const ERA_LOADOUTS = {
             herbs: 150, coal: 150, clay: 150, bones: 150, crystals: 75, sulphur: 80,
             iron: 150, potions: 75, arcaneDust: 75, steel: 100, bricks: 120, cloth: 100, runes: 60,
             arcaneEssence: 50, silk: 40, manaGold: 40, ichor: 30, mithril: 20,
-            coins: 50000,
+            coins: 50000, lore: 100,
         },
         workerAssignments: { farm: 8, lumber: 6, quarry: 6, mine: 6 },
     },
@@ -1646,7 +1711,10 @@ function devFillPercent(pct) {
 
 function devFillAllCaps() {
     const caps = getCaps();
-    for (const res of Object.keys(BASE_CAPS)) gameState.resources[res] = caps[res];
+    for (const res of Object.keys(BASE_CAPS)) {
+        if (!shouldShowResource(res)) continue;
+        gameState.resources[res] = caps[res];
+    }
     gameState.resources.coins = caps.coins;
     updateUI();
     saveGame();

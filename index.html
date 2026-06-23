@@ -567,6 +567,14 @@
             <span id="mithrilRate" class="rate" style="display:none"></span>
         </div>
 
+        <div class="res-row" id="res-row-lore" style="display:none">
+            <span class="res-name">Lore</span>
+            <span class="res-right">
+                <span id="lore">0</span>/<span id="loreCap">0</span>
+            </span>
+            <span id="loreRate" class="rate" style="display:none"></span>
+        </div>
+
         <div class="res-row" id="res-row-influence" style="display:none">
             <span class="res-name">Influence</span>
             <span class="res-right">
@@ -817,6 +825,12 @@
                     <div class="btn-title">Sulphur Vent</div>
                     <div class="btn-count" id="sulphurVentCount">0</div>
                     <div class="btn-cost" id="sulphurVentCost"></div>
+                </button>
+
+                <button class="build-btn disabled" onclick="build('scriptorium')" id="btn-scriptorium" style="display:none">
+                    <div class="btn-title">Scriptorium</div>
+                    <div class="btn-count" id="scriptoriumCount">0</div>
+                    <div class="btn-cost" id="scriptoriumCost"></div>
                 </button>
 
                 <!-- Stage 5 — Endgame -->
@@ -1084,6 +1098,40 @@
                     <button class="research-btn" id="btn-research-ironLockbox" onclick="doResearch('ironLockbox')">Research</button>
                 </div>
 
+                <!-- Currency denomination chain -->
+                <div class="research-card" id="research-silverCurrency" style="display:none">
+                    <div class="research-info">
+                        <div class="research-name">Silver Currency</div>
+                        <div class="research-desc">Mint copper into silver pieces. Every 100 cp is automatically rolled into 1 sp, simplifying your treasury display.</div>
+                        <div class="research-cost">Cost: 40 Stone, 600 cp</div>
+                    </div>
+                    <button class="research-btn" id="btn-research-silverCurrency" onclick="doResearch('silverCurrency')">Research</button>
+                </div>
+                <div class="research-card" id="research-goldStandard" style="display:none">
+                    <div class="research-info">
+                        <div class="research-name">Gold Standard</div>
+                        <div class="research-desc">Establish gold as the realm's reserve currency. Every 10 sp rolls into 1 gp, revealing the full gp / sp / cp denomination.</div>
+                        <div class="research-cost">Cost: 60 Ore, 2000 cp</div>
+                    </div>
+                    <button class="research-btn" id="btn-research-goldStandard" onclick="doResearch('goldStandard')">Research</button>
+                </div>
+                <div class="research-card" id="research-mintStandard" style="display:none">
+                    <div class="research-info">
+                        <div class="research-name">Mint Standard</div>
+                        <div class="research-desc">Phase out copper entirely. All costs below 1 sp round up. Treasury displays in gold and silver only.</div>
+                        <div class="research-cost">Cost: 40 Iron, 30 Stone, 5 gp</div>
+                    </div>
+                    <button class="research-btn" id="btn-research-mintStandard" onclick="doResearch('mintStandard')">Research</button>
+                </div>
+                <div class="research-card" id="research-goldOnly" style="display:none">
+                    <div class="research-info">
+                        <div class="research-name">Gold Coin Realm</div>
+                        <div class="research-desc">Silver is for peasants. All costs below 1 gp round up to 1 gp. Treasury and all prices display in gold pieces only.</div>
+                        <div class="research-cost">Cost: 60 Iron, 10 gp</div>
+                    </div>
+                    <button class="research-btn" id="btn-research-goldOnly" onclick="doResearch('goldOnly')">Research</button>
+                </div>
+
                 <!-- Chain 8: Economy & Society -->
                 <div class="research-card" id="research-taxCollector" style="display:none">
                     <div class="research-info">
@@ -1147,7 +1195,7 @@
                     <div class="research-info">
                         <div class="research-name">Forge Mastery</div>
                         <div class="research-desc">Quench, draw, and temper — the three secrets of the smith. Forge steel output +25%.</div>
-                        <div class="research-cost">Cost: 30 Steel, 40 Coal, 1000 cp</div>
+                        <div class="research-cost">Cost: 30 Steel, 40 Coal, 1000 cp, 5 Lore</div>
                     </div>
                     <button class="research-btn" id="btn-research-forgeMastery" onclick="doResearch('forgeMastery')">Research</button>
                 </div>
@@ -1155,7 +1203,7 @@
                     <div class="research-info">
                         <div class="research-name">Mortared Masonry</div>
                         <div class="research-desc">Lime mortar between courses of brick. Kiln output +25% and brick cap +50.</div>
-                        <div class="research-cost">Cost: 40 Bricks, 60 Stone, 500 cp</div>
+                        <div class="research-cost">Cost: 40 Bricks, 60 Stone, 500 cp, 5 Lore</div>
                     </div>
                     <button class="research-btn" id="btn-research-mortaredMasonry" onclick="doResearch('mortaredMasonry')">Research</button>
                 </div>
@@ -1163,7 +1211,7 @@
                     <div class="research-info">
                         <div class="research-name">Arcane Inscription</div>
                         <div class="research-desc">Carve runes with intent, not guesswork. Arcane Bench rune output +25%.</div>
-                        <div class="research-cost">Cost: 20 Runes, 30 Crystals, 1500 cp</div>
+                        <div class="research-cost">Cost: 20 Runes, 30 Crystals, 1500 cp, 10 Lore</div>
                     </div>
                     <button class="research-btn" id="btn-research-arcaneInscription" onclick="doResearch('arcaneInscription')">Research</button>
                 </div>
@@ -1171,7 +1219,7 @@
                     <div class="research-info">
                         <div class="research-name">Crystal Focus Arrays</div>
                         <div class="research-desc">Arrange crystals to funnel resonance into the grinder. Arcane Grinder dust output +25%.</div>
-                        <div class="research-cost">Cost: 50 Crystals, 20 Arcane Dust, 1200 cp</div>
+                        <div class="research-cost">Cost: 50 Crystals, 20 Arcane Dust, 1200 cp, 8 Lore</div>
                     </div>
                     <button class="research-btn" id="btn-research-crystalFocus" onclick="doResearch('crystalFocus')">Research</button>
                 </div>
@@ -1179,7 +1227,7 @@
                     <div class="research-info">
                         <div class="research-name">Arcane Tapping</div>
                         <div class="research-desc">Draw raw ley energy through the tower's crystal spire. Mage Tower crystal output +50%.</div>
-                        <div class="research-cost">Cost: 40 Arcane Dust, 30 Crystals, 2000 cp</div>
+                        <div class="research-cost">Cost: 40 Arcane Dust, 30 Crystals, 2000 cp, 15 Lore</div>
                     </div>
                     <button class="research-btn" id="btn-research-arcaneTapping" onclick="doResearch('arcaneTapping')">Research</button>
                 </div>
@@ -1187,17 +1235,25 @@
                     <div class="research-info">
                         <div class="research-name">Artisan's Guild Charter</div>
                         <div class="research-desc">Formalize the craft guilds with rights and duties. Smelter, Forge, Loom, and Kiln material costs -20%.</div>
-                        <div class="research-cost">Cost: 60 Iron, 60 Wood, 2000 cp</div>
+                        <div class="research-cost">Cost: 60 Iron, 60 Wood, 2000 cp, 12 Lore</div>
                     </div>
                     <button class="research-btn" id="btn-research-guildCharter" onclick="doResearch('guildCharter')">Research</button>
                 </div>
 
                 <!-- Chain 10: Arcane Refinement -->
+                <div class="research-card" id="research-loreKeeping" style="display:none">
+                    <div class="research-info">
+                        <div class="research-name">Lore Keeping</div>
+                        <div class="research-desc">Establish a formal record of recovered knowledge. Scribes can now be set to work — unlocks the Scriptorium.</div>
+                        <div class="research-cost">Cost: 80 Stone, 60 Wood, 1500 cp</div>
+                    </div>
+                    <button class="research-btn" id="btn-research-loreKeeping" onclick="doResearch('loreKeeping')">Research</button>
+                </div>
                 <div class="research-card" id="research-runicScript" style="display:none">
                     <div class="research-info">
                         <div class="research-name">Runic Script</div>
                         <div class="research-desc">A standardized glyph system makes inscribing faster. Arcane Bench rune output +25% more.</div>
-                        <div class="research-cost">Cost: 40 Runes, 30 Arcane Dust, 2000 cp</div>
+                        <div class="research-cost">Cost: 40 Runes, 30 Arcane Dust, 20 Lore</div>
                     </div>
                     <button class="research-btn" id="btn-research-runicScript" onclick="doResearch('runicScript')">Research</button>
                 </div>
@@ -1205,7 +1261,7 @@
                     <div class="research-info">
                         <div class="research-name">Essence Harvesting</div>
                         <div class="research-desc">Capture ambient magical resonance in the circle's stone. Ritual Circle Arcane Essence output +50%.</div>
-                        <div class="research-cost">Cost: 15 Arcane Essence, 50 Arcane Dust, 3000 cp</div>
+                        <div class="research-cost">Cost: 15 Arcane Essence, 50 Arcane Dust, 30 Lore</div>
                     </div>
                     <button class="research-btn" id="btn-research-essenceHarvest" onclick="doResearch('essenceHarvest')">Research</button>
                 </div>
@@ -1213,7 +1269,7 @@
                     <div class="research-info">
                         <div class="research-name">Ichor Refinement</div>
                         <div class="research-desc">Render and purify dark altar drippings. Dark Altar ichor output +30%.</div>
-                        <div class="research-cost">Cost: 10 Ichor, 60 Bones, 3000 cp</div>
+                        <div class="research-cost">Cost: 10 Ichor, 60 Bones, 25 Lore</div>
                     </div>
                     <button class="research-btn" id="btn-research-ichorRefinement" onclick="doResearch('ichorRefinement')">Research</button>
                 </div>
@@ -1221,7 +1277,7 @@
                     <div class="research-info">
                         <div class="research-name">Spider Keeper's Art</div>
                         <div class="research-desc">Keep the spiders well-fed and they weave faster. Spider Nest silk output +25%.</div>
-                        <div class="research-cost">Cost: 20 Silk, 40 Bones, 2500 cp</div>
+                        <div class="research-cost">Cost: 20 Silk, 40 Bones, 20 Lore</div>
                     </div>
                     <button class="research-btn" id="btn-research-silkCulture" onclick="doResearch('silkCulture')">Research</button>
                 </div>
@@ -1229,7 +1285,7 @@
                     <div class="research-info">
                         <div class="research-name">Mana Conductor Coils</div>
                         <div class="research-desc">Wind copper coils into the crucible walls to focus mana flow. Arcane Crucible output +30%.</div>
-                        <div class="research-cost">Cost: 15 Mana Gold, 60 Iron, 4000 cp</div>
+                        <div class="research-cost">Cost: 15 Mana Gold, 60 Iron, 35 Lore</div>
                     </div>
                     <button class="research-btn" id="btn-research-manaConductorCoils" onclick="doResearch('manaConductorCoils')">Research</button>
                 </div>
@@ -1237,7 +1293,7 @@
                     <div class="research-info">
                         <div class="research-name">Mithril Tempering</div>
                         <div class="research-desc">The precise heat range that turns grey metal silver-bright. Mithril Forge output +30%.</div>
-                        <div class="research-cost">Cost: 5 Mithril, 60 Steel, 6000 cp</div>
+                        <div class="research-cost">Cost: 5 Mithril, 60 Steel, 40 Lore</div>
                     </div>
                     <button class="research-btn" id="btn-research-mithrilTemper" onclick="doResearch('mithrilTemper')">Research</button>
                 </div>
@@ -1247,7 +1303,7 @@
                     <div class="research-info">
                         <div class="research-name">Rites of the Ancients</div>
                         <div class="research-desc">Recover the old ways from crumbling texts and stubborn elders. Unlocks the Ritual Circle. Arcane Essence cap +25.</div>
-                        <div class="research-cost">Cost: 100 Stone, 60 Arcane Dust, 3000 cp</div>
+                        <div class="research-cost">Cost: 60 Arcane Dust, 30 Lore</div>
                     </div>
                     <button class="research-btn" id="btn-research-ritualPrep" onclick="doResearch('ritualPrep')">Research</button>
                 </div>
@@ -1255,7 +1311,7 @@
                     <div class="research-info">
                         <div class="research-name">Forbidden Texts</div>
                         <div class="research-desc">What you read cannot be unread. Unlocks the Dark Altar.</div>
-                        <div class="research-cost">Cost: 80 Bones, 20 Arcane Essence, 4000 cp</div>
+                        <div class="research-cost">Cost: 20 Arcane Essence, 40 Lore</div>
                     </div>
                     <button class="research-btn" id="btn-research-darkTexts" onclick="doResearch('darkTexts')">Research</button>
                 </div>
@@ -1263,7 +1319,7 @@
                     <div class="research-info">
                         <div class="research-name">Silken Warren</div>
                         <div class="research-desc">Prepare a sealed chamber and convince the spiders to cooperate. Unlocks the Spider Nest.</div>
-                        <div class="research-cost">Cost: 60 Bones, 40 Cloth, 2500 cp</div>
+                        <div class="research-cost">Cost: 60 Bones, 25 Lore</div>
                     </div>
                     <button class="research-btn" id="btn-research-silkenWarren" onclick="doResearch('silkenWarren')">Research</button>
                 </div>
@@ -1271,7 +1327,7 @@
                     <div class="research-info">
                         <div class="research-name">Mana Conduit Forging</div>
                         <div class="research-desc">Forge a network of iron conduits to carry raw mana safely. Unlocks the Arcane Crucible.</div>
-                        <div class="research-cost">Cost: 80 Steel, 50 Arcane Dust, 5000 cp</div>
+                        <div class="research-cost">Cost: 80 Steel, 50 Lore</div>
                     </div>
                     <button class="research-btn" id="btn-research-manaConduit" onclick="doResearch('manaConduit')">Research</button>
                 </div>
@@ -1279,7 +1335,7 @@
                     <div class="research-info">
                         <div class="research-name">Dungeon Blueprint</div>
                         <div class="research-desc">Maps, schematics, and the first load-bearing column of something far grander than a village. Era 3 awaits.</div>
-                        <div class="research-cost">Cost: 20 Mana Gold, 5 Mithril, 30 Arcane Essence, 15 Ichor, 10000 cp</div>
+                        <div class="research-cost">Cost: 30 Arcane Essence, 15 Ichor, 75 Lore</div>
                     </div>
                     <button class="research-btn" id="btn-research-dungeonBlueprint" onclick="doResearch('dungeonBlueprint')">Research</button>
                 </div>
@@ -1541,6 +1597,20 @@
                     <button class="wbtn" onclick="adjustWorkers('mageTower', -1)">&#9664;</button>
                     <input  class="winput" type="number" id="winput-mageTower" value="0" min="0" oninput="setWorkers('mageTower', this.value)">
                     <button class="wbtn" onclick="adjustWorkers('mageTower', 1)">&#9654;</button>
+                    <button class="wbtn wbtn-mm" onclick="setWorkersMax(this)" title="Assign max">&#9654;&#9654;</button>
+                </div>
+            </div>
+
+            <div class="worker-row" id="wrow-scriptorium"   style="display:none">
+                <div class="worker-left">
+                    <span class="worker-name">Scriptorium</span>
+                    <span class="worker-slots" id="wslots-scriptorium">0 / 0</span>
+                </div>
+                <div class="worker-controls">
+                    <button class="wbtn wbtn-mm" onclick="setWorkersMin(this)" title="Unassign all">&#9664;&#9664;</button>
+                    <button class="wbtn" onclick="adjustWorkers('scriptorium', -1)">&#9664;</button>
+                    <input  class="winput" type="number" id="winput-scriptorium" value="0" min="0" oninput="setWorkers('scriptorium', this.value)">
+                    <button class="wbtn" onclick="adjustWorkers('scriptorium', 1)">&#9654;</button>
                     <button class="wbtn wbtn-mm" onclick="setWorkersMax(this)" title="Assign max">&#9654;&#9654;</button>
                 </div>
             </div>

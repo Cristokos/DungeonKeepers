@@ -170,6 +170,16 @@ const ROOMS = {
         production: { sulphur: 0.4 },
         unlock: { mine: 3, smelter: 1 },
     },
+    scriptorium: {
+        name: "Scriptorium",
+        desc: "Scribes and scholars recover dungeon lore from old carvings, captured texts, and hard-won experience. Each worker produces 1 Lore per tick. Each Scriptorium raises the Lore cap by 25.",
+        cost: { stone: 60, wood: 40, bricks: 20 },
+        coinCost: 1500,
+        costScale: 1.18,
+        jobs: 2,
+        production: { lore: 1 },
+        requiresResearch: ["loreKeeping"],
+    },
 
     // ── Stage 5 — Endgame (large coin costs 2000–10000 cp) ──────────────────────
 

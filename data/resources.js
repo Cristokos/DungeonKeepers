@@ -33,4 +33,7 @@ const RESOURCES = {
     essence:    { name: "Essence",     tier: 1 },
     influence:  { name: "Influence",   tier: 1 },
     mana:       { name: "Mana",        tier: 1 },
+
+    // ── Era 2+ — Knowledge ───────────────────────────────────────────────────────
+    lore:       { name: "Lore",        tier: 3 },
 };
