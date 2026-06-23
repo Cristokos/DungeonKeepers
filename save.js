@@ -179,13 +179,19 @@ function snapshotBackup(label) {
     }
 }
 
-// Returns { label, at } describing the stored backup, or null if none exists.
+// Returns { label, at, race, day, year } describing the stored backup, or null if none exists.
 function getBackupInfo() {
     const raw = localStorage.getItem(BACKUP_KEY);
     if (!raw) return null;
     const snap = _deserializeSave(raw);
     if (!snap) return null;
-    return { label: snap._backupLabel || "checkpoint", at: snap._backupAt || null };
+    return {
+        label: snap._backupLabel || "checkpoint",
+        at:    snap._backupAt   || null,
+        race:  (snap.run  && snap.run.race)    || null,
+        day:   (snap.time && snap.time.day)    || null,
+        year:  (snap.time && snap.time.year)   || null,
+    };
 }
 
 // Restores the backup as the active save and reloads. Returns false if there is

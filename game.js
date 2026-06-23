@@ -305,14 +305,28 @@ function updateSettingsUI() {
         rBtn.textContent = gameSettings.reducedAnimations ? "ON" : "OFF";
         rBtn.className   = "setting-toggle" + (gameSettings.reducedAnimations ? " is-on" : "");
     }
-    // Restore Backup button — reflects whether a checkpoint exists, with a tooltip.
-    const bkBtn = document.getElementById("set-restore");
+    // Restore Backup button — reflects whether a checkpoint exists.
+    const bkBtn  = document.getElementById("set-restore");
+    const bkSnap = document.getElementById("backup-snapshot");
     if (bkBtn) {
         const info = (typeof getBackupInfo === "function") ? getBackupInfo() : null;
         bkBtn.disabled = !info;
-        bkBtn.title = info
-            ? "Restore checkpoint: " + info.label
-            : "No checkpoint yet — created at each era transition or prestige.";
+        bkBtn.removeAttribute("title");
+        if (bkSnap) {
+            if (info) {
+                const racePart = info.race  ? info.race : "Unknown race";
+                const timePart = (info.day != null && info.year != null)
+                    ? `Day ${info.day}, Year ${info.year}` : "";
+                const datePart = info.at
+                    ? new Date(info.at).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })
+                    : "";
+                const parts = [racePart, timePart, datePart].filter(Boolean);
+                bkSnap.textContent = parts.join(" · ");
+                bkSnap.style.display = "block";
+            } else {
+                bkSnap.style.display = "none";
+            }
+        }
     }
 }
 
@@ -1011,26 +1025,15 @@ function initBldTooltips() {
     _bldTooltipEl = document.getElementById('bld-tooltip');
     document.querySelectorAll('[id^="btn-"]').forEach(el => {
         const id = el.id.replace('btn-', '');
+        if (id.startsWith('research-')) return;
         const def = ROOMS[id];
-        if (!def || (!def.desc && !def.flavor)) return;
+        if (!def) return;
         el.addEventListener('mouseenter', () => {
             if (!_bldTooltipEl) return;
-            let html = `<div class="bld-tt-name">${def.name}</div>`;
-            if (def.desc)   html += `<div class="bld-tt-desc">${def.desc}</div>`;
-            if (def.effect) html += `<div class="bld-tt-effect">${def.effect(_bldEffectRates(id, def), id)}</div>`;
-            if (def.flavor) html += `<div class="bld-tt-flavor">${def.flavor}</div>`;
-            _bldTooltipEl.innerHTML = html;
+            _bldTooltipEl.innerHTML = _buildBldTooltipHTML(id, def);
             _bldTooltipEl.style.display = 'block';
         });
-        el.addEventListener('mousemove', e => {
-            if (!_bldTooltipEl) return;
-            const tipW = 220;
-            const tipH = _bldTooltipEl.offsetHeight;
-            const left = e.clientX + 14 + tipW > window.innerWidth ? e.clientX - tipW - 14 : e.clientX + 14;
-            const top  = e.clientY + 14 + tipH > window.innerHeight ? e.clientY - tipH - 8 : e.clientY + 14;
-            _bldTooltipEl.style.left = left + 'px';
-            _bldTooltipEl.style.top  = top  + 'px';
-        });
+        el.addEventListener('mousemove', e => { if (_bldTooltipEl) _positionBldTooltip(e); });
         el.addEventListener('mouseleave', () => { if (_bldTooltipEl) _bldTooltipEl.style.display = 'none'; });
     });
 
@@ -1041,23 +1044,159 @@ function initBldTooltips() {
             if (!_bldTooltipEl) return;
             const bonus = getReservoirBonus();
             _bldTooltipEl.innerHTML =
-                `<div class="bld-tt-name">Expanded Awareness</div>` +
+                `<div class="bld-tt-header"><span class="bld-tt-name">Expanded Awareness</span></div>` +
                 `<div class="bld-tt-desc">Deepen your mental capacity, increasing the storage cap of all Anima, Influence, and Mana reservoirs by +10 each.</div>` +
                 `<div class="bld-tt-effect">Each reservoir building currently grants +${bonus} capacity. Next purchase raises this to +${bonus + 10}.</div>` +
                 `<div class="bld-tt-flavor">The mind is not a vessel with fixed walls. It is a space you learn to widen.</div>`;
             _bldTooltipEl.style.display = 'block';
         });
-        eaBtn.addEventListener('mousemove', e => {
-            if (!_bldTooltipEl) return;
-            const tipW = 220;
-            const tipH = _bldTooltipEl.offsetHeight;
-            const left = e.clientX + 14 + tipW > window.innerWidth ? e.clientX - tipW - 14 : e.clientX + 14;
-            const top  = e.clientY + 14 + tipH > window.innerHeight ? e.clientY - tipH - 8 : e.clientY + 14;
-            _bldTooltipEl.style.left = left + 'px';
-            _bldTooltipEl.style.top  = top  + 'px';
-        });
+        eaBtn.addEventListener('mousemove', e => { if (_bldTooltipEl) _positionBldTooltip(e); });
         eaBtn.addEventListener('mouseleave', () => { if (_bldTooltipEl) _bldTooltipEl.style.display = 'none'; });
     }
+}
+
+function _positionBldTooltip(e) {
+    const tipW = _bldTooltipEl.offsetWidth || 280;
+    const tipH = _bldTooltipEl.offsetHeight;
+    const left = e.clientX + 14 + tipW > window.innerWidth  ? e.clientX - tipW - 14 : e.clientX + 14;
+    const top  = e.clientY + 14 + tipH > window.innerHeight ? e.clientY - tipH - 8  : e.clientY + 14;
+    _bldTooltipEl.style.left = left + 'px';
+    _bldTooltipEl.style.top  = top  + 'px';
+}
+
+function _buildBldTooltipHTML(id, def) {
+    const count = gameState.buildings[id] || 0;
+    let html = `<div class="bld-tt-header"><span class="bld-tt-name">${def.name}</span><span class="bld-tt-count">${count}</span></div>`;
+
+    if (def.desc) html += `<div class="bld-tt-desc">${def.desc}</div>`;
+
+    // Next-purchase cost
+    const costs = getBuildCost(id);
+    const hasCoin = !!def.coinCost;
+    if (hasCoin || Object.keys(costs).length) {
+        html += `<div class="bld-tt-cost-section">`;
+        if (hasCoin) {
+            const c = getEffectiveBuildingCoinCost(def.coinCost);
+            html += `<div class="bld-tt-cost-row"><span class="bld-tt-cost-lbl">Cost</span><span class="bld-tt-cost-val">${formatCoins(c)}</span></div>`;
+        }
+        for (const [res, amt] of Object.entries(costs)) {
+            const rname = (RESOURCES[res] && RESOURCES[res].name) || (res.charAt(0).toUpperCase() + res.slice(1));
+            html += `<div class="bld-tt-cost-row"><span class="bld-tt-cost-lbl">${rname}</span><span class="bld-tt-cost-val">${fmt(amt)}</span></div>`;
+        }
+        html += `</div>`;
+    }
+
+    // Effects — use def.effect() if available, otherwise auto-generate from raw fields
+    let effectText = '';
+    if (def.effect) {
+        effectText = def.effect(_bldEffectRates(id, def), id);
+    } else {
+        const r = _bldEffectRates(id, def);
+        const lines = [];
+        if (def.production) {
+            const [res] = Object.entries(def.production)[0];
+            const rname = (RESOURCES[res] && RESOURCES[res].name) || (res.charAt(0).toUpperCase() + res.slice(1));
+            lines.push(`Produces ${r.out} ${rname}/day`);
+        }
+        if (def.converts) {
+            const inRes  = Object.keys(def.converts.inputs)[0];
+            const outRes = def.converts.output;
+            const inName  = (RESOURCES[inRes]  && RESOURCES[inRes].name)  || inRes;
+            const outName = (RESOURCES[outRes] && RESOURCES[outRes].name) || outRes;
+            lines.push(`Converts ${r.in} ${inName} → ${r.out} ${outName}/day`);
+        }
+        if (def.housingBonus) lines.push(`+${def.housingBonus} Max Citizens`);
+        if (def.jobs)         lines.push(`Provides ${def.jobs} work slot${def.jobs !== 1 ? 's' : ''}`);
+        if (!lines.length && r.cap) lines.push(`+${r.cap} to all material storage`);
+        effectText = lines.join('<br>');
+    }
+
+    if (effectText) html += `<div class="bld-tt-effect">${effectText}</div>`;
+    if (def.flavor)  html += `<div class="bld-tt-flavor">${def.flavor}</div>`;
+
+    return html;
+}
+
+function initResearchTooltips() {
+    document.querySelectorAll('[id^="btn-research-"]').forEach(el => {
+        const key = el.id.replace('btn-research-', '');
+        const def = RESEARCH[key];
+        if (!def) return;
+        el.addEventListener('mouseenter', () => {
+            if (!_bldTooltipEl) return;
+            _bldTooltipEl.innerHTML = _buildResearchTooltipHTML(key, def);
+            _bldTooltipEl.style.display = 'block';
+        });
+        el.addEventListener('mousemove', e => { if (_bldTooltipEl) _positionBldTooltip(e); });
+        el.addEventListener('mouseleave', () => { if (_bldTooltipEl) _bldTooltipEl.style.display = 'none'; });
+    });
+}
+
+function _buildResearchTooltipHTML(key, def) {
+    const done = !!(gameState.research && gameState.research[key]);
+    let html = `<div class="bld-tt-header"><span class="bld-tt-name">${def.name}</span>${done ? '<span class="bld-tt-done">✓</span>' : ''}</div>`;
+
+    if (def.desc) html += `<div class="bld-tt-desc">${def.desc}</div>`;
+
+    if (def.cost && Object.keys(def.cost).length) {
+        html += `<div class="bld-tt-cost-section">`;
+        for (const [res, amt] of Object.entries(def.cost)) {
+            const rname = (RESOURCES[res] && RESOURCES[res].name) || (res.charAt(0).toUpperCase() + res.slice(1));
+            html += `<div class="bld-tt-cost-row"><span class="bld-tt-cost-lbl">${rname}</span><span class="bld-tt-cost-val">${fmt(amt)}</span></div>`;
+        }
+        html += `</div>`;
+    }
+
+    const effectLines = _researchEffectLines(def.effects);
+    if (effectLines.length) {
+        html += `<div class="bld-tt-flavor">${effectLines.join(' · ')}</div>`;
+    }
+
+    return html;
+}
+
+function _researchEffectLines(effects) {
+    const lines = [];
+    if (!effects) return lines;
+    if (effects.taxBonus)           lines.push(`+${effects.taxBonus} cp/creature/day`);
+    if (effects.allGatherBonus)     lines.push(`+${effects.allGatherBonus} to all gathering`);
+    if (effects.allProductionBonus) lines.push(`+${Math.round(effects.allProductionBonus * 100)}% all production`);
+    if (effects.foodConsumption)    lines.push(`${Math.round((1 - effects.foodConsumption) * 100)}% less food consumption`);
+    if (effects.gatherBonus) {
+        for (const [res, amt] of Object.entries(effects.gatherBonus)) {
+            const n = (RESOURCES[res] && RESOURCES[res].name) || (res.charAt(0).toUpperCase() + res.slice(1));
+            lines.push(`+${amt} ${n} gather`);
+        }
+    }
+    if (effects.productionBonus) {
+        for (const [bld, mult] of Object.entries(effects.productionBonus)) {
+            const n = ROOMS[bld] ? ROOMS[bld].name : bld;
+            lines.push(`+${Math.round((mult - 1) * 100)}% ${n}`);
+        }
+    }
+    if (effects.converterBonus) {
+        for (const [bld, mult] of Object.entries(effects.converterBonus)) {
+            const n = ROOMS[bld] ? ROOMS[bld].name : bld;
+            lines.push(`+${Math.round((mult - 1) * 100)}% ${n} output`);
+        }
+    }
+    if (effects.capBonus) {
+        for (const [res, amt] of Object.entries(effects.capBonus)) {
+            const n = (RESOURCES[res] && RESOURCES[res].name) || (res.charAt(0).toUpperCase() + res.slice(1));
+            lines.push(`+${amt} ${n} cap`);
+        }
+    }
+    if (effects.housingBonus) {
+        for (const [bld, amt] of Object.entries(effects.housingBonus)) {
+            const n = ROOMS[bld] ? ROOMS[bld].name : bld;
+            lines.push(`+${amt} housing (${n})`);
+        }
+    }
+    if (effects.unlockBuildings && effects.unlockBuildings.length) {
+        const names = effects.unlockBuildings.map(k => ROOMS[k] ? ROOMS[k].name : k);
+        lines.push(`Unlocks: ${names.join(', ')}`);
+    }
+    return lines;
 }
 
 let _settingsTipEl = null;
@@ -1073,7 +1212,7 @@ function initSettingsTooltips() {
                 _settingsTipEl.textContent = el.dataset.stip;
                 _settingsTipEl.style.display = 'block';
                 _positionSettingsTip(e);
-            }, 3000);
+            }, 1500);
         });
         el.addEventListener('mousemove', e => {
             if (_settingsTipEl && _settingsTipEl.style.display === 'block') {
@@ -4849,6 +4988,7 @@ _initDevTransitionSelect();
 initResTooltips();
 initGatherTooltips();
 initBldTooltips();
+initResearchTooltips();
 initIdentityTooltips();
 initSettingsTooltips();
 setInterval(tick, 1000);
