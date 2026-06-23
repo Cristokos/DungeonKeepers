@@ -2086,67 +2086,81 @@ function showEraTransition(raceName, onComplete) {
             document.getElementById('era-panel-4'),
             document.getElementById('era-panel-5'),
         ];
+
+        // For each panel, measure where the SVG sits within the panel so particle
+        // positions can be expressed relative to the SVG artwork, not the full canvas.
         const canvases = panelEls.map((p, i) => {
             const c = document.getElementById('era-canvas-' + (i + 1));
             if (!c || !p) return null;
-            c.width  = p.offsetWidth  || 300;
-            c.height = p.offsetHeight || 220;
-            return { el: c, ctx: c.getContext('2d'), w: c.width, h: c.height, active: false, t: 0 };
+            c.width  = p.offsetWidth  || 400;
+            c.height = p.offsetHeight || 160;
+            const svg = p.querySelector('.era-panel-svg');
+            let svgX = 0, svgY = 0, svgW = c.width, svgH = c.height;
+            if (svg) {
+                const pr = p.getBoundingClientRect();
+                const sr = svg.getBoundingClientRect();
+                svgX = sr.left - pr.left;
+                svgY = sr.top  - pr.top;
+                svgW = sr.width  || 180;
+                svgH = sr.height || 130;
+            }
+            return { el: c, ctx: c.getContext('2d'),
+                     w: c.width, h: c.height,
+                     sx: svgX, sy: svgY, sw: svgW, sh: svgH,
+                     active: false, t: 0 };
         });
 
         // Particle pools per panel
-        // Panel 1 — torch sparks rising from flame at top-center
+        // Panel 1 — torch sparks rising from flame; torch is at SVG (110/220, 14%)
         const p1 = [];
         function spawnEmber(cv) {
-            const ox = cv.w * 0.5, oy = cv.h * 0.14;
-            p1.push({ x: ox + (Math.random()-0.5)*10, y: oy, vx: (Math.random()-0.5)*0.6,
-                      vy: -(0.6 + Math.random()*1.4), life: 1,
-                      size: 0.7 + Math.random()*1.2, fire: Math.random() > 0.4 });
+            const ox = cv.sx + cv.sw * (110/220);
+            const oy = cv.sy + cv.sh * 0.14;
+            p1.push({ x: ox + (Math.random()-0.5)*8, y: oy,
+                      vx: (Math.random()-0.5)*0.6, vy: -(0.6 + Math.random()*1.4),
+                      life: 1, size: 0.7 + Math.random()*1.2, fire: Math.random() > 0.4 });
         }
 
-        // Panel 2 — dust motes drifting through portcullis bars in golden light
+        // Panel 2 — dust motes drifting through portcullis; gate spans 28–78% of SVG width
         const p2 = [];
         function spawnCrackMote(cv) {
-            // spawn within the gate opening (middle third of width)
-            const ox = cv.w * (0.28 + Math.random()*0.44);
-            const oy = cv.h * (0.2 + Math.random()*0.65);
+            const ox = cv.sx + cv.sw * (0.28 + Math.random()*0.44);
+            const oy = cv.sy + cv.sh * (0.20 + Math.random()*0.65);
             p2.push({ x: ox, y: oy, vx: (Math.random()-0.5)*0.15, vy: -0.05 - Math.random()*0.12,
                       life: 1, size: 0.5 + Math.random()*0.8 });
         }
 
-        // Panel 3 — crimson eye-glow pulses + shadow motes drifting up
+        // Panel 3 — shadow motes rising from creature silhouette (center of SVG)
         const p3 = [];
         function spawnOrbitMote(cv) {
-            // shadow motes rising from creature silhouette
-            const ox = cv.w * (0.36 + Math.random()*0.28);
-            const oy = cv.h * (0.5 + Math.random()*0.35);
+            const ox = cv.sx + cv.sw * (0.36 + Math.random()*0.28);
+            const oy = cv.sy + cv.sh * (0.50 + Math.random()*0.35);
             p3.push({ x: ox, y: oy, vx: (Math.random()-0.5)*0.2, vy: -(0.2 + Math.random()*0.5),
                       life: 1, size: 0.8 + Math.random()*1.0, crimson: Math.random() > 0.7 });
         }
 
-        // Panel 4 — candle flicker sparks from two wall sconces
+        // Panel 4 — sparks from left sconce (86/220) and right (134/220) at y 58/160
         const p4 = [];
         function spawnTraveller(cv) {
-            // Spawn from left sconce (~86/220 x, ~60/160 y) or right (~134/220 x)
             const left = Math.random() > 0.5;
-            const ox = cv.w * (left ? 86/220 : 134/220);
-            const oy = cv.h * (58/160);
-            p4.push({ x: ox + (Math.random()-0.5)*4, y: oy, vx: (Math.random()-0.5)*0.35,
-                      vy: -(0.4 + Math.random()*0.9), life: 1,
-                      size: 0.6 + Math.random()*1.0, trail: [] });
+            const ox = cv.sx + cv.sw * (left ? 86/220 : 134/220);
+            const oy = cv.sy + cv.sh * (58/160);
+            p4.push({ x: ox + (Math.random()-0.5)*4, y: oy,
+                      vx: (Math.random()-0.5)*0.35, vy: -(0.4 + Math.random()*0.9),
+                      life: 1, size: 0.6 + Math.random()*1.0, trail: [] });
         }
 
-        // Panel 5 — gold coin-glint sparks + radial pulse waves
+        // Panel 5 — heraldic shield is centered in the full-width SVG (440×120)
         const p5waves = [];
         const p5motes = [];
         function spawnWave(cv) {
             p5waves.push({ r: 8, maxR: Math.min(cv.w, cv.h)*0.46, life: 1 });
         }
         function spawnFinalMote(cv) {
-            // Glint sparks distributed around the shield/crest
+            const cx = cv.w / 2, cy = cv.h * 0.48;
             const angle = Math.random()*Math.PI*2;
-            const dist = 14 + Math.random()*cv.w*0.28;
-            p5motes.push({ x: cv.w/2 + Math.cos(angle)*dist, y: cv.h*0.48 + Math.sin(angle)*dist*0.7,
+            const dist  = 14 + Math.random()*cv.w*0.18;
+            p5motes.push({ x: cx + Math.cos(angle)*dist, y: cy + Math.sin(angle)*dist*0.55,
                            vx: (Math.random()-0.5)*0.2, vy: (Math.random()-0.5)*0.2,
                            life: 1, size: 0.6 + Math.random()*1.2,
                            twinklePhase: Math.random()*Math.PI*2 });
@@ -2155,24 +2169,24 @@ function showEraTransition(raceName, onComplete) {
         let lastT = performance.now();
         let spawnTick = 0;
 
-        // Activate canvases with 3s stagger
+        // Activate canvases timed to match panel stagger delays
+        const canvasDelays = [150, 750, 1350, 1950, 2700];
         canvases.forEach((cv, i) => {
             if (!cv) return;
             setTimeout(() => {
                 cv.active = true;
                 cv.el.classList.add('era-canvas-active');
-                // Pre-seed some particles so panel isn't empty on appear
                 if (i === 0) for (let k=0; k<8;  k++) spawnEmber(cv);
                 if (i === 1) for (let k=0; k<6;  k++) spawnCrackMote(cv);
                 if (i === 2) for (let k=0; k<5;  k++) spawnOrbitMote(cv);
                 if (i === 3) for (let k=0; k<4;  k++) spawnTraveller(cv);
                 if (i === 4) { spawnWave(cv); for (let k=0; k<8; k++) spawnFinalMote(cv); }
-            }, i * canvasStaggerMs);
+            }, canvasDelays[i]);
         });
 
         function loopEraCanvas(now) {
             _eraCanvasRAF = requestAnimationFrame(loopEraCanvas);
-            const dt = Math.min(now - lastT, 50); // cap at 50ms to avoid jumps
+            const dt = Math.min(now - lastT, 50);
             lastT = now;
             spawnTick += dt;
 
@@ -2182,57 +2196,57 @@ function showEraTransition(raceName, onComplete) {
                 const ctx = cv.ctx;
                 ctx.clearRect(0, 0, cv.w, cv.h);
 
-                // ── Panel 1: torch sparks rising ────────────────────────────
+                // ── Panel 1: torch sparks + floor bloom + flame flicker ──────
                 if (idx === 0) {
                     if (spawnTick > 60 && p1.length < 32) spawnEmber(cv);
                     for (let i = p1.length-1; i >= 0; i--) {
                         const e = p1[i];
-                        e.x  += e.vx; e.y += e.vy; e.vx += (Math.random()-0.5)*0.08;
-                        e.vy *= 0.992;  // slight drag
+                        e.x += e.vx; e.y += e.vy; e.vx += (Math.random()-0.5)*0.08;
+                        e.vy *= 0.992;
                         e.life -= 0.010;
-                        if (e.life <= 0 || e.y < -4) { p1.splice(i,1); continue; }
+                        if (e.life <= 0 || e.y < cv.sy - 4) { p1.splice(i,1); continue; }
                         const a = e.life * 0.85;
-                        ctx.beginPath();
-                        ctx.arc(e.x, e.y, e.size, 0, Math.PI*2);
+                        ctx.beginPath(); ctx.arc(e.x, e.y, e.size, 0, Math.PI*2);
                         ctx.fillStyle = e.fire ? FIRE + a + ')' : TEAL + (a*0.5) + ')';
                         ctx.shadowBlur = e.fire ? 8 : 4;
                         ctx.shadowColor = e.fire ? '#dc6e14' : '#c8a028';
                         ctx.fill(); ctx.shadowBlur = 0;
                     }
-                    // Warm torch-light bloom on floor below flame
+                    // Floor bloom below torch
+                    const torchX = cv.sx + cv.sw * (110/220);
+                    const floorY = cv.sy + cv.sh * 0.88;
                     const pulse = 0.09 + 0.06 * Math.sin(cv.t * 0.004);
-                    const gx = cv.w * 0.5, gy = cv.h * 0.88;
-                    const grad = ctx.createRadialGradient(gx, gy, 0, gx, gy, cv.w*0.45);
+                    const grad = ctx.createRadialGradient(torchX, floorY, 0, torchX, floorY, cv.sw*0.45);
                     grad.addColorStop(0, FIRE + pulse + ')');
                     grad.addColorStop(1, FIRE + '0)');
-                    ctx.beginPath(); ctx.ellipse(gx, gy, cv.w*0.45, cv.h*0.12, 0, 0, Math.PI*2);
+                    ctx.beginPath(); ctx.ellipse(torchX, floorY, cv.sw*0.45, cv.sh*0.12, 0, 0, Math.PI*2);
                     ctx.fillStyle = grad; ctx.fill();
-                    // Flame head flicker glow
+                    // Flame head glow
+                    const flameY = cv.sy + cv.sh * 0.12;
                     const fFlicker = 0.14 + 0.10 * Math.sin(cv.t * 0.009);
-                    const fg = ctx.createRadialGradient(gx, cv.h*0.12, 0, gx, cv.h*0.12, 18);
+                    const fg = ctx.createRadialGradient(torchX, flameY, 0, torchX, flameY, 18);
                     fg.addColorStop(0, 'rgba(255,200,80,' + (fFlicker*2) + ')');
                     fg.addColorStop(1, FIRE + '0)');
-                    ctx.beginPath(); ctx.arc(gx, cv.h*0.12, 18, 0, Math.PI*2);
+                    ctx.beginPath(); ctx.arc(torchX, flameY, 18, 0, Math.PI*2);
                     ctx.fillStyle = fg; ctx.fill();
                 }
 
-                // ── Panel 2: dust motes in golden portcullis light ──────────
+                // ── Panel 2: dust motes + golden gate glow ───────────────────
                 if (idx === 1) {
                     if (spawnTick > 100 && p2.length < 26) spawnCrackMote(cv);
-                    // Soft golden ambient light through gate
+                    const gateX = cv.sx + cv.sw * 0.5;
+                    const gateY = cv.sy + cv.sh * 0.54;
                     const glow = 0.06 + 0.03 * Math.sin(cv.t * 0.002);
-                    const gx = cv.w * 0.5;
-                    const lg = ctx.createRadialGradient(gx, cv.h*0.54, 0, gx, cv.h*0.54, cv.w*0.35);
+                    const lg = ctx.createRadialGradient(gateX, gateY, 0, gateX, gateY, cv.sw*0.38);
                     lg.addColorStop(0, TEAL + glow + ')');
                     lg.addColorStop(1, TEAL + '0)');
-                    ctx.fillStyle = lg;
-                    ctx.fillRect(0, 0, cv.w, cv.h);
+                    ctx.fillStyle = lg; ctx.fillRect(0, 0, cv.w, cv.h);
                     for (let i = p2.length-1; i >= 0; i--) {
                         const m = p2[i];
                         m.x += m.vx + Math.sin(cv.t*0.001 + i)*0.04;
                         m.y += m.vy;
                         m.life -= 0.006;
-                        if (m.life <= 0 || m.y < 0) { p2.splice(i,1); continue; }
+                        if (m.life <= 0 || m.y < cv.sy) { p2.splice(i,1); continue; }
                         const twinkle = 0.4 + 0.35 * Math.sin(cv.t*0.006 + i*1.3);
                         ctx.beginPath(); ctx.arc(m.x, m.y, m.size, 0, Math.PI*2);
                         ctx.fillStyle = TEAL + (m.life * twinkle) + ')';
@@ -2241,46 +2255,43 @@ function showEraTransition(raceName, onComplete) {
                     }
                 }
 
-                // ── Panel 3: crimson eye pulses + shadow motes rising ────────
+                // ── Panel 3: eye glows + shadow motes ────────────────────────
                 if (idx === 2) {
                     if (spawnTick > 180 && p3.length < 14) spawnOrbitMote(cv);
                     for (let i = p3.length-1; i >= 0; i--) {
                         const o = p3[i];
                         o.x += o.vx; o.y += o.vy;
                         o.life -= 0.005;
-                        if (o.life <= 0 || o.y < 0) { p3.splice(i,1); continue; }
+                        if (o.life <= 0 || o.y < cv.sy) { p3.splice(i,1); continue; }
                         ctx.beginPath(); ctx.arc(o.x, o.y, o.size, 0, Math.PI*2);
-                        ctx.fillStyle = o.crimson
-                            ? CRIM + (o.life*0.5) + ')'
-                            : TEAL + (o.life*0.35) + ')';
+                        ctx.fillStyle = o.crimson ? CRIM+(o.life*0.5)+')' : TEAL+(o.life*0.35)+')';
                         ctx.shadowBlur = o.crimson ? 10 : 5;
                         ctx.shadowColor = o.crimson ? '#c0392b' : '#c8a028';
                         ctx.fill(); ctx.shadowBlur = 0;
                     }
-                    // Crimson eye glow pulse — main creature eyes
+                    // Map SVG eye coordinates into canvas space via SVG offset
+                    const xS = cv.sw / 220, yS = cv.sh / 160;
                     const eyePulse = 0.22 + 0.18 * Math.sin(cv.t * 0.003);
-                    const rScale = cv.w/220;
                     [[104,54],[116,54]].forEach(([ex,ey]) => {
-                        const px = ex*rScale, py = ey*(cv.h/160);
-                        const eg = ctx.createRadialGradient(px,py,0,px,py,14*rScale);
+                        const px = cv.sx + ex*xS, py = cv.sy + ey*yS;
+                        const eg = ctx.createRadialGradient(px,py,0,px,py,14*xS);
                         eg.addColorStop(0, CRIM + eyePulse + ')');
                         eg.addColorStop(1, CRIM + '0)');
-                        ctx.beginPath(); ctx.arc(px, py, 14*rScale, 0, Math.PI*2);
+                        ctx.beginPath(); ctx.arc(px, py, 14*xS, 0, Math.PI*2);
                         ctx.fillStyle = eg; ctx.fill();
                     });
-                    // Flanking creature eyes (dimmer)
                     const eyeDim = eyePulse * 0.5;
                     [[59,70],[69,70],[151,70],[161,70]].forEach(([ex,ey]) => {
-                        const px = ex*rScale, py = ey*(cv.h/160);
-                        const eg2 = ctx.createRadialGradient(px,py,0,px,py,8*rScale);
+                        const px = cv.sx + ex*xS, py = cv.sy + ey*yS;
+                        const eg2 = ctx.createRadialGradient(px,py,0,px,py,8*xS);
                         eg2.addColorStop(0, CRIM + eyeDim + ')');
                         eg2.addColorStop(1, CRIM + '0)');
-                        ctx.beginPath(); ctx.arc(px, py, 8*rScale, 0, Math.PI*2);
+                        ctx.beginPath(); ctx.arc(px, py, 8*xS, 0, Math.PI*2);
                         ctx.fillStyle = eg2; ctx.fill();
                     });
                 }
 
-                // ── Panel 4: candle flicker sparks from sconces ─────────────
+                // ── Panel 4: sconce sparks + corridor glow ───────────────────
                 if (idx === 3) {
                     if (spawnTick > 80 && p4.length < 24) spawnTraveller(cv);
                     for (let i = p4.length-1; i >= 0; i--) {
@@ -2289,7 +2300,7 @@ function showEraTransition(raceName, onComplete) {
                         if (t4.trail.length > 6) t4.trail.shift();
                         t4.x += t4.vx; t4.y += t4.vy; t4.vx += (Math.random()-0.5)*0.07;
                         t4.life -= 0.012;
-                        if (t4.life <= 0 || t4.y < -4) { p4.splice(i,1); continue; }
+                        if (t4.life <= 0 || t4.y < cv.sy - 4) { p4.splice(i,1); continue; }
                         t4.trail.forEach((pt, ti) => {
                             const ta = (ti/t4.trail.length) * t4.life * 0.45;
                             ctx.beginPath(); ctx.arc(pt.x, pt.y, t4.size*0.5, 0, Math.PI*2);
@@ -2300,67 +2311,66 @@ function showEraTransition(raceName, onComplete) {
                         ctx.shadowBlur = 7; ctx.shadowColor = '#dc6e14';
                         ctx.fill(); ctx.shadowBlur = 0;
                     }
-                    // Sconce warmth glow — flickers per sconce
-                    const rScale = cv.w/220;
-                    [86/220, 134/220].forEach((xFrac, si) => {
+                    // Sconce warmth glows at mapped SVG positions
+                    const xS = cv.sw / 220, yS = cv.sh / 160;
+                    [[86/220, 58/160], [134/220, 58/160]].forEach(([xF, yF], si) => {
                         const flicker = 0.1 + 0.08 * Math.sin(cv.t*0.007 + si*2.1);
-                        const sx = cv.w * xFrac, sy = cv.h * (58/160);
-                        const sg = ctx.createRadialGradient(sx,sy,0,sx,sy,28*rScale);
+                        const sx = cv.sx + cv.sw * xF, sy = cv.sy + cv.sh * yF;
+                        const sg = ctx.createRadialGradient(sx,sy,0,sx,sy,28*xS);
                         sg.addColorStop(0, FIRE + flicker + ')');
                         sg.addColorStop(1, FIRE + '0)');
-                        ctx.beginPath(); ctx.arc(sx, sy, 28*rScale, 0, Math.PI*2);
+                        ctx.beginPath(); ctx.arc(sx, sy, 28*xS, 0, Math.PI*2);
                         ctx.fillStyle = sg; ctx.fill();
                     });
-                    // Distant doorway glow pulse
+                    // Distant doorway glow at vanishing point (110/220, 80/160 in SVG)
+                    const dpX = cv.sx + cv.sw * (110/220), dpY = cv.sy + cv.sh * (80/160);
                     const dp = 0.07 + 0.04 * Math.sin(cv.t*0.002);
-                    const dg = ctx.createRadialGradient(cv.w/2, cv.h*0.5, 0, cv.w/2, cv.h*0.5, 22);
+                    const dg = ctx.createRadialGradient(dpX, dpY, 0, dpX, dpY, 22*xS);
                     dg.addColorStop(0, TEAL + dp + ')'); dg.addColorStop(1, TEAL + '0)');
-                    ctx.beginPath(); ctx.arc(cv.w/2, cv.h*0.5, 22, 0, Math.PI*2);
+                    ctx.beginPath(); ctx.arc(dpX, dpY, 22*xS, 0, Math.PI*2);
                     ctx.fillStyle = dg; ctx.fill();
                 }
 
-                // ── Panel 5: heraldic gold pulse waves + coin glints ─────────
+                // ── Panel 5: heraldic pulse waves + coin glints ──────────────
                 if (idx === 4) {
                     if (spawnTick > 1600 && p5waves.length < 3) spawnWave(cv);
                     if (spawnTick > 300  && p5motes.length < 24) spawnFinalMote(cv);
-                    // Pulse rings from crest center
+                    const cx = cv.w/2, cy = cv.h*0.48;
                     for (let i = p5waves.length-1; i >= 0; i--) {
                         const w = p5waves[i];
-                        w.r += (w.maxR - w.r) * 0.01 + 0.35;
+                        w.r += (w.maxR - w.r)*0.01 + 0.35;
                         w.life -= 0.004;
                         if (w.life <= 0) { p5waves.splice(i,1); continue; }
-                        ctx.beginPath(); ctx.arc(cv.w/2, cv.h*0.48, w.r, 0, Math.PI*2);
+                        ctx.beginPath(); ctx.arc(cx, cy, w.r, 0, Math.PI*2);
                         ctx.strokeStyle = TEAL + (w.life*0.20) + ')';
                         ctx.lineWidth = 1.5; ctx.stroke();
                     }
-                    // Coin-glint motes — twinkle in and out
                     for (let i = p5motes.length-1; i >= 0; i--) {
                         const m = p5motes[i];
                         m.x += m.vx; m.y += m.vy; m.life -= 0.003;
                         m.twinklePhase += 0.07;
                         if (m.life <= 0) { p5motes.splice(i,1); continue; }
-                        const twinkle = 0.5 + 0.5 * Math.sin(m.twinklePhase);
+                        const twinkle = 0.5 + 0.5*Math.sin(m.twinklePhase);
                         ctx.beginPath(); ctx.arc(m.x, m.y, m.size, 0, Math.PI*2);
                         ctx.fillStyle = TEAL + (m.life * twinkle * 0.75) + ')';
                         ctx.shadowBlur = 7; ctx.shadowColor = '#c8a028';
                         ctx.fill(); ctx.shadowBlur = 0;
                     }
-                    // Jewel center crimson pulse
-                    const jp = 0.25 + 0.18 * Math.sin(cv.t * 0.003);
-                    const jg = ctx.createRadialGradient(cv.w/2, cv.h*0.37, 0, cv.w/2, cv.h*0.37, 16);
-                    jg.addColorStop(0, CRIM + jp + ')'); jg.addColorStop(1, CRIM + '0)');
-                    ctx.beginPath(); ctx.arc(cv.w/2, cv.h*0.37, 16, 0, Math.PI*2);
+                    // Jewel crimson pulse (shield center jewel at 220/440 x, 44/120 y)
+                    const jx = cv.w/2, jy = cv.h*(44/120);
+                    const jp = 0.25 + 0.18*Math.sin(cv.t*0.003);
+                    const jg = ctx.createRadialGradient(jx,jy,0,jx,jy,16);
+                    jg.addColorStop(0, CRIM+jp+')'); jg.addColorStop(1, CRIM+'0)');
+                    ctx.beginPath(); ctx.arc(jx, jy, 16, 0, Math.PI*2);
                     ctx.fillStyle = jg; ctx.fill();
                     // Slow rotating arc on outer crest ring
                     const rot = cv.t * 0.0003;
-                    const rr = cv.w * 0.245;
-                    ctx.beginPath();
-                    ctx.arc(cv.w/2, cv.h*0.48, rr, rot, rot + Math.PI*0.28);
+                    const rr  = cv.w * 0.122;  // ~54px ring radius scaled to canvas
+                    ctx.beginPath(); ctx.arc(cx, cy, rr, rot, rot + Math.PI*0.28);
                     ctx.strokeStyle = TEAL + '0.22)'; ctx.lineWidth = 2; ctx.stroke();
                 }
             });
 
-            // Reset spawn tick every 1s so spawn rates are consistent
             if (spawnTick > 1000) spawnTick = spawnTick % 1000;
         }
         _eraCanvasRAF = requestAnimationFrame(loopEraCanvas);
