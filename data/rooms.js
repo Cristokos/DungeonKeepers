@@ -15,6 +15,7 @@ const ROOMS = {
         cost: { wood: 10 },
         costScale: 1.05,
         jobs: 1,
+        workerName: "Farmer",
         production: { food: 2 },
     },
     lumber: {
@@ -22,6 +23,7 @@ const ROOMS = {
         cost: { wood: 10 },
         costScale: 1.1,
         jobs: 1,
+        workerName: "Lumberjack",
         production: { wood: 0.8 },
     },
     quarry: {
@@ -29,6 +31,7 @@ const ROOMS = {
         cost: { wood: 15 },
         costScale: 1.1,
         jobs: 1,
+        workerName: "Quarrier",
         production: { stone: 0.8 },
     },
     storage: {
@@ -45,6 +48,7 @@ const ROOMS = {
         cost: { stone: 25, wood: 10 },
         costScale: 1.12,
         jobs: 1,
+        workerName: "Miner",
         production: { ore: 0.6 },
         unlock: { quarry: 3 },
     },
@@ -91,6 +95,7 @@ const ROOMS = {
         coinCost: 100,
         costScale: 1.10,
         jobs: 1,
+        workerName: "Merchant",
         unlock: { farm: 2 },
         requiresResearch: ["taxes"],
     },
@@ -101,6 +106,7 @@ const ROOMS = {
         coinCost: 200,
         costScale: 1.10,
         jobs: 1,
+        workerName: "Carter",
         requiresResearch: ["tradeGoods"],
     },
     house: {
@@ -210,6 +216,7 @@ const ROOMS = {
         coinCost: 1500,
         costScale: 1.18,
         jobs: 2,
+        workerName: "Scribe",
         production: { lore: 1 },
         requiresResearch: ["loreKeeping"],
     },

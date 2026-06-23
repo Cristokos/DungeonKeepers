@@ -1103,7 +1103,10 @@ function _buildBldTooltipHTML(id, def) {
     if (!def.effect) {
         const r = _bldEffectRates(id, def);
         if (def.housingBonus) html += `<div class="bld-tt-line">+${def.housingBonus} Max Citizens</div>`;
-        if (def.jobs)         html += `<div class="bld-tt-line">Provides ${def.jobs} work slot${def.jobs !== 1 ? 's' : ''}</div>`;
+        if (def.jobs) {
+            const wn = def.workerName ? def.workerName : 'worker';
+            html += `<div class="bld-tt-line">Provides ${def.jobs} ${wn} slot${def.jobs !== 1 ? 's' : ''}</div>`;
+        }
         if (!def.production && !def.converts && !def.housingBonus && !def.jobs && r.cap) {
             html += `<div class="bld-tt-line">+${r.cap} to all material storage</div>`;
         }
