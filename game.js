@@ -1501,7 +1501,7 @@ function updateUI() {
         if (!card) continue;
         const done       = !!(gameState.research && gameState.research[key]);
         const prereqsMet = !def.requiresResearch || def.requiresResearch.every(k => gameState.research && gameState.research[k]);
-        const eraOk      = (RESEARCH_ERA[key] || 1) <= (gameState.run.era || 1);
+        const eraOk      = (RESEARCH_ERA[key] || 2) <= (gameState.run.era || 1);
         card.style.display = (!done && prereqsMet && eraOk) ? "" : "none";
         if (done) continue;
         const btn = document.getElementById("btn-research-" + key);
@@ -1672,38 +1672,33 @@ const BUILDING_ERA = {
 };
 
 // Era-gated research: defaults to Era 1 if not listed.
-const RESEARCH_ERA = {
-    // Era 2
-    deepMining: 2, coalBunker: 2, sulphurStudy: 2, crystalLore: 2,
-    bellowsDesign: 2, concentratedExtracts: 2, highFireKiln: 2, loomMastery: 2,
-    forgeMastery: 2, mortaredMasonry: 2, arcaneInscription: 2, crystalFocus: 2,
-    arcaneTapping: 2, guildCharter: 2, ironLockbox: 2, tradeGoods: 2, runicScript: 2,
-    // Era 3
-    essenceHarvest: 3, ichorRefinement: 3, silkCulture: 3, manaConductorCoils: 3,
-    mithrilTemper: 3, ritualPrep: 3, darkTexts: 3, silkenWarren: 3,
-    manaConduit: 3, dungeonBlueprint: 3,
-};
+// All research belongs to Era 2. Keys not listed here default to 2 via the || 2
+// fallback in eraOk. Add explicit era values only if future eras introduce research.
+const RESEARCH_ERA = {};
 
 // Research keys grouped by era — used to bulk-complete them in dev loadouts.
-const ERA_1_RESEARCH = [
-    "taxes", "toolcraft", "foragerLore", "cropRotation", "composting",
-    "herbGarden", "animalHusbandry", "timberfelling", "carpentry", "stonemason",
-    "quarrying", "oreProspecting", "packHunting", "trapLines", "bonecraft",
-    "reinforcedShelving", "dryCellar", "communalLiving", "bookkeeping",
-    "taxCollector", "roadNetwork", "rationing", "militiaDrill",
-    "silverCurrency", "goldStandard", "mintStandard", "goldOnly",
-];
+// Era 1 has no research (the research tab is introduced in Era 2).
 const ERA_2_RESEARCH = [
-    "deepMining", "coalBunker", "sulphurStudy", "crystalLore",
-    "bellowsDesign", "concentratedExtracts", "highFireKiln", "loomMastery",
-    "forgeMastery", "mortaredMasonry", "arcaneInscription", "crystalFocus",
-    "arcaneTapping", "guildCharter", "ironLockbox", "tradeGoods", "runicScript",
-    "loreKeeping",
+    // 2.1
+    "taxes", "toolcraft", "timberfelling", "stonemason", "cropRotation", "foragerLore",
+    // 2.2
+    "herbGarden", "animalHusbandry", "carpentry", "quarrying", "oreProspecting",
+    "coalBunker", "silverCurrency", "composting", "communalLiving", "taxCollector",
+    // 2.3
+    "deepMining", "crystalLore", "sulphurStudy", "bellowsDesign", "concentratedExtracts",
+    "highFireKiln", "loomMastery", "packHunting", "trapLines", "bonecraft",
+    "reinforcedShelving", "dryCellar", "militiaDrill", "bookkeeping", "rationing", "goldStandard",
+    // 2.4
+    "crystalFocus", "forgeMastery", "mortaredMasonry", "roadNetwork", "tradeGoods",
+    "guildCharter", "mintStandard", "arcaneTapping", "arcaneInscription", "loreKeeping", "ironLockbox",
+    // 2.5
+    "runicScript", "essenceHarvest", "ichorRefinement", "silkCulture", "manaConductorCoils",
+    "mithrilTemper", "ritualPrep", "darkTexts", "silkenWarren", "manaConduit", "goldOnly", "infernalLore",
+    // 2.6
+    "planarRites", "amnizuSummons", "dungeonBlueprint",
 ];
 const ERA_3_RESEARCH = [
-    "essenceHarvest", "ichorRefinement", "silkCulture", "manaConductorCoils",
-    "mithrilTemper", "ritualPrep", "darkTexts", "silkenWarren",
-    "manaConduit", "dungeonBlueprint",
+    // No Era 3 research designed yet — stub reserved for future content.
 ];
 
 // Default dev loadouts: representative fully-researched state for each era.
@@ -1730,7 +1725,7 @@ const ERA_LOADOUTS = {
             mageTower: 1, armory: 2, sulphurVent: 1, arcaneGrinder: 1, forge: 1, arcaneBench: 1,
             scriptorium: 2,
         },
-        research: [...ERA_1_RESEARCH, ...ERA_2_RESEARCH],
+        research: [...ERA_2_RESEARCH],
         resources: {
             food: 200, wood: 200, stone: 200, ore: 200,
             herbs: 100, coal: 150, clay: 100, bones: 100, crystals: 75, sulphur: 80,
@@ -1750,7 +1745,7 @@ const ERA_LOADOUTS = {
             scriptorium: 4,
             ritualCircle: 1, spiderNest: 1, arcaneCrucible: 1, darkAltar: 1, mithrilForge: 1,
         },
-        research: [...ERA_1_RESEARCH, ...ERA_2_RESEARCH, ...ERA_3_RESEARCH],
+        research: [...ERA_2_RESEARCH, ...ERA_3_RESEARCH],
         resources: {
             food: 200, wood: 200, stone: 200, ore: 200,
             herbs: 150, coal: 150, clay: 150, bones: 150, crystals: 75, sulphur: 80,
