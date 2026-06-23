@@ -2817,11 +2817,11 @@ body.reduce-motion *::after {
     pointer-events: none;
 }
 
-/* 2-column grid; panels stagger downward to signal read order */
+/* 2-column grid; no gap so panels share borders and touch each other */
 #era-comic-panels {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 10px 8px;
+    gap: 0;
     padding: 12px;
     width: min(740px, 92vw);
     box-sizing: border-box;
@@ -2831,10 +2831,11 @@ body.reduce-motion *::after {
 .era-panel {
     background: rgba(14,10,6,0.92);
     border: 1.5px solid rgba(140,110,50,0.35);
-    border-radius: 3px;
-    /* Aged parchment corner notches via box-shadow inset */
-    box-shadow: inset 0 0 0 1px rgba(200,160,40,0.07),
-                0 2px 12px rgba(0,0,0,0.5);
+    border-radius: 0;
+    /* Collapse double-borders between adjacent panels */
+    margin-right: -1.5px;
+    margin-bottom: -1.5px;
+    box-shadow: inset 0 0 0 1px rgba(200,160,40,0.07);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -2855,15 +2856,18 @@ body.reduce-motion *::after {
 }
 .era-panel:hover {
     border-color: var(--era-gold);
+    /* Lift hovered panel above neighbour so its border shows fully */
+    z-index: 1;
     box-shadow: inset 0 0 0 1px rgba(200,160,40,0.1),
-                0 2px 18px rgba(200,140,20,0.18);
+                0 0 18px rgba(200,140,20,0.22);
 }
 
-/* Straight stagger — doubled from previous (was 0/22/44/66 → now 0/44/88/132) */
+/* Right column (panels II and IV) offset downward so the layout reads
+   diagonally I→II→III→IV. All edges remain flush — no gap between panels. */
 #era-panel-1 { margin-top: 0; }
-#era-panel-2 { margin-top: 44px; }
-#era-panel-3 { margin-top: 88px; }
-#era-panel-4 { margin-top: 132px; }
+#era-panel-2 { margin-top: 48px; }
+#era-panel-3 { margin-top: 0; }
+#era-panel-4 { margin-top: 48px; }
 #era-panel-5 { margin-top: 0; }
 
 /* Panel V spans full width and is the climax */
@@ -2872,8 +2876,9 @@ body.reduce-motion *::after {
     justify-content: center;
     border-color: rgba(200,160,40,0.3);
     background: rgba(10,7,4,0.96);
+    margin-right: 0;  /* full-width panel doesn't need the border collapse offset */
     box-shadow: inset 0 0 0 1px rgba(200,160,40,0.1),
-                0 2px 24px rgba(200,130,20,0.2);
+                0 0 24px rgba(200,130,20,0.18);
 }
 .era-panel-final.era-panel-in {
     border-color: var(--era-gold);

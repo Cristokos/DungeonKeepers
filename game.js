@@ -605,6 +605,19 @@ function setWorkersMax(btn) {
     setWorkers(id, 99999);
 }
 
+// Returns the stacked multiplicative bonus from buildings that carry a
+// productionBonus field (e.g. runeObelisk gives +5% per count to essenceWell).
+function getBuildingProductionBonus(targetId) {
+    let mult = 1;
+    for (const [id, def] of Object.entries(ROOMS)) {
+        if (!def.productionBonus || !def.productionBonus[targetId]) continue;
+        const n = gameState.buildings[id] || 0;
+        if (n === 0) continue;
+        mult *= Math.pow(def.productionBonus[targetId], n);
+    }
+    return mult;
+}
+
 function getProduction() {
     const prod      = {};
     for (const res of Object.keys(BASE_CAPS)) prod[res] = 0;
@@ -617,7 +630,8 @@ function getProduction() {
         // Worker buildings scale by assigned workers; all others scale by building count
         const n = def.jobs ? (workers[id] || 0) : count;
         if (n === 0) continue;
-        const bldgMult = getResearchBonus('productionBonus', id);
+        const bldgMult = getResearchBonus('productionBonus', id)
+                       * getBuildingProductionBonus(id);
         for (const [res, rate] of Object.entries(def.production)) {
             prod[res] = (prod[res] || 0) + rate * n * bldgMult * allBonus;
         }
@@ -1542,7 +1556,7 @@ const ERA_LOADOUTS = {
     1: {
         population: 5,
         buildings: {
-            essenceWell: 30,
+            essenceWell: 30, runeObelisk: 5,
             essenceConduit: 5, manaCrucible: 5,
             essenceReservoir: 5, influenceShrine: 5, manaFont: 5,
         },

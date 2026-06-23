@@ -239,6 +239,16 @@ const ROOMS = {
         effect: (r) => `Automatically generate ${r.out} Essence.`,
         flavor: "A crack in the dark where something older than thought seeps through.",
     },
+    runeObelisk: {
+        name: "Focused Meditation",
+        cost: { essence: 40, influence: 10 },
+        costScale: 1.12,
+        productionBonus: { essenceWell: 1.05 },
+        unlock: { essenceWell: 10 },
+        desc: "A disciplined practice of inward focus that deepens the flow of essence from each well. Each repetition refines the technique further.",
+        effect: (r) => `All Essence Wells produce 5% more Essence (stacks multiplicatively).`,
+        flavor: "Not a place. Not a tool. Just the mind, turned inward, finding what was always there.",
+    },
     essenceConduit: {
         name: "Essence Conduit",
         cost: { essence: 35, influence: 20 },
