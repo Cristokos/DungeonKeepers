@@ -213,7 +213,7 @@ RESEARCH.dryCellar = {
 
 RESEARCH.ironLockbox = {
     name: "Iron Lockbox",
-    desc: "A bolted iron chest for the village treasury. Coin cap increased by 500 gp (50,000 cp).",
+    desc: "A bolted iron chest for the village treasury. Coin cap increased by 50,000 cp on top of the current currency tier's base.",
     cost: { iron: 60, stone: 40, coins: 500 },
     requiresResearch: ["taxCollector"],
     effects: { flag: "ironLockbox" },

@@ -17,7 +17,10 @@ const BASE_CAPS = {
     // Era 1 resources (cap overridden dynamically while era === 1)
     essence: 100, influence: 100, mana: 100,
 };
-const COIN_CAP = 100000; // 1000 gp in copper pieces; coins do not use Storage bonuses
+// Base coin cap scales with currency tier: 1000 cp → 1000 sp (100,000 cp) → 1000 gp (1,000,000 cp)
+const COIN_CAP_CP = 1000;
+const COIN_CAP_SP = 100000;   // 1000 sp in cp
+const COIN_CAP_GP = 1000000;  // 1000 gp in cp
 
 // ── Biome data ────────────────────────────────────────────────────────────────
 
@@ -762,6 +765,110 @@ function initResTooltips() {
     });
 }
 
+// ── Gather action tooltips ────────────────────────────────────────────────────
+
+let _gatherTooltipEl  = null;
+let _gatherTooltipTmr = null;
+let _gatherTooltipKey = null;
+let _gatherMouseX     = 0;
+let _gatherMouseY     = 0;
+
+function _buildGatherTooltipHTML(key) {
+    const action = GATHER_ACTIONS[key];
+    if (!action) return '';
+    const res = action.resource;
+    const resLabel = res.charAt(0).toUpperCase() + res.slice(1);
+    const raceData = RACE_DATA[gameState.run && gameState.run.race];
+    const raceName = gameState.run && gameState.run.race;
+
+    const rows = [];
+
+    // Base yield
+    rows.push({ label: 'Base yield', val: '+' + action.amount, cls: '' });
+
+    // allGatherBonus from research
+    for (const [rKey, rDef] of Object.entries(RESEARCH)) {
+        if (!gameState.research || !gameState.research[rKey]) continue;
+        const v = rDef.effects && rDef.effects.allGatherBonus;
+        if (v) rows.push({ label: rDef.name, val: '+' + v, cls: 'pos', muted: true });
+    }
+    // gatherBonus (resource-specific) from research
+    for (const [rKey, rDef] of Object.entries(RESEARCH)) {
+        if (!gameState.research || !gameState.research[rKey]) continue;
+        const gb = rDef.effects && rDef.effects.gatherBonus;
+        if (gb && gb[res]) rows.push({ label: rDef.name, val: '+' + gb[res], cls: 'pos', muted: true });
+    }
+
+    // Race: allGatherBonus
+    if (raceData && raceData.effects) {
+        const raceAll = raceData.effects.allGatherBonus;
+        if (raceAll) rows.push({ label: raceName + ' (race)', val: '+' + raceAll, cls: 'pos', muted: true });
+        const raceSpec = raceData.effects.gatherBonus && raceData.effects.gatherBonus[res];
+        if (raceSpec) rows.push({ label: raceName + ' (race)', val: '+' + raceSpec, cls: 'pos', muted: true });
+    }
+
+    // Biome mod bonus
+    const modName = GATHER_MOD_BONUSES[res];
+    if (modName && hasActiveMod(modName)) {
+        rows.push({ label: modName + ' (biome)', val: '+1', cls: 'pos', muted: true });
+    }
+
+    const total = getGatherAmount(key);
+
+    let html = `<div class="gather-tt-header">${action.label}</div>`;
+    for (const r of rows) {
+        html += `<div class="gather-tt-row">
+            <span class="gather-tt-label${r.muted ? ' muted' : ''}">${r.label}</span>
+            <span class="gather-tt-val${r.cls ? ' ' + r.cls : ''}">${r.val}</span>
+        </div>`;
+    }
+    html += `<div class="gather-tt-total"><span>${resLabel} per click</span><span>+${total}</span></div>`;
+    return html;
+}
+
+function _showGatherTooltip(key) {
+    if (!_gatherTooltipEl) return;
+    _gatherTooltipEl.innerHTML = _buildGatherTooltipHTML(key);
+    _gatherTooltipEl.style.display = 'block';
+    _positionGatherTooltip();
+}
+
+function _positionGatherTooltip() {
+    if (!_gatherTooltipEl || _gatherTooltipEl.style.display === 'none') return;
+    const tw = _gatherTooltipEl.offsetWidth;
+    const th = _gatherTooltipEl.offsetHeight;
+    let x = _gatherMouseX + 14;
+    let y = _gatherMouseY - 8;
+    if (x + tw > window.innerWidth - 8)  x = _gatherMouseX - tw - 10;
+    if (y + th > window.innerHeight - 8) y = window.innerHeight - th - 8;
+    _gatherTooltipEl.style.left = x + 'px';
+    _gatherTooltipEl.style.top  = y + 'px';
+}
+
+function _hideGatherTooltip() {
+    clearTimeout(_gatherTooltipTmr);
+    _gatherTooltipTmr = null;
+    _gatherTooltipKey = null;
+    if (_gatherTooltipEl) _gatherTooltipEl.style.display = 'none';
+}
+
+function initGatherTooltips() {
+    _gatherTooltipEl = document.getElementById('gather-tooltip');
+    for (const key of Object.keys(GATHER_ACTIONS)) {
+        const btn = document.getElementById('action-' + key);
+        if (!btn) continue;
+        btn.addEventListener('mousemove', e => {
+            _gatherMouseX = e.clientX;
+            _gatherMouseY = e.clientY;
+            _gatherTooltipKey = key;
+            clearTimeout(_gatherTooltipTmr);
+            if (_gatherTooltipEl) _gatherTooltipEl.style.display = 'none';
+            _gatherTooltipTmr = setTimeout(() => _showGatherTooltip(key), 1200);
+        });
+        btn.addEventListener('mouseleave', _hideGatherTooltip);
+    }
+}
+
 // ── Building tooltips ─────────────────────────────────────────────────────────
 
 function _bldEffectRates(id, def) {
@@ -868,10 +975,15 @@ function getCaps() {
     // Lore cap: 25 per Scriptorium, plus any capBonus from research
     caps.lore = (gameState.buildings.scriptorium || 0) * 25
               + getResearchBonus('capBonus', 'lore');
-    // Coin cap; ironLockbox adds 50,000 cp; race capBonus.coins also applies
-    caps.coins = COIN_CAP
-        + ((gameState.research && gameState.research.ironLockbox) ? 50000 : 0)
-        + getResearchBonus('capBonus', 'coins');
+    // Coin cap scales with currency tier; ironLockbox adds 50,000 cp; racial coinCapBonus applies
+    const r2 = gameState.research || {};
+    const baseCoinCap = r2.goldStandard ? COIN_CAP_GP : r2.silverCurrency ? COIN_CAP_SP : COIN_CAP_CP;
+    const raceEffects = (RACE_DATA[gameState.run && gameState.run.race] || {}).effects || {};
+    const raceCCB = raceEffects.coinCapBonus || {};
+    const raceCoinBonus = (raceCCB.flat || 0) + Math.floor(baseCoinCap * (raceCCB.pct || 0));
+    caps.coins = baseCoinCap
+        + (r2.ironLockbox ? 50000 : 0)
+        + raceCoinBonus;
     // Era 1: base caps of 100 for Era 1 resources, raised by storage buildings
     if ((gameState.run.era || 1) === 1) {
         const reservoirBonus = getReservoirBonus();
@@ -3301,9 +3413,9 @@ const LEGENDARY_ROSTER = {
         },
         "Draconic": {
             tag: "tag-draconic",
-            effects: { foodConsumption: 2.0, growthBonus: 2.5, allProductionBonus: 0.15, capBonus: { coins: 15000 } },
+            effects: { foodConsumption: 2.0, growthBonus: 2.5, allProductionBonus: 0.15, coinCapBonus: { flat: 1000, pct: 0.10 } },
             mods: [
-                { name: "Dragon's Hoard",    pos: true,  desc: "Coin cap +15,000 cp — hoarding is instinct." },
+                { name: "Dragon's Hoard",    pos: true,  desc: "Coin cap +1,000 coins + 10% of tier base — hoarding is instinct." },
                 { name: "Draconic Might",    pos: true,  desc: "All passive production +15%." },
                 { name: "Ravenous Appetite", pos: false, desc: "Population eats ×2 food per tick." },
                 { name: "Apex Rarity",       pos: false, desc: "Growth timer 2.5× longer — draconic creatures are few but formidable." },
@@ -3442,8 +3554,8 @@ const LEGENDARY_ROSTER = {
         },
         "Metallic Dragon": {
             desc: "Noble and wise, metallic dragons accumulate vast treasures and forge alliances that yield enormous wealth.",
-            extraEffects: { capBonus: { coins: 5000 } },
-            extraMods: [{ name: "Noble Hoard", pos: true, desc: "Coin cap +5,000 beyond base Draconic bonus (total +20,000)." }],
+            extraEffects: { coinCapBonus: { flat: 1000, pct: 0.10 } },
+            extraMods: [{ name: "Noble Hoard", pos: true, desc: "Coin cap +1,000 coins + 10% of tier base, stacking with Draconic bonus." }],
         },
         "Lizardfolk": {
             desc: "Cold-blooded and pragmatic, lizardfolk are cunning hunters who need surprisingly little food to stay sharp.",
@@ -3779,8 +3891,8 @@ const LEGENDARY_ROSTER = {
         },
         "Rakshasa": {
             desc: "Tiger-headed sorcerer-lords who scheme and trade across planes. Their mercantile genius multiplies coin income dramatically.",
-            extraEffects: { taxBonus: 1, capBonus: { coins: 5000 } },
-            extraMods: [{ name: "Planar Merchant", pos: true, desc: "+1 cp/creature/day; Coin cap +5,000." }],
+            extraEffects: { taxBonus: 1, coinCapBonus: { flat: 1000, pct: 0.10 } },
+            extraMods: [{ name: "Planar Merchant", pos: true, desc: "+1 cp/creature/day; Coin cap +1,000 coins + 10% of tier base." }],
         },
         "Quasit": {
             desc: "A lesser demon and spy. Quasits sneak into rival operations and bring back knowledge, subtly improving gather efficiency.",
@@ -3819,8 +3931,8 @@ const LEGENDARY_ROSTER = {
         },
         "Storm Giant": {
             desc: "The mightiest of giants, Storm Giants command weather itself. Their power radiates into all production.",
-            extraEffects: { allProductionBonus: 0.15, capBonus: { coins: 5000 } },
-            extraMods: [{ name: "Storm's Command", pos: true, desc: "Extra +15% all production; Coin cap +5,000." }],
+            extraEffects: { allProductionBonus: 0.15, coinCapBonus: { flat: 1000, pct: 0.10 } },
+            extraMods: [{ name: "Storm's Command", pos: true, desc: "Extra +15% all production; Coin cap +1,000 coins + 10% of tier base." }],
         },
 
         // ── Construct ─────────────────────────────────────────────────────────
@@ -4013,9 +4125,9 @@ const LEGENDARY_ROSTER = {
         },
         "Kraken": { // legendary — earned, not chosen
             desc: "The ancient terror of the deep ocean. A kraken's immense intelligence and dominion over water amplifies all aquatic and storage operations to impossible scales.",
-            extraEffects: { allProductionBonus: 0.08, storageBonus: 30, capBonus: { food: 200, coins: 10000 }, foodConsumption: 2.5, lairHousing: 1 },
+            extraEffects: { allProductionBonus: 0.08, storageBonus: 30, capBonus: { food: 200 }, coinCapBonus: { flat: 1000, pct: 0.10 }, foodConsumption: 2.5, lairHousing: 1 },
             extraMods: [
-                { name: "Deep Dominion",    pos: true,  desc: "Extra +8% all production; Storage buildings hold 30 more; Food cap +200; Coin cap +10,000." },
+                { name: "Deep Dominion",    pos: true,  desc: "Extra +8% all production; Storage buildings hold 30 more; Food cap +200; Coin cap +1,000 coins + 10% of tier base." },
                 { name: "Titanic Appetite", pos: false, desc: "Consumes 2.5× the food of a normal Aquatic creature; only 1 fits per lair." },
             ],
         },
@@ -4367,6 +4479,7 @@ updateIdentityPanel();
 devPopulateRaceSelect();
 _initDevTransitionSelect();
 initResTooltips();
+initGatherTooltips();
 initBldTooltips();
 initIdentityTooltips();
 setInterval(tick, 1000);
