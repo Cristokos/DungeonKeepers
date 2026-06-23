@@ -898,6 +898,18 @@ h3 {
     gap: 6px;
 }
 
+.grid-section-label {
+    grid-column: 1 / -1;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    padding: 4px 2px 0;
+    border-top: 1px solid var(--border);
+    margin-top: 2px;
+}
+
 /* BUILD BUTTON */
 .build-btn {
     position: relative;

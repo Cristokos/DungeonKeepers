@@ -613,19 +613,15 @@
         <div class="tab-body tab-content" id="tab-awakening">
             <div id="era1-actions" class="era1-actions"></div>
 
-            <h2>Production</h2>
+            <h2>Production &amp; Upgrades</h2>
             <div class="grid" id="era1-buildings">
+
+                <div class="grid-section-label">Production</div>
 
                 <button class="build-btn disabled" onclick="build('essenceWell')" id="btn-essenceWell">
                     <div class="btn-title">Essence Well</div>
                     <div class="btn-count" id="essenceWellCount">0</div>
                     <div class="btn-cost" id="essenceWellCost"></div>
-                </button>
-
-                <button class="build-btn disabled" onclick="build('runeObelisk')" id="btn-runeObelisk" style="display:none">
-                    <div class="btn-title">Focused Meditation</div>
-                    <div class="btn-count" id="runeObeliskCount">0</div>
-                    <div class="btn-cost" id="runeObeliskCost"></div>
                 </button>
 
                 <button class="build-btn disabled" onclick="build('essenceConduit')" id="btn-essenceConduit" style="display:none">
@@ -639,6 +635,8 @@
                     <div class="btn-count" id="manaCrucibleCount">0</div>
                     <div class="btn-cost" id="manaCrucibleCost"></div>
                 </button>
+
+                <div class="grid-section-label" id="era1-label-storage" style="display:none">Storage</div>
 
                 <button class="build-btn disabled" onclick="build('essenceReservoir')" id="btn-essenceReservoir" style="display:none">
                     <div class="btn-title">Essence Reservoir</div>
@@ -656,6 +654,14 @@
                     <div class="btn-title">Mana Reservoir</div>
                     <div class="btn-count" id="manaFontCount">0</div>
                     <div class="btn-cost" id="manaFontCost"></div>
+                </button>
+
+                <div class="grid-section-label" id="era1-label-upgrades" style="display:none">Upgrades</div>
+
+                <button class="build-btn disabled" onclick="build('runeObelisk')" id="btn-runeObelisk" style="display:none">
+                    <div class="btn-title">Focused Meditation</div>
+                    <div class="btn-count" id="runeObeliskCount">0</div>
+                    <div class="btn-cost" id="runeObeliskCost"></div>
                 </button>
 
                 <button class="build-btn disabled" onclick="buyReservoirUpgrade()" id="btn-expandedAwareness" style="display:none">

@@ -1341,6 +1341,21 @@ function updateUI() {
         if (costEl) costEl.textContent = `${getReservoirUpgradeCost()} Essence`;
     }
 
+    // Era 1 section labels
+    {
+        const storageVisible = ['essenceReservoir', 'influenceShrine', 'manaFont']
+            .some(id => { const b = document.getElementById('btn-' + id); return b && b.style.display !== 'none'; });
+        const storageLabel = document.getElementById('era1-label-storage');
+        if (storageLabel) storageLabel.style.display = storageVisible ? '' : 'none';
+
+        const runeBtn = document.getElementById('btn-runeObelisk');
+        const eaBtn   = document.getElementById('btn-expandedAwareness');
+        const upgradesVisible = (runeBtn && runeBtn.style.display !== 'none')
+                             || (eaBtn   && eaBtn.style.display   !== 'none');
+        const upgradesLabel = document.getElementById('era1-label-upgrades');
+        if (upgradesLabel) upgradesLabel.style.display = upgradesVisible ? '' : 'none';
+    }
+
     // Research tab
     for (const [key, def] of Object.entries(RESEARCH)) {
         const card = document.getElementById("research-" + key);
