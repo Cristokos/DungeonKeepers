@@ -2045,16 +2045,28 @@ function showEraTransition(raceName, onComplete) {
     if (_eraTimerTimeout) { clearTimeout(_eraTimerTimeout); _eraTimerTimeout = null; }
 
     // Reset state
-    panels.forEach(p => p.classList.remove('era-panel-in'));
+    panels.forEach(p => {
+        p.classList.remove('era-panel-in');
+        p.querySelectorAll('.era-panel-lore').forEach(l => l.classList.remove('era-lore-in'));
+    });
     btn.classList.remove('era-btn-in', 'era-btn-pulse');
     if (arc) { arc.style.strokeDashoffset = '0'; arc.style.stroke = '#c8a028'; }
     overlay.classList.remove('era-hiding');
     overlay.classList.add('era-active');
 
-    // Stagger panels in
-    const delays = [120, 360, 600, 860, 1180];
+    // Stagger panels in, then fade lore text in 400ms after each panel
+    const delays = [150, 750, 1350, 1950, 2700];
     panels.forEach((p, i) => {
-        setTimeout(() => p.classList.add('era-panel-in'), delays[i]);
+        setTimeout(() => {
+            p.classList.add('era-panel-in');
+            // Panel V lore is part of the panel itself — no separate trigger needed
+            if (i < 4) {
+                setTimeout(() => {
+                    const lore = p.querySelector('.era-panel-lore');
+                    if (lore) lore.classList.add('era-lore-in');
+                }, 400);
+            }
+        }, delays[i]);
     });
 
     // ── Per-panel canvas particle animations, staggered 3s apart ──────────────

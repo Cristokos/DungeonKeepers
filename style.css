@@ -2831,64 +2831,53 @@ body.reduce-motion *::after {
 
 /* 2-column grid; no gap so panels share borders and touch each other */
 #era-comic-panels {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+    display: flex;
+    flex-direction: column;
     gap: 0;
     padding: 12px;
-    width: min(740px, 92vw);
+    width: min(640px, 92vw);
     box-sizing: border-box;
-    align-items: start;
 }
 
 .era-panel {
     background: rgba(14,10,6,0.92);
     border: 1.5px solid rgba(140,110,50,0.35);
     border-radius: 0;
-    /* Collapse double-borders between adjacent panels */
-    margin-right: -1.5px;
     margin-bottom: -1.5px;
     box-shadow: inset 0 0 0 1px rgba(200,160,40,0.07);
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
-    justify-content: flex-end;
-    padding: 10px 12px 12px;
+    padding: 14px 20px;
+    gap: 18px;
     position: relative;
     overflow: hidden;
     opacity: 0;
-    transform: translateY(14px) scale(0.97);
-    transition: opacity 0.42s cubic-bezier(0.22,0.61,0.36,1),
-                transform 0.42s cubic-bezier(0.22,0.61,0.36,1),
+    transform: translateY(16px);
+    transition: opacity 0.65s cubic-bezier(0.22,0.61,0.36,1),
+                transform 0.65s cubic-bezier(0.22,0.61,0.36,1),
                 border-color 0.35s ease,
                 box-shadow 0.35s ease;
 }
 .era-panel.era-panel-in {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: translateY(0);
 }
 .era-panel:hover {
     border-color: var(--era-gold);
-    /* Lift hovered panel above neighbour so its border shows fully */
     z-index: 1;
     box-shadow: inset 0 0 0 1px rgba(200,160,40,0.1),
                 0 0 18px rgba(200,140,20,0.22);
 }
 
-/* Right column (panels II and IV) offset downward so the layout reads
-   diagonally I→II→III→IV. All edges remain flush — no gap between panels. */
-#era-panel-1 { margin-top: 0; }
-#era-panel-2 { margin-top: 48px; }
-#era-panel-3 { margin-top: 0; }
-#era-panel-4 { margin-top: 48px; }
-#era-panel-5 { margin-top: 0; }
-
-/* Panel V spans full width and is the climax */
+/* Panel V — full-width cinematic banner */
 .era-panel-final {
-    grid-column: 1 / -1;
+    flex-direction: column;
     justify-content: center;
+    align-items: center;
+    margin-bottom: 0;
     border-color: rgba(200,160,40,0.3);
     background: rgba(10,7,4,0.96);
-    margin-right: 0;  /* full-width panel doesn't need the border collapse offset */
     box-shadow: inset 0 0 0 1px rgba(200,160,40,0.1),
                 0 0 24px rgba(200,130,20,0.18);
 }
@@ -2910,29 +2899,49 @@ body.reduce-motion *::after {
 }
 
 .era-panel-svg {
-    flex: 1;
-    width: 100%;
-    max-height: 120px;
+    flex: 0 0 auto;
+    width: 180px;
+    height: 130px;
     overflow: visible;
     position: relative;
     z-index: 1;
 }
 
+/* Lore text — shared base */
 .era-panel-lore {
     font-family: 'Cinzel', 'Georgia', serif;
-    font-size: 10px;
-    color: rgba(220,190,130,0.75);
-    text-align: center;
-    margin: 6px 0 0;
+    font-size: 10.5px;
+    color: rgba(220,190,130,0.0);  /* starts invisible for its own fade */
+    flex: 1;
     font-style: normal;
-    line-height: 1.5;
+    line-height: 1.7;
     letter-spacing: 0.04em;
+    transition: color 0.55s ease, opacity 0.55s ease;
+    opacity: 0;
 }
 .era-panel-lore em {
     color: var(--era-gold);
     font-style: italic;
 }
+/* Left-aligned lore (panels I and III) */
+.era-lore-left {
+    text-align: left;
+    order: -1;   /* lore before SVG */
+}
+/* Right-aligned lore (panels II and IV) */
+.era-lore-right {
+    text-align: right;
+    order: 1;    /* lore after SVG */
+}
+/* Lore becomes visible when panel is in AND lore is triggered */
+.era-panel-lore.era-lore-in {
+    color: rgba(220,190,130,0.8);
+    opacity: 1;
+}
 .era-panel-lore-race {
+    color: rgba(220,190,130,0.0);
+}
+.era-panel-lore-race.era-lore-in {
     color: rgba(220,190,130,0.85);
 }
 .era-panel-lore-race em {
@@ -2949,6 +2958,9 @@ body.reduce-motion *::after {
     font-style: normal;
     letter-spacing: 0.06em;
     margin: 8px 0 0;
+    /* tagline is part of panel V which fades as a whole */
+    opacity: 1;
+    transition: none;
 }
 
 /* Panel number badge — top-left corner */
