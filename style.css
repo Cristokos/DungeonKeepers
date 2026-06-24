@@ -1647,15 +1647,15 @@ kbd {
 .creature-list {
     display: flex;
     flex-direction: column;
-    gap: 3px;
+    gap: 7px;
 }
 
 .creature-entry {
     display: grid;
     grid-template-columns: 88px 1fr;
     align-items: start;
-    gap: 1px 10px;
-    padding: 6px 8px 6px 11px;
+    gap: 3px 10px;
+    padding: 9px 10px 9px 13px;
     background: var(--bg-panel);
     border: 1px solid var(--border);
     border-radius: 3px;
