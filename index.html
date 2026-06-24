@@ -489,6 +489,7 @@
                 <span id="coinsDisplay">0 cp</span>
                 <span class="res-label-sm"> / <span id="coinsCap">1000 gp</span></span>
             </span>
+            <span id="coinsRate" class="rate" style="display:none"></span>
         </div>
 
         <h2 class="section-gap era2-only">Resources</h2>
@@ -1069,6 +1070,12 @@
 
             <h2>Research</h2>
 
+            <div class="research-sub-tabs">
+                <button class="research-sub-tab-btn active" data-tab="available" onclick="switchResearchTab('available')">Available</button>
+                <button class="research-sub-tab-btn" data-tab="completed" onclick="switchResearchTab('completed')">Completed</button>
+            </div>
+
+            <div id="research-panel-available">
             <div class="research-list" style="margin-top:10px">
 
                 <!-- Chain 1: Gathering -->
@@ -1980,6 +1987,11 @@
                     <button class="research-btn" id="btn-research-grandLibrary" onclick="doResearch('grandLibrary')">Research</button>
                 </div>
 
+            </div>
+            </div><!-- /research-panel-available -->
+
+            <div id="research-panel-completed" style="display:none">
+                <div id="completed-research-grid" class="completed-research-grid"></div>
             </div>
 
         </div><!-- /tab-research -->

@@ -1044,6 +1044,12 @@ function initGatherTooltips() {
 
 // ── Building tooltips ─────────────────────────────────────────────────────────
 
+function _fmtRate(n) {
+    if (n >= 10)  return fmt(n);
+    if (n >= 1)   return n.toFixed(1);
+    return n.toFixed(2);
+}
+
 function _bldEffectRates(id, def) {
     const convMult = getResearchBonus('converterBonus', id);
     const allBonus = (1 + getResearchBonus('allProductionBonus')) * getQuintessenceProductionMult();
@@ -1051,14 +1057,14 @@ function _bldEffectRates(id, def) {
         const bldgMult = getResearchBonus('productionBonus', id);
         const entries = Object.entries(def.production);
         const [, firstRate] = entries[0];
-        const outputs = entries.map(([res, rate]) => ({ res, rate: fmt(rate * TICKS_PER_DAY * bldgMult * allBonus) }));
-        return { out: fmt(firstRate * TICKS_PER_DAY * bldgMult * allBonus), outputs };
+        const outputs = entries.map(([res, rate]) => ({ res, rate: _fmtRate(rate * TICKS_PER_DAY * bldgMult * allBonus) }));
+        return { out: _fmtRate(firstRate * TICKS_PER_DAY * bldgMult * allBonus), outputs };
     }
     if (def.converts) {
         const inputRate = Object.values(def.converts.inputs)[0];
         return {
-            in:  fmt(inputRate * TICKS_PER_DAY),
-            out: fmt(def.converts.outputRate * convMult * TICKS_PER_DAY),
+            in:  _fmtRate(inputRate * TICKS_PER_DAY),
+            out: _fmtRate(def.converts.outputRate * convMult * TICKS_PER_DAY),
         };
     }
     // Storage buildings — cap bonus is currently fixed at 100
@@ -1146,7 +1152,7 @@ function _buildBldTooltipHTML(id, def) {
             html += `<div class="bld-tt-effect">Produces ${r.out} ${outName}</div>`;
             for (const [inRes, inRate] of Object.entries(def.converts.inputs)) {
                 const inName = (RESOURCES[inRes] && RESOURCES[inRes].name) || (inRes.charAt(0).toUpperCase() + inRes.slice(1));
-                html += `<div class="bld-tt-consume">Consumes ${fmt(inRate * TICKS_PER_DAY)} ${inName}</div>`;
+                html += `<div class="bld-tt-consume">Consumes ${_fmtRate(inRate * TICKS_PER_DAY)} ${inName}</div>`;
             }
         }
         if (def.housingBonus) html += `<div class="bld-tt-effect">+${def.housingBonus} Max Citizens</div>`;
@@ -1209,6 +1215,49 @@ function initResearchTooltips() {
         el.addEventListener('mousemove', e => {
             if (!_bldTooltipEl) return;
             _bldTooltipEl.innerHTML = _buildResearchTooltipHTML(key, def);
+            _positionBldTooltip(e);
+        });
+        el.addEventListener('mouseleave', () => { if (_bldTooltipEl) _bldTooltipEl.style.display = 'none'; });
+    });
+}
+
+function switchResearchTab(tab) {
+    document.querySelectorAll('.research-sub-tab-btn').forEach(b => {
+        b.classList.toggle('active', b.dataset.tab === tab);
+    });
+    const available = document.getElementById('research-panel-available');
+    const completed = document.getElementById('research-panel-completed');
+    if (available) available.style.display = tab === 'available' ? '' : 'none';
+    if (completed) completed.style.display = tab === 'completed' ? '' : 'none';
+    if (tab === 'completed') renderCompletedResearch();
+}
+
+function renderCompletedResearch() {
+    const grid = document.getElementById('completed-research-grid');
+    if (!grid) return;
+    const done = gameState.research || {};
+    const keys = Object.keys(done).filter(k => done[k]);
+    if (!keys.length) {
+        grid.innerHTML = '<div class="completed-empty">No research completed yet.</div>';
+        return;
+    }
+    grid.innerHTML = keys.map(key => {
+        const def = RESEARCH[key];
+        if (!def) return '';
+        return `<span class="completed-pill" data-rkey="${key}">${def.name}</span>`;
+    }).join('');
+
+    grid.querySelectorAll('.completed-pill').forEach(el => {
+        const key = el.dataset.rkey;
+        const def = RESEARCH[key];
+        if (!def) return;
+        el.addEventListener('mouseenter', () => {
+            if (!_bldTooltipEl) return;
+            _bldTooltipEl.innerHTML = _buildResearchTooltipHTML(key, def);
+            _bldTooltipEl.style.display = 'block';
+        });
+        el.addEventListener('mousemove', e => {
+            if (!_bldTooltipEl) return;
             _positionBldTooltip(e);
         });
         el.addEventListener('mouseleave', () => { if (_bldTooltipEl) _bldTooltipEl.style.display = 'none'; });
@@ -1848,6 +1897,33 @@ function fmtRate(r) {
     return (perDay > 0 ? "+" : "") + perDay.toFixed(1);
 }
 
+function getCoinsDailyRate() {
+    let net = 0;
+    const taxRate = getResearchBonus('taxBonus');
+    if (taxRate > 0) net += gameState.population.count * taxRate;
+    if (gameState.research && gameState.research.tradeGoods) {
+        const caps = getCaps();
+        const clothOk   = (gameState.resources.cloth   || 0) >= (caps.cloth   || 0) * 0.75;
+        const potionsOk = (gameState.resources.potions || 0) >= (caps.potions || 0) * 0.75;
+        if (clothOk && potionsOk) net += 10;
+    }
+    const stallWorkers = (gameState.workerAssignments && gameState.workerAssignments.marketStall) || 0;
+    if (stallWorkers > 0) net += stallWorkers * 5;
+    if (gameState.tradeRoutes && gameState.tradeRoutes.length > 0) {
+        const fencedBonus = (gameState.research && gameState.research.fencedGoods) ? 1.5 : 1;
+        for (const route of gameState.tradeRoutes) {
+            if (!route || !TRADE_RATES[route.resource]) continue;
+            const rate = TRADE_RATES[route.resource];
+            if (route.mode === 'sell') {
+                net += Math.floor(TRADE_AMOUNT * rate * fencedBonus);
+            } else {
+                net -= TRADE_AMOUNT * rate * 2;
+            }
+        }
+    }
+    return net;
+}
+
 function getNetRates(prod, caps) {
     // Start from passive production (already computed by caller)
     const rates = Object.assign({}, prod);
@@ -1901,7 +1977,7 @@ function updateUI() {
     const isStarving = pop.count > 0 && pop.starveTick > 0;
 
     // Population
-    setText("popCount",  pop.count);
+    setText("popCount",  Math.floor(pop.count));
     setText("popMax",    housing);
     const popRow = document.getElementById("pop-row");
     if (popRow) popRow.classList.toggle("starving", isStarving);
@@ -1909,6 +1985,18 @@ function updateUI() {
     // Coins (now in Population section)
     setText("coinsDisplay", formatCoins(gameState.resources.coins || 0));
     setText("coinsCap",     formatCoins(caps.coins));
+    const coinsRateEl = document.getElementById("coinsRate");
+    if (coinsRateEl) {
+        const dailyNet = getCoinsDailyRate();
+        if (dailyNet === 0) {
+            coinsRateEl.style.display = "none";
+        } else {
+            const sign = dailyNet > 0 ? "+" : "-";
+            coinsRateEl.textContent = sign + formatCoins(Math.abs(dailyNet)) + "/day";
+            coinsRateEl.style.display = "";
+            coinsRateEl.style.color = dailyNet < 0 ? "var(--disabled)" : "var(--enabled)";
+        }
+    }
 
     // Resources
     // Use actual deltas from the last tick when available; fall back to static estimate
@@ -1931,13 +2019,9 @@ function updateUI() {
         if (rateEl) {
             const alwaysShow = (res === 'essence' || res === 'influence' || res === 'mana')
                              && shouldShowResource(res);
-            if (netRate === 0 && !alwaysShow) {
-                rateEl.style.display = "none";
-            } else {
-                rateEl.textContent   = netRate === 0 ? '+0' : fmtRate(netRate);
-                rateEl.style.display = "";
-                rateEl.style.color   = netRate < 0 ? "var(--disabled)" : "var(--enabled)";
-            }
+            rateEl.textContent   = netRate === 0 ? '+0' : fmtRate(netRate);
+            rateEl.style.display = "";
+            rateEl.style.color   = netRate < 0 ? "var(--disabled)" : "var(--enabled)";
         }
     }
 
