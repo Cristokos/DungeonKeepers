@@ -1067,49 +1067,47 @@ function _positionBldTooltip(e) {
 function _buildBldTooltipHTML(id, def) {
     let html = `<div class="bld-tt-name">${def.name}</div>`;
 
-    // Desc (narrative buildings like Market Stall)
-    if (def.desc) html += `<div class="bld-tt-line">${def.desc}</div>`;
+    // Description / effect lines (tinted color)
+    if (def.desc) html += `<div class="bld-tt-effect">${def.desc}</div>`;
 
-    // Primary production / conversion effect
     if (def.effect) {
-        html += `<div class="bld-tt-line">${def.effect(_bldEffectRates(id, def), id)}</div>`;
+        html += `<div class="bld-tt-effect">${def.effect(_bldEffectRates(id, def), id)}</div>`;
     } else {
         const r = _bldEffectRates(id, def);
         if (def.production) {
             const [res] = Object.entries(def.production)[0];
             const rname = (RESOURCES[res] && RESOURCES[res].name) || (res.charAt(0).toUpperCase() + res.slice(1));
-            html += `<div class="bld-tt-line">Produces ${r.out} ${rname}</div>`;
+            html += `<div class="bld-tt-effect">Produces ${r.out} ${rname}</div>`;
         }
         if (def.converts) {
-            const inRes  = Object.keys(def.converts.inputs)[0];
-            const outRes = def.converts.output;
-            const inName  = (RESOURCES[inRes]  && RESOURCES[inRes].name)  || inRes;
+            const outRes  = def.converts.output;
             const outName = (RESOURCES[outRes] && RESOURCES[outRes].name) || outRes;
-            html += `<div class="bld-tt-line">Converts ${r.in} ${inName} → ${r.out} ${outName}</div>`;
+            html += `<div class="bld-tt-effect">Produces ${r.out} ${outName}</div>`;
+            for (const [inRes, inRate] of Object.entries(def.converts.inputs)) {
+                const inName = (RESOURCES[inRes] && RESOURCES[inRes].name) || (inRes.charAt(0).toUpperCase() + inRes.slice(1));
+                html += `<div class="bld-tt-consume">Consumes ${fmt(inRate * TICKS_PER_DAY)} ${inName}</div>`;
+            }
+        }
+        if (def.housingBonus) html += `<div class="bld-tt-effect">+${def.housingBonus} Max Citizens</div>`;
+        if (def.jobs) {
+            const wn = def.workerName || 'Worker';
+            html += `<div class="bld-tt-effect">+${def.jobs} max ${wn}</div>`;
+        }
+        if (!def.production && !def.converts && !def.housingBonus && !def.jobs && r.cap) {
+            html += `<div class="bld-tt-effect">+${r.cap} to all material storage</div>`;
         }
     }
 
-    // Next-purchase cost
+    // Cost section with visual separator
     const costs = getBuildCost(id);
+    const hasCost = def.coinCost || Object.keys(costs).length > 0;
+    if (hasCost) html += `<div class="bld-tt-divider"></div>`;
     if (def.coinCost) {
         html += `<div class="bld-tt-line">${formatCoins(getEffectiveBuildingCoinCost(def.coinCost))}</div>`;
     }
     for (const [res, amt] of Object.entries(costs)) {
         const rname = (RESOURCES[res] && RESOURCES[res].name) || (res.charAt(0).toUpperCase() + res.slice(1));
         html += `<div class="bld-tt-line">${rname}: ${fmt(amt)}</div>`;
-    }
-
-    // Secondary effects (housing, jobs, storage cap)
-    if (!def.effect) {
-        const r = _bldEffectRates(id, def);
-        if (def.housingBonus) html += `<div class="bld-tt-line">+${def.housingBonus} Max Citizens</div>`;
-        if (def.jobs) {
-            const wn = def.workerName ? def.workerName : 'worker';
-            html += `<div class="bld-tt-line">Provides ${def.jobs} ${wn} slot${def.jobs !== 1 ? 's' : ''}</div>`;
-        }
-        if (!def.production && !def.converts && !def.housingBonus && !def.jobs && r.cap) {
-            html += `<div class="bld-tt-line">+${r.cap} to all material storage</div>`;
-        }
     }
 
     if (def.flavor) html += `<div class="bld-tt-flavor">${def.flavor}</div>`;

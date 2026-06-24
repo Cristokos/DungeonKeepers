@@ -57,7 +57,19 @@ html, body {
     pointer-events: none;
 }
 
-/* WIKI / MAIN MENU BUTTONS (pinned right in the status bar) */
+/* MAIN MENU BUTTON (pinned left in the status bar) */
+.statusbar-left {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* WIKI / VERSION BUTTON (pinned right in the status bar) */
 .statusbar-right {
     position: absolute;
     right: 16px;
@@ -812,8 +824,20 @@ h3 {
 .bld-tt-effect {
     text-align: center;
     font-size: 12px;
-    color: var(--text);
+    color: #b5e0da;
     line-height: 1.6;
+}
+
+.bld-tt-consume {
+    text-align: center;
+    font-size: 12px;
+    color: #e09050;
+    line-height: 1.75;
+}
+
+.bld-tt-divider {
+    border-top: 1px solid rgba(255,255,255,0.10);
+    margin: 6px 0 4px;
 }
 
 .bld-tt-flavor {
