@@ -1402,7 +1402,7 @@
             <div class="rtree-wrap" id="rtrace-wrap">
                 <div class="rtree-corner-tr"></div>
                 <div class="rtree-corner-bl"></div>
-                <span class="rtree-zoom-label" id="rtrace-zoom-label">×0.38</span>
+                <span class="rtree-zoom-label" id="rtrace-zoom-label">×0.32</span>
                 <svg id="rtrace-svg"></svg>
                 <div id="rtrace-tip"></div>
             </div>
@@ -1490,6 +1490,16 @@
         <!-- CHANGELOG -->
         <section id="wiki-changelog" class="wiki-section wiki-changelog" style="display:none">
             <h2>Changelog</h2>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.60.4</span><span class="cl-date">2026-06-24</span></div>
+                <p class="biome-desc">Improved Race Tree readability: creature boxes enlarged 40% (88×20 → 124×30), font size raised from 8 to 11, background opacity increased from 0.18 to 0.32, row and column spacing widened, type node boxes and font also enlarged. Outer radius expanded so clusters spread out further with less overlap.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.60.3</span><span class="cl-date">2026-06-24</span></div>
+                <p class="biome-desc">Fixed Race Tree search not highlighting child nodes correctly. Searching a type (e.g. "Draconic") now also lights up all its creature children, and searching a path (e.g. "Primal") lights up its child types and creatures.</p>
+            </div>
 
             <div class="biome-card">
                 <div><span class="cl-ver">v0.60.2</span><span class="cl-date">2026-06-24</span></div>
@@ -2445,8 +2455,8 @@ function showWiki(id) {
     };
 
     var NS = 'http://www.w3.org/2000/svg';
-    var CX = 1100, CY = 1100;
-    var R1 = 220, R2 = 600, R3 = 960;
+    var CX = 1200, CY = 1200;
+    var R1 = 220, R2 = 640, R3 = 1080;
 
     var RACE_PATHS = [
         { name: 'Primal',    color: '#58b878', angle: 0,   types: ['Monstrous','Lycanthrope','Flora','Aquatic'] },
@@ -2844,15 +2854,15 @@ function showWiki(id) {
                 typeEdges[typeName] = { edge: ptEdge, pathEdge: cpEdge, color: typeColor };
 
                 /* Type rect group */
-                var TW = 112, TH = 30;
+                var TW = 130, TH = 36;
                 var tgrp = animGroup(200 + pi * 60 + ti * 40);
                 tgrp.style.cursor = 'pointer';
 
                 var trect = document.createElementNS(NS, 'rect');
                 trect.setAttribute('x', tp.x - TW/2); trect.setAttribute('y', tp.y - TH/2);
-                trect.setAttribute('width', TW); trect.setAttribute('height', TH); trect.setAttribute('rx', 5);
-                trect.setAttribute('fill', typeColor); trect.setAttribute('fill-opacity', '0.15');
-                trect.setAttribute('stroke', typeColor); trect.setAttribute('stroke-width', '1.5');
+                trect.setAttribute('width', TW); trect.setAttribute('height', TH); trect.setAttribute('rx', 6);
+                trect.setAttribute('fill', typeColor); trect.setAttribute('fill-opacity', '0.28');
+                trect.setAttribute('stroke', typeColor); trect.setAttribute('stroke-width', '1.8');
                 trect.style.transition = 'filter 0.15s, fill-opacity 0.15s, stroke-width 0.15s';
                 tgrp.appendChild(trect);
 
@@ -2860,13 +2870,13 @@ function showWiki(id) {
                 var tshine = document.createElementNS(NS, 'rect');
                 tshine.setAttribute('x', tp.x - TW/2 + 3); tshine.setAttribute('y', tp.y - TH/2 + 2);
                 tshine.setAttribute('width', TW - 6); tshine.setAttribute('height', 2); tshine.setAttribute('rx', 1);
-                tshine.setAttribute('fill', 'rgba(255,255,255,0.12)'); tshine.style.pointerEvents = 'none';
+                tshine.setAttribute('fill', 'rgba(255,255,255,0.15)'); tshine.style.pointerEvents = 'none';
                 tgrp.appendChild(tshine);
 
                 var ttxt = document.createElementNS(NS, 'text');
                 ttxt.setAttribute('x', tp.x); ttxt.setAttribute('y', tp.y);
                 ttxt.setAttribute('text-anchor', 'middle'); ttxt.setAttribute('dominant-baseline', 'middle');
-                ttxt.setAttribute('font-size', '10'); ttxt.setAttribute('font-family', 'Lato, sans-serif');
+                ttxt.setAttribute('font-size', '12'); ttxt.setAttribute('font-family', 'Lato, sans-serif');
                 ttxt.setAttribute('fill', typeColor); ttxt.style.pointerEvents = 'none';
                 ttxt.textContent = typeName + ' (' + creatures.length + ')';
                 tgrp.appendChild(ttxt);
@@ -2875,14 +2885,14 @@ function showWiki(id) {
                 /* Type hover: glow + edge highlight */
                 tgrp.addEventListener('mouseenter', function() {
                     trect.setAttribute('filter', 'url(#rtrace-glow)');
-                    trect.setAttribute('fill-opacity', '0.28');
-                    trect.setAttribute('stroke-width', '2.2');
+                    trect.setAttribute('fill-opacity', '0.45');
+                    trect.setAttribute('stroke-width', '2.5');
                     ptEdge.setAttribute('stroke-width', '2.5'); ptEdge.setAttribute('opacity', '0.85');
                 });
                 tgrp.addEventListener('mouseleave', function() {
                     trect.removeAttribute('filter');
-                    trect.setAttribute('fill-opacity', '0.15');
-                    trect.setAttribute('stroke-width', '1.5');
+                    trect.setAttribute('fill-opacity', '0.28');
+                    trect.setAttribute('stroke-width', '1.8');
                     ptEdge.setAttribute('stroke-width', '1'); ptEdge.setAttribute('opacity', '0.28');
                 });
 
@@ -2892,11 +2902,11 @@ function showWiki(id) {
                 /* --- Radial grid layout for creatures ---
                    Creatures are placed in a 2- or 3-column grid extending radially
                    outward from the type node, avoiding arc-based overlap entirely. */
-                var CNW = 88, CNH = 20;
+                var CNW = 124, CNH = 30;
                 var COLS = creatures.length > 10 ? 3 : 2;
-                var CROW = CNH + 12;   // row spacing (radial direction)
-                var CCOL = CNW + 6;    // col spacing (perpendicular direction)
-                var CSTART = TH / 2 + CNH / 2 + 28; // gap from type node center to first row center
+                var CROW = CNH + 16;   // row spacing (radial direction)
+                var CCOL = CNW + 12;   // col spacing (perpendicular direction)
+                var CSTART = TH / 2 + CNH / 2 + 36; // gap from type node center to first row center
 
                 /* Radial unit vector from SVG center toward this type node */
                 var rad_ang = (typeAngle - 90) * Math.PI / 180;
@@ -2922,8 +2932,8 @@ function showWiki(id) {
                     crect.setAttribute('x', cpx - CNW/2); crect.setAttribute('y', cpy - CNH/2);
                     crect.setAttribute('width', CNW); crect.setAttribute('height', CNH);
                     crect.setAttribute('rx', 5);
-                    crect.setAttribute('fill', typeColor); crect.setAttribute('fill-opacity', '0.18');
-                    crect.setAttribute('stroke', typeColor); crect.setAttribute('stroke-width', '1.2');
+                    crect.setAttribute('fill', typeColor); crect.setAttribute('fill-opacity', '0.32');
+                    crect.setAttribute('stroke', typeColor); crect.setAttribute('stroke-width', '1.5');
                     crect.style.transition = 'filter 0.12s, fill-opacity 0.12s, stroke-width 0.12s';
                     cgrp.appendChild(crect);
 
@@ -2950,7 +2960,7 @@ function showWiki(id) {
                     nameEl.setAttribute('y', cpy);
                     nameEl.setAttribute('text-anchor', 'middle');
                     nameEl.setAttribute('dominant-baseline', 'middle');
-                    nameEl.setAttribute('font-size', '8');
+                    nameEl.setAttribute('font-size', '11');
                     nameEl.setAttribute('font-family', 'Lato, sans-serif');
                     nameEl.setAttribute('fill', typeColor);
                     nameEl.style.pointerEvents = 'none';
@@ -2964,8 +2974,8 @@ function showWiki(id) {
                     cgrp.addEventListener('mouseenter', (function(cr, tc, te, pe) {
                         return function() {
                             cr.setAttribute('filter', 'url(#rtrace-glow)');
-                            cr.setAttribute('fill-opacity', '0.38');
-                            cr.setAttribute('stroke-width', '2');
+                            cr.setAttribute('fill-opacity', '0.52');
+                            cr.setAttribute('stroke-width', '2.2');
                             tc.setAttribute('stroke-width', '2.5'); tc.setAttribute('opacity', '0.9');
                             te.setAttribute('stroke-width', '2'); te.setAttribute('opacity', '0.75');
                             pe.setAttribute('stroke-width', '2'); pe.setAttribute('opacity', '0.65');
@@ -2975,8 +2985,8 @@ function showWiki(id) {
                     cgrp.addEventListener('mouseleave', (function(cr, tc, te, pe) {
                         return function() {
                             cr.removeAttribute('filter');
-                            cr.setAttribute('fill-opacity', '0.18');
-                            cr.setAttribute('stroke-width', '1.2');
+                            cr.setAttribute('fill-opacity', '0.32');
+                            cr.setAttribute('stroke-width', '1.5');
                             tc.setAttribute('stroke-width', '1'); tc.setAttribute('opacity', '0.28');
                             te.setAttribute('stroke-width', '1'); te.setAttribute('opacity', '0.28');
                             pe.setAttribute('stroke-width', '1'); pe.setAttribute('opacity', '0.28');
@@ -3002,7 +3012,7 @@ function showWiki(id) {
             allNodes.forEach(function (n) {
                 if (n.name.toLowerCase().indexOf(q) !== -1) {
                     if (n.level === 3) { hitTypes.add(n.typeName); hitPaths.add(n.pathName); }
-                    if (n.level === 2) hitPaths.add(n.pathName);
+                    if (n.level === 2) { hitTypes.add(n.typeName); hitPaths.add(n.pathName); }
                     if (n.level === 1) hitPaths.add(n.name);
                 }
             });
@@ -3010,7 +3020,8 @@ function showWiki(id) {
             allNodes.forEach(function (n) {
                 var match = n.level === 0
                     || n.name.toLowerCase().indexOf(q) !== -1
-                    || (n.level === 2 && hitTypes.has(n.typeName))
+                    || (n.level === 3 && hitTypes.has(n.typeName))
+                    || (n.level === 2 && (hitTypes.has(n.typeName) || hitPaths.has(n.pathName)))
                     || (n.level === 1 && hitPaths.has(n.name));
                 n.el.style.transition = 'opacity 0.2s';
                 n.el.style.opacity = match ? '1' : '0.06';
@@ -3021,7 +3032,7 @@ function showWiki(id) {
         (function () {
             var wrap = document.getElementById('rtrace-wrap');
             var zlbl = document.getElementById('rtrace-zoom-label');
-            var scale = 0.38, dragging = false, lx = 0, ly = 0, panX = 0, panY = 0;
+            var scale = 0.32, dragging = false, lx = 0, ly = 0, panX = 0, panY = 0;
 
             function apply() {
                 g.setAttribute('transform', 'translate(' + panX + ',' + panY + ') scale(' + scale + ')');
