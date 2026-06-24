@@ -826,13 +826,9 @@
             </div>
 
             <h2 class="section-gap">Buildings</h2>
-            <div class="grid">
 
-                <button class="build-btn disabled" onclick="build('lair')" id="btn-lair">
-                    <div class="btn-title">Hovel</div>
-                    <div class="btn-count" id="lairCount">0</div>
-                    <div class="btn-cost" id="lairCost">15 Wood</div>
-                </button>
+            <h2 class="section-gap">Countryside</h2>
+            <div class="grid">
 
                 <button class="build-btn disabled" onclick="build('farm')" id="btn-farm">
                     <div class="btn-title">Farm</div>
@@ -852,15 +848,37 @@
                     <div class="btn-cost" id="quarryCost">15 Wood</div>
                 </button>
 
-                <button class="build-btn disabled" onclick="build('storage')" id="btn-storage">
-                    <div class="btn-title">Storage</div>
-                    <div class="btn-count" id="storageCount">0</div>
-                    <div class="btn-cost" id="storageCost">20 Wood, 10 Stone</div>
+            </div>
+
+            <!-- The Warren -->
+
+            <h2 class="section-gap">The Warren</h2>
+            <div class="grid">
+
+                <button class="build-btn disabled" onclick="build('lair')" id="btn-lair">
+                    <div class="btn-title">Hovel</div>
+                    <div class="btn-count" id="lairCount">0</div>
+                    <div class="btn-cost" id="lairCost">15 Wood</div>
                 </button>
 
-                <!-- Craftsmen's Quarter -->
+                <button class="build-btn disabled" onclick="build('house')" id="btn-house" style="display:none">
+                    <div class="btn-title">House</div>
+                    <div class="btn-count" id="houseCount">0</div>
+                    <div class="btn-cost" id="houseCost"></div>
+                </button>
 
-                <div class="grid-section-label">Craftsmen's Quarter</div>
+                <button class="build-btn disabled" onclick="build('apartment')" id="btn-apartment" style="display:none">
+                    <div class="btn-title">Apartment</div>
+                    <div class="btn-count" id="apartmentCount">0</div>
+                    <div class="btn-cost" id="apartmentCost"></div>
+                </button>
+
+            </div>
+
+            <!-- Craftsmen's Quarter -->
+
+            <h2 class="section-gap">Craftsmen's Quarter</h2>
+            <div class="grid">
 
                 <button class="build-btn disabled" onclick="build('smelter')" id="btn-smelter" style="display:none">
                     <div class="btn-title">Smelter</div>
@@ -904,31 +922,18 @@
                     <div class="btn-cost" id="arcaneBenchCost"></div>
                 </button>
 
-                <button class="build-btn disabled" onclick="build('sulphurVent')" id="btn-sulphurVent" style="display:none">
-                    <div class="btn-title">Sulphur Vent</div>
-                    <div class="btn-count" id="sulphurVentCount">0</div>
-                    <div class="btn-cost" id="sulphurVentCost"></div>
+            </div>
+
+            <!-- Merchant's Row -->
+
+            <h2 class="section-gap">Merchant's Row</h2>
+            <div class="grid">
+
+                <button class="build-btn disabled" onclick="build('storage')" id="btn-storage">
+                    <div class="btn-title">Storage</div>
+                    <div class="btn-count" id="storageCount">0</div>
+                    <div class="btn-cost" id="storageCost">20 Wood, 10 Stone</div>
                 </button>
-
-                <!-- The Warren -->
-
-                <div class="grid-section-label">The Warren</div>
-
-                <button class="build-btn disabled" onclick="build('house')" id="btn-house" style="display:none">
-                    <div class="btn-title">House</div>
-                    <div class="btn-count" id="houseCount">0</div>
-                    <div class="btn-cost" id="houseCost"></div>
-                </button>
-
-                <button class="build-btn disabled" onclick="build('apartment')" id="btn-apartment" style="display:none">
-                    <div class="btn-title">Apartment</div>
-                    <div class="btn-count" id="apartmentCount">0</div>
-                    <div class="btn-cost" id="apartmentCost"></div>
-                </button>
-
-                <!-- Merchant's Row -->
-
-                <div class="grid-section-label">Merchant's Row</div>
 
                 <button class="build-btn disabled" onclick="build('marketStall')" id="btn-marketStall" style="display:none">
                     <div class="btn-title">Market Stall</div>
@@ -942,9 +947,12 @@
                     <div class="btn-cost" id="tradeCartCost"></div>
                 </button>
 
-                <!-- Arcane Quarter -->
+            </div>
 
-                <div class="grid-section-label">Arcane Quarter</div>
+            <!-- Arcane Quarter -->
+
+            <h2 class="section-gap">Arcane Quarter</h2>
+            <div class="grid">
 
                 <button class="build-btn disabled" onclick="build('mageTower')" id="btn-mageTower" style="display:none">
                     <div class="btn-title">Mage Tower</div>
@@ -958,9 +966,12 @@
                     <div class="btn-cost" id="scriptoriumCost"></div>
                 </button>
 
-                <!-- War Quarters -->
+            </div>
 
-                <div class="grid-section-label">War Quarters</div>
+            <!-- War Quarters -->
+
+            <h2 class="section-gap">War Quarters</h2>
+            <div class="grid">
 
                 <button class="build-btn disabled" onclick="build('armory')" id="btn-armory" style="display:none">
                     <div class="btn-title">Armory</div>
@@ -968,9 +979,12 @@
                     <div class="btn-cost" id="armoryCost"></div>
                 </button>
 
-                <!-- Extraction -->
+            </div>
 
-                <div class="grid-section-label">Extraction</div>
+            <!-- Extraction -->
+
+            <h2 class="section-gap">Extraction</h2>
+            <div class="grid">
 
                 <button class="build-btn disabled" onclick="build('mine')" id="btn-mine" style="display:none">
                     <div class="btn-title">Mine</div>
@@ -988,6 +1002,12 @@
                     <div class="btn-title">Crystal Seam</div>
                     <div class="btn-count" id="crystalSeamCount">0</div>
                     <div class="btn-cost" id="crystalSeamCost"></div>
+                </button>
+
+                <button class="build-btn disabled" onclick="build('sulphurVent')" id="btn-sulphurVent" style="display:none">
+                    <div class="btn-title">Sulphur Vent</div>
+                    <div class="btn-count" id="sulphurVentCount">0</div>
+                    <div class="btn-cost" id="sulphurVentCost"></div>
                 </button>
 
                 <button class="build-btn disabled" onclick="build('herbalistDen')" id="btn-herbalistDen" style="display:none">
