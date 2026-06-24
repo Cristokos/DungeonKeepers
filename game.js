@@ -3352,7 +3352,7 @@ function showEraTransition(raceName, onComplete) {
     // Inject pluralised race name into panel III lore
     const racePlural = raceName.endsWith('s') ? raceName : raceName + 's';
     const loreRace = document.querySelector('.era-panel-lore-race');
-    if (loreRace) loreRace.innerHTML = '<em>' + racePlural + '</em> — they answered the dark, eyes burning, purpose unbroken. These creatures will grow with you, and protect you, if you nurture them and guide them in turn.';
+    if (loreRace) loreRace.innerHTML = '<em>' + racePlural + '</em> — arose from the dark, drawn by an instinct they couldn\'t name. They don\'t know what you are. They only know they follow something. Guide them well, and perhaps they\'ll give you the body you need.';
 
     const overlay = document.getElementById('era-transition-overlay');
     const panels  = document.querySelectorAll('.era-panel');
