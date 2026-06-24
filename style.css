@@ -3428,6 +3428,178 @@ body.reduce-motion *::after {
     animation: eraTimerGlow 1.5s ease-in-out infinite;
 }
 
+/* ── INTRO TRANSITION — new-game comic overlay ──────────────────────────────
+ * Mirrors era-transition structure but for 4 panels only (no panel-final).
+ * Uses the same D&D parchment palette and Cinzel font.
+ */
+#intro-transition-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 10001;  /* above era-transition-overlay */
+    background: rgba(4, 2, 1, 0.94);
+    backdrop-filter: blur(3px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow-y: auto;
+    padding: clamp(8px, 1.5vh, 20px) 0;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s ease;
+}
+#intro-transition-overlay.intro-active {
+    opacity: 1;
+    pointer-events: all;
+}
+#intro-transition-overlay.intro-hiding {
+    opacity: 0;
+    pointer-events: none;
+}
+
+#intro-comic-panels {
+    --intro-svg-h: clamp(80px, 13vh, 130px);
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    padding: clamp(4px, 0.6vh, 8px);
+    width: min(640px, 92vw);
+    box-sizing: border-box;
+}
+
+.intro-panel {
+    background: rgba(12,8,4,0.94);
+    border: 1.5px solid rgba(140,110,50,0.30);
+    border-radius: 0;
+    margin-bottom: -1.5px;
+    box-shadow: inset 0 0 0 1px rgba(200,160,40,0.06);
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: clamp(6px, 1.2vh, 14px) clamp(10px, 1.6vw, 20px);
+    gap: clamp(10px, 1.4vw, 18px);
+    position: relative;
+    overflow: hidden;
+    opacity: 0;
+    transform: translateY(16px);
+    transition: opacity 0.65s cubic-bezier(0.22,0.61,0.36,1),
+                transform 0.65s cubic-bezier(0.22,0.61,0.36,1),
+                border-color 0.35s ease,
+                box-shadow 0.35s ease;
+}
+.intro-panel.intro-panel-in {
+    opacity: 1;
+    transform: translateY(0);
+}
+.intro-panel:hover {
+    border-color: var(--era-gold);
+    z-index: 1;
+    box-shadow: inset 0 0 0 1px rgba(200,160,40,0.10),
+                0 0 18px rgba(200,140,20,0.20);
+}
+
+.intro-panel-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 1.2s ease;
+}
+.intro-panel-canvas.intro-canvas-active {
+    opacity: 1;
+}
+
+.intro-panel-svg {
+    flex: 0 0 auto;
+    width: calc(var(--intro-svg-h) * 1.4);
+    height: var(--intro-svg-h);
+    overflow: visible;
+    position: relative;
+    z-index: 1;
+}
+
+.intro-panel-lore {
+    font-family: 'Cinzel', 'Georgia', serif;
+    font-size: clamp(10px, 1.5vh, 13px);
+    color: rgba(220,190,130,0.0);
+    flex: 1;
+    font-style: normal;
+    line-height: 1.65;
+    letter-spacing: 0.03em;
+    transition: color 0.55s ease, opacity 0.55s ease;
+    opacity: 0;
+}
+.intro-panel-lore em {
+    color: var(--era-gold);
+    font-style: italic;
+}
+.intro-lore-left {
+    text-align: left;
+    order: -1;
+}
+.intro-lore-right {
+    text-align: right;
+    order: 1;
+}
+.intro-panel-lore.intro-lore-in {
+    color: rgba(220,190,130,0.8);
+    opacity: 1;
+}
+
+.intro-panel-num {
+    position: absolute;
+    top: 6px;
+    left: 8px;
+    font-family: 'Cinzel', 'Georgia', serif;
+    font-size: 9px;
+    color: var(--era-gold);
+    opacity: 0.40;
+    letter-spacing: 0.08em;
+    pointer-events: none;
+    user-select: none;
+}
+
+#intro-transition-continue {
+    margin-top: clamp(6px, 1vh, 14px);
+    padding: 8px 24px 8px 16px;
+    background: transparent;
+    border: 1px solid rgba(200,160,40,0.35);
+    border-radius: 2px;
+    color: rgba(220,190,130,0.65);
+    font-family: 'Cinzel', 'Georgia', serif;
+    font-size: 12px;
+    letter-spacing: 0.18em;
+    cursor: pointer;
+    opacity: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: opacity 0.4s ease, background 0.15s, color 0.15s,
+                border-color 0.15s, box-shadow 0.15s;
+}
+#intro-transition-continue.intro-btn-in {
+    opacity: 1;
+}
+#intro-transition-continue:hover,
+#intro-transition-continue.intro-btn-pulse {
+    background: rgba(200,160,40,0.07);
+    border-color: var(--era-gold);
+    color: var(--era-gold);
+    box-shadow: 0 0 12px rgba(200,140,20,0.3);
+}
+#intro-timer-ring {
+    width: 22px;
+    height: 22px;
+    flex-shrink: 0;
+    opacity: 0;
+    transition: opacity 0.8s ease;
+}
+#intro-transition-continue.intro-btn-in #intro-timer-ring {
+    animation: eraTimerGlow 1.5s ease-in-out infinite;
+}
+
 /* TRADE TAB */
 .trade-header {
     padding: 6px 0 10px;

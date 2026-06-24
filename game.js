@@ -2627,6 +2627,311 @@ function unlockEra1Node(nodeId) {
     saveGame();
 }
 
+// ── New Game Intro Comic Transition ──────────────────────────────────────────
+
+let _introTransitionCallback = null;
+let _introTimerRAF  = null;
+let _introTimerTimeout = null;
+let _introCanvasRAF = null;
+
+function showIntroTransition(onComplete) {
+    _introTransitionCallback = onComplete;
+
+    const overlay = document.getElementById('intro-transition-overlay');
+    const panels  = document.querySelectorAll('.intro-panel');
+    const btn     = document.getElementById('intro-transition-continue');
+    const arc     = document.getElementById('intro-timer-arc');
+
+    if (_introTimerRAF)     { cancelAnimationFrame(_introTimerRAF); _introTimerRAF = null; }
+    if (_introTimerTimeout) { clearTimeout(_introTimerTimeout); _introTimerTimeout = null; }
+
+    panels.forEach(p => {
+        p.classList.remove('intro-panel-in');
+        p.querySelectorAll('.intro-panel-lore').forEach(l => l.classList.remove('intro-lore-in'));
+    });
+    btn.classList.remove('intro-btn-in', 'intro-btn-pulse');
+    if (arc) { arc.style.strokeDashoffset = '0'; arc.style.stroke = '#c8a028'; }
+    overlay.classList.remove('intro-hiding');
+    overlay.classList.add('intro-active');
+
+    // Stagger 4 panels in, then lore text 400ms after each panel
+    const delays = [150, 750, 1350, 1950];
+    panels.forEach((p, i) => {
+        setTimeout(() => {
+            p.classList.add('intro-panel-in');
+            setTimeout(() => {
+                const lore = p.querySelector('.intro-panel-lore');
+                if (lore) lore.classList.add('intro-lore-in');
+            }, 400);
+        }, delays[i]);
+    });
+
+    // ── Per-panel canvas particle animations ─────────────────────────────────
+    const GOLD = 'rgba(200,160,40,';
+    const FIRE = 'rgba(220,110,20,';
+    const VOID = 'rgba(160,120,20,';
+
+    function initIntroCanvases() {
+        if (_introCanvasRAF) { cancelAnimationFrame(_introCanvasRAF); _introCanvasRAF = null; }
+        const panelEls = [
+            document.getElementById('intro-panel-1'),
+            document.getElementById('intro-panel-2'),
+            document.getElementById('intro-panel-3'),
+            document.getElementById('intro-panel-4'),
+        ];
+
+        const canvases = panelEls.map((p, i) => {
+            const c = document.getElementById('intro-canvas-' + (i + 1));
+            if (!c || !p) return null;
+            c.width  = p.offsetWidth  || 400;
+            c.height = p.offsetHeight || 160;
+            const svg = p.querySelector('.intro-panel-svg');
+            let svgX = 0, svgY = 0, svgW = c.width, svgH = c.height;
+            if (svg) {
+                const pr = p.getBoundingClientRect();
+                const sr = svg.getBoundingClientRect();
+                svgX = sr.left - pr.left;
+                svgY = sr.top  - pr.top;
+                svgW = sr.width  || 180;
+                svgH = sr.height || 130;
+            }
+            return { el: c, ctx: c.getContext('2d'),
+                     w: c.width, h: c.height,
+                     sx: svgX, sy: svgY, sw: svgW, sh: svgH,
+                     active: false, t: 0 };
+        });
+
+        // Panel 1 — slow drifting void motes radiating from center point
+        const p1 = [];
+        function spawnVoidMote(cv) {
+            const cx = cv.sx + cv.sw * 0.5;
+            const cy = cv.sy + cv.sh * 0.5;
+            const angle = Math.random() * Math.PI * 2;
+            const dist  = 2 + Math.random() * cv.sw * 0.12;
+            p1.push({ x: cx + Math.cos(angle)*dist, y: cy + Math.sin(angle)*dist*0.7,
+                      vx: Math.cos(angle)*0.12, vy: Math.sin(angle)*0.10,
+                      life: 1, size: 0.4 + Math.random()*0.8,
+                      twinklePhase: Math.random()*Math.PI*2 });
+        }
+
+        // Panel 2 — ember sparks from the crack (right edge of SVG ~x=180/220)
+        const p2 = [];
+        function spawnCrackSpark(cv) {
+            const ox = cv.sx + cv.sw * (178/220);
+            const oy = cv.sy + cv.sh * (0.30 + Math.random()*0.55);
+            p2.push({ x: ox, y: oy,
+                      vx: -(0.3 + Math.random()*0.8),
+                      vy: -(0.1 + Math.random()*0.5),
+                      life: 1, size: 0.6 + Math.random()*1.0 });
+        }
+
+        // Panel 3 — dust motes settling slowly downward over the throne (center)
+        const p3 = [];
+        function spawnDustMote(cv) {
+            const ox = cv.sx + cv.sw * (0.30 + Math.random()*0.40);
+            const oy = cv.sy + cv.sh * (0.05 + Math.random()*0.35);
+            p3.push({ x: ox, y: oy,
+                      vx: (Math.random()-0.5)*0.08,
+                      vy:  0.08 + Math.random()*0.14,
+                      life: 1, size: 0.4 + Math.random()*0.7 });
+        }
+
+        // Panel 4 — golden upward motes rising from pickaxe area (center-right ~x=112/220, y=84/160)
+        const p4 = [];
+        function spawnWillMote(cv) {
+            const ox = cv.sx + cv.sw * (112/220) + (Math.random()-0.5)*cv.sw*0.14;
+            const oy = cv.sy + cv.sh * (84/160)  + (Math.random()-0.5)*cv.sh*0.10;
+            p4.push({ x: ox, y: oy,
+                      vx: (Math.random()-0.5)*0.25,
+                      vy: -(0.35 + Math.random()*0.8),
+                      life: 1, size: 0.6 + Math.random()*1.1,
+                      twinklePhase: Math.random()*Math.PI*2 });
+        }
+
+        let lastT = performance.now();
+        let spawnTick = 0;
+
+        const canvasDelays = [150, 750, 1350, 1950];
+        canvases.forEach((cv, i) => {
+            if (!cv) return;
+            setTimeout(() => {
+                cv.active = true;
+                cv.el.classList.add('intro-canvas-active');
+                if (i === 0) for (let k=0; k<10; k++) spawnVoidMote(cv);
+                if (i === 1) for (let k=0; k<6;  k++) spawnCrackSpark(cv);
+                if (i === 2) for (let k=0; k<8;  k++) spawnDustMote(cv);
+                if (i === 3) for (let k=0; k<8;  k++) spawnWillMote(cv);
+            }, canvasDelays[i]);
+        });
+
+        function loopIntroCanvas(now) {
+            _introCanvasRAF = requestAnimationFrame(loopIntroCanvas);
+            const dt = Math.min(now - lastT, 50);
+            lastT = now;
+            spawnTick += dt;
+
+            canvases.forEach((cv, idx) => {
+                if (!cv || !cv.active) return;
+                cv.t += dt;
+                const ctx = cv.ctx;
+                ctx.clearRect(0, 0, cv.w, cv.h);
+
+                // Panel 1 — void motes drifting slowly outward from the light
+                if (idx === 0) {
+                    // Pulse glow at the center point
+                    const cx = cv.sx + cv.sw*0.5, cy = cv.sy + cv.sh*0.5;
+                    const pulse = 0.12 + 0.08 * Math.sin(cv.t * 0.0015);
+                    const pg = ctx.createRadialGradient(cx, cy, 0, cx, cy, cv.sw*0.22);
+                    pg.addColorStop(0, VOID + pulse + ')');
+                    pg.addColorStop(1, VOID + '0)');
+                    ctx.fillStyle = pg; ctx.fillRect(0, 0, cv.w, cv.h);
+
+                    if (spawnTick > 220 && p1.length < 30) spawnVoidMote(cv);
+                    for (let i = p1.length-1; i >= 0; i--) {
+                        const m = p1[i];
+                        m.x += m.vx; m.y += m.vy;
+                        m.life -= 0.004;
+                        if (m.life <= 0 || m.x < cv.sx - 4 || m.x > cv.sx + cv.sw + 4 ||
+                            m.y < cv.sy - 4 || m.y > cv.sy + cv.sh + 4) { p1.splice(i,1); continue; }
+                        const tw = 0.5 + 0.4 * Math.sin(cv.t*0.004 + m.twinklePhase);
+                        ctx.beginPath(); ctx.arc(m.x, m.y, m.size, 0, Math.PI*2);
+                        ctx.fillStyle = GOLD + (m.life * tw * 0.6) + ')';
+                        ctx.shadowBlur = 4; ctx.shadowColor = '#c8a028';
+                        ctx.fill(); ctx.shadowBlur = 0;
+                    }
+                }
+
+                // Panel 2 — ember sparks bursting from the crack
+                if (idx === 1) {
+                    if (spawnTick > 80 && p2.length < 22) spawnCrackSpark(cv);
+                    // Glow along crack (right ~80% of SVG x)
+                    const crackX = cv.sx + cv.sw * (178/220);
+                    const crackG = ctx.createRadialGradient(crackX, cv.sy + cv.sh*0.5, 0, crackX, cv.sy + cv.sh*0.5, cv.sw*0.28);
+                    crackG.addColorStop(0, FIRE + '0.07)');
+                    crackG.addColorStop(1, FIRE + '0)');
+                    ctx.fillStyle = crackG; ctx.fillRect(0, 0, cv.w, cv.h);
+
+                    for (let i = p2.length-1; i >= 0; i--) {
+                        const e = p2[i];
+                        e.x += e.vx; e.y += e.vy; e.vy += 0.012;
+                        e.life -= 0.014;
+                        if (e.life <= 0) { p2.splice(i,1); continue; }
+                        ctx.beginPath(); ctx.arc(e.x, e.y, e.size, 0, Math.PI*2);
+                        ctx.fillStyle = FIRE + (e.life * 0.85) + ')';
+                        ctx.shadowBlur = 6; ctx.shadowColor = '#dc6e14';
+                        ctx.fill(); ctx.shadowBlur = 0;
+                    }
+                }
+
+                // Panel 3 — dust motes drifting down over the throne
+                if (idx === 2) {
+                    if (spawnTick > 150 && p3.length < 20) spawnDustMote(cv);
+                    for (let i = p3.length-1; i >= 0; i--) {
+                        const m = p3[i];
+                        m.x += m.vx + Math.sin(cv.t*0.0008 + i)*0.05;
+                        m.y += m.vy;
+                        m.life -= 0.005;
+                        if (m.life <= 0 || m.y > cv.sy + cv.sh + 4) { p3.splice(i,1); continue; }
+                        const a = m.life * 0.35;
+                        ctx.beginPath(); ctx.arc(m.x, m.y, m.size, 0, Math.PI*2);
+                        ctx.fillStyle = 'rgba(180,150,100,' + a + ')';
+                        ctx.fill();
+                    }
+                    // Subtle ambient glow over throne center
+                    const thX = cv.sx + cv.sw*0.5, thY = cv.sy + cv.sh*0.56;
+                    const amb = 0.035 + 0.015 * Math.sin(cv.t*0.0012);
+                    const ag = ctx.createRadialGradient(thX, thY, 0, thX, thY, cv.sw*0.30);
+                    ag.addColorStop(0, GOLD + amb + ')');
+                    ag.addColorStop(1, GOLD + '0)');
+                    ctx.fillStyle = ag; ctx.fillRect(0, 0, cv.w, cv.h);
+                }
+
+                // Panel 4 — golden will-motes rising from the pickaxe
+                if (idx === 3) {
+                    if (spawnTick > 90 && p4.length < 24) spawnWillMote(cv);
+                    // Glow pool at pickaxe location
+                    const px = cv.sx + cv.sw*(112/220), py = cv.sy + cv.sh*(84/160);
+                    const pglow = 0.07 + 0.04 * Math.sin(cv.t * 0.002);
+                    const wg = ctx.createRadialGradient(px, py, 0, px, py, cv.sw*0.26);
+                    wg.addColorStop(0, GOLD + pglow + ')');
+                    wg.addColorStop(1, GOLD + '0)');
+                    ctx.fillStyle = wg; ctx.fillRect(0, 0, cv.w, cv.h);
+
+                    for (let i = p4.length-1; i >= 0; i--) {
+                        const m = p4[i];
+                        m.x += m.vx; m.y += m.vy; m.vy *= 0.995;
+                        m.life -= 0.007;
+                        if (m.life <= 0 || m.y < cv.sy - 4) { p4.splice(i,1); continue; }
+                        const tw = 0.55 + 0.35 * Math.sin(cv.t*0.005 + m.twinklePhase);
+                        ctx.beginPath(); ctx.arc(m.x, m.y, m.size, 0, Math.PI*2);
+                        ctx.fillStyle = GOLD + (m.life * tw * 0.9) + ')';
+                        ctx.shadowBlur = 7; ctx.shadowColor = '#c8a028';
+                        ctx.fill(); ctx.shadowBlur = 0;
+                    }
+                }
+            });
+
+            if (spawnTick > 220) spawnTick = 0;
+        }
+        requestAnimationFrame(loopIntroCanvas);
+    }
+
+    // Start canvases after first panel begins to appear
+    setTimeout(initIntroCanvases, 200);
+
+    // Show continue button and start auto-advance timer after all panels are in
+    const BTN_DELAY = 2800;
+    const AUTO_ADVANCE_MS = 20000;
+    setTimeout(() => {
+        const btn2 = document.getElementById('intro-transition-continue');
+        if (!btn2) return;
+        btn2.classList.add('intro-btn-in');
+
+        const ring = document.getElementById('intro-timer-ring');
+        if (ring) ring.style.opacity = '1';
+
+        const arc2 = document.getElementById('intro-timer-arc');
+        const CIRCUMFERENCE = 94.2;
+        const start = performance.now();
+
+        function tick(now) {
+            const elapsed  = now - start;
+            const progress = Math.min(elapsed / AUTO_ADVANCE_MS, 1);
+            if (arc2) arc2.style.strokeDashoffset = String(CIRCUMFERENCE * progress);
+
+            const ov2 = document.getElementById('intro-transition-overlay');
+            if (!ov2 || !ov2.classList.contains('intro-active')) return;
+
+            if (progress < 1) {
+                _introTimerRAF = requestAnimationFrame(tick);
+            } else {
+                btn2.classList.add('intro-btn-pulse');
+                _introTimerTimeout = setTimeout(() => introTransitionContinue(), 400);
+            }
+        }
+        _introTimerRAF = requestAnimationFrame(tick);
+    }, BTN_DELAY);
+}
+
+function introTransitionContinue() {
+    if (_introTimerRAF)     { cancelAnimationFrame(_introTimerRAF); _introTimerRAF = null; }
+    if (_introTimerTimeout) { clearTimeout(_introTimerTimeout); _introTimerTimeout = null; }
+    if (_introCanvasRAF)    { cancelAnimationFrame(_introCanvasRAF); _introCanvasRAF = null; }
+
+    const overlay = document.getElementById('intro-transition-overlay');
+    overlay.classList.add('intro-hiding');
+    overlay.classList.remove('intro-active');
+    setTimeout(() => {
+        overlay.classList.remove('intro-hiding');
+        // Clear canvas active states for next time
+        document.querySelectorAll('.intro-panel-canvas').forEach(c => c.classList.remove('intro-canvas-active'));
+        if (_introTransitionCallback) {
+            _introTransitionCallback();
+            _introTransitionCallback = null;
+        }
+    }, 520);
+}
+
 // ── Era 1 → Era 2 Comic Transition ───────────────────────────────────────────
 
 let _eraTransitionCallback = null;
