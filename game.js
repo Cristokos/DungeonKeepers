@@ -3481,10 +3481,12 @@ function _era1TooltipHTML(nodeId) {
     if (costEntries.length === 0) {
         costHtml = '<span class="era1-cost-free">Free</span>';
     } else {
+        const ERA1_RES_LABELS = { essence: 'Anima', influence: 'Influence', mana: 'Mana' };
         costHtml = costEntries.map(([res, amt]) => {
             const have = Math.floor(gameState.resources[res] || 0);
             const ok = have >= amt;
-            return `<span class="${ok ? 'era1-cost-ok' : 'era1-cost-bad'}">${amt} ${res.charAt(0).toUpperCase() + res.slice(1)}</span>`;
+            const label = ERA1_RES_LABELS[res] || (res.charAt(0).toUpperCase() + res.slice(1));
+            return `<span class="${ok ? 'era1-cost-ok' : 'era1-cost-bad'}">${amt} ${label}</span>`;
         }).join(' · ');
     }
     const warning = (node.layer === 5) ? '<div class="era1-warning">This choice cannot be undone.</div>' : '';
@@ -3551,17 +3553,18 @@ function buyReservoirUpgrade() {
 function gatherEra1(action) {
     const r = gameState.resources;
     const essence = Math.floor(r.essence || 0);
+    const caps = getCaps();
 
     if (action === 'essence') {
-        r.essence = Math.min((r.essence || 0) + 1, 500);
+        r.essence = Math.min((r.essence || 0) + 1, caps.essence);
     } else if (action === 'toInfluence') {
         if (essence < 2) return;
         r.essence   = (r.essence || 0) - 2;
-        r.influence = Math.min((r.influence || 0) + 1, 500);
+        r.influence = Math.min((r.influence || 0) + 1, caps.influence);
     } else if (action === 'toMana') {
         if (essence < 5) return;
         r.essence = (r.essence || 0) - 5;
-        r.mana    = Math.min((r.mana || 0) + 1, 500);
+        r.mana    = Math.min((r.mana || 0) + 1, caps.mana);
     }
 
     updateUI();

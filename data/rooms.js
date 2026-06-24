@@ -290,7 +290,7 @@ const ROOMS = {
         flavor: "Not a place. Not a tool. Just the mind, turned inward, finding what was always there.",
     },
     essenceConduit: {
-        name: "Anima Conduit",
+        name: "Influence Conduit",
         cost: { essence: 35, influence: 20 },
         costScale: 1.05,
         converts: { inputs: { essence: 1 }, output: "influence", outputRate: 0.5 },
