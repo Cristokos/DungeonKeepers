@@ -70,6 +70,8 @@ const ROOMS = {
         name: "Hunting Lodge",
         cost: { wood: 25, stone: 10 },
         costScale: 1.05,
+        jobs: 1,
+        workerName: "Hunter",
         production: { food: 0.5, bones: 0.4 },
         unlock: { lair: 3 },
     },

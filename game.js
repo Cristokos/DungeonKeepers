@@ -1003,9 +1003,11 @@ function _bldEffectRates(id, def) {
     const convMult = getResearchBonus('converterBonus', id);
     const allBonus = (1 + getResearchBonus('allProductionBonus')) * getQuintessenceProductionMult();
     if (def.production) {
-        const [res, rate] = Object.entries(def.production)[0];
         const bldgMult = getResearchBonus('productionBonus', id);
-        return { out: fmt(rate * TICKS_PER_DAY * bldgMult * allBonus) };
+        const entries = Object.entries(def.production);
+        const [, firstRate] = entries[0];
+        const outputs = entries.map(([res, rate]) => ({ res, rate: fmt(rate * TICKS_PER_DAY * bldgMult * allBonus) }));
+        return { out: fmt(firstRate * TICKS_PER_DAY * bldgMult * allBonus), outputs };
     }
     if (def.converts) {
         const inputRate = Object.values(def.converts.inputs)[0];
@@ -1088,9 +1090,10 @@ function _buildBldTooltipHTML(id, def) {
     } else {
         const r = _bldEffectRates(id, def);
         if (def.production) {
-            const [res] = Object.entries(def.production)[0];
-            const rname = (RESOURCES[res] && RESOURCES[res].name) || (res.charAt(0).toUpperCase() + res.slice(1));
-            html += `<div class="bld-tt-effect">Produces ${r.out} ${rname}</div>`;
+            for (const { res, rate } of r.outputs) {
+                const rname = (RESOURCES[res] && RESOURCES[res].name) || (res.charAt(0).toUpperCase() + res.slice(1));
+                html += `<div class="bld-tt-effect">Produces ${rate} ${rname}</div>`;
+            }
         }
         if (def.converts) {
             const outRes  = def.converts.output;
