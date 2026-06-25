@@ -3276,6 +3276,98 @@ body.reduce-motion *::after {
 .era1-tree { position: relative; }
 
 /* ── Era 1 Canvas Tree ───────────────────────────────────────────────────────── */
+.era1-breadcrumbs {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 6px;
+    min-height: 30px;
+    margin-bottom: 4px;
+}
+.era1-crumb {
+    border: 1px solid rgba(184,144,42,0.35);
+    background: rgba(184,144,42,0.06);
+    color: var(--label);
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-size: 11px;
+    cursor: pointer;
+}
+.era1-crumb:hover {
+    border-color: rgba(184,144,42,0.75);
+    background: rgba(184,144,42,0.12);
+}
+.era1-crumb-current {
+    color: var(--accent);
+    border-color: rgba(184,144,42,0.8);
+    cursor: default;
+}
+.era1-crumb-sep {
+    color: var(--text-muted);
+    font-size: 11px;
+    opacity: 0.7;
+}
+.era1-discovery-wrap {
+    position: relative;
+    width: min(100%, 900px);
+    aspect-ratio: 15 / 8;
+    min-height: 360px;
+    max-height: 560px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background:
+        linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px),
+        linear-gradient(0deg, rgba(255,255,255,0.018) 1px, transparent 1px),
+        var(--bg-dark);
+    background-size: 48px 48px;
+    user-select: none;
+}
+.era1-discovery-svg,
+.era1-discovery-nodes {
+    position: absolute;
+    inset: 0;
+    width: 900px;
+    height: 480px;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%) scale(var(--era1-disc-scale, 1));
+    transform-origin: center;
+}
+.era1-discovery-svg {
+    pointer-events: none;
+    overflow: visible;
+}
+.era1-dnode {
+    z-index: 2;
+}
+.era1-dnode-center {
+    border-width: 2px;
+    background: color-mix(in srgb, var(--dn-clr, var(--accent)) 24%, var(--bg-panel));
+    box-shadow:
+        0 0 0 2px rgba(184,144,42,0.18),
+        0 0 18px color-mix(in srgb, var(--dn-clr, var(--accent)) 35%, transparent);
+}
+.era1-dnode-center .era1-cn-name {
+    color: var(--label);
+    font-size: 14px;
+}
+.era1-dnode-sibling {
+    opacity: 0.72;
+}
+.era1-dnode-unknown {
+    opacity: 0.8;
+}
+@media (max-width: 760px) {
+    .era1-discovery-wrap {
+        min-height: 330px;
+    }
+    .era1-legend {
+        gap: 6px;
+    }
+}
 .era1-canvas-wrap {
     position: relative;
     width: 100%;

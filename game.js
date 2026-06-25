@@ -3933,7 +3933,9 @@ function renderEra1Lore(frontierLayer) {
 // Deep → left, Wild → down, Beyond → right from the root.
 
 let _era1TreeState = '';
-let _era1Canvas = null; // { wrapper, svg, nodeLayer, zoom, panX, panY }
+let _era1Canvas = null; // Legacy global canvas state; local discovery view does not pan/zoom.
+let _era1FocusedNodeId = null;
+let _era1DiscoveryResizeBound = false;
 
 // Node dimensions and spacing
 const ERA1_NODE_W  = 130;
@@ -4025,7 +4027,7 @@ function era1ComputeLayout() {
     return pos;
 }
 
-function renderEra1Tree() {
+function renderEra1TreeLegacy() {
     const container = document.getElementById('era1-tree');
     if (!container) return;
     if ((gameState.run.era || 1) !== 1) { container.innerHTML = ''; renderEra1Lore(0); return; }
@@ -4388,6 +4390,271 @@ function era1PanToMostRecent() {
 }
 
 // ── Tab visibility gating (Era 1 vs Era 2) ───────────────────────────────────
+
+function renderEra1Tree() {
+    const container = document.getElementById('era1-tree');
+    if (!container) return;
+    if ((gameState.run.era || 1) !== 1) {
+        container.innerHTML = '';
+        renderEra1Lore(0);
+        return;
+    }
+
+    const era1 = gameState.era1 || { unlocked: [], chosen: null };
+    const unlocked = new Set(era1.unlocked || []);
+    const revealed = era1GetRevealedRaces();
+    const offeredNames = new Set((era1.raceOptions && era1.raceOptions.names) || []);
+    const prestiged = new Set(Object.keys(gameState.meta.racesPlayed || {}));
+
+    const chosenL1 = era1GetChosenChild('root');
+    const chosenL2 = chosenL1 ? era1GetChosenChild(chosenL1) : null;
+    const chosenL3 = chosenL2 ? era1GetChosenChild(chosenL2) : null;
+    const chosenL4 = chosenL3 ? era1GetChosenChild(chosenL3) : null;
+    const frontierLayer = !chosenL1 ? 1 : !chosenL2 ? 2 : !chosenL3 ? 3 : !chosenL4 ? 4 : 5;
+    renderEra1Lore(frontierLayer);
+
+    const centerId = era1GetDiscoveryFocusId();
+    _era1FocusedNodeId = centerId;
+    const resourceKey = ['essence', 'influence', 'mana'].map(res => Math.floor(gameState.resources[res] || 0)).join(',');
+    const stateKey = [
+        centerId,
+        [...unlocked].join(','),
+        [...revealed].join(','),
+        [...offeredNames].join(','),
+        [...prestiged].join(','),
+        resourceKey,
+    ].join('|');
+    if (stateKey === _era1TreeState && document.getElementById('era1-discovery-wrap')) return;
+
+    _era1TreeState = stateKey;
+    _era1Canvas = null;
+    era1HidePanel();
+    container.innerHTML = `
+        <div class="era1-breadcrumbs" id="era1-breadcrumbs"></div>
+        <div class="era1-discovery-wrap" id="era1-discovery-wrap">
+            <svg class="era1-discovery-svg" id="era1-discovery-svg" viewBox="0 0 900 480" preserveAspectRatio="xMidYMid meet" aria-hidden="true"></svg>
+            <div class="era1-discovery-nodes" id="era1-discovery-nodes"></div>
+            <div class="era1-legend" id="era1-legend">
+                <span class="era1-leg era1-leg-chosen">Center</span>
+                <span class="era1-leg era1-leg-offered">Seen</span>
+                <span class="era1-leg era1-leg-fogged">Unknown</span>
+            </div>
+        </div>`;
+
+    era1RenderBreadcrumbs(centerId);
+    era1RenderDiscoveryScene(centerId, unlocked, revealed, offeredNames, prestiged);
+    era1FitDiscoveryScene();
+    if (!_era1DiscoveryResizeBound) {
+        window.addEventListener('resize', era1FitDiscoveryScene);
+        _era1DiscoveryResizeBound = true;
+    }
+    era1RenderLegendary(prestiged);
+}
+
+function era1GetDiscoveryFocusId() {
+    const era1 = gameState.era1 || {};
+    if (_era1FocusedNodeId && ERA1_TREE[_era1FocusedNodeId]) return _era1FocusedNodeId;
+    if (era1.chosen && ERA1_TREE[era1.chosen]) return era1.chosen;
+    const unlocked = era1.unlocked || [];
+    for (let i = unlocked.length - 1; i >= 0; i--) {
+        if (ERA1_TREE[unlocked[i]]) return unlocked[i];
+    }
+    return 'root';
+}
+
+function era1FocusNode(nodeId) {
+    if (!ERA1_TREE[nodeId]) return;
+    _era1FocusedNodeId = nodeId;
+    _era1TreeState = '';
+    renderEra1Tree();
+}
+
+function era1PathToRoot(nodeId) {
+    const path = [];
+    let node = ERA1_TREE[nodeId];
+    while (node) {
+        path.unshift(node.id);
+        node = node.parent ? ERA1_TREE[node.parent] : null;
+    }
+    return path;
+}
+
+function era1RenderBreadcrumbs(centerId) {
+    const el = document.getElementById('era1-breadcrumbs');
+    if (!el) return;
+    el.innerHTML = '';
+    era1PathToRoot(centerId).forEach((nodeId, idx, path) => {
+        const node = ERA1_TREE[nodeId];
+        if (!node) return;
+        const btn = document.createElement('button');
+        btn.className = 'era1-crumb' + (nodeId === centerId ? ' era1-crumb-current' : '');
+        btn.textContent = node.name;
+        btn.addEventListener('click', () => era1FocusNode(nodeId));
+        el.appendChild(btn);
+        if (idx < path.length - 1) {
+            const sep = document.createElement('span');
+            sep.className = 'era1-crumb-sep';
+            sep.textContent = '>';
+            el.appendChild(sep);
+        }
+    });
+}
+
+function era1LayerLabel(layer) {
+    return ['', 'domain', 'drive', 'form', 'type', 'race'][layer] || '';
+}
+
+function era1NodeKnowledge(node, unlocked, revealed, offeredNames, prestiged) {
+    if (!node) return 'unknown';
+    if (node.layer < 5) {
+        if (node.id === 'root' || unlocked.has(node.id)) return 'discovered';
+        if (node.parent && unlocked.has(node.parent)) return 'seen';
+        return 'seen';
+    }
+    if (unlocked.has(node.id) || prestiged.has(node.race)) return 'discovered';
+    if (offeredNames.has(node.race) || revealed.has(node.race)) return 'seen';
+    return 'unknown';
+}
+
+function era1NodeCanUnlock(node, unlocked, offeredNames) {
+    if (!node || node.id === 'root' || unlocked.has(node.id)) return false;
+    if (!node.parent || (node.parent !== 'root' && !unlocked.has(node.parent))) return false;
+    if (node.layer === 5 && !offeredNames.has(node.race)) return false;
+    return canAffordEra1(node.id);
+}
+
+function era1RenderDiscoveryScene(centerId, unlocked, revealed, offeredNames, prestiged) {
+    const nodeLayer = document.getElementById('era1-discovery-nodes');
+    const svgEl = document.getElementById('era1-discovery-svg');
+    if (!nodeLayer || !svgEl) return;
+
+    const center = ERA1_TREE[centerId] || ERA1_TREE.root;
+    const parentIds = center.parent ? [center.parent] : [];
+    const childIds = (center.children || []).slice().sort((a, b) => {
+        const ak = era1NodeKnowledge(ERA1_TREE[a], unlocked, revealed, offeredNames, prestiged);
+        const bk = era1NodeKnowledge(ERA1_TREE[b], unlocked, revealed, offeredNames, prestiged);
+        const rank = { discovered: 0, seen: 1, unknown: 2 };
+        return (rank[ak] || 9) - (rank[bk] || 9);
+    });
+    const siblingIds = center.parent
+        ? (ERA1_TREE[center.parent].children || []).filter(id => id !== center.id)
+        : [];
+    const slots = [{ id: center.id, role: 'center', x: 370, y: 196, w: 160, h: 88 }];
+
+    function spread(ids, role, x, w, h, limit) {
+        const visible = ids.slice(0, limit);
+        if (!visible.length) return;
+        const gap = visible.length === 1 ? 0 : Math.min(82, 284 / (visible.length - 1));
+        const start = 240 - ((visible.length - 1) * gap) / 2 - h / 2;
+        visible.forEach((id, i) => slots.push({ id, role, x, y: start + i * gap, w, h }));
+        if (ids.length > limit) {
+            slots.push({ id: visible[visible.length - 1], role: role + '-more', forceUnknown: true, x, y: start + visible.length * gap, w, h });
+        }
+    }
+
+    spread(parentIds, 'parent', 84, 132, 58, 3);
+    spread(childIds, 'child', 684, 132, center.layer === 4 ? 48 : 58, 8);
+
+    const sibs = siblingIds.slice(0, 6);
+    sibs.filter((_, i) => i % 2 === 0).forEach((id, i) => {
+        slots.push({ id, role: 'sibling', x: 278 + i * 118, y: 58, w: 112, h: 46 });
+    });
+    sibs.filter((_, i) => i % 2 === 1).forEach((id, i) => {
+        slots.push({ id, role: 'sibling', x: 278 + i * 118, y: 376, w: 112, h: 46 });
+    });
+    if (siblingIds.length > 6 && sibs.length) {
+        slots.push({ id: sibs[sibs.length - 1], role: 'sibling-more', forceUnknown: true, x: 632, y: 376, w: 112, h: 46 });
+    }
+
+    const colors = { deep: '#8899aa', wild: '#5a9e60', beyond: '#8866bb' };
+    const centerSlot = slots[0];
+    const centerMid = { x: centerSlot.x + centerSlot.w / 2, y: centerSlot.y + centerSlot.h / 2 };
+    svgEl.innerHTML = slots.slice(1).map(slot => {
+        const node = ERA1_TREE[slot.id];
+        if (!node) return '';
+        const mid = { x: slot.x + slot.w / 2, y: slot.y + slot.h / 2 };
+        const domain = era1GetDomain(node.id) || era1GetDomain(center.id);
+        const color = colors[domain] || '#6b706f';
+        const opacity = slot.forceUnknown ? 0.28 : 0.58;
+        if (slot.role.indexOf('sibling') === 0) {
+            return `<path d="M${centerMid.x},${centerMid.y} C${centerMid.x},${mid.y} ${mid.x},${centerMid.y} ${mid.x},${mid.y}" stroke="${color}" stroke-width="1.5" fill="none" opacity="${opacity}"/>`;
+        }
+        const bendX = (centerMid.x + mid.x) / 2;
+        return `<path d="M${centerMid.x},${centerMid.y} C${bendX},${centerMid.y} ${bendX},${mid.y} ${mid.x},${mid.y}" stroke="${color}" stroke-width="2" fill="none" opacity="${opacity}"/>`;
+    }).join('');
+
+    nodeLayer.innerHTML = '';
+    slots.forEach((slot, i) => {
+        const el = era1CreateDiscoveryNode(slot, unlocked, revealed, offeredNames, prestiged);
+        if (!el) return;
+        el.style.animationDelay = Math.min(i * 35, 260) + 'ms';
+        el.classList.add('era1-node-enter');
+        nodeLayer.appendChild(el);
+    });
+}
+
+function era1FitDiscoveryScene() {
+    const wrap = document.getElementById('era1-discovery-wrap');
+    if (!wrap) return;
+    const scale = Math.min(1, wrap.clientWidth / 900, wrap.clientHeight / 480);
+    wrap.style.setProperty('--era1-disc-scale', String(Math.max(0.58, scale)));
+}
+
+function era1CreateDiscoveryNode(slot, unlocked, revealed, offeredNames, prestiged) {
+    const node = ERA1_TREE[slot.id];
+    if (!node) return null;
+    const knowledge = slot.forceUnknown ? 'unknown' : era1NodeKnowledge(node, unlocked, revealed, offeredNames, prestiged);
+    const el = document.createElement('div');
+    const domain = era1GetDomain(node.id);
+    const isCenter = slot.role === 'center';
+    const isUnlocked = unlocked.has(node.id) || node.id === 'root';
+    const isOffered = node.layer === 5 && offeredNames.has(node.race);
+    const isPrestiged = node.layer === 5 && prestiged.has(node.race);
+    const canUnlock = era1NodeCanUnlock(node, unlocked, offeredNames);
+
+    el.className = 'era1-cn era1-dnode era1-dnode-' + slot.role;
+    if (domain) el.classList.add('era1-cn-' + domain);
+    if (node.id === 'root') el.classList.add('era1-cn-root');
+    if (isCenter) el.classList.add('era1-cn-chosen', 'era1-dnode-center');
+    else if (knowledge === 'unknown') el.classList.add('era1-cn-fogged', 'era1-dnode-unknown');
+    else if (isPrestiged) el.classList.add('era1-cn-prestiged');
+    else if (isOffered) el.classList.add('era1-cn-offered');
+    else if (isUnlocked) el.classList.add('era1-cn-chosen');
+    else el.classList.add(canUnlock ? 'era1-cn-active' : 'era1-cn-waiting');
+
+    el.id = slot.forceUnknown ? 'era1-node-more-' + slot.role : 'era1-node-' + node.id;
+    el.style.left = slot.x + 'px';
+    el.style.top = slot.y + 'px';
+    el.style.width = slot.w + 'px';
+    el.style.height = slot.h + 'px';
+    el.setAttribute('data-nid', node.id);
+
+    if (knowledge === 'unknown') {
+        el.innerHTML = `<div class="era1-cn-fog">???</div>`;
+        el.style.pointerEvents = 'none';
+        return el;
+    }
+
+    const sub = node.layer === 5 ? (isOffered ? 'seen' : node.type) : era1LayerLabel(node.layer);
+    el.innerHTML = `<div class="era1-cn-name">${node.name}</div>${sub ? `<div class="era1-cn-sub">${sub}</div>` : ''}`;
+    el.addEventListener('mouseenter', e => era1ShowPanel(node.id, e));
+    el.addEventListener('mousemove', e => _era1MoveTooltip(e));
+    el.addEventListener('mouseleave', () => era1HidePanel());
+    el.addEventListener('click', () => {
+        if (isUnlocked) {
+            era1FocusNode(node.id);
+            return;
+        }
+        if (!canUnlock) {
+            el.classList.add('era1-flash-deny');
+            setTimeout(() => el.classList.remove('era1-flash-deny'), 600);
+            return;
+        }
+        _era1FocusedNodeId = node.id;
+        unlockEra1Node(node.id);
+    });
+    return el;
+}
 
 function updateEraTabVisibility() {
     const era = gameState.run.era || 1;
