@@ -1463,16 +1463,16 @@
         <section id="wiki-racetree" class="wiki-section" style="display:none">
             <h2>Creature Tree</h2>
             <p class="wiki-lead">
-                All 91 playable creatures across 15 race types, organized by four lineage paths.
+                All playable creatures across 19 race types, organized by domain (Deep, Wild, Beyond) and lineage path.
                 <b>Drag</b> to pan &middot; <b>Scroll</b> to zoom &middot; <b>Hover</b> a node for details &middot; <b>Search</b> to highlight.
+                In-game, individual race leaves are hidden until offered or previously prestiged with.
             </p>
             <input id="rtrace-search" type="text" placeholder="Search creatures or types…"
                 style="width:260px;margin-bottom:10px;padding:5px 10px;background:#1a2020;border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:12px;font-family:Lato,sans-serif;outline:none">
             <div class="rtree-legend">
-                <span class="rtleg"><span class="rtleg-sw" style="background:#58b878"></span>Primal</span>
-                <span class="rtleg"><span class="rtleg-sw" style="background:#9b6dbe"></span>Shadow</span>
-                <span class="rtleg"><span class="rtleg-sw" style="background:#3cb0c8"></span>Arcane</span>
-                <span class="rtleg"><span class="rtleg-sw" style="background:#88a0b0"></span>Civilized</span>
+                <span class="rtleg"><span class="rtleg-sw" style="background:#8899aa"></span>The Deep</span>
+                <span class="rtleg"><span class="rtleg-sw" style="background:#5a9e60"></span>The Wild</span>
+                <span class="rtleg"><span class="rtleg-sw" style="background:#8866bb"></span>The Beyond</span>
             </div>
             <div class="rtrace-controls">
                 <button class="rtrace-btn" id="rtrace-zoom-in"  title="Zoom in">+</button>
@@ -1570,6 +1570,11 @@
         <!-- CHANGELOG -->
         <section id="wiki-changelog" class="wiki-section wiki-changelog" style="display:none">
             <h2>Changelog</h2>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.67.0</span><span class="cl-date">2026-06-24</span></div>
+                <p class="biome-desc">Replaced the Era 1 awakening tree with a full zoomable/pannable canvas showing every possible race path. The tree now branches left (Deep), down (Wild), and right (Beyond) from the root, displaying all 131+ races as leaf nodes. Race leaves are fogged with a "?" until revealed — races you've prestiged with are always visible in green, and 2 random new races are offered in amber each run. Added a gold Legendary Races panel below the canvas. Restructured the tree to 6 L3 nodes (3 types each = 18 total types), adding Swarm, Celestial, Planar, Specter, and Beast as new types (Swarm/Beast/Planar have placeholder races pending future content). Wiki Creature Tree updated to reflect the new domain structure.</p>
+            </div>
 
             <div class="biome-card">
                 <div><span class="cl-ver">v0.66.1</span><span class="cl-date">2026-06-24</span></div>
@@ -2669,60 +2674,68 @@ function showWiki(id) {
     var R1 = 220, R2 = 640, R3 = 1080;
 
     var RACE_PATHS = [
-        { name: 'Primal',    color: '#58b878', angle: 0,   types: ['Monstrous','Lycanthrope','Flora','Aquatic'] },
-        { name: 'Shadow',    color: '#9b6dbe', angle: 90,  types: ['Undead','Fiend','Ooze'] },
-        { name: 'Arcane',    color: '#3cb0c8', angle: 180, types: ['Draconic','Aberration','Fey','Elemental'] },
-        { name: 'Civilized', color: '#88a0b0', angle: 270, types: ['Goblinoid','Giant','Humanoid','Construct'] },
+        { name: 'The Deep',   color: '#8899aa', angle: 0,   types: ['Goblinoid','Giant','Swarm','Aberration','Construct','Draconic'] },
+        { name: 'The Wild',   color: '#5a9e60', angle: 90,  types: ['Flora','Ooze','Lycanthrope','Aquatic','Monstrous','Beast'] },
+        { name: 'The Beyond', color: '#8866bb', angle: 180, types: ['Undead','Elemental','Specter','Fiend','Humanoid','Planar','Celestial'] },
     ];
 
     var ROSTER = {
-        'Draconic':    ['Metallic Dragon','Lizardfolk','Kobold','Yuan-ti','Wyvern','Dragonborn'],
-        'Undead':      ['Skeleton','Zombie','Vampire','Wight','Ghoul','Revenant','Banshee','Wraith','Mummy','Demilich','Shadow'],
         'Goblinoid':   ['Goblin','Hobgoblin','Bugbear','Orc','Gnoll','Barghest'],
-        'Fey':         ['Pixie','Dryad','Satyr','Quickling','Green Hag','Homunculus'],
-        'Aberration':  ['Mind Flayer','Beholder','Aboleth','Gibbering Mouther','Nothic','Chuul','Grell','Flumph'],
-        'Ooze':        ['Gelatinous Cube','Black Pudding','Gray Ooze','Ochre Jelly','Void Ooze','Oblex'],
-        'Elemental':   ['Fire Elemental','Earth Elemental','Water Elemental','Air Elemental','Magmin','Galeb Duhr'],
-        'Monstrous':   ['Harpy','Medusa','Minotaur','Troll','Werewolf','Naga','Basilisk','Chimera','Manticore','Griffon','Hydra','Ettin'],
-        'Fiend':       ['Imp','Cambion','Barbed Devil','Night Hag','Succubus/Incubus','Pit Fiend','Balor','Rakshasa','Quasit','Shadow Demon'],
         'Giant':       ['Hill Giant','Stone Giant','Frost Giant','Fire Giant','Cloud Giant','Storm Giant'],
+        'Swarm':       ['Placeholder 1','Placeholder 2','Placeholder 3','Placeholder 4','Placeholder 5','Placeholder 6'],
+        'Aberration':  ['Mind Flayer','Beholder','Aboleth','Gibbering Mouther','Nothic','Chuul','Grell','Flumph'],
         'Construct':   ['Stone Golem','Iron Golem','Animated Armor','Clay Golem','Flesh Golem','Clockwork Horror'],
-        'Lycanthrope': ['Werebear','Wererat','Wereboar','Owlbear','Displacer Beast','Weretiger'],
+        'Draconic':    ['Metallic Dragon','Lizardfolk','Kobold','Yuan-ti','Wyvern','Dragonborn'],
         'Flora':       ['Treant','Myconid','Vegepygmy','Shambling Mound','Vine Blight','Wood Woad'],
+        'Ooze':        ['Gelatinous Cube','Black Pudding','Gray Ooze','Ochre Jelly','Void Ooze','Oblex'],
+        'Lycanthrope': ['Werebear','Wererat','Wereboar','Owlbear','Displacer Beast','Weretiger'],
         'Aquatic':     ['Merfolk','Sahuagin','Kuo-toa','Triton','Sea Hag','Locathah'],
+        'Monstrous':   ['Harpy','Medusa','Minotaur','Troll','Naga','Basilisk','Chimera','Manticore','Griffon','Hydra','Ettin','Worg'],
+        'Beast':       ['Placeholder 1','Placeholder 2','Placeholder 3','Placeholder 4','Placeholder 5','Placeholder 6'],
+        'Undead':      ['Skeleton','Zombie','Vampire','Wight','Ghoul','Revenant','Banshee','Wraith','Mummy','Demilich','Shadow'],
+        'Elemental':   ['Fire Elemental','Earth Elemental','Water Elemental','Air Elemental','Magmin','Galeb Duhr'],
+        'Specter':     ['Ghost','Specter','Poltergeist','Shadow Demon','Nighthaunt','Allip'],
+        'Fiend':       ['Imp','Cambion','Barbed Devil','Night Hag','Succubus/Incubus','Pit Fiend','Balor','Rakshasa','Quasit','Shadow Demon'],
         'Humanoid':    ['Kenku','Tabaxi','Aarakocra','Tortle','Centaur','Human','Elf','Dwarf','Half-Orc','Gnome'],
+        'Planar':      ['Placeholder 1','Placeholder 2','Placeholder 3','Placeholder 4','Placeholder 5','Placeholder 6'],
+        'Celestial':   ['Planetar','Deva','Couatl','Pegasus','Unicorn','Hollyphant'],
     };
 
     var TYPE_COLORS = {
-        'Draconic':'#e07b39','Undead':'#9b6dbe','Goblinoid':'#7ab648','Fey':'#c878d8',
-        'Aberration':'#3cb0c8','Ooze':'#a0c840','Elemental':'#e8c040','Monstrous':'#c84040',
-        'Fiend':'#d04060','Giant':'#c87840','Construct':'#88a0b0','Lycanthrope':'#8fbe60',
-        'Flora':'#58b878','Aquatic':'#40a8c8','Humanoid':'#60a8d0',
+        'Goblinoid':'#7ab648','Giant':'#c87840','Swarm':'#a0a030',
+        'Aberration':'#3cb0c8','Construct':'#88a0b0','Draconic':'#e07b39',
+        'Flora':'#58b878','Ooze':'#a0c840','Lycanthrope':'#8fbe60',
+        'Aquatic':'#40a8c8','Monstrous':'#c84040','Beast':'#b06030',
+        'Undead':'#9b6dbe','Elemental':'#e8c040','Specter':'#7060a0',
+        'Fiend':'#d04060','Humanoid':'#60a8d0','Planar':'#60a0b0','Celestial':'#d4b840',
     };
 
     var PATH_DESCS = {
-        'Primal':    'Creatures of claw, fang, and primal instinct. Hunters, beasts, and forces of raw nature.',
-        'Shadow':    'Creatures of darkness, death, and the beyond. Feed on the living — or nothing at all.',
-        'Arcane':    'Creatures bound to magic, mystery, and ancient power. Arcane amplifiers and enigmatic minds.',
-        'Civilized': 'Creatures with society, order, or purpose-built design. Structured, industrious, and disciplined.',
+        'The Deep':   'Underground creatures of dominance and ancient wisdom. Hordes, anomalies, and dragon-blooded power.',
+        'The Wild':   'Surface creatures of growth and the hunt. Root-bound, pack-driven, and relentlessly alive.',
+        'The Beyond': 'Creatures of death, planes, and bargains. Undying, incorporeal, infernal, and celestial.',
     };
 
     var TYPE_DESCS = {
         'Goblinoid':   'Prolific horde-breeders who compensate for individual weakness with sheer numbers and mob scavenging. Cramped but numerous.',
-        'Undead':      'Near-foodless undying labor — slow to raise but tireless. Thrive in darkness, collect bones, and draw on essence.',
-        'Draconic':    'Apex prestige race: powerful, greedy, and rare. Tremendous production and coin hoarding at the cost of vast appetites and slow growth.',
-        'Fey':         'Nimble nature-touched foragers with light appetites and a deep affinity for lumber, herbs, and forest gathering.',
-        'Aberration':  'Alien minds that resonate strongly with arcane and crystal production. Unusual biology demands unusual feeding.',
-        'Ooze':        'Passive, patient, and vast. Oozes barely eat, store enormous quantities, and seep into every production process.',
-        'Elemental':   'Beings of pure elemental force. Nearly foodless and tuned to raw material extraction, but slow to coalesce.',
-        'Monstrous':   'Savage heavyweights. Brute extraction specialists with tremendous production output and matching appetites.',
-        'Fiend':       'Infernal contract workers who tithe heavily, master dark rituals, and must be summoned rather than bred.',
         'Giant':       'Colossal laborers of immense productivity. Require vast food, vast lairs, and vast patience to assemble.',
+        'Swarm':       'Countless small creatures moving as one terrible whole. Not an army — a force of nature. (Coming soon.)',
+        'Aberration':  'Alien minds that resonate strongly with arcane and crystal production. Unusual biology demands unusual feeding.',
         'Construct':   'Built, not born. Indestructible, nearly foodless, and exceptionally efficient at mining and refining — but slow to forge.',
-        'Lycanthrope': 'Pack hunters with keen senses and fast growth. Excel at hunting and gathering but consume more food.',
+        'Draconic':    'Apex prestige race: powerful, greedy, and rare. Tremendous production and coin hoarding at the cost of vast appetites and slow growth.',
         'Flora':       'Living plant creatures who barely eat but grow slowly. Masters of lumber, herb, and botanical gathering.',
+        'Ooze':        'Passive, patient, and vast. Oozes barely eat, store enormous quantities, and seep into every production process.',
+        'Lycanthrope': 'Pack hunters with keen senses and fast growth. Excel at hunting and gathering but consume more food.',
         'Aquatic':     'Sea-adapted creatures with efficient metabolisms, excellent clay production, and swift growth cycles.',
+        'Monstrous':   'Savage heavyweights. Brute extraction specialists with tremendous production output and matching appetites.',
+        'Beast':       'Pure predators with no agenda beyond survival. Fast, efficient, and surprisingly effective dungeon denizens. (Coming soon.)',
+        'Undead':      'Near-foodless undying labor — slow to raise but tireless. Thrive in darkness, collect bones, and draw on essence.',
+        'Elemental':   'Beings of pure elemental force. Nearly foodless and tuned to raw material extraction, but slow to coalesce.',
+        'Specter':     'Incorporeal remnants of the dead — pass through walls and drain the living. Fragile to light, lethal in darkness.',
+        'Fiend':       'Infernal contract workers who tithe heavily, master dark rituals, and must be summoned rather than bred.',
         'Humanoid':    'Versatile generalists. Adaptable, civic-minded, and balanced — no extremes, all bases covered.',
+        'Planar':      'Beings shaped by realities with different rules. Their alien logic translates into unusual dungeon effects. (Coming soon.)',
+        'Celestial':   'Fallen or bound celestials serving a dungeon lord. Their divine power remains — only their allegiance changed.',
     };
 
     var CREATURE_DATA = {

@@ -3279,6 +3279,223 @@ body.reduce-motion *::after {
 /* Tree container needs position:relative for the flash overlay */
 .era1-tree { position: relative; }
 
+/* ── Era 1 Canvas Tree ───────────────────────────────────────────────────────── */
+.era1-canvas-wrap {
+    position: relative;
+    width: 100%;
+    height: 560px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--bg-dark);
+    cursor: grab;
+    user-select: none;
+}
+
+/* Nodes layer — transformed for pan/zoom */
+.era1-canvas-nodes {
+    position: absolute;
+    top: 0; left: 0;
+    transform-origin: 0 0;
+}
+
+/* Individual canvas node */
+.era1-cn {
+    position: absolute;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: var(--bg-panel);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4px 6px;
+    box-sizing: border-box;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s, box-shadow 0.15s, opacity 0.15s;
+    overflow: hidden;
+}
+.era1-cn-name {
+    font-size: 10px;
+    font-weight: bold;
+    color: var(--text-muted);
+    text-align: center;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+}
+.era1-cn-sub {
+    font-size: 9px;
+    color: var(--text-muted);
+    opacity: 0.6;
+    text-align: center;
+    margin-top: 2px;
+}
+
+/* Domain tints */
+.era1-cn.era1-cn-deep   { --dn-clr: #8899aa; }
+.era1-cn.era1-cn-wild   { --dn-clr: #5a9e60; }
+.era1-cn.era1-cn-beyond { --dn-clr: #8866bb; }
+
+/* Root node */
+.era1-cn.era1-cn-root {
+    border-color: rgba(184,144,42,0.8);
+    background: rgba(184,144,42,0.1);
+    cursor: default;
+}
+.era1-cn.era1-cn-root .era1-cn-name { color: rgba(184,144,42,0.9); font-size: 11px; }
+
+/* Chosen path (bought by player this run) */
+.era1-cn.era1-cn-chosen {
+    border-color: var(--dn-clr, var(--accent));
+    background: color-mix(in srgb, var(--dn-clr, var(--accent)) 18%, transparent);
+    box-shadow: 0 0 8px color-mix(in srgb, var(--dn-clr, var(--accent)) 30%, transparent);
+    cursor: default;
+}
+.era1-cn.era1-cn-chosen .era1-cn-name { color: var(--label); }
+
+/* Active (frontier, affordable) */
+.era1-cn.era1-cn-active {
+    border-color: color-mix(in srgb, var(--dn-clr, var(--accent)) 60%, transparent);
+    background: var(--bg-dark);
+}
+.era1-cn.era1-cn-active:hover {
+    border-color: var(--dn-clr, var(--accent));
+    background: color-mix(in srgb, var(--dn-clr, var(--accent)) 10%, transparent);
+    box-shadow: 0 0 6px color-mix(in srgb, var(--dn-clr, var(--accent)) 25%, transparent);
+}
+
+/* Waiting (frontier, can't afford) */
+.era1-cn.era1-cn-waiting {
+    border-color: var(--border);
+    opacity: 0.6;
+}
+
+/* Sibling (branch not yet reachable) */
+.era1-cn.era1-cn-sibling {
+    border-color: var(--border);
+    opacity: 0.25;
+    pointer-events: none;
+}
+
+/* Prestiged race (permanently unlocked) — green tint */
+.era1-cn.era1-cn-prestiged {
+    border-color: rgba(90,200,100,0.7);
+    background: rgba(90,200,100,0.1);
+}
+.era1-cn.era1-cn-prestiged .era1-cn-name { color: rgba(140,230,150,0.95); }
+.era1-cn.era1-cn-prestiged:hover {
+    border-color: rgba(90,200,100,1);
+    box-shadow: 0 0 6px rgba(90,200,100,0.3);
+}
+
+/* Offered this run — amber tint */
+.era1-cn.era1-cn-offered {
+    border-color: rgba(200,160,50,0.7);
+    background: rgba(200,160,50,0.1);
+}
+.era1-cn.era1-cn-offered .era1-cn-name { color: rgba(230,190,90,0.95); }
+.era1-cn.era1-cn-offered:hover {
+    border-color: rgba(200,160,50,1);
+    box-shadow: 0 0 6px rgba(200,160,50,0.3);
+}
+
+/* Fogged / undiscovered race */
+.era1-cn.era1-cn-fogged {
+    border-color: rgba(80,80,90,0.5);
+    background: rgba(20,20,28,0.7);
+    filter: blur(0px);
+    cursor: default;
+}
+.era1-cn-fog {
+    font-size: 18px;
+    color: rgba(100,100,120,0.5);
+    font-weight: bold;
+    text-align: center;
+    filter: blur(1px);
+}
+
+/* Legend */
+.era1-legend {
+    position: absolute;
+    bottom: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 12px;
+    pointer-events: none;
+    z-index: 10;
+}
+.era1-leg {
+    font-size: 9px;
+    padding: 2px 7px;
+    border-radius: 3px;
+    border: 1px solid;
+    opacity: 0.75;
+}
+.era1-leg-chosen   { border-color: #8899aa; color: #8899aa; background: rgba(136,153,170,0.1); }
+.era1-leg-prestiged{ border-color: rgba(90,200,100,0.7); color: rgba(140,230,150,0.9); background: rgba(90,200,100,0.08); }
+.era1-leg-offered  { border-color: rgba(200,160,50,0.7);  color: rgba(230,190,90,0.9);  background: rgba(200,160,50,0.08); }
+.era1-leg-fogged   { border-color: rgba(80,80,90,0.5);    color: rgba(100,100,120,0.6); background: rgba(20,20,28,0.4); }
+
+/* ── Legendary Races sidebar ─────────────────────────────────────────────────── */
+.era1-legendary-box {
+    margin-top: 12px;
+    border: 1px solid rgba(184,144,42,0.4);
+    border-radius: 6px;
+    background: rgba(184,144,42,0.05);
+    padding: 10px 12px;
+}
+.era1-legendary-title {
+    font-size: 11px;
+    font-weight: bold;
+    color: rgba(184,144,42,0.8);
+    text-align: center;
+    margin-bottom: 8px;
+    letter-spacing: 0.05em;
+}
+.era1-legendary-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    justify-content: center;
+}
+.era1-legendary-card {
+    width: 80px;
+    height: 44px;
+    border: 1px solid rgba(184,144,42,0.3);
+    border-radius: 4px;
+    background: rgba(20,18,10,0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    color: rgba(184,144,42,0.5);
+    cursor: default;
+}
+.era1-legendary-card.era1-lc-fogged {
+    filter: blur(0.5px);
+}
+.era1-lc-fog {
+    font-size: 16px;
+    color: rgba(184,144,42,0.3);
+    filter: blur(1px);
+}
+.era1-legendary-card.era1-lc-revealed {
+    border-color: rgba(184,144,42,0.7);
+    background: rgba(184,144,42,0.08);
+    cursor: pointer;
+}
+.era1-legendary-card.era1-lc-revealed .era1-lc-name {
+    color: rgba(230,190,60,0.9);
+    text-align: center;
+    font-weight: bold;
+    font-size: 9px;
+    padding: 2px;
+}
+
 /* Branch-colored burst particles */
 .era1-particle {
     position: fixed;

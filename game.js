@@ -2724,27 +2724,32 @@ function era1FlashTree(domainId) {
     flash.addEventListener('animationend', () => flash.remove(), { once: true });
 }
 
-// Injects dynamic race nodes into ERA1_TREE from gameState.era1.raceOptions.
-// Called on L4 unlock and on load so the tree always has the saved options.
-function era1EnsureDynRaceNodes() {
+// Returns the set of race names that are revealed to the player:
+// - All races they have ever prestiged with (meta.racesPlayed)
+// - The 2 randomly offered races for this run (era1.raceOptions.names)
+function era1GetRevealedRaces() {
+    const revealed = new Set(Object.keys(gameState.meta.racesPlayed || {}));
     const opts = gameState.era1 && gameState.era1.raceOptions;
-    if (!opts || !opts.names || opts.names.length < 2) return;
-    const ids = ['dyn-race-0', 'dyn-race-1'];
-    ids.forEach((id, i) => {
-        const raceName = opts.names[i];
-        // Reuse flavor from existing L5 node if one exists for this race, else generic
-        const existing = Object.values(ERA1_TREE).find(n => n.layer === 5 && n.race === raceName);
-        const flavor = existing ? existing.flavor : `${raceName} — a creature of the ${opts.type} type. Their strengths will shape your dungeon's future.`;
-        ERA1_TREE[id] = {
-            id, name: raceName, layer: 5, parent: opts.parentId,
-            flavor, cost: { influence: 200, mana: 150 }, children: [],
-            type: opts.type, race: raceName,
-        };
-    });
-    // Patch the L4 parent's children to point to the dynamic nodes
-    if (ERA1_TREE[opts.parentId]) {
-        ERA1_TREE[opts.parentId].children = ids;
+    if (opts && opts.names) opts.names.forEach(n => revealed.add(n));
+    return revealed;
+}
+
+// When an L4 type node is chosen, pick 2 random race offers from its static L5
+// children, excluding races already prestiged with. Stores names in era1.raceOptions.
+function era1PickRaceOffers(l4Node) {
+    const prestiged = new Set(Object.keys(gameState.meta.racesPlayed || {}));
+    const legendaryNames = new Set(Object.values(LEGENDARY_ROSTER).flat());
+    const children = l4Node.children || [];
+    const unplayed = children
+        .map(id => ERA1_TREE[id])
+        .filter(n => n && !prestiged.has(n.race) && !legendaryNames.has(n.race));
+    // Fisher-Yates shuffle unplayed pool, pick up to 2
+    for (let i = unplayed.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [unplayed[i], unplayed[j]] = [unplayed[j], unplayed[i]];
     }
+    const offered = unplayed.slice(0, 2).map(n => n.race);
+    gameState.era1.raceOptions = { type: l4Node.type, parentId: l4Node.id, names: offered };
 }
 
 function unlockEra1Node(nodeId) {
@@ -2772,19 +2777,9 @@ function unlockEra1Node(nodeId) {
     if (!gameState.era1) gameState.era1 = { unlocked: [], chosen: null };
     gameState.era1.unlocked.push(nodeId);
 
-    // L4 chosen — pick 2 random races from the full roster for this type
+    // L4 chosen — pick 2 random race offers from this type's static L5 children
     if (node.layer === 4 && node.type) {
-        const legendaryNames = new Set(
-            Object.values(LEGENDARY_ROSTER).flat()
-        );
-        const pool = (CREATURE_ROSTER[node.type] || []).filter(n => !legendaryNames.has(n));
-        // Fisher-Yates shuffle, then take first 2
-        for (let i = pool.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [pool[i], pool[j]] = [pool[j], pool[i]];
-        }
-        gameState.era1.raceOptions = { type: node.type, parentId: nodeId, names: pool.slice(0, 2) };
-        era1EnsureDynRaceNodes();
+        era1PickRaceOffers(node);
     }
 
     // Era transition: L5 race node chosen
@@ -2805,6 +2800,7 @@ function unlockEra1Node(nodeId) {
         return;
     }
     updateUI();
+    era1PanToMostRecent();
     saveGame();
 }
 
@@ -3926,114 +3922,489 @@ function renderEra1Lore(frontierLayer) {
         `</div>`;
 }
 
+// ── Era 1 Full Tree Canvas ────────────────────────────────────────────────────
+// Zoomable/pannable canvas showing the entire awakening tree.
+// Deep → left, Wild → down, Beyond → right from the root.
+
 let _era1TreeState = '';
+let _era1Canvas = null; // { wrapper, svg, nodeLayer, zoom, panX, panY }
+
+// Node dimensions and spacing
+const ERA1_NODE_W  = 110;
+const ERA1_NODE_H  = 48;
+const ERA1_H_GAP   = 18;  // horizontal gap between sibling nodes
+const ERA1_V_GAP   = 52;  // vertical gap between layers
+
+// Compute layout positions for all nodes in the full tree.
+// Returns Map<nodeId, {x, y}> in canvas coordinates.
+// Root is at (0,0). Deep goes left, Wild goes down, Beyond goes right.
+function era1ComputeLayout() {
+    const pos = new Map();
+    const stepY = ERA1_NODE_H + ERA1_V_GAP;
+    const stepX = ERA1_NODE_W + ERA1_H_GAP;
+
+    // Recursively lay out a subtree rooted at nodeId going in direction:
+    //   'left'  — each layer shifts further left, siblings spread vertically
+    //   'down'  — each layer shifts further down, siblings spread horizontally
+    //   'right' — each layer shifts further right, siblings spread vertically
+    // Returns the "span" this subtree occupies in the perpendicular axis.
+    function layoutSubtree(nodeId, depth, perpOffset, direction) {
+        const node = ERA1_TREE[nodeId];
+        if (!node) return 0;
+        const children = node.children || [];
+
+        if (children.length === 0) {
+            // Leaf
+            let x, y;
+            if (direction === 'down') {
+                x = perpOffset;
+                y = depth * stepY;
+            } else if (direction === 'left') {
+                x = -(depth * stepX);
+                y = perpOffset;
+            } else {
+                x = depth * stepX;
+                y = perpOffset;
+            }
+            pos.set(nodeId, { x, y });
+            return direction === 'down' ? stepX : stepY;
+        }
+
+        // Lay out children first to get their spans
+        const childSpans = [];
+        let totalSpan = 0;
+        for (const cid of children) {
+            const span = layoutSubtree(cid, depth + 1, 0, direction); // placeholder offset
+            childSpans.push(span);
+            totalSpan += span;
+        }
+        // Add gaps between children
+        totalSpan += ERA1_H_GAP * (children.length - 1);
+
+        // Now reposition children relative to this node's perpendicular center
+        let cursor = perpOffset - totalSpan / 2;
+        for (let i = 0; i < children.length; i++) {
+            const cid = children[i];
+            const childCenter = cursor + childSpans[i] / 2;
+            repositionSubtree(cid, depth + 1, childCenter, direction);
+            cursor += childSpans[i] + ERA1_H_GAP;
+        }
+
+        // Place this node at perpOffset, depth
+        let x, y;
+        if (direction === 'down') {
+            x = perpOffset;
+            y = depth * stepY;
+        } else if (direction === 'left') {
+            x = -(depth * stepX);
+            y = perpOffset;
+        } else {
+            x = depth * stepX;
+            y = perpOffset;
+        }
+        pos.set(nodeId, { x, y });
+        return totalSpan;
+    }
+
+    // Reposition a subtree with a known perpendicular center
+    function repositionSubtree(nodeId, depth, perpCenter, direction) {
+        const node = ERA1_TREE[nodeId];
+        if (!node) return;
+        const children = node.children || [];
+
+        let x, y;
+        if (direction === 'down') {
+            x = perpCenter;
+            y = depth * stepY;
+        } else if (direction === 'left') {
+            x = -(depth * stepX);
+            y = perpCenter;
+        } else {
+            x = depth * stepX;
+            y = perpCenter;
+        }
+        pos.set(nodeId, { x, y });
+
+        if (children.length === 0) return;
+
+        // Compute child spans
+        const childSpans = children.map(cid => getSubtreeSpan(cid, direction));
+        let totalSpan = childSpans.reduce((a, b) => a + b, 0) + ERA1_H_GAP * (children.length - 1);
+        let cursor = perpCenter - totalSpan / 2;
+        for (let i = 0; i < children.length; i++) {
+            const childCenter = cursor + childSpans[i] / 2;
+            repositionSubtree(children[i], depth + 1, childCenter, direction);
+            cursor += childSpans[i] + ERA1_H_GAP;
+        }
+    }
+
+    // Get the total perpendicular span of a subtree (leaf count * stepSize)
+    function getSubtreeSpan(nodeId, direction) {
+        const node = ERA1_TREE[nodeId];
+        if (!node) return 0;
+        const children = node.children || [];
+        if (children.length === 0) return direction === 'down' ? stepX : stepY;
+        const childSpans = children.map(cid => getSubtreeSpan(cid, direction));
+        return childSpans.reduce((a, b) => a + b, 0) + ERA1_H_GAP * (children.length - 1);
+    }
+
+    // Root at (0, 0)
+    pos.set('root', { x: 0, y: 0 });
+
+    // Lay out each domain branch in its direction
+    const domainDirs = { deep: 'left', wild: 'down', beyond: 'right' };
+    // Vertical offset for deep/beyond branches (they go sideways from the root's y level)
+    // Wild goes down from root, so its drives/forms/types spread horizontally.
+    // Deep/Beyond go left/right, so their drives/forms/types spread vertically.
+
+    // Deep branch: starts left at depth 1
+    repositionSubtree('deep',   1, 0, 'left');
+    // Wild branch: starts down at depth 1
+    repositionSubtree('wild',   1, 0, 'down');
+    // Beyond branch: starts right at depth 1
+    repositionSubtree('beyond', 1, 0, 'right');
+
+    return pos;
+}
 
 function renderEra1Tree() {
     const container = document.getElementById('era1-tree');
     if (!container) return;
     if ((gameState.run.era || 1) !== 1) { container.innerHTML = ''; renderEra1Lore(0); return; }
 
-    const era1 = gameState.era1 || { unlocked: [], chosen: null };
-    const unlocked = era1.unlocked || [];
-    const stateKey = unlocked.join(',') + '|' + getCaps().essence;
-    if (stateKey === _era1TreeState) return;
-    _era1TreeState = stateKey;
-    era1HidePanel();
+    const era1    = gameState.era1 || { unlocked: [], chosen: null };
+    const unlocked = new Set(era1.unlocked || []);
+    const revealed = era1GetRevealedRaces();
+    const offeredNames = new Set((era1.raceOptions && era1.raceOptions.names) || []);
+    const prestiged    = new Set(Object.keys(gameState.meta.racesPlayed || {}));
 
-    // Build the visible node sequence: root, then each chosen child down the path,
-    // plus the current frontier (children of the deepest chosen node).
-    // At each layer, show all siblings — chosen one highlighted, unchosen ones ghosted.
-
-    let html = '';
-
-    // Helper: render one layer row
-    // animate=true adds entrance animation classes (only for the frontier layer)
-    function renderLayer(nodeIds, chosenId, animate) {
-        if (!nodeIds || nodeIds.length === 0) return '';
-        // Get domain of the first node for branch coloring
-        const domainId = era1GetDomain(nodeIds[0]);
-        const branchClass = (ERA1_BRANCH_CLASS && ERA1_BRANCH_CLASS[domainId]) || '';
-        let rowHtml = '<div class="era1-layer">';
-        for (let i = 0; i < nodeIds.length; i++) {
-            const nid  = nodeIds[i];
-            const node = ERA1_TREE[nid];
-            if (!node) continue;
-            const isChosen = nid === chosenId;
-            const isGhosted = chosenId && !isChosen; // a sibling was chosen instead
-            const isActive  = !chosenId && !isGhosted; // no sibling chosen yet — this is the frontier
-            const affordable = isActive && canAffordEra1(nid);
-            const stateClass = isChosen  ? 'era1-node-done'
-                             : isGhosted ? 'era1-node-locked'
-                             : affordable ? 'era1-node-active'
-                             : 'era1-node-waiting';
-            const enterClass = animate ? 'era1-node-enter' : '';
-            const enterDelay = animate ? `animation-delay:${i * 60}ms;` : '';
-            rowHtml += `<div class="era1-node ${stateClass} ${branchClass} ${enterClass}" id="era1-node-${nid}"
-                            style="${enterDelay}"
-                            onclick="unlockEra1Node('${nid}')"
-                            onmouseenter="era1ShowPanel('${nid}', event)"
-                            onmousemove="_era1MoveTooltip(event)"
-                            onmouseleave="era1HidePanel()">
-                <div class="era1-node-name">${node.name}</div>
-                ${node.type ? `<div class="era1-node-type">${node.type}</div>` : ''}
-            </div>`;
-        }
-        rowHtml += '</div>';
-        return rowHtml;
-    }
-
-    // Helper: connector — animated only when it's newly appearing
-    function renderConnector(animate) {
-        return `<div class="era1-connector${animate ? ' era1-connector-new' : ''}"></div>`;
-    }
-
-    // Determine how deep the chosen path goes so we know which layer is the frontier
+    // Determine frontier layer for lore
     const chosenL1 = era1GetChosenChild('root');
     const chosenL2 = chosenL1 ? era1GetChosenChild(chosenL1) : null;
     const chosenL3 = chosenL2 ? era1GetChosenChild(chosenL2) : null;
     const chosenL4 = chosenL3 ? era1GetChosenChild(chosenL3) : null;
     const frontierLayer = !chosenL1 ? 1 : !chosenL2 ? 2 : !chosenL3 ? 3 : !chosenL4 ? 4 : 5;
+    renderEra1Lore(frontierLayer);
 
-    // L0: root (always shown as done)
-    const rootNode = ERA1_TREE['root'];
-    html += `<div class="era1-layer era1-layer-root">
-        <div class="era1-node era1-node-done era1-root-node" onmouseenter="era1ShowPanel('root', event)" onmousemove="_era1MoveTooltip(event)" onmouseleave="era1HidePanel()">
-            <div class="era1-node-name">${rootNode.name}</div>
-        </div>
-    </div>`;
-    html += renderConnector(false);
+    // State key — rebuild only when something meaningful changes
+    const stateKey = [...unlocked].join(',') + '|' + [...revealed].join(',') + '|' + getCaps().essence;
+    if (stateKey === _era1TreeState && _era1Canvas) {
+        era1UpdateNodeStyles(unlocked, revealed, offeredNames, prestiged);
+        era1RenderLegendary(prestiged);
+        return;
+    }
+    _era1TreeState = stateKey;
+    era1HidePanel();
 
-    // L1: Domain
-    html += renderLayer(ERA1_TREE['root'].children, chosenL1, frontierLayer === 1);
+    // ── Build canvas wrapper ──────────────────────────────────────────────────
+    container.innerHTML = `
+        <div class="era1-canvas-wrap" id="era1-canvas-wrap">
+            <svg class="era1-canvas-svg" id="era1-canvas-svg" style="position:absolute;top:0;left:0;width:100%;height:100%;overflow:visible;pointer-events:none;"></svg>
+            <div class="era1-canvas-nodes" id="era1-canvas-nodes"></div>
+            <div class="era1-legend" id="era1-legend">
+                <span class="era1-leg era1-leg-chosen">Chosen path</span>
+                <span class="era1-leg era1-leg-prestiged">Unlocked</span>
+                <span class="era1-leg era1-leg-offered">Offered this run</span>
+                <span class="era1-leg era1-leg-fogged">Undiscovered</span>
+            </div>
+        </div>`;
 
-    if (chosenL1) {
-        html += renderConnector(frontierLayer === 2);
-        // L2: Drive
-        html += renderLayer(ERA1_TREE[chosenL1].children, chosenL2, frontierLayer === 2);
+    const wrap      = document.getElementById('era1-canvas-wrap');
+    const svgEl     = document.getElementById('era1-canvas-svg');
+    const nodeLayer = document.getElementById('era1-canvas-nodes');
 
-        if (chosenL2) {
-            html += renderConnector(frontierLayer === 3);
-            // L3: Form
-            html += renderLayer(ERA1_TREE[chosenL2].children, chosenL3, frontierLayer === 3);
+    // ── Compute layout ────────────────────────────────────────────────────────
+    const positions = era1ComputeLayout();
 
-            if (chosenL3) {
-                html += renderConnector(frontierLayer === 4);
-                // L4: Type
-                html += renderLayer(ERA1_TREE[chosenL3].children, chosenL4, frontierLayer === 4);
+    // Find bounding box to size the canvas
+    let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+    for (const [, p] of positions) {
+        minX = Math.min(minX, p.x - ERA1_NODE_W / 2);
+        maxX = Math.max(maxX, p.x + ERA1_NODE_W / 2);
+        minY = Math.min(minY, p.y - ERA1_NODE_H / 2);
+        maxY = Math.max(maxY, p.y + ERA1_NODE_H / 2);
+    }
+    const PADDING = 60;
+    const canvasW = maxX - minX + PADDING * 2;
+    const canvasH = maxY - minY + PADDING * 2;
+    const ox = -minX + PADDING; // origin offset so (0,0) maps correctly
 
-                if (chosenL4) {
-                    html += renderConnector(frontierLayer === 5);
-                    // L5: Race — ensure dynamic nodes are injected before rendering
-                    era1EnsureDynRaceNodes();
-                    const chosenL5 = era1GetChosenChild(chosenL4);
-                    html += renderLayer(ERA1_TREE[chosenL4].children, chosenL5, frontierLayer === 5);
-                }
+    nodeLayer.style.width  = canvasW + 'px';
+    nodeLayer.style.height = canvasH + 'px';
+
+    // ── Draw SVG connector lines ──────────────────────────────────────────────
+    const DOMAIN_COLORS = { deep: '#8899aa', wild: '#5a9e60', beyond: '#8866bb' };
+    let svgContent = '';
+    for (const [nodeId, node] of Object.entries(ERA1_TREE)) {
+        if (!node.parent) continue;
+        const ppos = positions.get(node.parent);
+        const cpos = positions.get(nodeId);
+        if (!ppos || !cpos) continue;
+        const domain = era1GetDomain(nodeId) || era1GetDomain(node.parent);
+        const color  = DOMAIN_COLORS[domain] || '#666';
+        const px = ppos.x + ox;
+        const py = ppos.y + ox; // note: using separate axes below
+        const cx = cpos.x + ox;
+        const cy = cpos.y + ox;
+        // Correct y: uses oy not ox
+        const pY = ppos.y + (PADDING - minY);
+        const cY = cpos.y + (PADDING - minY);
+        const pX = ppos.x + (PADDING - minX);
+        const cX = cpos.x + (PADDING - minX);
+
+        // Determine if this node is on the chosen path
+        const onPath = unlocked.has(nodeId) || unlocked.has(node.parent) || nodeId === 'root' || node.parent === 'root';
+        const opacity = onPath ? 0.7 : 0.2;
+        // Bezier curve for smooth look
+        const midX = (pX + cX) / 2;
+        const midY = (pY + cY) / 2;
+        svgContent += `<path d="M${pX},${pY} C${midX},${pY} ${midX},${cY} ${cX},${cY}"
+            stroke="${color}" stroke-width="${onPath ? 2 : 1}" fill="none" opacity="${opacity}"/>`;
+    }
+    svgEl.innerHTML = svgContent;
+    svgEl.style.width  = canvasW + 'px';
+    svgEl.style.height = canvasH + 'px';
+
+    // ── Place node elements ───────────────────────────────────────────────────
+    for (const [nodeId, node] of Object.entries(ERA1_TREE)) {
+        const p = positions.get(nodeId);
+        if (!p) continue;
+        const x = p.x + (PADDING - minX) - ERA1_NODE_W / 2;
+        const y = p.y + (PADDING - minY) - ERA1_NODE_H / 2;
+
+        const el = document.createElement('div');
+        el.className = 'era1-cn'; // canvas node
+        el.id = 'era1-node-' + nodeId;
+        el.style.left   = x + 'px';
+        el.style.top    = y + 'px';
+        el.style.width  = ERA1_NODE_W + 'px';
+        el.style.height = ERA1_NODE_H + 'px';
+        el.setAttribute('data-nid', nodeId);
+
+        if (node.layer === 5) {
+            // Race leaf — may be fogged
+            const isRevealed = revealed.has(node.race);
+            const isOffered  = offeredNames.has(node.race);
+            const isPrestiged = prestiged.has(node.race);
+            const isChosen   = unlocked.has(nodeId) || (era1.chosen === nodeId);
+            if (isChosen) {
+                el.innerHTML = `<div class="era1-cn-name">${node.name}</div><div class="era1-cn-sub">${node.type}</div>`;
+            } else if (isPrestiged) {
+                el.innerHTML = `<div class="era1-cn-name">${node.name}</div><div class="era1-cn-sub">${node.type}</div>`;
+            } else if (isOffered) {
+                el.innerHTML = `<div class="era1-cn-name">${node.name}</div><div class="era1-cn-sub">offered</div>`;
+            } else {
+                el.innerHTML = `<div class="era1-cn-fog">?</div>`;
+            }
+        } else {
+            el.innerHTML = `<div class="era1-cn-name">${node.name}</div>`;
+        }
+
+        el.addEventListener('mouseenter', e => era1ShowPanel(nodeId, e));
+        el.addEventListener('mousemove',  e => _era1MoveTooltip(e));
+        el.addEventListener('mouseleave', () => era1HidePanel());
+        el.addEventListener('click',      () => unlockEra1Node(nodeId));
+        nodeLayer.appendChild(el);
+    }
+
+    // Apply visual state classes
+    era1UpdateNodeStyles(unlocked, revealed, offeredNames, prestiged);
+
+    // Render legendary sidebar below canvas
+    era1RenderLegendary(prestiged);
+
+    // ── Pan & zoom ────────────────────────────────────────────────────────────
+    let zoom = 0.72, panX = 0, panY = 0;
+    let dragging = false, lastMX = 0, lastMY = 0;
+
+    function applyTransform() {
+        nodeLayer.style.transform = `translate(${panX}px,${panY}px) scale(${zoom})`;
+        nodeLayer.style.transformOrigin = '0 0';
+        svgEl.style.transform = `translate(${panX}px,${panY}px) scale(${zoom})`;
+        svgEl.style.transformOrigin = '0 0';
+    }
+
+    // Initial center: root node
+    function centerOnNode(nodeId) {
+        const p = positions.get(nodeId);
+        if (!p) return;
+        const wRect = wrap.getBoundingClientRect();
+        const nx = p.x + (PADDING - minX);
+        const ny = p.y + (PADDING - minY);
+        panX = wRect.width  / 2 - nx * zoom;
+        panY = wRect.height / 2 - ny * zoom;
+        applyTransform();
+    }
+
+    _era1Canvas = { wrap, svgEl, nodeLayer, positions, minX, minY, PADDING,
+                    get zoom() { return zoom; }, set zoom(v) { zoom = v; },
+                    get panX() { return panX; }, set panX(v) { panX = v; },
+                    get panY() { return panY; }, set panY(v) { panY = v; },
+                    applyTransform, centerOnNode };
+
+    centerOnNode('root');
+
+    wrap.addEventListener('wheel', e => {
+        e.preventDefault();
+        const delta = e.deltaY > 0 ? 0.9 : 1.1;
+        const rect  = wrap.getBoundingClientRect();
+        const mx = e.clientX - rect.left;
+        const my = e.clientY - rect.top;
+        panX = mx - (mx - panX) * delta;
+        panY = my - (my - panY) * delta;
+        zoom = Math.max(0.25, Math.min(2.5, zoom * delta));
+        applyTransform();
+    }, { passive: false });
+
+    wrap.addEventListener('mousedown', e => {
+        if (e.button !== 0) return;
+        dragging = true;
+        lastMX = e.clientX;
+        lastMY = e.clientY;
+        wrap.style.cursor = 'grabbing';
+    });
+    window.addEventListener('mousemove', e => {
+        if (!dragging) return;
+        panX += e.clientX - lastMX;
+        panY += e.clientY - lastMY;
+        lastMX = e.clientX;
+        lastMY = e.clientY;
+        applyTransform();
+    });
+    window.addEventListener('mouseup', () => {
+        dragging = false;
+        if (wrap) wrap.style.cursor = 'grab';
+    });
+    wrap.style.cursor = 'grab';
+}
+
+// Render the Legendary Races box below the canvas.
+function era1RenderLegendary(prestiged) {
+    const container = document.getElementById('era1-tree');
+    if (!container) return;
+    let box = document.getElementById('era1-legendary-box');
+    if (!box) {
+        box = document.createElement('div');
+        box.id = 'era1-legendary-box';
+        box.className = 'era1-legendary-box';
+        container.appendChild(box);
+    }
+
+    const allLegendary = Object.values(LEGENDARY_ROSTER).flat();
+    let html = `<div class="era1-legendary-title">✦ Legendary Races ✦</div><div class="era1-legendary-grid">`;
+    for (const name of allLegendary) {
+        const seen = prestiged.has(name);
+        if (seen) {
+            html += `<div class="era1-legendary-card era1-lc-revealed"
+                onmouseenter="era1ShowLegendaryPanel('${name}', event)"
+                onmousemove="_era1MoveTooltip(event)"
+                onmouseleave="era1HidePanel()">
+                <div class="era1-lc-name">${name}</div>
+            </div>`;
+        } else {
+            html += `<div class="era1-legendary-card era1-lc-fogged"><div class="era1-lc-fog">?</div></div>`;
+        }
+    }
+    html += '</div>';
+    box.innerHTML = html;
+}
+
+function era1ShowLegendaryPanel(name, e) {
+    // Reuse the existing tooltip panel to show legendary flavor
+    const node = Object.values(ERA1_TREE).find(n => n.race === name);
+    if (node) era1ShowPanel(node.id, e);
+}
+
+// Classify and apply CSS state classes to all nodes without full rebuild.
+function era1UpdateNodeStyles(unlocked, revealed, offeredNames, prestiged) {
+    const era1    = gameState.era1 || {};
+    const chosenL5 = era1.chosen;
+
+    for (const [nodeId, node] of Object.entries(ERA1_TREE)) {
+        const el = document.getElementById('era1-node-' + nodeId);
+        if (!el) continue;
+
+        // Remove all state classes
+        el.classList.remove(
+            'era1-cn-root', 'era1-cn-chosen', 'era1-cn-unlocked-path',
+            'era1-cn-sibling', 'era1-cn-active', 'era1-cn-waiting',
+            'era1-cn-prestiged', 'era1-cn-offered', 'era1-cn-fogged',
+            'era1-cn-deep', 'era1-cn-wild', 'era1-cn-beyond'
+        );
+
+        const domain = era1GetDomain(nodeId);
+        if (domain) el.classList.add('era1-cn-' + domain);
+
+        if (node.layer === 0) {
+            el.classList.add('era1-cn-root');
+            continue;
+        }
+
+        const isUnlocked = unlocked.has(nodeId);
+        const parentUnlocked = node.parent && unlocked.has(node.parent);
+        const isChosen = nodeId === chosenL5;
+
+        if (node.layer === 5) {
+            const race = node.race || '';
+            const isRaceChosen  = isChosen || (isUnlocked);
+            const isPrestiged   = prestiged.has(race);
+            const isOffered     = offeredNames.has(race);
+
+            if (isRaceChosen) {
+                el.classList.add('era1-cn-chosen');
+            } else if (isPrestiged) {
+                el.classList.add('era1-cn-prestiged');
+                el.style.pointerEvents = '';
+            } else if (isOffered && parentUnlocked) {
+                el.classList.add('era1-cn-offered');
+                const affordable = canAffordEra1(nodeId);
+                if (!affordable) el.classList.add('era1-cn-waiting');
+                el.style.pointerEvents = '';
+            } else {
+                el.classList.add('era1-cn-fogged');
+                el.style.pointerEvents = 'none';
+            }
+        } else {
+            if (isUnlocked) {
+                el.classList.add('era1-cn-chosen');
+            } else if (parentUnlocked) {
+                const affordable = canAffordEra1(nodeId);
+                el.classList.add(affordable ? 'era1-cn-active' : 'era1-cn-waiting');
+            } else {
+                el.classList.add('era1-cn-sibling');
             }
         }
     }
+}
 
-    renderEra1Lore(frontierLayer);
-    container.innerHTML = html;
+// After a node is unlocked, smoothly pan to the most recently unlocked node.
+function era1PanToMostRecent() {
+    if (!_era1Canvas) return;
+    const era1 = gameState.era1 || {};
+    const unlocked = era1.unlocked || [];
+    const lastId = unlocked[unlocked.length - 1];
+    if (!lastId) return;
+    const c = _era1Canvas;
+    const p = c.positions.get(lastId);
+    if (!p) return;
+    const wRect = c.wrap.getBoundingClientRect();
+    const nx = p.x + (c.PADDING - c.minX || 0);
+    const ny = p.y + (c.PADDING - c.minY || 0);
+    const targetPanX = wRect.width  / 2 - nx * c.zoom;
+    const targetPanY = wRect.height / 2 - ny * c.zoom;
+    const startX = c.panX, startY = c.panY;
+    const dx = targetPanX - startX, dy = targetPanY - startY;
+    let start = null;
+    function step(ts) {
+        if (!start) start = ts;
+        const t = Math.min((ts - start) / 400, 1);
+        const ease = t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+        c.panX = startX + dx * ease;
+        c.panY = startY + dy * ease;
+        c.applyTransform();
+        if (t < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
 }
 
 // ── Tab visibility gating (Era 1 vs Era 2) ───────────────────────────────────
@@ -4088,25 +4459,28 @@ function updateEraTabVisibility() {
     }
 }
 
-// Creature roster, grouped by type. Used as the source for the Dev tab race
-// dropdown. The full bestiary now lives in the standalone wiki (wiki.html);
-// this constant keeps the Dev tools self-contained inside the game page.
+// Creature roster, grouped by type. Kept in sync with RACE_LEAF_DEFS in era1tree.js.
+// Used for the Dev tab race dropdown and race-data population.
 const CREATURE_ROSTER = {
-    "Draconic":    ["Metallic Dragon", "Lizardfolk", "Kobold", "Yuan-ti", "Wyvern", "Dragonborn"],
-    "Undead":      ["Skeleton", "Zombie", "Vampire", "Wight", "Ghoul", "Revenant", "Banshee", "Wraith", "Mummy", "Demilich", "Shadow"],
     "Goblinoid":   ["Goblin", "Hobgoblin", "Bugbear", "Orc", "Gnoll", "Barghest"],
-    "Fey":         ["Pixie", "Dryad", "Satyr", "Quickling", "Green Hag", "Homunculus"],
-    "Aberration":  ["Mind Flayer", "Beholder", "Aboleth", "Gibbering Mouther", "Nothic", "Chuul", "Grell", "Flumph"],
-    "Ooze":        ["Gelatinous Cube", "Black Pudding", "Gray Ooze", "Ochre Jelly", "Void Ooze", "Oblex"],
-    "Elemental":   ["Fire Elemental", "Earth Elemental", "Water Elemental", "Air Elemental", "Magmin", "Galeb Duhr"],
-    "Monstrous":   ["Harpy", "Medusa", "Minotaur", "Troll", "Werewolf", "Naga", "Basilisk", "Chimera", "Manticore", "Griffon", "Hydra", "Ettin"],
-    "Fiend":       ["Imp", "Cambion", "Barbed Devil", "Night Hag", "Succubus/Incubus", "Pit Fiend", "Balor", "Rakshasa", "Quasit", "Shadow Demon"],
     "Giant":       ["Hill Giant", "Stone Giant", "Frost Giant", "Fire Giant", "Cloud Giant", "Storm Giant"],
+    "Swarm":       ["Placeholder 1", "Placeholder 2", "Placeholder 3", "Placeholder 4", "Placeholder 5", "Placeholder 6"],
+    "Aberration":  ["Mind Flayer", "Beholder", "Aboleth", "Gibbering Mouther", "Nothic", "Chuul", "Grell", "Flumph"],
     "Construct":   ["Stone Golem", "Iron Golem", "Animated Armor", "Clay Golem", "Flesh Golem", "Clockwork Horror"],
-    "Lycanthrope": ["Werebear", "Wererat", "Wereboar", "Owlbear", "Displacer Beast", "Weretiger"],
+    "Draconic":    ["Metallic Dragon", "Lizardfolk", "Kobold", "Yuan-ti", "Wyvern", "Dragonborn"],
     "Flora":       ["Treant", "Myconid", "Vegepygmy", "Shambling Mound", "Vine Blight", "Wood Woad"],
+    "Ooze":        ["Gelatinous Cube", "Black Pudding", "Gray Ooze", "Ochre Jelly", "Void Ooze", "Oblex"],
+    "Lycanthrope": ["Werebear", "Wererat", "Wereboar", "Owlbear", "Displacer Beast", "Weretiger"],
     "Aquatic":     ["Merfolk", "Sahuagin", "Kuo-toa", "Triton", "Sea Hag", "Locathah"],
+    "Monstrous":   ["Harpy", "Medusa", "Minotaur", "Troll", "Naga", "Basilisk", "Chimera", "Manticore", "Griffon", "Hydra", "Ettin", "Worg"],
+    "Beast":       ["Placeholder 1", "Placeholder 2", "Placeholder 3", "Placeholder 4", "Placeholder 5", "Placeholder 6"],
+    "Undead":      ["Skeleton", "Zombie", "Vampire", "Wight", "Ghoul", "Revenant", "Banshee", "Wraith", "Mummy", "Demilich", "Shadow"],
+    "Elemental":   ["Fire Elemental", "Earth Elemental", "Water Elemental", "Air Elemental", "Magmin", "Galeb Duhr"],
+    "Specter":     ["Ghost", "Specter", "Poltergeist", "Shadow Demon", "Nighthaunt", "Allip"],
+    "Fiend":       ["Imp", "Cambion", "Barbed Devil", "Night Hag", "Succubus/Incubus", "Pit Fiend", "Balor", "Rakshasa", "Quasit", "Shadow Demon"],
     "Humanoid":    ["Kenku", "Tabaxi", "Aarakocra", "Tortle", "Centaur", "Human", "Elf", "Dwarf", "Half-Orc", "Gnome"],
+    "Planar":      ["Placeholder 1", "Placeholder 2", "Placeholder 3", "Placeholder 4", "Placeholder 5", "Placeholder 6"],
+    "Celestial":   ["Planetar", "Deva", "Couatl", "Pegasus", "Unicorn", "Hollyphant"],
 };
 
 // Races hidden from the player — earned through special conditions.
@@ -5295,7 +5669,7 @@ if ((gameState.run.era || 1) === 1 && !gameState.run.race) {
     gameState.era1 = { unlocked: [], chosen: null, raceOptions: null };
     _era1TreeState = '';
 }
-era1EnsureDynRaceNodes(); // restore dynamic race nodes from saved raceOptions
+// Race nodes are now static L5 leaves in ERA1_TREE — no dynamic injection needed.
 if (gameState.resources.influence == null) gameState.resources.influence = 0;
 if (gameState.resources.mana == null) gameState.resources.mana = 0;
 if (gameState.resources.arcaneEssence == null) gameState.resources.arcaneEssence = 0;
