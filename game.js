@@ -237,6 +237,7 @@ const gameState = {
     time:       { tick: 0, day: 1, year: 1, seasonIndex: 0 },
     pauseBank:  0,   // seconds of Accelerated Time banked from pausing
     randomEventCooldowns: {}, // eventId → absolute day the cooldown expires
+    randomEventLog: [],       // { text, effectSummary, day, year, seasonIndex } newest-first
     era1: {
         unlocked: [],   // node ids the player has purchased
         chosen:   null, // L5 race node id picked (null until Era 2 gate)
@@ -5930,24 +5931,50 @@ if (gameState.resources.mana == null) gameState.resources.mana = 0;
 if (gameState.resources.arcaneEssence == null) gameState.resources.arcaneEssence = 0;
 // ── Random Event System ───────────────────────────────────────────────────────
 
+function _renderLogEntry(el, record) {
+    const season = ['Spring', 'Summer', 'Autumn', 'Winter'][record.seasonIndex];
+    const entry = document.createElement('div');
+    entry.className = 'log-entry';
+    entry.innerHTML =
+        `<div class="log-meta">Day ${record.day}, ${season} — Year ${record.year}</div>` +
+        `<div class="log-text">${record.text}</div>` +
+        (record.effectSummary ? `<div class="log-effect">${record.effectSummary}</div>` : '');
+    el.insertBefore(entry, el.firstChild);
+}
+
 function addLogEntry(text, effectSummary) {
     const el = document.getElementById('event-log');
     if (!el) return;
     const empty = el.querySelector('.log-empty');
     if (empty) empty.remove();
 
-    const entry = document.createElement('div');
-    entry.className = 'log-entry';
-    const { day, year } = gameState.time;
-    const season = ['Spring', 'Summer', 'Autumn', 'Winter'][gameState.time.seasonIndex];
-    entry.innerHTML =
-        `<div class="log-meta">Day ${day}, ${season} — Year ${year}</div>` +
-        `<div class="log-text">${text}</div>` +
-        (effectSummary ? `<div class="log-effect">${effectSummary}</div>` : '');
-    el.insertBefore(entry, el.firstChild);
+    const record = {
+        text,
+        effectSummary: effectSummary || '',
+        day:         gameState.time.day,
+        year:        gameState.time.year,
+        seasonIndex: gameState.time.seasonIndex,
+    };
 
-    // Keep at most 40 entries
+    if (!gameState.randomEventLog) gameState.randomEventLog = [];
+    gameState.randomEventLog.unshift(record);
+    if (gameState.randomEventLog.length > 40) gameState.randomEventLog.length = 40;
+
+    _renderLogEntry(el, record);
     while (el.children.length > 40) el.removeChild(el.lastChild);
+}
+
+function restoreEventLog() {
+    const el = document.getElementById('event-log');
+    if (!el) return;
+    const records = gameState.randomEventLog;
+    if (!records || !records.length) return;
+    const empty = el.querySelector('.log-empty');
+    if (empty) empty.remove();
+    // Records are newest-first; render in order so insertBefore produces correct stack
+    for (const record of records) {
+        _renderLogEntry(el, record);
+    }
 }
 
 function _weightedPick(pool) {
@@ -6019,6 +6046,7 @@ initBldTooltips();
 initResearchTooltips();
 initIdentityTooltips();
 initSettingsTooltips();
+restoreEventLog();
 setInterval(tick, 1000);
 
 // Stamp lastSeen when the player closes or navigates away.
