@@ -6,7 +6,7 @@ const ERA1_TREE = {
 
     // ── L0: Root ──────────────────────────────────────────────────────────────
     root: {
-        id: 'root', name: 'The Mind Stirs', layer: 0, parent: null,
+        id: 'root', name: 'Awakening', layer: 0, parent: null,
         flavor: 'A consciousness without form. A will without a body. You are the dungeon — and you are nothing yet. Something stirs in the deep dark: a hunger, a question, a reaching.',
         cost: {}, children: ['deep', 'wild', 'beyond'],
         type: null, race: null,

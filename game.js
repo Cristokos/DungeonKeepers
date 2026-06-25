@@ -4491,6 +4491,13 @@ function era1GetDiscoveryFocusId() {
 
 function era1FocusNode(nodeId) {
     if (!ERA1_TREE[nodeId]) return;
+    // Once a L1 domain is chosen, root is no longer navigable
+    if (nodeId === 'root') {
+        const era1 = gameState.era1 || {};
+        const unlocked = new Set(era1.unlocked || []);
+        const hasChosenDomain = ['deep', 'wild', 'beyond'].some(id => unlocked.has(id));
+        if (hasChosenDomain) return;
+    }
     _era1FocusedNodeId = nodeId;
     _era1TreeState = '';
     renderEra1Tree();
@@ -4510,9 +4517,14 @@ function era1RenderBreadcrumbs(centerId) {
     const el = document.getElementById('era1-breadcrumbs');
     if (!el) return;
     el.innerHTML = '';
+    const era1 = gameState.era1 || {};
+    const unlocked = new Set(era1.unlocked || []);
+    const hasChosenDomain = ['deep', 'wild', 'beyond'].some(id => unlocked.has(id));
     era1PathToRoot(centerId).forEach((nodeId, idx, path) => {
         const node = ERA1_TREE[nodeId];
         if (!node) return;
+        // Hide root crumb once a domain is committed
+        if (nodeId === 'root' && hasChosenDomain) return;
         const btn = document.createElement('button');
         btn.className = 'era1-crumb' + (nodeId === centerId ? ' era1-crumb-current' : '');
         btn.textContent = node.name;
@@ -4611,11 +4623,13 @@ function era1RenderDiscoveryScene(centerId, unlocked, revealed, offeredNames, pr
     }).join('');
 
     nodeLayer.innerHTML = '';
+    const isRootCentered = center.id === 'root';
     slots.forEach((slot, i) => {
         const el = era1CreateDiscoveryNode(slot, unlocked, revealed, offeredNames, prestiged);
         if (!el) return;
         el.style.animationDelay = Math.min(i * 35, 260) + 'ms';
         el.classList.add('era1-node-enter');
+        if (isRootCentered && slot.role === 'child') el.classList.add('era1-root-children');
         nodeLayer.appendChild(el);
     });
 }
@@ -4663,7 +4677,9 @@ function era1CreateDiscoveryNode(slot, unlocked, revealed, offeredNames, prestig
     }
 
     const sub = node.layer === 5 ? (isOffered ? 'seen' : node.type) : era1LayerLabel(node.layer);
-    el.innerHTML = `<div class="era1-cn-name">${node.name}</div>${sub ? `<div class="era1-cn-sub">${sub}</div>` : ''}`;
+    const rootPrompt = (node.id === 'root' && isCenter)
+        ? `<div class="era1-cn-prompt">Choose your domain →</div>` : '';
+    el.innerHTML = `<div class="era1-cn-name">${node.name}</div>${sub ? `<div class="era1-cn-sub">${sub}</div>` : ''}${rootPrompt}`;
     el.addEventListener('mouseenter', e => era1ShowPanel(node.id, e));
     el.addEventListener('mousemove', e => _era1MoveTooltip(e));
     el.addEventListener('mouseleave', () => era1HidePanel());
