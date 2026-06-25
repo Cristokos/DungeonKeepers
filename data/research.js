@@ -497,7 +497,7 @@ RESEARCH.crystalFocus = {
     tier: "2.4",
     name: "Crystal Focus Arrays",
     desc: "Arrange crystals to funnel resonance into the grinder. Arcane Grinder dust output +25%.",
-    cost: { crystals: 50, arcaneDust: 20, lore: 8 },
+    cost: { crystals: 50, arcaneDust: 20 },
     requiresResearch: ["crystalLore"],
     effects: { converterBonus: { arcaneGrinder: 1.25 } },
 };
@@ -560,7 +560,7 @@ RESEARCH.arcaneTapping = {
     tier: "2.4",
     name: "Arcane Tapping",
     desc: "Draw raw ley energy through the tower's crystal spire. Mage Tower crystal output +50%.",
-    cost: { arcaneDust: 40, crystals: 30, lore: 15 },
+    cost: { arcaneDust: 40, crystals: 30 },
     requiresResearch: ["crystalFocus"],
     effects: { productionBonus: { mageTower: 1.50 } },
 };
