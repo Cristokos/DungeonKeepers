@@ -4012,8 +4012,9 @@ function era1ComputeLayout() {
         return totalSpan;
     }
 
-    // Reposition a subtree with a known perpendicular center
-    function repositionSubtree(nodeId, depth, perpCenter, direction) {
+    // Reposition a subtree with a known perpendicular center.
+    // depthShift offsets this node in the depth axis (used for L5 zigzag stagger).
+    function repositionSubtree(nodeId, depth, perpCenter, direction, depthShift = 0) {
         const node = ERA1_TREE[nodeId];
         if (!node) return;
         const children = node.children || [];
@@ -4021,12 +4022,12 @@ function era1ComputeLayout() {
         let x, y;
         if (direction === 'down') {
             x = perpCenter;
-            y = depth * stepY;
+            y = depth * stepY + depthShift * stepY;
         } else if (direction === 'left') {
-            x = -(depth * stepX);
+            x = -(depth * stepX + depthShift * stepX);
             y = perpCenter;
         } else {
-            x = depth * stepX;
+            x = depth * stepX + depthShift * stepX;
             y = perpCenter;
         }
         pos.set(nodeId, { x, y });
@@ -4039,7 +4040,10 @@ function era1ComputeLayout() {
         let cursor = perpCenter - totalSpan / 2;
         for (let i = 0; i < children.length; i++) {
             const childCenter = cursor + childSpans[i] / 2;
-            repositionSubtree(children[i], depth + 1, childCenter, direction);
+            // Stagger L5 leaves: alternate even/odd children by ±0.35 step in the depth axis
+            const childNode = ERA1_TREE[children[i]];
+            const leafShift = (childNode && childNode.layer === 5) ? (i % 2 === 0 ? 0 : 0.4) : 0;
+            repositionSubtree(children[i], depth + 1, childCenter, direction, leafShift);
             cursor += childSpans[i] + ERA1_H_GAP;
         }
     }
