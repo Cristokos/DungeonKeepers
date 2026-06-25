@@ -2087,6 +2087,25 @@ function updateUI() {
         if (upgradesLabel) upgradesLabel.style.display = upgradesVisible ? '' : 'none';
     }
 
+    // Era 2 building section labels — hide header if no buttons in that category are visible
+    {
+        const era2Sections = {
+            'era2-label-countryside': ['farm', 'lumber', 'quarry'],
+            'era2-label-warren':      ['lair', 'house', 'apartment'],
+            'era2-label-craftsmen':   ['smelter', 'kiln', 'loom', 'alchemyLab', 'forge', 'arcaneGrinder', 'arcaneBench'],
+            'era2-label-merchant':    ['storage', 'marketStall', 'tradeCart'],
+            'era2-label-arcane':      ['mageTower', 'scriptorium'],
+            'era2-label-war':         ['armory'],
+            'era2-label-extraction':  ['mine', 'coalSeam', 'crystalSeam', 'sulphurVent', 'herbalistDen', 'huntingLodge', 'clayPit', 'ritualCircle', 'spiderNest', 'arcaneCrucible', 'darkAltar', 'mithrilForge'],
+        };
+        for (const [labelId, ids] of Object.entries(era2Sections)) {
+            const label = document.getElementById(labelId);
+            if (!label) continue;
+            const anyVisible = ids.some(id => { const b = document.getElementById('btn-' + id); return b && b.style.display !== 'none'; });
+            label.style.display = anyVisible ? '' : 'none';
+        }
+    }
+
     // Research tab
     for (const [key, def] of Object.entries(RESEARCH)) {
         const card = document.getElementById("research-" + key);
