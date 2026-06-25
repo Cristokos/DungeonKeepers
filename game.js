@@ -4520,9 +4520,10 @@ function era1RenderBreadcrumbs(centerId) {
     const era1 = gameState.era1 || {};
     const unlocked = new Set(era1.unlocked || []);
     const hasChosenDomain = ['deep', 'wild', 'beyond'].some(id => unlocked.has(id));
-    // Once a domain is committed the breadcrumb trail has no navigable entries — hide it entirely
-    el.style.display = hasChosenDomain ? 'none' : '';
-    if (hasChosenDomain) return;
+    // Hide when root is centered (nothing to navigate to) or after domain is committed
+    const centerIsRoot = centerId === 'root';
+    el.style.display = (hasChosenDomain || centerIsRoot) ? 'none' : '';
+    if (hasChosenDomain || centerIsRoot) return;
     era1PathToRoot(centerId).forEach((nodeId, idx, path) => {
         const node = ERA1_TREE[nodeId];
         if (!node) return;
@@ -5960,12 +5961,6 @@ if (!gameState.run.era)                      gameState.run.era = 1;
 if (gameState.pauseBank == null || isNaN(gameState.pauseBank)) gameState.pauseBank = 0;
 if (!gameState.era1) gameState.era1 = { unlocked: [], chosen: null };
 if (!Array.isArray(gameState.era1.unlocked)) gameState.era1.unlocked = [];
-// Heal saves corrupted by the pre-v0.55.1 prestige bug: if we're in Era 1 with no race
-// chosen, era1 should be blank — stale unlocked nodes would cause mana to tick passively.
-if ((gameState.run.era || 1) === 1 && !gameState.run.race) {
-    gameState.era1 = { unlocked: [], chosen: null, raceOptions: null };
-    _era1TreeState = '';
-}
 // Race nodes are now static L5 leaves in ERA1_TREE — no dynamic injection needed.
 if (gameState.resources.influence == null) gameState.resources.influence = 0;
 if (gameState.resources.mana == null) gameState.resources.mana = 0;

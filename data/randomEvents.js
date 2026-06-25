@@ -15,15 +15,6 @@ const RANDOM_EVENTS = {
             ]
         },
         {
-            id: "era1_settling_stone",
-            text: "Loose stone settles into something almost like intention.",
-            weight: 8,
-            cooldownDays: 12,
-            effects: [
-                { type: "resource", resource: "stone", amount: 2 }
-            ]
-        },
-        {
             id: "era1_distant_attention",
             text: "Something far below notices your shape pressing into the world.",
             weight: 6,
