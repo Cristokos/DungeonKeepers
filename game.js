@@ -3938,75 +3938,88 @@ let _era1Canvas = null; // { wrapper, svg, nodeLayer, zoom, panX, panY }
 // Node dimensions and spacing
 const ERA1_NODE_W  = 130;
 const ERA1_NODE_H  = 54;
+const ERA1_LEAF_W  = 110;  // L5 leaf node width
+const ERA1_LEAF_H  = 44;   // L5 leaf node height
 
-// Radial layout parameters
-const ERA1_RADII = [0, 260, 500, 740, 1000, 1320]; // radius per layer (L0–L5)
-const ERA1_LEAF_ARC_GAP = 0.018; // radians of gap between adjacent leaves on the outer ring
+// Radial layout parameters (L0–L4 only; L5 clusters around L4 parent)
+const ERA1_RADII = [0, 260, 500, 740, 1000]; // radius per layer (L0–L4)
+// Angular step between adjacent leaves in a cluster, in radians.
+// At R=1000, step=0.14 rad → ~140px chord, comfortably larger than LEAF_W.
+const ERA1_LEAF_STEP = 0.145;
 
 // Compute layout positions for all nodes in the full tree.
 // Returns Map<nodeId, {x, y}> in canvas coordinates.
 // Root is at (0,0). Three domain branches at 120° increments (270°, 30°, 150°).
-// L5 leaves form a perfect circle; inner nodes sit at the angular centroid of
-// their subtree's leaf arc at their layer's radius.
+// L0–L4 nodes sit on concentric rings; L5 leaves cluster in a tight arc around
+// their L4 parent at a short fixed offset beyond R4.
 function era1ComputeLayout() {
     const pos = new Map();
 
-    // ── Step 1: collect all L5 leaves in order, grouped by domain ──────────────
     // Domain base angles: Deep=270° (up), Wild=30° (lower-right), Beyond=150° (lower-left)
     const DOMAIN_BASE_DEG = { deep: 270, wild: 30, beyond: 150 };
 
-    // Gather leaves per domain in tree order (DFS)
-    function collectLeaves(nodeId) {
+    // ── Step 1: assign L4 angles via domain sector allocation ──────────────────
+    // Each domain owns exactly 1/3 of the circle (120°).
+    // Within that sector, L4 nodes are evenly spaced; inner nodes sit at the
+    // angular centroid of their children's L4 angles.
+
+    // Count L4 nodes per domain
+    function collectL4s(nodeId) {
         const node = ERA1_TREE[nodeId];
         if (!node) return [];
-        if (node.children.length === 0) return [nodeId];
-        return node.children.flatMap(collectLeaves);
+        if (node.layer === 4) return [nodeId];
+        return node.children.flatMap(collectL4s);
     }
 
-    const domainLeaves = {
-        deep:   collectLeaves('deep'),
-        wild:   collectLeaves('wild'),
-        beyond: collectLeaves('beyond'),
+    const domainL4s = {
+        deep:   collectL4s('deep'),
+        wild:   collectL4s('wild'),
+        beyond: collectL4s('beyond'),
     };
 
-    const totalLeaves = domainLeaves.deep.length + domainLeaves.wild.length + domainLeaves.beyond.length;
+    const SECTOR   = (2 * Math.PI) / 3;  // 120°
+    const EDGE_GAP = 0.10;               // radians kept back from each sector edge
 
-    // ── Step 2: assign an angle to each L5 leaf ─────────────────────────────────
-    // Each domain gets exactly 1/3 of the full circle (120°).
-    // Within that sector the leaves are evenly spaced with a small gap between domains.
-    const SECTOR   = (2 * Math.PI) / 3;          // 120° per domain
-    const HALF_GAP = ERA1_LEAF_ARC_GAP * 3;      // half-gap eaten from each side of a sector
+    const l4Angle = new Map(); // l4 nodeId → angle
 
-    const leafAngle = new Map(); // nodeId → angle in radians
-
-    for (const [domainId, leaves] of Object.entries(domainLeaves)) {
-        if (leaves.length === 0) continue;
+    for (const [domainId, l4nodes] of Object.entries(domainL4s)) {
+        if (l4nodes.length === 0) continue;
         const baseRad  = DOMAIN_BASE_DEG[domainId] * Math.PI / 180;
-        const arcStart = baseRad - SECTOR / 2 + HALF_GAP;
-        const arcEnd   = baseRad + SECTOR / 2 - HALF_GAP;
-        const n = leaves.length;
+        const arcStart = baseRad - SECTOR / 2 + EDGE_GAP;
+        const arcEnd   = baseRad + SECTOR / 2 - EDGE_GAP;
+        const n = l4nodes.length;
         for (let i = 0; i < n; i++) {
-            // evenly distribute: if n==1 place at center, else spread arcStart..arcEnd
             const t = n === 1 ? 0.5 : i / (n - 1);
-            leafAngle.set(leaves[i], arcStart + t * (arcEnd - arcStart));
+            l4Angle.set(l4nodes[i], arcStart + t * (arcEnd - arcStart));
         }
     }
 
-    // Place L5 leaves on the outer circle
-    const R5 = ERA1_RADII[5];
-    for (const [nodeId, angle] of leafAngle) {
-        pos.set(nodeId, { x: Math.cos(angle) * R5, y: Math.sin(angle) * R5 });
+    // Place L4 nodes on their ring
+    const R4 = ERA1_RADII[4];
+    for (const [nodeId, angle] of l4Angle) {
+        pos.set(nodeId, { x: Math.cos(angle) * R4, y: Math.sin(angle) * R4 });
     }
 
-    // ── Step 3: place inner nodes at their layer's radius, angle = centroid of subtree leaves ──
-    function subtreeLeafAngles(nodeId) {
-        const node = ERA1_TREE[nodeId];
-        if (!node) return [];
-        if (node.children.length === 0) return [leafAngle.get(nodeId)].filter(a => a !== undefined);
-        return node.children.flatMap(subtreeLeafAngles);
+    // ── Step 2: place L5 leaves in a tight arc around their L4 parent ──────────
+    // Each leaf cluster fans outward along the L4 node's radial direction.
+    // Leaves are placed at R4 + leaf offset, centered on the L4's angle.
+    const LEAF_R_OFFSET = 220; // extra radius beyond R4 for leaf centers
+
+    for (const [l4Id, l4angle] of l4Angle) {
+        const l4node   = ERA1_TREE[l4Id];
+        const leaves   = l4node.children || [];
+        const n        = leaves.length;
+        if (n === 0) continue;
+        const totalArc = (n - 1) * ERA1_LEAF_STEP;
+        const startAng = l4angle - totalArc / 2;
+        const leafR    = R4 + LEAF_R_OFFSET;
+        for (let i = 0; i < n; i++) {
+            const a = startAng + i * ERA1_LEAF_STEP;
+            pos.set(leaves[i], { x: Math.cos(a) * leafR, y: Math.sin(a) * leafR });
+        }
     }
 
-    // Compute mean angle correctly (circular mean to avoid wrap-around issues)
+    // ── Step 3: place L0–L3 at their ring radii, angle = circular mean of L4 children ──
     function meanAngle(angles) {
         if (angles.length === 0) return 0;
         const sinSum = angles.reduce((s, a) => s + Math.sin(a), 0);
@@ -4014,17 +4027,23 @@ function era1ComputeLayout() {
         return Math.atan2(sinSum / angles.length, cosSum / angles.length);
     }
 
+    function subtreeL4Angles(nodeId) {
+        const node = ERA1_TREE[nodeId];
+        if (!node) return [];
+        if (node.layer === 4) return [l4Angle.get(nodeId)].filter(a => a !== undefined);
+        return node.children.flatMap(subtreeL4Angles);
+    }
+
     function placeInnerNode(nodeId) {
         const node = ERA1_TREE[nodeId];
-        if (!node || node.layer === 5) return;
-        const angles = subtreeLeafAngles(nodeId);
+        if (!node || node.layer >= 4) return;
+        const angles = subtreeL4Angles(nodeId);
         const angle  = meanAngle(angles);
         const r      = ERA1_RADII[node.layer];
         pos.set(nodeId, { x: Math.cos(angle) * r, y: Math.sin(angle) * r });
         for (const cid of node.children) placeInnerNode(cid);
     }
 
-    // Root at center
     pos.set('root', { x: 0, y: 0 });
     for (const domainId of ERA1_DOMAINS) placeInnerNode(domainId);
 
@@ -4082,11 +4101,14 @@ function renderEra1Tree() {
 
     // Find bounding box to size the canvas
     let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
-    for (const [, p] of positions) {
-        minX = Math.min(minX, p.x - ERA1_NODE_W / 2);
-        maxX = Math.max(maxX, p.x + ERA1_NODE_W / 2);
-        minY = Math.min(minY, p.y - ERA1_NODE_H / 2);
-        maxY = Math.max(maxY, p.y + ERA1_NODE_H / 2);
+    for (const [nodeId, p] of positions) {
+        const node = ERA1_TREE[nodeId];
+        const hw = (node && node.layer === 5 ? ERA1_LEAF_W : ERA1_NODE_W) / 2;
+        const hh = (node && node.layer === 5 ? ERA1_LEAF_H : ERA1_NODE_H) / 2;
+        minX = Math.min(minX, p.x - hw);
+        maxX = Math.max(maxX, p.x + hw);
+        minY = Math.min(minY, p.y - hh);
+        maxY = Math.max(maxY, p.y + hh);
     }
     const PADDING = 60;
     const canvasW = maxX - minX + PADDING * 2;
@@ -4133,16 +4155,18 @@ function renderEra1Tree() {
     for (const [nodeId, node] of Object.entries(ERA1_TREE)) {
         const p = positions.get(nodeId);
         if (!p) continue;
-        const x = p.x + (PADDING - minX) - ERA1_NODE_W / 2;
-        const y = p.y + (PADDING - minY) - ERA1_NODE_H / 2;
+        const nw = node.layer === 5 ? ERA1_LEAF_W : ERA1_NODE_W;
+        const nh = node.layer === 5 ? ERA1_LEAF_H : ERA1_NODE_H;
+        const x = p.x + (PADDING - minX) - nw / 2;
+        const y = p.y + (PADDING - minY) - nh / 2;
 
         const el = document.createElement('div');
         el.className = 'era1-cn'; // canvas node
         el.id = 'era1-node-' + nodeId;
         el.style.left   = x + 'px';
         el.style.top    = y + 'px';
-        el.style.width  = ERA1_NODE_W + 'px';
-        el.style.height = ERA1_NODE_H + 'px';
+        el.style.width  = nw + 'px';
+        el.style.height = nh + 'px';
         el.setAttribute('data-nid', nodeId);
 
         if (node.layer === 5) {
