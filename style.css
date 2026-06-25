@@ -357,7 +357,7 @@ html, body {
     text-transform: uppercase;
     letter-spacing: 0.06em;
     color: var(--text-muted);
-    width: 32px;
+    width: 42px;
     flex-shrink: 0;
 }
 
@@ -366,6 +366,7 @@ html, body {
     font-weight: bold;
     color: var(--label);
     flex: 1;
+    min-width: 0;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -1804,6 +1805,14 @@ kbd {
 .creature-entry:has(.tag-lycanthrope)::before { background: #8fbe60; }
 .creature-entry:has(.tag-flora)::before       { background: #58b878; }
 .creature-entry:has(.tag-aquatic)::before     { background: #40a8c8; }
+.creature-entry:has(.tag-swarm)::before       { background: #a0a030; }
+.creature-entry:has(.tag-beast)::before       { background: #b06030; }
+.creature-entry:has(.tag-specter)::before     { background: #7060a0; }
+.creature-entry:has(.tag-planar)::before      { background: #60a0b0; }
+.creature-entry:has(.tag-celestial)::before   { background: #d4b840; }
+.creature-entry:has(.tag-titan)::before       { background: #c05030; }
+.creature-entry:has(.tag-cursed)::before      { background: #8040a0; }
+.creature-entry:has(.tag-primordial)::before  { background: #3080a0; }
 
 .creature-entry:hover {
     border-color: rgba(255,255,255,0.22);
@@ -1895,6 +1904,14 @@ kbd {
 .tag-lycanthrope{ color: #8fbe60; border-color: rgba(143,190,96,0.4);   background: rgba(143,190,96,0.08); }
 .tag-flora      { color: #58b878; border-color: rgba(88,184,120,0.4);   background: rgba(88,184,120,0.08); }
 .tag-aquatic    { color: #40a8c8; border-color: rgba(64,168,200,0.4);   background: rgba(64,168,200,0.08); }
+.tag-swarm      { color: #a0a030; border-color: rgba(160,160,48,0.4);   background: rgba(160,160,48,0.08); }
+.tag-beast      { color: #b06030; border-color: rgba(176,96,48,0.4);    background: rgba(176,96,48,0.08); }
+.tag-specter    { color: #7060a0; border-color: rgba(112,96,160,0.4);   background: rgba(112,96,160,0.08); }
+.tag-planar     { color: #60a0b0; border-color: rgba(96,160,176,0.4);   background: rgba(96,160,176,0.08); }
+.tag-celestial  { color: #d4b840; border-color: rgba(212,184,64,0.4);   background: rgba(212,184,64,0.08); }
+.tag-titan      { color: #c05030; border-color: rgba(192,80,48,0.4);    background: rgba(192,80,48,0.08); }
+.tag-cursed     { color: #8040a0; border-color: rgba(128,64,160,0.4);   background: rgba(128,64,160,0.08); }
+.tag-primordial { color: #3080a0; border-color: rgba(48,128,160,0.4);   background: rgba(48,128,160,0.08); }
 
 /* ── RESEARCH TAB ────────────────────────────────────────────────────────────── */
 
@@ -3565,10 +3582,18 @@ body.reduce-motion *::after {
     50%       { box-shadow: 0 0 14px color-mix(in srgb, var(--dn-clr, var(--accent)) 55%, transparent); }
 }
 
-/* Domain tints */
+/* Domain tints (L1 — used only for root and L1 nodes themselves) */
 .era1-cn.era1-cn-deep   { --dn-clr: #8899aa; }
 .era1-cn.era1-cn-wild   { --dn-clr: #5a9e60; }
 .era1-cn.era1-cn-beyond { --dn-clr: #8866bb; }
+
+/* Drive tints (L2 — each branch gets its own accent from L2 downward) */
+.era1-cn.era1-cn-dominance { --dn-clr: #7799cc; }
+.era1-cn.era1-cn-wisdom    { --dn-clr: #55aabb; }
+.era1-cn.era1-cn-growth    { --dn-clr: #4daa6a; }
+.era1-cn.era1-cn-hunt      { --dn-clr: #8daa33; }
+.era1-cn.era1-cn-undying   { --dn-clr: #6666cc; }
+.era1-cn.era1-cn-bargain   { --dn-clr: #bb55aa; }
 
 /* Root node */
 .era1-cn.era1-cn-root {
@@ -4464,3 +4489,21 @@ body.reduce-motion *::after {
 .trade-rate-buy {
     color: var(--accent);
 }
+
+/* ── Game footer bar ─────────────────────────────────────────────────────── */
+#game-footer {
+    width: 100%;
+    background: var(--bg-panel);
+    border-top: 1px solid var(--border);
+    text-align: left;
+    padding: 4px 10px;
+    font-size: 11px;
+    color: rgba(160,145,120,0.5);
+    font-family: 'Lato', Arial, sans-serif;
+    letter-spacing: 0.04em;
+    user-select: none;
+}
+.game-footer-author {
+    color: #c8a84b;
+}
+

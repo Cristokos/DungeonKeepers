@@ -80,7 +80,7 @@ const ERA1_TREE = {
     colossus: {
         id: 'colossus', name: 'The Colossus', layer: 3, parent: 'dominance',
         flavor: 'Not many — one. One that cracks the ground with each step and forces the world to reorganize itself around its presence. You crave scale, magnitude, the power that needs no numbers.',
-        cost: { essence: 600, influence: 400 }, children: ['type-giant'],
+        cost: { essence: 600, influence: 400 }, children: ['type-giant', 'type-titan'],
         type: null, race: null,
     },
     anomaly: {
@@ -92,7 +92,7 @@ const ERA1_TREE = {
     forged: {
         id: 'forged', name: 'The Forged', layer: 3, parent: 'wisdom',
         flavor: 'Knowledge made manifest. The deep does not only accumulate secrets — it builds with them. You want servants shaped by craft and purpose, not born by accident.',
-        cost: { essence: 600, influence: 400 }, children: ['type-construct'],
+        cost: { essence: 600, influence: 400 }, children: ['type-construct', 'type-cursed'],
         type: null, race: null,
     },
     'root-node': {
@@ -104,7 +104,7 @@ const ERA1_TREE = {
     changed: {
         id: 'changed', name: 'The Changed', layer: 3, parent: 'growth',
         flavor: 'Life does not merely grow — it transforms. The most powerful things in the wild are not what they were born as. You are drawn to creatures that carry their change inside them, unstable and magnificent.',
-        cost: { essence: 600, influence: 400 }, children: ['type-lycanthrope'],
+        cost: { essence: 600, influence: 400 }, children: ['type-lycanthrope', 'type-fey'],
         type: null, race: null,
     },
     pack: {
@@ -116,7 +116,7 @@ const ERA1_TREE = {
     apex: {
         id: 'apex', name: 'The Apex', layer: 3, parent: 'hunt',
         flavor: 'The hunt ends with one creature standing. Not because it hunted in numbers — because it is simply beyond what was sent against it. You want the thing at the top of every food chain.',
-        cost: { essence: 600, influence: 400 }, children: ['type-monstrous'],
+        cost: { essence: 600, influence: 400 }, children: ['type-monstrous', 'type-legendary'],
         type: null, race: null,
     },
     kept: {
@@ -128,7 +128,7 @@ const ERA1_TREE = {
     anchored: {
         id: 'anchored', name: 'The Anchored', layer: 3, parent: 'undying',
         flavor: 'Not dead — never alive. Forces bound into form, compelled to serve by laws older than language. You want servants made from the world itself, elemental and eternal.',
-        cost: { essence: 600, influence: 400 }, children: ['type-elemental'],
+        cost: { essence: 600, influence: 400 }, children: ['type-elemental', 'type-primordial'],
         type: null, race: null,
     },
     pact: {
@@ -158,6 +158,12 @@ const ERA1_TREE = {
         cost: { essence: 800, influence: 600, mana: 300 }, children: [],
         type: 'Giant', race: null,
     },
+    'type-titan': {
+        id: 'type-titan', name: 'Titan', layer: 4, parent: 'colossus',
+        flavor: 'Giants are large. Titans are something else entirely — beings of the primordial age when the world was still being decided, whose scale is measured in mountains and whose memory predates civilization by an epoch.',
+        cost: { essence: 800, influence: 600, mana: 300 }, children: [],
+        type: 'Titan', race: null,
+    },
     'type-swarm': {
         id: 'type-swarm', name: 'Swarm', layer: 4, parent: 'horde',
         flavor: 'Not a creature but a verdict — countless small things moving as one terrible whole. A swarm does not attack; it consumes. It does not retreat; it redirects.',
@@ -176,6 +182,12 @@ const ERA1_TREE = {
         flavor: 'Built, not born. Purpose-forged and tireless — constructs obey without question, work without rest, and feel no fear. You would be their maker and their mission.',
         cost: { essence: 800, influence: 600, mana: 300 }, children: [],
         type: 'Construct', race: null,
+    },
+    'type-cursed': {
+        id: 'type-cursed', name: 'Cursed', layer: 4, parent: 'forged',
+        flavor: 'Not made but unmade — then remade into something the original creature would not recognize. Knowledge of forbidden things has consequences, and the Cursed are what those consequences look like with teeth.',
+        cost: { essence: 800, influence: 600, mana: 300 }, children: [],
+        type: 'Cursed', race: null,
     },
     'type-draconic': {
         id: 'type-draconic', name: 'Draconic', layer: 4, parent: 'anomaly',
@@ -202,6 +214,12 @@ const ERA1_TREE = {
         cost: { essence: 800, influence: 600, mana: 300 }, children: [],
         type: 'Lycanthrope', race: null,
     },
+    'type-fey': {
+        id: 'type-fey', name: 'Fey', layer: 4, parent: 'changed',
+        flavor: 'The wild\'s other face — not red in tooth and claw but ancient, enchanted, and utterly unconcerned with mortal logic. Fey do not follow rules. They follow moods, whims, and oaths sworn under moonlight that meant something once.',
+        cost: { essence: 800, influence: 600, mana: 300 }, children: [],
+        type: 'Fey', race: null,
+    },
     // Wild → Pack
     'type-aquatic': {
         id: 'type-aquatic', name: 'Aquatic', layer: 4, parent: 'pack',
@@ -214,6 +232,12 @@ const ERA1_TREE = {
         flavor: 'Not a type but a verdict — creatures defined by the violence they embody. They are apex threats wearing flesh as armor, and they know it.',
         cost: { essence: 800, influence: 600, mana: 300 }, children: [],
         type: 'Monstrous', race: null,
+    },
+    'type-legendary': {
+        id: 'type-legendary', name: 'Legendary', layer: 4, parent: 'apex',
+        flavor: 'Singular. Not a species but a phenomenon — creatures so far beyond others of their kind that they exist as categories of one. The world bends slightly around their presence without meaning to.',
+        cost: { essence: 800, influence: 600, mana: 300 }, children: [],
+        type: 'Legendary', race: null,
     },
     'type-beast': {
         id: 'type-beast', name: 'Beast', layer: 4, parent: 'pack',
@@ -233,6 +257,12 @@ const ERA1_TREE = {
         flavor: 'Pure force given form. Elementals are not creatures that wield fire or stone — they are fire and stone, temporarily choosing a shape. Their power is foundational.',
         cost: { essence: 800, influence: 600, mana: 300 }, children: [],
         type: 'Elemental', race: null,
+    },
+    'type-primordial': {
+        id: 'type-primordial', name: 'Primordial', layer: 4, parent: 'anchored',
+        flavor: 'Older than elements. Before fire and stone were classified, before the planes were separated, something moved through the formless dark. Primordials are what remained when the world decided to have rules — and they never agreed to them.',
+        cost: { essence: 800, influence: 600, mana: 300 }, children: [],
+        type: 'Primordial', race: null,
     },
     'type-specter': {
         id: 'type-specter', name: 'Specter', layer: 4, parent: 'kept',
@@ -292,12 +322,12 @@ const RACE_LEAF_DEFS = [
     { race: 'Storm Giant',  type: 'Giant', flavor: 'The most powerful of their kind, Storm Giants commune with the cosmos and carry weather in their wake. They are not cruel — they simply do not notice when things break.' },
 
     // Swarm
-    { race: 'Placeholder 1', type: 'Swarm', flavor: 'A placeholder for a future Swarm race.' },
-    { race: 'Placeholder 2', type: 'Swarm', flavor: 'A placeholder for a future Swarm race.' },
-    { race: 'Placeholder 3', type: 'Swarm', flavor: 'A placeholder for a future Swarm race.' },
-    { race: 'Placeholder 4', type: 'Swarm', flavor: 'A placeholder for a future Swarm race.' },
-    { race: 'Placeholder 5', type: 'Swarm', flavor: 'A placeholder for a future Swarm race.' },
-    { race: 'Placeholder 6', type: 'Swarm', flavor: 'A placeholder for a future Swarm race.' },
+    { race: 'Stirge',         type: 'Swarm', flavor: 'Blood-drinking, bat-winged horrors that strike in clouds and drain prey dry before the victim notices how many there are. Stirges are individually trivial and collectively catastrophic.' },
+    { race: 'Cranium Rat',    type: 'Swarm', flavor: 'Mind Flayer-bred vermin with collective psychic intelligence. Alone, a Cranium Rat is barely a threat. A swarm of them becomes a single, distributed, telepathic mind hungry for secrets.' },
+    { race: 'Rot Grub',       type: 'Swarm', flavor: 'Tiny burrowing parasites that infest corpses and the living alike. Rot Grubs do not fight — they infiltrate, and by the time their presence is known it is already too late to matter.' },
+    { race: 'Shadow Swarm',   type: 'Swarm', flavor: 'Fragments of darkness given appetite. No single shadow-mote is dangerous. Ten thousand of them, moving as one hungry mass through a corridor, are something else entirely.' },
+    { race: 'Spore Cloud',    type: 'Swarm', flavor: 'Not a creature but a colony — fungal spores with collective direction and terrible patience. A Spore Cloud drifts until it finds warmth, then it finds purchase, and then the host has a new purpose.' },
+    { race: 'Plague Locust',  type: 'Swarm', flavor: 'Individually nothing. Collectively, a verdict. Plague Locusts consume everything in their path with no malice and no mercy — appetite elevated to a geological force.' },
 
     // Aberration
     { race: 'Mind Flayer',        type: 'Aberration', flavor: 'Intellect devourers in elegant form. Mind Flayers consume brains, enslave lesser beings, and build empires of psychic control in the dark places beneath the world.' },
@@ -372,12 +402,12 @@ const RACE_LEAF_DEFS = [
     { race: 'Worg',     type: 'Monstrous', flavor: 'Evil-aligned wolves of great cunning who speak and scheme and hold the goblinoid races in contempt while working alongside them. Worgs are always waiting for a better offer.' },
 
     // Beast
-    { race: 'Placeholder 1', type: 'Beast', flavor: 'A placeholder for a future Beast race.' },
-    { race: 'Placeholder 2', type: 'Beast', flavor: 'A placeholder for a future Beast race.' },
-    { race: 'Placeholder 3', type: 'Beast', flavor: 'A placeholder for a future Beast race.' },
-    { race: 'Placeholder 4', type: 'Beast', flavor: 'A placeholder for a future Beast race.' },
-    { race: 'Placeholder 5', type: 'Beast', flavor: 'A placeholder for a future Beast race.' },
-    { race: 'Placeholder 6', type: 'Beast', flavor: 'A placeholder for a future Beast race.' },
+    { race: 'Dire Wolf',    type: 'Beast', flavor: 'The wolf taken to its logical extreme — larger, stronger, faster, and possessed of an intelligence that stops just short of language. Dire Wolves lead lesser wolves the way generals lead armies.' },
+    { race: 'Cave Bear',    type: 'Beast', flavor: 'The apex of the underground wilderness. Cave Bears are territorial, enormously powerful, and utterly without interest in negotiation. They have not needed it once in their entire evolutionary history.' },
+    { race: 'Giant Eagle',  type: 'Beast', flavor: 'Proud, ancient, and capable of genuine speech — though they rarely bother. Giant Eagles see everything from above and judge most of it unworthy. The few things they respect, they protect absolutely.' },
+    { race: 'Sabre Cat',    type: 'Beast', flavor: 'A predator from the age before civilization, when the world was colder and meaner. Sabre Cats hunt the largest prey they can find as a matter of principle. The fangs are long for a reason.' },
+    { race: 'Giant Ape',    type: 'Beast', flavor: 'Immense, intelligent, and deeply territorial. Giant Apes understand tool use, social hierarchy, and the concept of ownership. What they own, they defend. The list of what they own is growing.' },
+    { race: 'Bulette',      type: 'Beast', flavor: 'The landshark — an armored predator that swims through earth the way a fish moves through water. Bulettes surface only to strike, and they always strike upward from below.' },
 
     // Undead
     { race: 'Skeleton',  type: 'Undead', flavor: 'Bones with purpose. Skeletons are the simplest undead — mindless, obedient, durable, and completely interchangeable. They are exactly what you need them to be: more.' },
@@ -433,12 +463,12 @@ const RACE_LEAF_DEFS = [
     { race: 'Gnome',    type: 'Humanoid', flavor: 'Small, clever, and enthusiastic about things most beings find esoteric. Gnomes invent, tinker, and experiment with a joy that persists through every explosion. Especially through every explosion.' },
 
     // Planar
-    { race: 'Placeholder 1', type: 'Planar', flavor: 'A placeholder for a future Planar race.' },
-    { race: 'Placeholder 2', type: 'Planar', flavor: 'A placeholder for a future Planar race.' },
-    { race: 'Placeholder 3', type: 'Planar', flavor: 'A placeholder for a future Planar race.' },
-    { race: 'Placeholder 4', type: 'Planar', flavor: 'A placeholder for a future Planar race.' },
-    { race: 'Placeholder 5', type: 'Planar', flavor: 'A placeholder for a future Planar race.' },
-    { race: 'Placeholder 6', type: 'Planar', flavor: 'A placeholder for a future Planar race.' },
+    { race: 'Githzerai',   type: 'Planar', flavor: 'Ascetics of Limbo who have trained themselves to impose order on chaos through sheer will. Githzerai are calm, precise, and capable of violence so controlled it looks like meditation.' },
+    { race: 'Githyanki',   type: 'Planar', flavor: 'Astral conquerors with silver swords that sever the soul from the body. Githyanki do not live on the material plane — they raid it, and they are very good at raiding.' },
+    { race: 'Modron',      type: 'Planar', flavor: 'Living mathematics from Mechanus, the plane of absolute law. Modrons process reality as a series of hierarchical instructions. They do not understand chaos. They find it offensive.' },
+    { race: 'Slaad',       type: 'Planar', flavor: 'Living chaos from Limbo — frog-like, violent, and reproducing through horrific infestation of living hosts. Slaadi do not follow logic. They follow entropy, and entropy is patient.' },
+    { race: 'Xorn',        type: 'Planar', flavor: 'Three-armed, three-legged, three-eyed beings from the elemental plane of earth who move through stone like water and hunger for precious metals. A dungeon is, to the Xorn, a buffet.' },
+    { race: 'Inevitables', type: 'Planar', flavor: 'Constructs of absolute law dispatched to enforce the rules of the cosmos. Inevitables do not pursue — they simply continue moving toward their target until one of them stops existing.' },
 
     // Celestial
     { race: 'Planetar',   type: 'Celestial', flavor: 'A great angel of war and justice, bound now to a different cause. The Planetar does not forget what it was — it has simply decided that this dungeon is where the real work happens.' },
@@ -447,6 +477,46 @@ const RACE_LEAF_DEFS = [
     { race: 'Pegasus',    type: 'Celestial', flavor: 'A winged horse of pure celestial lineage. The Pegasus carries riders through the sky with a speed that makes everything else feel insufficient. It has opinions about who is worthy.' },
     { race: 'Unicorn',    type: 'Celestial', flavor: 'A guardian of sacred places whose horn heals and whose presence sanctifies. A Unicorn has chosen to sanctify a dungeon. That choice says something about the dungeon.' },
     { race: 'Hollyphant', type: 'Celestial', flavor: 'A tiny celestial elephant of improbable power. Hollyphants are gentle, ancient, and capable of releasing divine energy that makes much larger beings reconsider their choices.' },
+
+    // Titan
+    { race: 'Empyrean',     type: 'Titan', flavor: 'The divine offspring of gods — not worshipped, not lesser, but literally descended from divinity and carrying that inheritance in every action. Empyreans reshape battlefields by existing on them.' },
+    { race: 'Behemoth',     type: 'Titan', flavor: 'The land-bound counterpart to the Leviathan — a creature of such mass and power that the earth reshapes itself around its passage. The Behemoth does not conquer territory. It simply exists on it, and the territory adjusts.' },
+    { race: 'Astral Dreadnought', type: 'Titan', flavor: 'A predator native to the Astral Plane that has drifted through the void since before the gods named it. The Astral Dreadnought has consumed things the universe has since forgotten.' },
+    { race: 'Leviathan',    type: 'Titan', flavor: 'The sea given agency and appetite. Leviathans are not fish — they are the ocean\'s verdict on those who forget what lives beneath it. Civilizations have been swallowed without the Leviathan noticing.' },
+    { race: 'War Colossus',  type: 'Titan', flavor: 'An animated statue on a scale that makes fortresses look modest. War Colossi were built by civilizations that no longer exist to serve purposes no one fully remembers. They continue anyway.' },
+    { race: 'Elder Titan',  type: 'Titan', flavor: 'A being from the age before the current cosmic order — older than the gods who replaced them, powerful enough that the new order chose imprisonment over confrontation. Something has opened the prison.' },
+
+    // Cursed
+    { race: 'Death Knight',   type: 'Cursed', flavor: 'A paladin who broke their sacred oath at the worst possible moment — and was denied the mercy of death as punishment. Death Knights serve whatever dark power claimed them with the same discipline they once gave to the light, and they hate every moment of it.' },
+    { race: 'Petrified Medusa', type: 'Cursed', flavor: 'Once something else — now this. The curse that made a Medusa is older than the Medusa herself, and it is patient. It does not want to be cured. It wants to spread.' },
+    { race: 'Werewolf',       type: 'Cursed', flavor: 'The oldest lycanthropic curse, and the one that spreads fastest. A Werewolf does not choose their nature — but in a dungeon, that nature becomes a resource rather than a affliction.' },
+    { race: 'Serpent Abomination', type: 'Cursed', flavor: 'The furthest any serpent cult goes — more serpent than humanoid now, having sacrificed their humanity so completely that what remains is something the serpent gods actually want to talk to.' },
+    { race: 'Cursed Knight',  type: 'Cursed', flavor: 'A warrior bound to an oath they broke, or a cause that destroyed them, or a weapon that wouldn\'t let them die. The Cursed Knight fights on because stopping is no longer available as an option.' },
+    { race: 'Wereraven',      type: 'Cursed', flavor: 'Cursed watchers who carry the affliction lightly — or so they claim. Wereravens observe, remember, and report, flitting between human and bird with an ease that suggests the curse suits them perfectly.' },
+
+    // Fey
+    { race: 'Pixie',         type: 'Fey', flavor: 'Tiny, winged, and absolutely untrustworthy. Pixies find mortal suffering genuinely funny and mortal joy genuinely interesting — both of which make them unpredictable in a dungeon, and useful for that very reason.' },
+    { race: 'Satyr',         type: 'Fey', flavor: 'Hedonists of the wild places who live in pursuit of sensation and drag others into that pursuit whether invited or not. Satyrs are charming, dangerous, and immune to the word "enough."' },
+    { race: 'Dryad',         type: 'Fey', flavor: 'Bound to a tree and capable of genuine love for it. Dryads can charm mortals with a glance and vanish into bark with a thought. Bringing one to a dungeon requires bringing their tree. They insist.' },
+    { race: 'Redcap',        type: 'Fey', flavor: 'A faerie that keeps its hat red through violence — specifically, through soaking it in the blood of the things it kills. Redcaps are not malicious by fey standards. They are simply maintenance-oriented.' },
+    { race: 'Quickling',     type: 'Fey', flavor: 'A fey that traded its lifespan for speed and got a terrible deal in retrospect. Quicklings move faster than the eye can follow and die younger than they expected. They do not slow down for either reason.' },
+    { race: 'Green Hag',     type: 'Fey', flavor: 'Ancient, cunning, and deeply invested in the misery of others as both craft and hobby. Green Hags form covens, broker terrible bargains, and take payment in pieces of the soul that the victim won\'t miss until later.' },
+
+    // Legendary
+    { race: 'Ancient Dragon',    type: 'Legendary', flavor: 'Not a species — a milestone. Ancient Dragons have lived long enough that they no longer bother with the concerns of other creatures. They have goals that take centuries and the patience to match.' },
+    { race: 'Nightwalker',       type: 'Legendary', flavor: 'A massive entity of living darkness spawned in the Shadowfell, where the absence of light has become something that moves with purpose. The Nightwalker does not pursue prey — it erases it, methodically, one source of light at a time.' },
+    { race: 'Roc',               type: 'Legendary', flavor: 'A bird large enough to mistake elephants for prey and correct that assumption by eating them. Rocs do not see dungeons — they see nesting sites and the small things that live in them.' },
+    { race: 'Dragon Turtle',     type: 'Legendary', flavor: 'Ancient beyond reckoning, the Dragon Turtle sleeps in the deep ocean and wakes when it feels like it. Sailors have mistaken it for an island. This has not ended well for the sailors.' },
+    { race: 'Void Dragon',       type: 'Legendary', flavor: 'A dragon that flew too deep into the astral sea and came back changed — or did not come back at all, and what returned merely wore the shape. Void Dragons have shed hunger, territory, and kin for something older. They are singular in a way that makes other singular things feel crowded.' },
+    { race: 'Phoenix',           type: 'Legendary', flavor: 'A being of pure elemental fire that cannot die — only transform. The Phoenix burns, rises, and burns again with a serenity that suggests it has made peace with the cycle. It has not made peace with you.' },
+
+    // Primordial
+    { race: 'Elder Tempest',    type: 'Primordial', flavor: 'A storm that predates weather — a conscious atmospheric event from the era before the elemental planes were separated. The Elder Tempest does not rage. It simply is rage, expressed meteorologically.' },
+    { race: 'Zaratan',          type: 'Primordial', flavor: 'An island-sized turtle of earth and stone from before the elemental planes had edges. The Zaratan has been sleeping for so long that forests have grown on its shell. It is beginning to notice.' },
+    { race: 'Abyssal Tide',     type: 'Primordial', flavor: 'Not a sea creature — the water itself, given ancient hunger. The Abyssal Tide does not swim through water; it becomes it, surrounds you with it, and decides what happens next.' },
+    { race: 'Elder Fire',       type: 'Primordial', flavor: 'Fire from before fire had rules — not an elemental but a primordial burning, hungry in ways that ordinary flame is not. Elder Fire consumes concepts as readily as it consumes wood.' },
+    { race: 'Obyrith',          type: 'Primordial', flavor: 'Demons older than the Abyss itself — beings of pure chaos from before the planes were organized. Obyriths are so alien that merely seeing their true form damages the sanity of the observer. They do not care.' },
+    { race: 'Void Shard',       type: 'Primordial', flavor: 'A fragment of the nothing that existed before existence — the cold that predates cold, the dark that predates dark. Void Shards do not act. They negate, persistently and without malice.' },
 ];
 
 // ── Build L5 nodes and patch L4 children from RACE_LEAF_DEFS ─────────────────
@@ -503,3 +573,20 @@ function era1GetDomain(nodeId) {
     while (node && node.layer > 1) node = ERA1_TREE[node.parent];
     return node ? node.id : null;
 }
+
+// Get the L2 ancestor id for a node (used for per-drive coloring)
+function era1GetDrive(nodeId) {
+    let node = ERA1_TREE[nodeId];
+    while (node && node.layer > 2) node = ERA1_TREE[node.parent];
+    return (node && node.layer === 2) ? node.id : null;
+}
+
+// Per-drive colors (each L2 node gets its own accent)
+const ERA1_DRIVE_COLORS = {
+    dominance: '#7799cc',
+    wisdom:    '#55aabb',
+    growth:    '#4daa6a',
+    hunt:      '#8daa33',
+    undying:   '#6666cc',
+    bargain:   '#bb55aa',
+};

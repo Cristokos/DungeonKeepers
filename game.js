@@ -4127,8 +4127,9 @@ function renderEra1TreeLegacy() {
         const ppos = positions.get(node.parent);
         const cpos = positions.get(nodeId);
         if (!ppos || !cpos) continue;
+        const drive  = era1GetDrive(nodeId) || era1GetDrive(node.parent);
         const domain = era1GetDomain(nodeId) || era1GetDomain(node.parent);
-        const color  = DOMAIN_COLORS[domain] || '#666';
+        const color  = ERA1_DRIVE_COLORS[drive] || DOMAIN_COLORS[domain] || '#666';
         const px = ppos.x + ox;
         const py = ppos.y + ox; // note: using separate axes below
         const cx = cpos.x + ox;
@@ -4335,11 +4336,15 @@ function era1UpdateNodeStyles(unlocked, revealed, offeredNames, prestiged) {
             'era1-cn-root', 'era1-cn-chosen', 'era1-cn-unlocked-path',
             'era1-cn-sibling', 'era1-cn-active', 'era1-cn-waiting',
             'era1-cn-prestiged', 'era1-cn-offered', 'era1-cn-fogged',
-            'era1-cn-deep', 'era1-cn-wild', 'era1-cn-beyond'
+            'era1-cn-deep', 'era1-cn-wild', 'era1-cn-beyond',
+            'era1-cn-dominance', 'era1-cn-wisdom', 'era1-cn-growth',
+            'era1-cn-hunt', 'era1-cn-undying', 'era1-cn-bargain'
         );
 
+        const drive  = era1GetDrive(nodeId);
         const domain = era1GetDomain(nodeId);
-        if (domain) el.classList.add('era1-cn-' + domain);
+        if (drive) el.classList.add('era1-cn-' + drive);
+        else if (domain) el.classList.add('era1-cn-' + domain);
 
         if (node.layer === 0) {
             el.classList.add('era1-cn-root');
@@ -4619,8 +4624,9 @@ function era1RenderDiscoveryScene(centerId, unlocked, revealed, offeredNames, pr
         const node = ERA1_TREE[slot.id];
         if (!node) return '';
         const mid = { x: slot.x + slot.w / 2, y: slot.y + slot.h / 2 };
+        const drive  = era1GetDrive(node.id) || era1GetDrive(center.id);
         const domain = era1GetDomain(node.id) || era1GetDomain(center.id);
-        const color = colors[domain] || '#6b706f';
+        const color = ERA1_DRIVE_COLORS[drive] || colors[domain] || '#6b706f';
         const opacity = slot.forceUnknown ? 0.28 : 0.58;
         if (slot.role.indexOf('sibling') === 0) {
             return `<path d="M${centerMid.x},${centerMid.y} C${centerMid.x},${mid.y} ${mid.x},${centerMid.y} ${mid.x},${mid.y}" stroke="${color}" stroke-width="1.5" fill="none" opacity="${opacity}"/>`;
@@ -4653,6 +4659,7 @@ function era1CreateDiscoveryNode(slot, unlocked, revealed, offeredNames, prestig
     if (!node) return null;
     const knowledge = slot.forceUnknown ? 'unknown' : era1NodeKnowledge(node, unlocked, revealed, offeredNames, prestiged);
     const el = document.createElement('div');
+    const drive  = era1GetDrive(node.id);
     const domain = era1GetDomain(node.id);
     const isCenter = slot.role === 'center';
     const isUnlocked = unlocked.has(node.id) || node.id === 'root';
@@ -4661,7 +4668,8 @@ function era1CreateDiscoveryNode(slot, unlocked, revealed, offeredNames, prestig
     const canUnlock = era1NodeCanUnlock(node, unlocked, offeredNames);
 
     el.className = 'era1-cn era1-dnode era1-dnode-' + slot.role;
-    if (domain) el.classList.add('era1-cn-' + domain);
+    if (drive) el.classList.add('era1-cn-' + drive);
+    else if (domain) el.classList.add('era1-cn-' + domain);
     if (node.id === 'root') el.classList.add('era1-cn-root');
     if (isCenter) el.classList.add('era1-cn-chosen', 'era1-dnode-center');
     else if (knowledge === 'unknown') el.classList.add('era1-cn-fogged', 'era1-dnode-unknown');
@@ -4762,7 +4770,7 @@ function updateEraTabVisibility() {
 const CREATURE_ROSTER = {
     "Goblinoid":   ["Goblin", "Hobgoblin", "Bugbear", "Orc", "Gnoll", "Barghest"],
     "Giant":       ["Hill Giant", "Stone Giant", "Frost Giant", "Fire Giant", "Cloud Giant", "Storm Giant"],
-    "Swarm":       ["Placeholder 1", "Placeholder 2", "Placeholder 3", "Placeholder 4", "Placeholder 5", "Placeholder 6"],
+    "Swarm":       ["Stirge", "Cranium Rat", "Rot Grub", "Shadow Swarm", "Spore Cloud", "Plague Locust"],
     "Aberration":  ["Mind Flayer", "Beholder", "Aboleth", "Gibbering Mouther", "Nothic", "Chuul", "Grell", "Flumph"],
     "Construct":   ["Stone Golem", "Iron Golem", "Animated Armor", "Clay Golem", "Flesh Golem", "Clockwork Horror"],
     "Draconic":    ["Metallic Dragon", "Lizardfolk", "Kobold", "Yuan-ti", "Wyvern", "Dragonborn"],
@@ -4771,14 +4779,19 @@ const CREATURE_ROSTER = {
     "Lycanthrope": ["Werebear", "Wererat", "Wereboar", "Owlbear", "Displacer Beast", "Weretiger"],
     "Aquatic":     ["Merfolk", "Sahuagin", "Kuo-toa", "Triton", "Sea Hag", "Locathah"],
     "Monstrous":   ["Harpy", "Medusa", "Minotaur", "Troll", "Naga", "Basilisk", "Chimera", "Manticore", "Griffon", "Hydra", "Ettin", "Worg"],
-    "Beast":       ["Placeholder 1", "Placeholder 2", "Placeholder 3", "Placeholder 4", "Placeholder 5", "Placeholder 6"],
+    "Beast":       ["Dire Wolf", "Cave Bear", "Giant Eagle", "Sabre Cat", "Giant Ape", "Bulette"],
     "Undead":      ["Skeleton", "Zombie", "Vampire", "Wight", "Ghoul", "Revenant", "Banshee", "Wraith", "Mummy", "Demilich", "Shadow"],
     "Elemental":   ["Fire Elemental", "Earth Elemental", "Water Elemental", "Air Elemental", "Magmin", "Galeb Duhr"],
     "Specter":     ["Ghost", "Specter", "Poltergeist", "Shadow Demon", "Nighthaunt", "Allip"],
     "Fiend":       ["Imp", "Cambion", "Barbed Devil", "Night Hag", "Succubus/Incubus", "Pit Fiend", "Balor", "Rakshasa", "Quasit", "Shadow Demon"],
     "Humanoid":    ["Kenku", "Tabaxi", "Aarakocra", "Tortle", "Centaur", "Human", "Elf", "Dwarf", "Half-Orc", "Gnome"],
-    "Planar":      ["Placeholder 1", "Placeholder 2", "Placeholder 3", "Placeholder 4", "Placeholder 5", "Placeholder 6"],
+    "Planar":      ["Githzerai", "Githyanki", "Modron", "Slaad", "Xorn", "Inevitables"],
     "Celestial":   ["Planetar", "Deva", "Couatl", "Pegasus", "Unicorn", "Hollyphant"],
+    "Titan":       ["Empyrean", "Behemoth", "Astral Dreadnought", "Leviathan", "War Colossus", "Elder Titan"],
+    "Cursed":      ["Death Knight", "Petrified Medusa", "Werewolf", "Serpent Abomination", "Cursed Knight", "Wereraven"],
+    "Fey":         ["Pixie", "Satyr", "Dryad", "Redcap", "Quickling", "Green Hag"],
+    "Legendary":   ["Ancient Dragon", "Nightwalker", "Roc", "Dragon Turtle", "Void Dragon", "Phoenix"],
+    "Primordial":  ["Elder Tempest", "Zaratan", "Abyssal Tide", "Elder Fire", "Obyrith", "Void Shard"],
 };
 
 // Races hidden from the player — earned through special conditions.
@@ -4968,15 +4981,96 @@ const LEGENDARY_ROSTER = {
                 { name: "Quick to Multiply",   pos: true, desc: "Growth timer 10% shorter." },
             ],
         },
+        "Swarm": {
+            tag: "tag-swarm",
+            effects: { foodConsumption: 0.20, growthBonus: 0.50, allGatherBonus: 1 },
+            mods: [
+                { name: "Countless",       pos: true,  desc: "+1 to all manual gather yields — there are simply too many of them." },
+                { name: "Minimal Upkeep", pos: true,  desc: "80% reduced food consumption — individually, each needs almost nothing." },
+                { name: "Rapid Swarm",    pos: true,  desc: "Growth timer halved — swarms replenish themselves faster than anything else." },
+            ],
+        },
+        "Beast": {
+            tag: "tag-beast",
+            effects: { foodConsumption: 1.20, growthBonus: 0.80, productionBonus: { huntingLodge: 1.15 }, allGatherBonus: 1 },
+            mods: [
+                { name: "Predator Instincts", pos: true,  desc: "Hunting Lodges produce 15% more; +1 to all manual gather yields." },
+                { name: "Swift Pack",          pos: true,  desc: "Growth timer 20% shorter — beasts multiply quickly." },
+                { name: "Voracious",           pos: false, desc: "Population eats 20% more food — apex predators require substantial feeding." },
+            ],
+        },
+        "Specter": {
+            tag: "tag-specter",
+            effects: { foodConsumption: 0.05, growthBonus: 2.0, capBonus: { arcaneEssence: 50 } },
+            mods: [
+                { name: "Incorporeal",     pos: true,  desc: "95% reduced food consumption — specters sustain on ambient life energy." },
+                { name: "Essence Bleed",   pos: true,  desc: "Arcane Essence cap +50 — their presence draws essence from the living." },
+                { name: "Slow to Manifest",pos: false, desc: "Growth timer ×2 — specters must coalesce from grief and residual will." },
+            ],
+        },
+        "Planar": {
+            tag: "tag-planar",
+            effects: { foodConsumption: 0.60, growthBonus: 1.50, allProductionBonus: 0.02, converterBonus: { arcaneGrinder: 1.10 } },
+            mods: [
+                { name: "Planar Logic",    pos: true,  desc: "+2% all production — planar beings optimize processes through alien efficiency." },
+                { name: "Arcane Resonance",pos: true,  desc: "Arcane Grinders 10% more efficient — their inter-planar nature enhances arcane conversion." },
+                { name: "Planar Appetite", pos: true,  desc: "40% reduced food consumption — sustained by planar energy." },
+                { name: "Slow Crossing",   pos: false, desc: "Growth timer 1.5× longer — planar beings are difficult to summon or bind." },
+            ],
+        },
+        "Celestial": {
+            tag: "tag-celestial",
+            effects: { foodConsumption: 0.40, growthBonus: 1.80, allProductionBonus: 0.02, taxBonus: 1 },
+            mods: [
+                { name: "Divine Presence", pos: true,  desc: "+2% all production and +1 cp/creature/day — their grace inspires workers." },
+                { name: "Celestial Diet",  pos: true,  desc: "60% reduced food consumption — celestials sustain from divine energy." },
+                { name: "Rare Grace",      pos: false, desc: "Growth timer 1.8× longer — celestials are difficult to call to dark service." },
+            ],
+        },
+        "Titan": {
+            tag: "tag-titan",
+            effects: { foodConsumption: 3.0, growthBonus: 4.0, allProductionBonus: 0.03, lairHousing: 1 },
+            mods: [
+                { name: "Mythic Scale",     pos: true,  desc: "+3% all production — titans amplify everything around them by sheer presence." },
+                { name: "Immense Hunger",   pos: false, desc: "Population eats ×3 food per tick — titans require colossal sustenance." },
+                { name: "Singular Form",    pos: false, desc: "Only 1 fits per Hovel — titans cannot share space." },
+                { name: "Age of Formation", pos: false, desc: "Growth timer ×4 — titans do not arise, they coalesce over ages." },
+            ],
+        },
+        "Cursed": {
+            tag: "tag-cursed",
+            effects: { foodConsumption: 0.80, growthBonus: 1.20, allProductionBonus: 0.02, capBonus: { bones: 75 } },
+            mods: [
+                { name: "Cursed Drive",    pos: true,  desc: "+2% all production — the curse that unmade them now fuels their labor." },
+                { name: "Bone Hunger",     pos: true,  desc: "Bone cap +75 — cursed beings leave a trail of the dead." },
+                { name: "Dark Resilience", pos: true,  desc: "20% reduced food consumption — curses sustain what hunger cannot." },
+                { name: "Slow Corruption", pos: false, desc: "Growth timer 1.2× longer — curses spread at their own pace." },
+            ],
+        },
+        "Legendary": {
+            tag: "tag-legendary",
+            effects: { foodConsumption: 2.0, growthBonus: 3.0, allProductionBonus: 0.03, coinCapBonus: { flat: 2000, pct: 0.15 }, lairHousing: 1 },
+            mods: [
+                { name: "Singular Power",  pos: true,  desc: "+3% all production and Coin cap +2,000 + 15% of tier base — legends reshape the dungeon." },
+                { name: "Ravenous Legend", pos: false, desc: "Population eats ×2 food per tick." },
+                { name: "Singular Form",   pos: false, desc: "Only 1 fits per Hovel — legends occupy a category of one." },
+                { name: "Epoch Growth",    pos: false, desc: "Growth timer ×3 — legendary creatures are measured in eras, not seasons." },
+            ],
+        },
+        "Primordial": {
+            tag: "tag-primordial",
+            effects: { foodConsumption: 0.10, growthBonus: 3.50, allProductionBonus: 0.03, storageBonus: 20 },
+            mods: [
+                { name: "Pre-Cosmic",      pos: true,  desc: "+3% all production; Storage buildings hold 20 more — primordials predate the rules." },
+                { name: "Ancient Hunger",  pos: true,  desc: "90% reduced food consumption — primordials sustain from ambient void energy." },
+                { name: "Epoch Scale",     pos: false, desc: "Growth timer 3.5× longer — primordials do not arrive; they drift into being." },
+            ],
+        },
     };
 
     // ── Creature-specific descriptions and optional extra effects / mods ──────
     const CREATURES = {
         // ── Draconic ─────────────────────────────────────────────────────────
-        "Chromatic Dragon": { // legendary — earned, not chosen
-            desc: "Ancient and terrifying, chromatic dragons are primal forces of destruction. Their very presence supercharges all magical production.",
-            extraEffects: { allProductionBonus: 0.02 },
-        },
         "Metallic Dragon": {
             desc: "Noble and wise, metallic dragons accumulate vast treasures and forge alliances that yield enormous wealth.",
             extraEffects: { coinCapBonus: { flat: 1000, pct: 0.10 } },
@@ -5021,11 +5115,6 @@ const LEGENDARY_ROSTER = {
             desc: "Seductive lords of the night who command loyalty through fear and coin. Their undead nature is masked behind aristocratic glamour.",
             extraEffects: { taxBonus: 1 },
             extraMods: [{ name: "Lord of the Night", pos: true, desc: "+1 extra cp/creature/day — vampires demand tribute." }],
-        },
-        "Lich": { // legendary — earned, not chosen
-            desc: "Undead archmages of terrifying power. A lich's phylactery acts as a nexus, amplifying all arcane production.",
-            extraEffects: { productionBonus: { crystalSeam: 1.15, mageTower: 1.15 }, converterBonus: { arcaneGrinder: 1.15 } },
-            extraMods: [{ name: "Phylactery Nexus", pos: true, desc: "Crystal Seams and Mage Towers +15%; Arcane Grinders +15% efficiency." }],
         },
         "Wight": {
             desc: "Fallen warriors animated by hate. They dominate lesser undead and push work quotas higher through sheer menace.",
@@ -5552,7 +5641,295 @@ const LEGENDARY_ROSTER = {
             extraMods: [{ name: "Tinker's Touch", pos: true, desc: "Alchemy Labs and Arcane Grinders extra +10%; extra +1 to all gather yields." }],
         },
 
-        // ── Legendary ─────────────────────────────────────────────────────────
+        // ── Swarm ─────────────────────────────────────────────────────────────
+        "Stirge": {
+            desc: "Blood-drinking, bat-winged horrors that strike in clouds and drain prey dry. Individually trivial, collectively catastrophic — and they breed faster than any swarm.",
+            extraEffects: { growthBonus: 0.75, productionBonus: { huntingLodge: 1.10 } },
+            extraMods: [{ name: "Bloodcloud", pos: true, desc: "Hunting Lodges extra +10%; fastest growth of any Swarm." }],
+        },
+        "Cranium Rat": {
+            desc: "Mind Flayer-bred vermin with collective psychic intelligence. A swarm becomes a single, distributed telepathic mind hungry for secrets and arcane knowledge.",
+            extraEffects: { productionBonus: { crystalSeam: 1.10 }, capBonus: { arcaneEssence: 25 } },
+            extraMods: [{ name: "Hive-Mind", pos: true, desc: "Crystal Seams extra +10%; Arcane Essence cap +25." }],
+        },
+        "Rot Grub": {
+            desc: "Tiny burrowing parasites that infest corpses and the living alike. Exceptional bone processors whose infestation leaves a trail of remains.",
+            extraEffects: { productionBonus: { huntingLodge: 1.10 }, capBonus: { bones: 75 } },
+            extraMods: [{ name: "Infestation", pos: true, desc: "Hunting Lodges extra +10%; Bone cap +75." }],
+        },
+        "Shadow Swarm": {
+            desc: "Fragments of darkness given appetite. Ten thousand shadow-motes moving as one hungry mass — need almost no food and gather with eerie efficiency.",
+            extraEffects: { foodConsumption: 0.70, allGatherBonus: 1 },
+            extraMods: [{ name: "Living Dark", pos: true, desc: "Further 30% food reduction; extra +1 to all manual gather yields." }],
+        },
+        "Spore Cloud": {
+            desc: "A fungal colony with collective direction and terrible patience. Drifts until it finds warmth, then spreads — Herbalist Dens thrive in their presence.",
+            extraEffects: { productionBonus: { herbalistDen: 1.15 }, capBonus: { herbs: 50 } },
+            extraMods: [{ name: "Spore Infestation", pos: true, desc: "Herbalist Dens extra +15%; Herb cap +50." }],
+        },
+        "Plague Locust": {
+            desc: "Individually nothing. Collectively, a verdict. Appetite elevated to a geological force — fills storage but reduces farming efficiency.",
+            extraEffects: { storageBonus: 15, capBonus: { food: 100 }, productionBonus: { farm: 0.90 } },
+            extraMods: [
+                { name: "Devouring Wave", pos: true,  desc: "Storage buildings hold 15 more; Food cap +100." },
+                { name: "Locust Logic",   pos: false, desc: "Farms produce 10% less — the locusts consume a portion of what they generate." },
+            ],
+        },
+
+        // ── Beast ─────────────────────────────────────────────────────────────
+        "Dire Wolf": {
+            desc: "The wolf taken to its logical extreme — larger, stronger, faster, and possessed of an intelligence that stops just short of language.",
+            extraEffects: { productionBonus: { huntingLodge: 1.15 }, allGatherBonus: 1 },
+            extraMods: [{ name: "Pack General", pos: true, desc: "Hunting Lodges extra +15%; extra +1 to all manual gather yields." }],
+        },
+        "Cave Bear": {
+            desc: "The apex of the underground wilderness. Cave Bears are territorial, enormously powerful, and utterly without interest in negotiation.",
+            extraEffects: { productionBonus: { quarry: 1.10, mine: 1.10 }, capBonus: { bones: 50 } },
+            extraMods: [{ name: "Apex Predator", pos: true, desc: "Quarries and Mines extra +10%; Bone cap +50." }],
+        },
+        "Giant Eagle": {
+            desc: "Proud, ancient, and capable of genuine speech — though they rarely bother. Giant Eagles see everything from above.",
+            extraEffects: { allGatherBonus: 1, growthBonus: 0.85 },
+            extraMods: [{ name: "Aerial Sight", pos: true, desc: "Extra +1 to all manual gather yields; slightly faster growth." }],
+        },
+        "Sabre Cat": {
+            desc: "A predator from the age before civilization. Sabre Cats hunt the largest prey they can find as a matter of principle.",
+            extraEffects: { productionBonus: { huntingLodge: 1.15 }, foodConsumption: 0.90 },
+            extraMods: [{ name: "Ancient Fang", pos: true, desc: "Hunting Lodges extra +15%; slight food reduction." }],
+        },
+        "Giant Ape": {
+            desc: "Immense, intelligent, and deeply territorial. Giant Apes understand tool use, social hierarchy, and the concept of ownership.",
+            extraEffects: { productionBonus: { quarry: 1.15 }, gatherBonus: { stone: 1 } },
+            extraMods: [{ name: "Tool-User", pos: true, desc: "Quarries extra +15%; +1 stone per manual gather." }],
+        },
+        "Bulette": {
+            desc: "The landshark — an armored predator that swims through earth the way a fish moves through water. Loosens ore as it passes.",
+            extraEffects: { productionBonus: { mine: 1.20 }, gatherBonus: { stone: 1 } },
+            extraMods: [{ name: "Earthshark", pos: true, desc: "Mines extra +20%; +1 stone per manual gather." }],
+        },
+
+        // ── Specter ───────────────────────────────────────────────────────────
+        "Ghost": {
+            desc: "The unfinished dead, haunting the place of their greatest regret. Ghosts are powerful and unpredictable.",
+            extraEffects: { taxBonus: 1, capBonus: { arcaneEssence: 25 } },
+            extraMods: [{ name: "Lingering Presence", pos: true, desc: "+1 cp/creature/day; Arcane Essence cap +25." }],
+        },
+        "Poltergeist": {
+            desc: "A ghost too angry to manifest fully, expressing its rage through hurled objects. Its chaos paradoxically accelerates production.",
+            extraEffects: { allProductionBonus: 0.02, storageBonus: 10 },
+            extraMods: [{ name: "Kinetic Fury", pos: true, desc: "Extra +2% all production; Storage buildings hold 10 more per building." }],
+        },
+        "Nighthaunt": {
+            desc: "Spectral warriors bound to a cause that ended centuries ago. Their dread manifests as tax compliance.",
+            extraEffects: { taxBonus: 1, allProductionBonus: 0.02 },
+            extraMods: [{ name: "Grievous Dread", pos: true, desc: "+1 cp/creature/day; extra +2% all production." }],
+        },
+        "Allip": {
+            desc: "The mad remnant of someone driven to self-destruction by forbidden knowledge. Its babbling accelerates arcane processes nearby.",
+            extraEffects: { converterBonus: { arcaneGrinder: 1.15, arcaneBench: 1.15 } },
+            extraMods: [{ name: "Mad Babbling", pos: true, desc: "Arcane Grinders and Arcane Benches extra +15%." }],
+        },
+
+        // ── Planar ────────────────────────────────────────────────────────────
+        "Githzerai": {
+            desc: "Ascetics of Limbo who impose order on chaos through sheer will. Their mental discipline amplifies all production.",
+            extraEffects: { allProductionBonus: 0.02, growthBonus: 0.85 },
+            extraMods: [{ name: "Zerth Discipline", pos: true, desc: "Extra +2% all production; slightly faster growth." }],
+        },
+        "Githyanki": {
+            desc: "Astral conquerors with silver swords. Their aggressive efficiency translates to exceptional gathering.",
+            extraEffects: { allGatherBonus: 1, taxBonus: 1 },
+            extraMods: [{ name: "Astral Raid", pos: true, desc: "Extra +1 to all manual gather yields; +1 cp/creature/day." }],
+        },
+        "Modron": {
+            desc: "Living mathematics from Mechanus. Their mechanical efficiency makes every production process optimal.",
+            extraEffects: { allProductionBonus: 0.03, converterBonus: { smelter: 1.10, alchemyLab: 1.10 } },
+            extraMods: [{ name: "Hierarchical Processing", pos: true, desc: "Extra +3% all production; Smelters and Alchemy Labs extra +10%." }],
+        },
+        "Slaad": {
+            desc: "Living chaos from Limbo. Entropy breeds fast — Slaadi have the fastest growth of any Planar creature.",
+            extraEffects: { growthBonus: 0.70, capBonus: { food: 75 } },
+            extraMods: [{ name: "Entropic Reproduction", pos: true, desc: "Growth timer 30% shorter than base Planar; Food cap +75." }],
+        },
+        "Xorn": {
+            desc: "Three-armed beings from the elemental plane of earth who move through stone like water and hunger for precious metals.",
+            extraEffects: { productionBonus: { mine: 1.15, quarry: 1.15 }, capBonus: { stone: 50 } },
+            extraMods: [{ name: "Stone Swimmer", pos: true, desc: "Mines and Quarries extra +15%; Stone cap +50." }],
+        },
+        "Inevitables": {
+            desc: "Constructs of absolute law. They continue moving toward their target until one of them stops existing — relentless and foodless.",
+            extraEffects: { foodConsumption: 0.05, allProductionBonus: 0.02, taxBonus: 1 },
+            extraMods: [{ name: "Inevitable Purpose", pos: true, desc: "Extra +2% all production; +1 cp/creature/day; nearly foodless as construct-like entities." }],
+        },
+
+        // ── Celestial ─────────────────────────────────────────────────────────
+        "Planetar": {
+            desc: "A great angel of war and justice, bound now to a different cause. Their divine power drives extraordinary output.",
+            extraEffects: { allProductionBonus: 0.03, taxBonus: 1 },
+            extraMods: [{ name: "War Angel", pos: true, desc: "Extra +3% all production; +1 cp/creature/day." }],
+        },
+        "Deva": {
+            desc: "Celestial messengers who carry divine will. The grace, the power, and the efficiency of divine purpose remain.",
+            extraEffects: { allProductionBonus: 0.02, capBonus: { arcaneEssence: 50 } },
+            extraMods: [{ name: "Divine Messenger", pos: true, desc: "Extra +2% all production; Arcane Essence cap +50." }],
+        },
+        "Couatl": {
+            desc: "Feathered serpents of divine mandate. Their arcane attunement amplifies magic production.",
+            extraEffects: { productionBonus: { crystalSeam: 1.10, ritualCircle: 1.15 }, capBonus: { herbs: 50 } },
+            extraMods: [{ name: "Feathered Wisdom", pos: true, desc: "Crystal Seams extra +10%; Ritual Circles extra +15%; Herb cap +50." }],
+        },
+        "Pegasus": {
+            desc: "A winged horse of pure celestial lineage whose aerial agility enhances all gathering.",
+            extraEffects: { allGatherBonus: 1, growthBonus: 0.85 },
+            extraMods: [{ name: "Celestial Wings", pos: true, desc: "Extra +1 to all manual gather yields; growth timer slightly faster." }],
+        },
+        "Unicorn": {
+            desc: "A guardian of sacred places. Their presence reduces food needs dramatically and amplifies herb production.",
+            extraEffects: { foodConsumption: 0.70, productionBonus: { herbalistDen: 1.10 }, capBonus: { herbs: 75 } },
+            extraMods: [{ name: "Sacred Presence", pos: true, desc: "Further 30% food reduction; Herbalist Dens extra +10%; Herb cap +75." }],
+        },
+        "Hollyphant": {
+            desc: "A tiny celestial elephant of improbable power. Their divine energy boosts morale enormously.",
+            extraEffects: { allProductionBonus: 0.02, taxBonus: 1, growthBonus: 0.75 },
+            extraMods: [{ name: "Divine Trumpet", pos: true, desc: "Extra +2% all production; +1 cp/creature/day; fastest growth of any Celestial." }],
+        },
+
+        // ── Titan ─────────────────────────────────────────────────────────────
+        "Empyrean": {
+            desc: "The divine offspring of gods, carrying that inheritance in every action. Empyreans reshape everything around them.",
+            extraEffects: { allProductionBonus: 0.03, coinCapBonus: { flat: 1000, pct: 0.10 } },
+            extraMods: [{ name: "Divine Radiance", pos: true, desc: "Extra +3% all production; Coin cap +1,000 + 10% of tier base." }],
+        },
+        "Behemoth": {
+            desc: "The land-bound counterpart to the Leviathan — a creature of such mass that the earth reshapes itself around its passage. Its presence supercharges quarrying and mining.",
+            extraEffects: { productionBonus: { quarry: 1.20, mine: 1.20 }, capBonus: { stone: 100 } },
+            extraMods: [{ name: "Earth Shaker", pos: true, desc: "Quarries and Mines extra +20%; Stone cap +100." }],
+        },
+        "Astral Dreadnought": {
+            desc: "A predator native to the Astral Plane that has drifted through the void since before the gods named it. Amplifies all arcane processes.",
+            extraEffects: { productionBonus: { crystalSeam: 1.15 }, converterBonus: { arcaneGrinder: 1.15 } },
+            extraMods: [{ name: "Void Resonance", pos: true, desc: "Crystal Seams extra +15%; Arcane Grinders extra +15%." }],
+        },
+        "Leviathan": {
+            desc: "The sea given agency and appetite. Their presence dramatically amplifies aquatic and storage operations.",
+            extraEffects: { productionBonus: { clayPit: 1.15 }, storageBonus: 25, capBonus: { food: 150 } },
+            extraMods: [{ name: "Tidal Authority", pos: true, desc: "Clay Pits extra +15%; Storage buildings hold 25 more; Food cap +150." }],
+        },
+        "War Colossus": {
+            desc: "An animated statue built by civilizations that no longer exist to serve purposes no one fully remembers. They continue anyway — and mine magnificently.",
+            extraEffects: { productionBonus: { quarry: 1.20, mine: 1.20 }, capBonus: { stone: 100 } },
+            extraMods: [{ name: "Inexorable Labor", pos: true, desc: "Quarries and Mines extra +20%; Stone cap +100." }],
+        },
+        "Elder Titan": {
+            desc: "A being from the age before the current cosmic order — older than the gods who replaced them. Its presence amplifies everything.",
+            extraEffects: { allProductionBonus: 0.03 },
+            extraMods: [{ name: "Primordial Authority", pos: true, desc: "Extra +3% all production stacking with Titan base — the elder titan's magnitude is absolute." }],
+        },
+
+        // ── Cursed ────────────────────────────────────────────────────────────
+        "Death Knight": {
+            desc: "A paladin who broke their sacred oath and was denied the mercy of death as punishment. They serve with the same discipline they once gave to the light.",
+            extraEffects: { allProductionBonus: 0.02, taxBonus: 1, growthBonus: 0.90 },
+            extraMods: [{ name: "Unyielding Oath", pos: true, desc: "Extra +2% all production; +1 cp/creature/day; slightly faster growth than typical Cursed." }],
+        },
+        "Petrified Medusa": {
+            desc: "The curse is older than the Medusa herself. The endless petrification creates a perpetual surplus of worked stone.",
+            extraEffects: { productionBonus: { quarry: 1.20 }, gatherBonus: { stone: 1 }, capBonus: { stone: 100 } },
+            extraMods: [{ name: "Stone Gaze", pos: true, desc: "Quarries extra +20%; Stone cap +100; +1 stone per manual gather." }],
+        },
+        "Werewolf": {
+            desc: "The oldest lycanthropic curse, spreading fastest of all. In a dungeon, that nature becomes a resource — the pack grows quickly and hunts ferociously.",
+            extraEffects: { productionBonus: { huntingLodge: 1.15 }, allGatherBonus: 1, growthBonus: 0.85 },
+            extraMods: [{ name: "The Curse Spreads", pos: true, desc: "Hunting Lodges extra +15%; extra +1 to all gather yields; growth timer faster than other Cursed." }],
+        },
+        "Serpent Abomination": {
+            desc: "More serpent than humanoid, having sacrificed humanity so completely that what remains is something the serpent gods want to talk to. Alchemy flows from that relationship.",
+            extraEffects: { converterBonus: { alchemyLab: 1.20, arcaneGrinder: 1.10 } },
+            extraMods: [{ name: "Serpent Ascension", pos: true, desc: "Alchemy Labs extra +20%; Arcane Grinders extra +10%." }],
+        },
+        "Cursed Knight": {
+            desc: "A warrior bound to an oath they broke. The Cursed Knight fights on because stopping is no longer available as an option — and that drives output.",
+            extraEffects: { allProductionBonus: 0.02, taxBonus: 1, growthBonus: 0.90 },
+            extraMods: [{ name: "Unbreakable Will", pos: true, desc: "Extra +2% all production; +1 cp/creature/day; slightly faster growth." }],
+        },
+        "Wereraven": {
+            desc: "Cursed watchers who carry the affliction lightly — or so they claim. Wereravens observe, remember, and report.",
+            extraEffects: { allGatherBonus: 1, productionBonus: { huntingLodge: 1.10 } },
+            extraMods: [{ name: "Dark Wing Network", pos: true, desc: "Extra +1 to all manual gather yields; Hunting Lodges extra +10%." }],
+        },
+
+        // ── Fey ───────────────────────────────────────────────────────────────
+        "Redcap": {
+            desc: "A murderous faerie that keeps its cap red by soaking it in the blood of its kills. Their violent labor drives exceptional bone yields.",
+            extraEffects: { productionBonus: { huntingLodge: 1.10 }, allGatherBonus: 1, capBonus: { bones: 50 } },
+            extraMods: [{ name: "Blood-Soaked Cap", pos: true, desc: "Hunting Lodges extra +10%; Bone cap +50; +1 to all manual gather yields." }],
+        },
+
+        // ── Legendary (selectable) ────────────────────────────────────────────
+        "Ancient Dragon": {
+            desc: "Not a species — a milestone. Ancient Dragons have lived long enough that they no longer bother with the concerns of other creatures.",
+            extraEffects: { allProductionBonus: 0.03, coinCapBonus: { flat: 2000, pct: 0.15 } },
+            extraMods: [{ name: "Ancient Dominance", pos: true, desc: "Extra +3% all production; Coin cap +2,000 + 15% of tier base." }],
+        },
+        "Nightwalker": {
+            desc: "A massive entity of living darkness from the Shadowfell where the absence of light has become something that moves with purpose. Arcane and ritual processes warp around its presence.",
+            extraEffects: { converterBonus: { ritualCircle: 1.20, arcaneGrinder: 1.15 }, capBonus: { arcaneEssence: 75 } },
+            extraMods: [{ name: "Living Dark", pos: true, desc: "Ritual Circles extra +20%; Arcane Grinders extra +15%; Arcane Essence cap +75." }],
+        },
+        "Roc": {
+            desc: "A bird large enough to mistake elephants for prey and correct that assumption by eating them. Their aerial dominance gathers resources at mythic scale.",
+            extraEffects: { allGatherBonus: 1, productionBonus: { huntingLodge: 1.20 } },
+            extraMods: [{ name: "Sky Sovereign", pos: true, desc: "Extra +1 to all manual gather yields; Hunting Lodges extra +20%." }],
+        },
+        "Dragon Turtle": {
+            desc: "Ancient beyond reckoning, the Dragon Turtle sleeps in the deep ocean and wakes when it feels like it. Vast storage and aquatic amplification.",
+            extraEffects: { storageBonus: 30, productionBonus: { clayPit: 1.20 }, capBonus: { food: 200 } },
+            extraMods: [{ name: "Ancient Shell", pos: true, desc: "Storage buildings hold 30 more; Clay Pits extra +20%; Food cap +200." }],
+        },
+        "Void Dragon": {
+            desc: "A dragon that flew too deep into the astral sea and came back changed. Void Dragons have shed hunger, territory, and kin for something older — and their arcane output reflects it.",
+            extraEffects: { allProductionBonus: 0.03, converterBonus: { arcaneGrinder: 1.20 }, foodConsumption: 0.50 },
+            extraMods: [{ name: "Void-Touched", pos: true, desc: "Extra +3% all production; Arcane Grinders extra +20%; further 50% food reduction." }],
+        },
+        "Phoenix": {
+            desc: "A being of pure elemental fire that cannot die — only transform. The Phoenix supercharges all fire and metal operations.",
+            extraEffects: { converterBonus: { smelter: 1.25, forge: 1.25 }, productionBonus: { coalSeam: 1.15 }, foodConsumption: 0.05 },
+            extraMods: [{ name: "Eternal Flame", pos: true, desc: "Smelters and Forges extra +25%; Coal Seams extra +15%; nearly foodless — the flame sustains it." }],
+        },
+
+        // ── Primordial ────────────────────────────────────────────────────────
+        "Elder Tempest": {
+            desc: "A storm that predates weather. The Elder Tempest does not rage. It simply is rage, expressed meteorologically.",
+            extraEffects: { allProductionBonus: 0.03, allGatherBonus: 1 },
+            extraMods: [{ name: "Primordial Storm", pos: true, desc: "Extra +3% all production; extra +1 to all manual gather yields." }],
+        },
+        "Zaratan": {
+            desc: "An island-sized turtle from before the elemental planes had edges. Its waking amplifies stone and storage.",
+            extraEffects: { productionBonus: { quarry: 1.20 }, storageBonus: 30, capBonus: { stone: 150 } },
+            extraMods: [{ name: "Living Island", pos: true, desc: "Quarries extra +20%; Storage buildings hold 30 more; Stone cap +150." }],
+        },
+        "Abyssal Tide": {
+            desc: "The water itself, given ancient hunger. Food consumption is almost nil — the tide sustains itself from ambient moisture.",
+            extraEffects: { productionBonus: { clayPit: 1.20 }, capBonus: { food: 150 } },
+            extraMods: [{ name: "Primordial Water", pos: true, desc: "Clay Pits extra +20%; Food cap +150 stacking with Primordial base." }],
+        },
+        "Elder Fire": {
+            desc: "Fire from before fire had rules. Not an elemental but a primordial burning. Supercharges all smelting and forging.",
+            extraEffects: { converterBonus: { smelter: 1.20, forge: 1.20 }, productionBonus: { coalSeam: 1.15 } },
+            extraMods: [{ name: "Primordial Flame", pos: true, desc: "Smelters and Forges extra +20%; Coal Seams extra +15%." }],
+        },
+        "Obyrith": {
+            desc: "Demons older than the Abyss itself. Their chaos generates extraordinary arcane output.",
+            extraEffects: { productionBonus: { darkAltar: 1.20, ritualCircle: 1.20 }, capBonus: { arcaneEssence: 100 } },
+            extraMods: [{ name: "Maddening Form", pos: true, desc: "Dark Altars and Ritual Circles extra +20%; Arcane Essence cap +100." }],
+        },
+        "Void Shard": {
+            desc: "A fragment of the nothing that existed before existence. Preserves resources through null-containment with extraordinary efficiency.",
+            extraEffects: { storageBonus: 40 },
+            extraMods: [{ name: "Null Containment", pos: true, desc: "Storage buildings hold 40 more per building, stacking with Primordial base." }],
+        },
+
+        // ── Legendary (earned, not chosen) ────────────────────────────────────
         "Chromatic Dragon": { // legendary — earned, not chosen
             desc: "An ancient chromatic dragon whose very presence warps the dungeon around it. Their dominance over lesser races increases all production dramatically.",
             extraEffects: { allProductionBonus: 0.02, foodConsumption: 3.0, lairHousing: 1 },
