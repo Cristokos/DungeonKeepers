@@ -1117,10 +1117,10 @@ function _buildExpandedAwarenessTooltipHTML() {
     const canAfford = (gameState.resources.essence || 0) >= cost;
     return `<div class="bld-tt-name">Expanded Awareness</div>` +
         `<div class="bld-tt-effect">Deepen your mental capacity, increasing the storage cap of all Anima, Influence, and Mana reservoirs by +10 each.</div>` +
-        `<div class="bld-tt-effect">Each reservoir building currently grants +${bonus} capacity. Next purchase raises this to +${bonus + 10}.</div>` +
-        `<div class="bld-tt-flavor">The mind is not a vessel with fixed walls. It is a space you learn to widen.</div>` +
+        `<div class="bld-tt-effect">Each reservoir building currently grants +${bonus} capacity.</div>` +
         `<div class="bld-tt-divider"></div>` +
-        `<div class="bld-tt-line${canAfford ? '' : ' bld-tt-cant-afford'}">Anima: ${fmt(cost)}</div>`;
+        `<div class="bld-tt-line${canAfford ? '' : ' bld-tt-cant-afford'}">Anima: ${fmt(cost)}</div>` +
+        `<div class="bld-tt-flavor">The mind is not a vessel with fixed walls. It is a space you learn to widen.</div>`;
 }
 
 function _positionBldTooltip(e) {
