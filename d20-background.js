@@ -1,28 +1,3 @@
-/**
- * D20Background — an interactive, rollable d20 die rendered to a full-screen
- * canvas, intended to sit BEHIND page content.
- *
- * Framework-agnostic. Requires Three.js (r150+) available as `THREE`.
- *   - npm:  import * as THREE from 'three';  then pass it in, OR set window.THREE
- *   - cdn:  <script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
- *
- * Behavior:
- *   - Real 20-face icosahedron. Numbers 1-20, opposite faces sum to 21 (true d20).
- *   - Idle: very slow tumble ("mostly still, but alive").
- *   - Cursor: the die slides away from the pointer and springs back home.
- *   - Roll: call .roll() (or click anywhere not flagged data-no-roll) — it tumbles
- *     and settles face-up on a random 1-20 facing the viewer.
- *
- * Usage:
- *   const d20 = new D20Background({ canvas, THREE });  // THREE optional if window.THREE
- *   d20.start();
- *   // ... later
- *   d20.roll();            // programmatic roll
- *   d20.destroy();         // cleanup (removes listeners, disposes GL)
- *
- * The constructor does NOT attach a global click handler by default. Opt in with
- * `attachClickToRoll: true` to make clicking the page (outside [data-no-roll]) roll.
- */
 class D20Background {
   constructor(opts = {}) {
     this.THREE = opts.THREE || window.THREE;
@@ -30,30 +5,30 @@ class D20Background {
     this.canvas = opts.canvas;
     if (!this.canvas) throw new Error('D20Background: a canvas element is required');
 
-    // --- Tunables -----------------------------------------------------------
-    this.R = opts.radius ?? 2.2;                 // die circumradius (world units)
-    this.coverage = opts.coverage ?? 0.33;       // die radius as fraction of half-viewport-height
+    this.R = opts.radius ?? 2.2;
+    this.coverage = opts.coverage ?? 0.33;
     this.coverageMobile = opts.coverageMobile ?? 0.28;
-    this.faceColor = opts.faceColor ?? 0x0d0d13; // die body color
-    this.trimColor = opts.trimColor ?? 0xe6c172; // gold edge lines
+    this.faceColor = opts.faceColor ?? 0x0d0d13;
+    this.trimColor = opts.trimColor ?? 0xe6c172;
     this.numberColor = opts.numberColor ?? '#efcd7e';
     this.numberFont = opts.numberFont ?? '700 76px Cinzel, Georgia, serif';
-    this.repelRadius = opts.repelRadius ?? this.R * 2.4; // cursor influence radius (world)
-    this.maxPush = opts.maxPush ?? this.R * 0.26;        // max position offset from cursor
-    this.idleSpin = opts.idleSpin ?? 0.16;       // idle angular speed (rad/s)
+    this.opacity = opts.opacity ?? 0.38;
+    this.gravity = opts.gravity ?? 1.8;          // world units/s²
+    this.bounceDamp = opts.bounceDamp ?? 0.55;   // velocity kept after wall bounce
+    this.repelForce = opts.repelForce ?? 14;     // impulse strength from cursor
+    this.repelRadius = opts.repelRadius ?? this.R * 5;
+    this.idleSpin = opts.idleSpin ?? 0.16;
     this.attachClickToRoll = opts.attachClickToRoll ?? false;
-    this.noRollSelector = opts.noRollSelector ?? '[data-no-roll]'; // clicks inside these never roll
+    this.noRollSelector = opts.noRollSelector ?? '[data-no-roll]';
 
     this._raf = 0;
     this._inited = false;
   }
 
-  // ------------------------------------------------------------------------
   start() {
     if (this._inited) return;
     const ready = () => this._init();
     if (document.fonts && document.fonts.ready) {
-      // Wait for the number font so the baked textures are crisp (cap at 1.2s).
       Promise.race([document.fonts.ready, new Promise(r => setTimeout(r, 1200))]).then(ready);
     } else { ready(); }
   }
@@ -72,7 +47,7 @@ class D20Background {
     x.shadowColor = 'rgba(255,210,120,0.55)';
     x.shadowBlur = 8;
     x.fillText(String(num), s / 2, s / 2 - 2);
-    if (num === 6 || num === 9) {          // underline so 6/9 are unambiguous
+    if (num === 6 || num === 9) {
       x.shadowBlur = 0;
       x.fillRect(s / 2 - 22, s / 2 + 34, 44, 5);
     }
@@ -85,7 +60,7 @@ class D20Background {
   _init() {
     const THREE = this.THREE;
     const renderer = new THREE.WebGLRenderer({ canvas: this.canvas, antialias: true, alpha: true });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2)); // cap DPR for mobile perf
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
     this.renderer = renderer;
 
     const scene = new THREE.Scene();
@@ -104,16 +79,18 @@ class D20Background {
 
     const baseGeo = new THREE.IcosahedronGeometry(R, 0);
     const bodyGeo = baseGeo.toNonIndexed();
-    const bodyMat = new THREE.MeshStandardMaterial({ color: this.faceColor, metalness: 0.4, roughness: 0.5, flatShading: true });
+    const bodyMat = new THREE.MeshStandardMaterial({
+      color: this.faceColor, metalness: 0.4, roughness: 0.5, flatShading: true,
+      transparent: true, opacity: this.opacity,
+    });
     group.add(new THREE.Mesh(bodyGeo, bodyMat));
 
     const edges = new THREE.LineSegments(
       new THREE.EdgesGeometry(baseGeo),
-      new THREE.LineBasicMaterial({ color: this.trimColor, transparent: true, opacity: 0.92 })
+      new THREE.LineBasicMaterial({ color: this.trimColor, transparent: true, opacity: this.opacity * 2.2 })
     );
     group.add(edges);
 
-    // Per-face centroid + outward normal (object space).
     const pos = bodyGeo.attributes.position;
     const faces = [];
     for (let i = 0; i < pos.count; i += 3) {
@@ -126,7 +103,6 @@ class D20Background {
     }
     this.faces = faces;
 
-    // Number assignment so OPPOSITE faces sum to 21 (authentic d20).
     const numbers = new Array(faces.length).fill(0);
     const used = new Array(faces.length).fill(false);
     let n = 1;
@@ -135,7 +111,7 @@ class D20Background {
       let opp = -1, min = 2;
       for (let j = 0; j < faces.length; j++) {
         if (j === i || used[j]) continue;
-        const d = faces[i].normal.dot(faces[j].normal); // most antiparallel = opposite face
+        const d = faces[i].normal.dot(faces[j].normal);
         if (d < min) { min = d; opp = j; }
       }
       numbers[i] = n; used[i] = true;
@@ -143,25 +119,33 @@ class D20Background {
       n++;
     }
 
-    // Number labels: a small textured plane sitting just above each face.
     const ps = R * 0.64;
     for (let i = 0; i < faces.length; i++) {
-      const mat = new THREE.MeshBasicMaterial({ map: this._labelTexture(numbers[i]), transparent: true, depthWrite: false });
+      const mat = new THREE.MeshBasicMaterial({
+        map: this._labelTexture(numbers[i]), transparent: true,
+        opacity: this.opacity * 1.6, depthWrite: false,
+      });
       const plane = new THREE.Mesh(new THREE.PlaneGeometry(ps, ps), mat);
       plane.position.copy(faces[i].centroid).addScaledVector(faces[i].normal, R * 0.012);
       plane.lookAt(new THREE.Vector3().addVectors(plane.position, faces[i].normal));
       group.add(plane);
     }
 
-    // Interaction / animation state
-    this.mode = 'idle';                                   // 'idle' | 'tumble' | 'settle'
+    this.mode = 'idle';
     this.angVel = new THREE.Vector3();
     this.idleAxis = new THREE.Vector3(0.4, 1, 0.25).normalize();
     this.qTarget = new THREE.Quaternion();
     this.pointerWorld = null;
     this.raycaster = new THREE.Raycaster();
-    this.plane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0); // z=0 plane for cursor projection
+    this.plane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
     this._ndc = new THREE.Vector2();
+
+    // Physics state — position & velocity in world XY
+    this._px = 0; this._py = 0;
+    this._vx = (Math.random() - 0.5) * 2;
+    this._vy = (Math.random() - 0.5) * 2;
+    // Visible half-extents in world units (set in _resize)
+    this._halfW = 1; this._halfH = 1;
 
     this._onResize = () => this._resize();
     this._onMove = (e) => this._onPointerMove(e);
@@ -186,10 +170,22 @@ class D20Background {
     const vfov = cam.fov * Math.PI / 180;
     const coverage = w < 720 ? this.coverageMobile : this.coverage;
     let dist = this.R / (Math.tan(vfov / 2) * coverage);
-    if (cam.aspect < 1) dist /= cam.aspect;   // portrait: pull camera back so die fits
+    if (cam.aspect < 1) dist /= cam.aspect;
     cam.position.set(0, 0, dist);
     cam.lookAt(0, 0, 0);
     cam.updateProjectionMatrix();
+
+    // Compute visible world half-extents at z=0
+    this._halfH = Math.tan(vfov / 2) * dist;
+    this._halfW = this._halfH * cam.aspect;
+
+    // Keep die inside bounds after resize
+    const bnd = this._halfH - this.R;
+    const bndW = this._halfW - this.R;
+    if (this._px !== undefined) {
+      this._px = Math.max(-bndW, Math.min(bndW, this._px));
+      this._py = Math.max(-bnd, Math.min(bnd, this._py));
+    }
   }
 
   _onPointerMove(e) {
@@ -205,33 +201,32 @@ class D20Background {
     this.roll();
   }
 
-  /** Programmatically roll: tumble, then settle on a random face toward the viewer. */
   roll() {
     if (!this._inited) return;
     const THREE = this.THREE;
     const rnd = () => (Math.random() * 2 - 1);
     this.angVel.set(rnd() * 9 + (rnd() > 0 ? 4 : -4), rnd() * 9 + (rnd() > 0 ? 4 : -4), rnd() * 7);
     const idx = Math.floor(Math.random() * this.faces.length);
-    // Rotate so this face's normal points at the camera (+Z) — its number faces the viewer.
     this.qTarget.setFromUnitVectors(this.faces[idx].normal.clone(), new THREE.Vector3(0, 0, 1));
     this.mode = 'tumble';
   }
 
   _loop() {
     cancelAnimationFrame(this._raf);
-    if (document.hidden) return;                  // pause when tab hidden
+    if (document.hidden) return;
     this._raf = requestAnimationFrame(() => this._loop());
     const THREE = this.THREE;
     const now = performance.now();
     let dt = (now - this._last) / 1000;
     this._last = now;
-    if (dt > 0.05) dt = 0.05;                     // clamp big gaps (tab refocus)
+    if (dt > 0.05) dt = 0.05;
     const g = this.group;
 
+    // --- Rotation ---
     if (this.mode === 'tumble') {
       const e = new THREE.Euler(this.angVel.x * dt, this.angVel.y * dt, this.angVel.z * dt);
       g.quaternion.premultiply(new THREE.Quaternion().setFromEuler(e));
-      this.angVel.multiplyScalar(Math.pow(0.12, dt)); // frame-rate-independent exponential damping
+      this.angVel.multiplyScalar(Math.pow(0.12, dt));
       if (this.angVel.length() < 1.4) this.mode = 'settle';
     } else if (this.mode === 'settle') {
       g.quaternion.slerp(this.qTarget, 1 - Math.pow(0.0006, dt));
@@ -240,14 +235,46 @@ class D20Background {
       g.quaternion.premultiply(new THREE.Quaternion().setFromAxisAngle(this.idleAxis, this.idleSpin * dt));
     }
 
-    // Cursor repel + spring back to home (0,0,0).
-    const off = new THREE.Vector3();
+    // --- Physics (XY world space) ---
+    const hH = this._halfH, hW = this._halfW;
+    const wallY = hH - this.R, wallX = hW - this.R;
+
+    // Gravity pulls down
+    this._vy -= this.gravity * dt;
+
+    // Cursor repel
     if (this.pointerWorld) {
-      const toDie = new THREE.Vector3().subVectors(new THREE.Vector3(0, 0, 0), this.pointerWorld);
-      const d = toDie.length();
-      if (d < this.repelRadius) off.copy(toDie).setLength((1 - d / this.repelRadius) * this.maxPush);
+      const dx = this._px - this.pointerWorld.x;
+      const dy = this._py - this.pointerWorld.y;
+      const d = Math.sqrt(dx * dx + dy * dy);
+      if (d > 0 && d < this.repelRadius) {
+        const strength = this.repelForce * (1 - d / this.repelRadius) * dt;
+        this._vx += (dx / d) * strength;
+        this._vy += (dy / d) * strength;
+      }
     }
-    g.position.lerp(off, 1 - Math.pow(0.0001, dt));
+
+    // Integrate position
+    this._px += this._vx * dt;
+    this._py += this._vy * dt;
+
+    // Bounce off walls
+    if (this._py < -wallY) { this._py = -wallY; this._vy = Math.abs(this._vy) * this.bounceDamp; }
+    if (this._py >  wallY) { this._py =  wallY; this._vy = -Math.abs(this._vy) * this.bounceDamp; }
+    if (this._px < -wallX) { this._px = -wallX; this._vx = Math.abs(this._vx) * this.bounceDamp; }
+    if (this._px >  wallX) { this._px =  wallX; this._vx = -Math.abs(this._vx) * this.bounceDamp; }
+
+    // Light floor friction when resting on bottom
+    if (this._py <= -wallY + 0.01) {
+      this._vx *= Math.pow(0.18, dt);
+    }
+
+    // Speed cap
+    const spd = Math.sqrt(this._vx * this._vx + this._vy * this._vy);
+    const maxSpd = this.R * 8;
+    if (spd > maxSpd) { this._vx = (this._vx / spd) * maxSpd; this._vy = (this._vy / spd) * maxSpd; }
+
+    g.position.set(this._px, this._py, 0);
 
     this.renderer.render(this.scene, this.camera);
   }
@@ -263,6 +290,5 @@ class D20Background {
   }
 }
 
-// Export for both module and global usage.
 if (typeof module !== 'undefined' && module.exports) module.exports = { D20Background };
 if (typeof window !== 'undefined') window.D20Background = D20Background;
