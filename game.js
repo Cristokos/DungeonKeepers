@@ -2322,9 +2322,9 @@ const BUILDING_ERA = {
     armory:        2, sulphurVent:   2, arcaneGrinder: 2,
     forge:         2, arcaneBench:   2,
     marketStall:   2, tradeCart:     2, house:        2, apartment:    2,
-    // Era 3 — Endgame / dark
-    ritualCircle:  3, arcaneCrucible: 3,
-    darkAltar:     3, mithrilForge:  3,
+    // Era 2 late — Endgame / dark
+    ritualCircle:  2, arcaneCrucible: 2,
+    darkAltar:     2, mithrilForge:  2,
 };
 
 // Era-gated research: defaults to Era 1 if not listed.
