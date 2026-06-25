@@ -1572,6 +1572,11 @@
             <h2>Changelog</h2>
 
             <div class="biome-card">
+                <div><span class="cl-ver">v0.68.3</span><span class="cl-date">2026-06-24</span></div>
+                <p class="biome-desc">Fixed d20 not appearing on return visits to the main menu — a reference to the undeclared variable <code>d20State</code> threw a ReferenceError in strict mode, silently preventing <code>startD20()</code> from running. Replaced with <code>d20bg</code> guard.</p>
+            </div>
+
+            <div class="biome-card">
                 <div><span class="cl-ver">v0.68.2</span><span class="cl-date">2026-06-24</span></div>
                 <p class="biome-desc">Fixed the d20 WebGL canvas not appearing on the menu screen — changed its CSS position from fixed to absolute so it renders within the splash overlay's stacking context instead of behind it.</p>
             </div>
