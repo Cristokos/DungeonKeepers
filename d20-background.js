@@ -13,10 +13,10 @@ class D20Background {
     this.numberColor = opts.numberColor ?? '#efcd7e';
     this.numberFont = opts.numberFont ?? '700 76px Cinzel, Georgia, serif';
     this.opacity = opts.opacity ?? 0.38;
-    this.gravity = opts.gravity ?? 1.8;          // world units/s²
+    this.gravity = opts.gravity ?? 4.5;          // world units/s²
     this.bounceDamp = opts.bounceDamp ?? 0.55;   // velocity kept after wall bounce
-    this.repelForce = opts.repelForce ?? 14;     // impulse strength from cursor
-    this.repelRadius = opts.repelRadius ?? this.R * 5;
+    this.repelForce = opts.repelForce ?? 28;     // impulse strength from cursor
+    this.repelRadius = opts.repelRadius ?? this.R * 2;
     this.idleSpin = opts.idleSpin ?? 0.16;
     this.attachClickToRoll = opts.attachClickToRoll ?? false;
     this.noRollSelector = opts.noRollSelector ?? '[data-no-roll]';
