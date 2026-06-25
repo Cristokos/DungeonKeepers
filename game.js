@@ -3938,147 +3938,95 @@ let _era1Canvas = null; // { wrapper, svg, nodeLayer, zoom, panX, panY }
 // Node dimensions and spacing
 const ERA1_NODE_W  = 110;
 const ERA1_NODE_H  = 48;
-const ERA1_H_GAP   = 18;  // horizontal gap between sibling nodes
-const ERA1_V_GAP   = 52;  // vertical gap between layers
+
+// Radial layout parameters
+const ERA1_RADII = [0, 200, 380, 560, 760, 1020]; // radius per layer (L0–L5)
+const ERA1_LEAF_ARC_GAP = 0.018; // radians of gap between adjacent leaves on the outer ring
 
 // Compute layout positions for all nodes in the full tree.
 // Returns Map<nodeId, {x, y}> in canvas coordinates.
-// Root is at (0,0). Deep goes left, Wild goes down, Beyond goes right.
+// Root is at (0,0). Three domain branches at 120° increments (270°, 30°, 150°).
+// L5 leaves form a perfect circle; inner nodes sit at the angular centroid of
+// their subtree's leaf arc at their layer's radius.
 function era1ComputeLayout() {
     const pos = new Map();
-    const stepY = ERA1_NODE_H + ERA1_V_GAP;
-    const stepX = ERA1_NODE_W + ERA1_H_GAP;
 
-    // Recursively lay out a subtree rooted at nodeId going in direction:
-    //   'left'  — each layer shifts further left, siblings spread vertically
-    //   'down'  — each layer shifts further down, siblings spread horizontally
-    //   'right' — each layer shifts further right, siblings spread vertically
-    // Returns the "span" this subtree occupies in the perpendicular axis.
-    function layoutSubtree(nodeId, depth, perpOffset, direction) {
+    // ── Step 1: collect all L5 leaves in order, grouped by domain ──────────────
+    // Domain base angles: Deep=270° (up), Wild=30° (lower-right), Beyond=150° (lower-left)
+    const DOMAIN_BASE_DEG = { deep: 270, wild: 30, beyond: 150 };
+
+    // Gather leaves per domain in tree order (DFS)
+    function collectLeaves(nodeId) {
         const node = ERA1_TREE[nodeId];
-        if (!node) return 0;
-        const children = node.children || [];
-
-        if (children.length === 0) {
-            // Leaf
-            let x, y;
-            if (direction === 'down') {
-                x = perpOffset;
-                y = depth * stepY;
-            } else if (direction === 'left') {
-                x = -(depth * stepX);
-                y = perpOffset;
-            } else {
-                x = depth * stepX;
-                y = perpOffset;
-            }
-            pos.set(nodeId, { x, y });
-            return direction === 'down' ? stepX : stepY;
-        }
-
-        // Lay out children first to get their spans
-        const childSpans = [];
-        let totalSpan = 0;
-        for (const cid of children) {
-            const span = layoutSubtree(cid, depth + 1, 0, direction); // placeholder offset
-            childSpans.push(span);
-            totalSpan += span;
-        }
-        // Add gaps between children
-        totalSpan += ERA1_H_GAP * (children.length - 1);
-
-        // Now reposition children relative to this node's perpendicular center
-        let cursor = perpOffset - totalSpan / 2;
-        for (let i = 0; i < children.length; i++) {
-            const cid = children[i];
-            const childCenter = cursor + childSpans[i] / 2;
-            repositionSubtree(cid, depth + 1, childCenter, direction, perpOffset);
-            cursor += childSpans[i] + ERA1_H_GAP;
-        }
-
-        // Place this node at perpOffset, depth
-        let x, y;
-        if (direction === 'down') {
-            x = perpOffset;
-            y = depth * stepY;
-        } else if (direction === 'left') {
-            x = -(depth * stepX);
-            y = perpOffset;
-        } else {
-            x = depth * stepX;
-            y = perpOffset;
-        }
-        pos.set(nodeId, { x, y });
-        return totalSpan;
+        if (!node) return [];
+        if (node.children.length === 0) return [nodeId];
+        return node.children.flatMap(collectLeaves);
     }
 
-    // Reposition a subtree with a known perpendicular center.
-    // parentPerpCenter: the perpendicular position of the parent, used to compute
-    // the diagonal fan offset — the further a child sits from its parent's center
-    // in the perpendicular axis, the deeper it goes in the depth axis.
-    function repositionSubtree(nodeId, depth, perpCenter, direction, parentPerpCenter = 0) {
-        const node = ERA1_TREE[nodeId];
-        if (!node) return;
-        const children = node.children || [];
+    const domainLeaves = {
+        deep:   collectLeaves('deep'),
+        wild:   collectLeaves('wild'),
+        beyond: collectLeaves('beyond'),
+    };
 
-        // Fan angle: each unit of perpendicular distance from parent adds this
-        // fraction of a depth step. Produces a pyramid/wing silhouette.
-        const FAN = 0.55;
-        const perpStep = direction === 'down' ? stepX : stepY;
-        const perpDist = Math.abs(perpCenter - parentPerpCenter);
-        const fanShift = (perpDist / perpStep) * FAN;
+    const totalLeaves = domainLeaves.deep.length + domainLeaves.wild.length + domainLeaves.beyond.length;
 
-        let x, y;
-        if (direction === 'down') {
-            x = perpCenter;
-            y = depth * stepY + fanShift * stepY;
-        } else if (direction === 'left') {
-            x = -(depth * stepX + fanShift * stepX);
-            y = perpCenter;
-        } else {
-            x = depth * stepX + fanShift * stepX;
-            y = perpCenter;
-        }
-        pos.set(nodeId, { x, y });
+    // ── Step 2: assign an angle to each L5 leaf ─────────────────────────────────
+    // Each domain gets exactly 1/3 of the full circle (120°).
+    // Within that sector the leaves are evenly spaced with a small gap between domains.
+    const SECTOR   = (2 * Math.PI) / 3;          // 120° per domain
+    const HALF_GAP = ERA1_LEAF_ARC_GAP * 3;      // half-gap eaten from each side of a sector
 
-        if (children.length === 0) return;
+    const leafAngle = new Map(); // nodeId → angle in radians
 
-        // Compute child spans
-        const childSpans = children.map(cid => getSubtreeSpan(cid, direction));
-        let totalSpan = childSpans.reduce((a, b) => a + b, 0) + ERA1_H_GAP * (children.length - 1);
-        let cursor = perpCenter - totalSpan / 2;
-        for (let i = 0; i < children.length; i++) {
-            const childCenter = cursor + childSpans[i] / 2;
-            repositionSubtree(children[i], depth + 1, childCenter, direction, perpCenter);
-            cursor += childSpans[i] + ERA1_H_GAP;
+    for (const [domainId, leaves] of Object.entries(domainLeaves)) {
+        if (leaves.length === 0) continue;
+        const baseRad  = DOMAIN_BASE_DEG[domainId] * Math.PI / 180;
+        const arcStart = baseRad - SECTOR / 2 + HALF_GAP;
+        const arcEnd   = baseRad + SECTOR / 2 - HALF_GAP;
+        const n = leaves.length;
+        for (let i = 0; i < n; i++) {
+            // evenly distribute: if n==1 place at center, else spread arcStart..arcEnd
+            const t = n === 1 ? 0.5 : i / (n - 1);
+            leafAngle.set(leaves[i], arcStart + t * (arcEnd - arcStart));
         }
     }
 
-    // Get the total perpendicular span of a subtree (leaf count * stepSize)
-    function getSubtreeSpan(nodeId, direction) {
-        const node = ERA1_TREE[nodeId];
-        if (!node) return 0;
-        const children = node.children || [];
-        if (children.length === 0) return direction === 'down' ? stepX : stepY;
-        const childSpans = children.map(cid => getSubtreeSpan(cid, direction));
-        return childSpans.reduce((a, b) => a + b, 0) + ERA1_H_GAP * (children.length - 1);
+    // Place L5 leaves on the outer circle
+    const R5 = ERA1_RADII[5];
+    for (const [nodeId, angle] of leafAngle) {
+        pos.set(nodeId, { x: Math.cos(angle) * R5, y: Math.sin(angle) * R5 });
     }
 
-    // Root at (0, 0)
+    // ── Step 3: place inner nodes at their layer's radius, angle = centroid of subtree leaves ──
+    function subtreeLeafAngles(nodeId) {
+        const node = ERA1_TREE[nodeId];
+        if (!node) return [];
+        if (node.children.length === 0) return [leafAngle.get(nodeId)].filter(a => a !== undefined);
+        return node.children.flatMap(subtreeLeafAngles);
+    }
+
+    // Compute mean angle correctly (circular mean to avoid wrap-around issues)
+    function meanAngle(angles) {
+        if (angles.length === 0) return 0;
+        const sinSum = angles.reduce((s, a) => s + Math.sin(a), 0);
+        const cosSum = angles.reduce((s, a) => s + Math.cos(a), 0);
+        return Math.atan2(sinSum / angles.length, cosSum / angles.length);
+    }
+
+    function placeInnerNode(nodeId) {
+        const node = ERA1_TREE[nodeId];
+        if (!node || node.layer === 5) return;
+        const angles = subtreeLeafAngles(nodeId);
+        const angle  = meanAngle(angles);
+        const r      = ERA1_RADII[node.layer];
+        pos.set(nodeId, { x: Math.cos(angle) * r, y: Math.sin(angle) * r });
+        for (const cid of node.children) placeInnerNode(cid);
+    }
+
+    // Root at center
     pos.set('root', { x: 0, y: 0 });
-
-    // Lay out each domain branch in its direction
-    const domainDirs = { deep: 'left', wild: 'down', beyond: 'right' };
-    // Vertical offset for deep/beyond branches (they go sideways from the root's y level)
-    // Wild goes down from root, so its drives/forms/types spread horizontally.
-    // Deep/Beyond go left/right, so their drives/forms/types spread vertically.
-
-    // Deep branch: starts left at depth 1
-    repositionSubtree('deep',   1, 0, 'left');
-    // Wild branch: starts down at depth 1
-    repositionSubtree('wild',   1, 0, 'down');
-    // Beyond branch: starts right at depth 1
-    repositionSubtree('beyond', 1, 0, 'right');
+    for (const domainId of ERA1_DOMAINS) placeInnerNode(domainId);
 
     return pos;
 }
