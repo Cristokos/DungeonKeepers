@@ -314,8 +314,9 @@ html, body {
 .left-col {
     display: flex;
     flex-direction: column;
-    width: 368px;
-    min-width: 368px;
+    width: clamp(220px, 20vw, 368px);
+    min-width: 220px;
+    flex-shrink: 0;
     background: var(--bg-panel);
     border-right: 1px solid var(--border);
     overflow: visible;
@@ -525,8 +526,9 @@ html, body {
 }
 
 .right {
-    width: 368px;
-    min-width: 368px;
+    width: clamp(220px, 20vw, 368px);
+    min-width: 220px;
+    flex-shrink: 0;
     background: var(--bg-panel);
     border-left: 1px solid var(--border);
     font-size: 16px;
