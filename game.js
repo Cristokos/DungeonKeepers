@@ -206,6 +206,10 @@ const MOD_DESCRIPTIONS = {
 //   growthBonus  — multiplier on GROWTH_TICKS (< 1 faster, > 1 slower)
 //   lairHousing  — override base lair housing per building (replaces ROOMS.lair.housingBonus)
 const RACE_DATA = {};
+const RACE_DATA_FALLBACK = 'Wyrm';
+function getRaceData(name) {
+    return RACE_DATA[name] || RACE_DATA[RACE_DATA_FALLBACK] || null;
+}
 
 const gameState = {
     resources: {
@@ -6357,6 +6361,8 @@ if (!gameState.research)                     gameState.research = {};
 if (!Array.isArray(gameState.tradeRoutes))   gameState.tradeRoutes = [];
 if (!gameState.run.era)                      gameState.run.era = 1;
 if (gameState.pauseBank == null || isNaN(gameState.pauseBank)) gameState.pauseBank = 0;
+gameState.pauseBank = Math.min(gameState.pauseBank, 28800);
+if (gameState.run.race && !RACE_DATA[gameState.run.race]) gameState.run.race = RACE_DATA_FALLBACK;
 if (!gameState.era1) gameState.era1 = { unlocked: [], chosen: null };
 if (!Array.isArray(gameState.era1.unlocked)) gameState.era1.unlocked = [];
 // Race nodes are now static L5 leaves in ERA1_TREE — no dynamic injection needed.
