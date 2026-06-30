@@ -434,7 +434,7 @@ const RACE_LEAF_DEFS = [
     { race: 'Ghost',       type: 'Specter', flavor: 'The unfinished dead, haunting the place of their greatest regret. Ghosts are powerful and unpredictable — their emotional state is their weapon, and it is always loaded.' },
     { race: 'Specter',     type: 'Specter', flavor: 'Pure malice stripped of everything human. The Specter does not remember what it was. It knows only cold, and the desire to share it.' },
     { race: 'Poltergeist', type: 'Specter', flavor: 'A ghost too angry to manifest fully, expressing its rage through hurled objects and shattered glass. The poltergeist cannot be reasoned with because it has stopped reasoning.' },
-    { race: 'Shadow Demon', type: 'Specter', flavor: 'A demon that exists as pure shadow — incorporeal, light-sensitive, and hungry for the warmth it cannot feel. Shadow Demons are patient in the way that predators who cannot be hit tend to be.' },
+    { race: "Will-o'-Wisp", type: 'Specter', flavor: "A cold light over dark water, leading the unwary somewhere they will not return from. Will-o'-Wisps do not hunt so much as wait — patient, luminous, and entirely without mercy." },
     { race: 'Nighthaunt',  type: 'Specter', flavor: 'Spectral warriors bound to a cause that ended centuries ago. Nighthaunts ride the grief of their ancient allegiance like a weapon, manifesting dread and cold wherever they pass.' },
     { race: 'Allip',       type: 'Specter', flavor: 'The mad remnant of someone driven to self-destruction by forbidden knowledge. The Allip babbles constantly — incoherent fragments of the thing that broke it. The babbling is contagious.' },
 

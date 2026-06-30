@@ -1872,9 +1872,12 @@ kbd {
     margin: 0 0 10px 0;
     max-width: 680px;
 }
-.tag-legendary { color: #e8c040; border-color: rgba(232,192,64,0.5); background: rgba(232,192,64,0.1); }
+.tag-legendary  { color: #e8c040; border-color: rgba(232,192,64,0.5); background: rgba(232,192,64,0.1); }
 .creature-entry:has(.tag-legendary)::before { background: #e8c040; }
 .creature-entry:has(.tag-legendary) { border-color: rgba(232,192,64,0.25); }
+.tag-sovereign  { color: #c8d8e8; border-color: rgba(200,216,232,0.5); background: rgba(200,216,232,0.1); }
+.creature-entry:has(.tag-sovereign)::before { background: #c8d8e8; }
+.creature-entry:has(.tag-sovereign) { border-color: rgba(200,216,232,0.25); }
 
 /* Category badge */
 .creature-tag {

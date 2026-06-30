@@ -2842,6 +2842,9 @@ function unlockEra1Node(nodeId) {
         setTimeout(() => {
             showEraTransition(node.race, () => {
                 playRace(node.race);
+                gameState.resources.essence   = 0;
+                gameState.resources.influence = 0;
+                gameState.resources.mana      = 0;
                 gameState.run.era = 2;
                 saveGame();
                 snapshotBackup("Era 2 (" + (node.race || "transition") + ")");
@@ -6194,8 +6197,9 @@ function doPrestige() {
     gameState.population = { count: 0, growthTimer: 0, starveTick: 0 };
     gameState.time       = { tick: 0, day: 1, year: 1, seasonIndex: 0 };
     for (const k of Object.keys(gameState.stats)) gameState.stats[k] = 0;
-    gameState.run  = { biome: null, race: null, mods: [], era: 1 };
-    gameState.era1 = { unlocked: [], chosen: null, raceOptions: null };
+    gameState.run         = { biome: null, race: null, mods: [], era: 1 };
+    gameState.era1        = { unlocked: [], chosen: null, raceOptions: null };
+    gameState.tradeRoutes = [];
     _era1TreeState = '';
     gameState.meta = savedMeta;
 
@@ -6487,7 +6491,7 @@ function _applyEventEffects(effects) {
     const parts = [];
     for (const fx of effects) {
         if (fx.type === 'resource') {
-            gameState.resources[fx.resource] = (gameState.resources[fx.resource] || 0) + fx.amount;
+            gameState.resources[fx.resource] = Math.max(0, (gameState.resources[fx.resource] || 0) + fx.amount);
             if (fx.amount === 0) continue;
             const rdef = RESOURCES && RESOURCES[fx.resource];
             const rname = (rdef && rdef.name) || (fx.resource.charAt(0).toUpperCase() + fx.resource.slice(1));
