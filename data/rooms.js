@@ -6,8 +6,8 @@ const ROOMS = {
 
     lair: {
         name: "Hovel",
-        cost: { wood: 15 },
-        costScale: 1.08,
+        cost: { wood: 25 },
+        costScale: 1.15,
         housingBonus: 1,
     },
     farm: {
@@ -94,8 +94,8 @@ const ROOMS = {
         name: "Market Stall",
         desc: "A covered stall where merchants hawk goods and settle accounts. Each assigned Merchant generates 5 cp per game day from general commerce. The first Market Stall opens the settlement's trade network (5 base trade route slots).",
         cost: { wood: 30, stone: 20 },
-        coinCost: 100,
-        costScale: 1.13,
+        coinCost: 250,
+        costScale: 1.18,
         jobs: 1,
         workerName: "Merchant",
         unlock: { farm: 2 },
@@ -115,14 +115,14 @@ const ROOMS = {
         name: "House",
         housingBonus: 10,
         cost: { wood: 40, stone: 20, iron: 10 },
-        costScale: 1.09,
+        costScale: 1.18,
         requiresResearch: ["houseDesign"],
     },
     apartment: {
         name: "Apartment",
         housingBonus: 15,
         cost: { stone: 80, wood: 50, bricks: 40 },
-        costScale: 1.11,
+        costScale: 1.22,
         requiresResearch: ["apartmentDesign"],
     },
 
