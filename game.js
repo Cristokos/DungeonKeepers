@@ -5855,8 +5855,8 @@ const LEGENDARY_ROSTER = {
         },
         "Elder Titan": {
             desc: "A being from the age before the current cosmic order — older than the gods who replaced them. Its presence amplifies everything.",
-            extraEffects: { allProductionBonus: 0.03 },
-            extraMods: [{ name: "Primordial Authority", pos: true, desc: "Extra +3% all production stacking with Titan base — the elder titan's magnitude is absolute." }],
+            extraEffects: { allGatherBonus: 1 },
+            extraMods: [{ name: "Primordial Authority", pos: true, desc: "+1 to all manual gather yields — the elder titan's reach extends everywhere." }],
         },
 
         // ── Cursed ────────────────────────────────────────────────────────────
@@ -5901,8 +5901,8 @@ const LEGENDARY_ROSTER = {
         // ── Sovereign (selectable) ────────────────────────────────────────────
         "Wyrm": {
             desc: "Older than most kingdoms and larger than some. A Wyrm is what a dragon becomes when it has outlived every reason to be reasonable.",
-            extraEffects: { allProductionBonus: 0.03, coinCapBonus: { flat: 2000, pct: 0.15 } },
-            extraMods: [{ name: "Ancient Dominance", pos: true, desc: "Extra +3% all production; Coin cap +2,000 + 15% of tier base." }],
+            extraEffects: { allGatherBonus: 1 },
+            extraMods: [{ name: "Ancient Dominance", pos: true, desc: "+1 to all manual gather yields — a Wyrm has learned where everything worth taking is buried." }],
         },
         "Umbral Hunter": {
             desc: "A predator that has made shadow into a hunting ground. Arcane and ritual processes warp around its presence.",
@@ -5921,8 +5921,8 @@ const LEGENDARY_ROSTER = {
         },
         "Rift Drake": {
             desc: "A drake that has fed on planar energy long enough that it no longer fully exists in one place. Its arcane output reflects something that has stopped finding reality binding.",
-            extraEffects: { allProductionBonus: 0.03, converterBonus: { arcaneGrinder: 1.20 }, foodConsumption: 0.50 },
-            extraMods: [{ name: "Void-Touched", pos: true, desc: "Extra +3% all production; Arcane Grinders extra +20%; further 50% food reduction." }],
+            extraEffects: { allGatherBonus: 1, converterBonus: { arcaneGrinder: 1.20 }, foodConsumption: 0.50 },
+            extraMods: [{ name: "Void-Touched", pos: true, desc: "+1 to all manual gather yields; Arcane Grinders extra +20%; further 50% food reduction." }],
         },
         "Ashborn": {
             desc: "Not a phoenix — something that has burned so many times it has stopped bothering to fully come back. Supercharges all fire and metal operations.",
@@ -5933,8 +5933,8 @@ const LEGENDARY_ROSTER = {
         // ── Primordial ────────────────────────────────────────────────────────
         "Elder Tempest": {
             desc: "A storm that predates weather. The Elder Tempest does not rage. It simply is rage, expressed meteorologically.",
-            extraEffects: { allProductionBonus: 0.03, allGatherBonus: 1 },
-            extraMods: [{ name: "Primordial Storm", pos: true, desc: "Extra +3% all production; extra +1 to all manual gather yields." }],
+            extraEffects: { allGatherBonus: 1 },
+            extraMods: [{ name: "Primordial Storm", pos: true, desc: "+1 to all manual gather yields — the storm finds what it wants." }],
         },
         "Zaratan": {
             desc: "An island-sized turtle from before the elemental planes had edges. Its waking amplifies stone and storage.",
