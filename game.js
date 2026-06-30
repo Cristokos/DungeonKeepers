@@ -3,6 +3,8 @@ const TICKS_PER_DAY  = 2;
 const DAYS_PER_SEASON = 30;
 const GROWTH_TICKS   = 20;
 const STARVE_TICKS   = 5;
+const MORALE_BASE    = 90;
+const MORALE_DRIFT_RATE = 2; // max points morale moves toward target per day
 
 const BASE_CAPS = {
     // Tier 1 — Raw
@@ -226,12 +228,16 @@ const gameState = {
         arcaneGrinder: 0, forge: 0, arcaneBench: 0, mageTower: 0, armory: 0, sulphurVent: 0,
         scriptorium: 0,
         ritualCircle: 0, spiderNest: 0, arcaneCrucible: 0, darkAltar: 0, mithrilForge: 0,
+        entertainersStage: 0, shrine: 0, temple: 0,
+        pelorSanctuary: 0, gruumshWarPit: 0, sylvanGrove: 0,
     },
     tradeRoutes: {},
     buildingDisabled: {}, // building id → count of that building's units currently paused (0..count)
     research:          {},
     workerAssignments: {},
     population: { count: 0, growthTimer: 0, starveTick: 0 },
+    morale:   { value: MORALE_BASE, target: MORALE_BASE },
+    religion: { deity: null, active: false, titheFailed: 0, productionSurgeDays: 0, lastSacrificeDay: 0 },
     run:        { biome: null, race: null, mods: [], era: 1 },
     meta:       { seenBiomes: [], totalPrestiges: 0, racesPlayed: {} },
     time:       { tick: 0, day: 1, year: 1, seasonIndex: 0 },
@@ -647,6 +653,111 @@ function getGatherAmount(resourceKey) {
     return Math.max(1, Math.floor(amount));
 }
 
+// ── Morale & Religion ─────────────────────────────────────────────────────────
+
+function getFaithScore() {
+    const rel = gameState.religion;
+    if (!rel || !rel.deity) return 0;
+    const workers = getWorkersPerBuilding();
+    let score = 0;
+    for (const id of ['shrine', 'temple', 'pelorSanctuary', 'gruumshWarPit', 'sylvanGrove']) {
+        const def = ROOMS[id];
+        if (!def || !def.faithPerPriest) continue;
+        score += (workers[id] || 0) * def.faithPerPriest;
+    }
+    const amplify = (gameState.research && gameState.research.priestAmplify) ? 1.30 : 1;
+    return Math.min(Math.floor(score * amplify), 30);
+}
+
+function isDeityFavorActive() {
+    const rel = gameState.religion;
+    return rel && rel.deity && rel.active && (rel.titheFailed || 0) <= 3;
+}
+
+function getMoraleTarget() {
+    const rel      = gameState.religion;
+    const research = gameState.research || {};
+    const workers  = getWorkersPerBuilding();
+    const employed = getEmployed();
+    const idle     = Math.max(0, gameState.population.count - employed);
+    let target = MORALE_BASE;
+
+    // Worker drain
+    target -= employed * 0.25;
+    // Idle peasant drain
+    target -= idle * 1.0;
+
+    // Entertainer's Stage boost (per assigned Entertainer)
+    const entDef = ROOMS.entertainersStage;
+    if (entDef) {
+        const basePerWorker = entDef.moralePerWorker || 3;
+        const bardMult = research.bardMastery ? 1.5 : 1;
+        target += (workers.entertainersStage || 0) * basePerWorker * bardMult;
+    }
+
+    // Shrine/Temple passive morale
+    for (const id of ['shrine', 'temple', 'pelorSanctuary', 'sylvanGrove']) {
+        const def = ROOMS[id];
+        if (def && def.moralePassive) {
+            target += (gameState.buildings[id] || 0) * def.moralePassive;
+        }
+    }
+
+    // Season effect
+    const season = SEASONS[gameState.time.seasonIndex];
+    if (season === 'Summer') {
+        target += 10;
+    } else if (season === 'Spring' || season === 'Autumn') {
+        target += 5;
+    } else if (season === 'Winter') {
+        const winterPenalty = -10;
+        const sylvReduce = (isDeityFavorActive() && rel.deity === 'silvanus' && DEITIES.silvanus.bonuses.winterPenaltyMult) || 1;
+        const researchReduce = research.sylvanFavor ? 0.5 : 1;
+        target += winterPenalty * sylvReduce * researchReduce;
+    }
+
+    // Deity bonuses / penalties
+    if (isDeityFavorActive()) {
+        const deityDef  = DEITIES[rel.deity];
+        const faithFrac = getFaithScore() / 30;
+        target += 3; // small bonus just for having an active patron
+        if (deityDef.bonuses.moraleBonus) {
+            target += deityDef.bonuses.moraleBonus * faithFrac;
+        }
+        if (deityDef.bonuses.moralePenalty) {
+            target += deityDef.bonuses.moralePenalty * faithFrac;
+        }
+        // Temple tier bonus for Pelor
+        if (rel.deity === 'pelor' && deityDef.templeBonus && deityDef.templeBonus.moraleBonus) {
+            target += (gameState.buildings.temple || 0) * deityDef.templeBonus.moraleBonus * faithFrac;
+        }
+    }
+
+    return Math.max(0, Math.min(100, target));
+}
+
+// Returns the morale value as a 0–1 multiplier
+function getMoraleMult() {
+    return ((gameState.morale && gameState.morale.value) || MORALE_BASE) / 100;
+}
+
+function pledgeDeity(deityKey) {
+    if (!DEITIES[deityKey]) return;
+    gameState.religion.deity  = deityKey;
+    gameState.religion.active = true;
+    gameState.religion.titheFailed = 0;
+    gameState.religion.lastSacrificeDay = gameState.time.day + (gameState.time.year - 1) * DAYS_PER_SEASON * 4;
+    renderReligionTab();
+}
+
+function abandonDeity() {
+    gameState.religion.deity  = null;
+    gameState.religion.active = false;
+    gameState.religion.titheFailed = 0;
+    gameState.religion.productionSurgeDays = 0;
+    renderReligionTab();
+}
+
 function getHousing() {
     const raceData    = RACE_DATA[gameState.run && gameState.run.race];
     const lairOverride = raceData && raceData.effects && raceData.effects.lairHousing;
@@ -758,9 +869,76 @@ function getProduction() {
         const bldgMult = getResearchBonus('productionBonus', id)
                        * getBuildingProductionBonus(id);
         for (const [res, rate] of Object.entries(def.production)) {
-            prod[res] = (prod[res] || 0) + rate * n * bldgMult * allBonus;
+            const moraleMod = (res === 'lore') ? getMoraleMult() : 1;
+            prod[res] = (prod[res] || 0) + rate * n * bldgMult * allBonus * moraleMod;
         }
     }
+
+    // Silvanus deity bonus: farm + herbalistDen production boost
+    if (typeof DEITIES !== 'undefined' && isDeityFavorActive && isDeityFavorActive()) {
+        const _rel2 = gameState.religion;
+        const _dd2  = DEITIES[_rel2.deity];
+        const _ff   = getFaithScore() / 30;
+        if (_dd2 && _dd2.bonuses && _dd2.bonuses.productionBonus) {
+            for (const [_bid, _mult] of Object.entries(_dd2.bonuses.productionBonus)) {
+                if (prod[_bid] !== undefined) continue; // not a resource key
+                // productionBonus is keyed by building id — need to recompute that building's contribution
+            }
+            // Apply as a flat multiplier on existing production for the affected buildings
+            for (const [_bid, _bmult] of Object.entries(_dd2.bonuses.productionBonus)) {
+                const _bdef = ROOMS[_bid];
+                if (!_bdef || !_bdef.production) continue;
+                const _bcount = gameState.buildings[_bid] || 0;
+                if (_bcount === 0) continue;
+                const _bworkers = getWorkersPerBuilding();
+                const _bfrac = getActiveBuildingFraction(_bid);
+                const _bn = (_bdef.jobs ? (_bworkers[_bid] || 0) : _bcount) * _bfrac;
+                if (_bn === 0) continue;
+                const _bbldgMult = getResearchBonus('productionBonus', _bid) * getBuildingProductionBonus(_bid);
+                for (const [_bres, _brate] of Object.entries(_bdef.production)) {
+                    // Add the incremental bonus portion (mult - 1) scaled by faith
+                    const _bonusFrac = (_bmult - 1) * _ff;
+                    prod[_bres] = (prod[_bres] || 0) + _brate * _bn * _bbldgMult * allBonus * _bonusFrac;
+                }
+            }
+            // Temple tier additional production bonus for Silvanus
+            if (_rel2.deity === 'silvanus' && _dd2.templeBonus && _dd2.templeBonus.productionBonus) {
+                const _templeCount = gameState.buildings.temple || 0;
+                for (const [_tbid, _tbmult] of Object.entries(_dd2.templeBonus.productionBonus)) {
+                    const _tbdef = ROOMS[_tbid];
+                    if (!_tbdef || !_tbdef.production) continue;
+                    const _tbcount = gameState.buildings[_tbid] || 0;
+                    if (_tbcount === 0) continue;
+                    const _tbworkers = getWorkersPerBuilding();
+                    const _tbfrac = getActiveBuildingFraction(_tbid);
+                    const _tbn = (_tbdef.jobs ? (_tbworkers[_tbid] || 0) : _tbcount) * _tbfrac;
+                    if (_tbn === 0) continue;
+                    const _tbbMult = getResearchBonus('productionBonus', _tbid) * getBuildingProductionBonus(_tbid);
+                    for (const [_tbres, _tbrate] of Object.entries(_tbdef.production)) {
+                        const _tbBonusFrac = (_tbmult - 1) * _templeCount * _ff;
+                        prod[_tbres] = (prod[_tbres] || 0) + _tbrate * _tbn * _tbbMult * allBonus * _tbBonusFrac;
+                    }
+                }
+            }
+        }
+        // Gruumsh allProductionBonus + production surge
+        if (_dd2 && _dd2.bonuses && _dd2.bonuses.allProductionBonus) {
+            const _gruumshBonus = _dd2.bonuses.allProductionBonus * _ff;
+            const _templeExtra  = (_dd2.templeBonus && _dd2.templeBonus.allProductionBonus)
+                ? _dd2.templeBonus.allProductionBonus * (gameState.buildings.temple || 0) * _ff
+                : 0;
+            const _surgeBonus   = (_rel2.productionSurgeDays > 0)
+                ? DEITIES.gruumsh.periodicSacrifice.surgeBonus
+                : 0;
+            const _gruumshTotal = _gruumshBonus + _templeExtra + _surgeBonus;
+            if (_gruumshTotal > 0) {
+                for (const _rk of Object.keys(prod)) {
+                    prod[_rk] = (prod[_rk] || 0) * (1 + _gruumshTotal);
+                }
+            }
+        }
+    }
+
     return prod;
 }
 
@@ -1546,9 +1724,16 @@ function getCaps() {
             caps[res] += storageBonus * n;
         }
     }
-    // Lore cap: base 500 + 50 per Scriptorium, plus any capBonus from research
+    // Lore cap: base 500 + 50 per Scriptorium, plus any capBonus from research + Silvanus deity bonus
+    let _sylvanusLoreBonus = 0;
+    if (typeof DEITIES !== 'undefined' && isDeityFavorActive && isDeityFavorActive() && gameState.religion.deity === 'silvanus') {
+        const _svd = DEITIES.silvanus;
+        const _svff = getFaithScore() / 30;
+        _sylvanusLoreBonus = (_svd.bonuses.loreCapBonus || 0) * _svff
+            + (_svd.templeBonus.loreCapBonus || 0) * (gameState.buildings.temple || 0) * _svff;
+    }
     caps.lore = 500 + (gameState.buildings.scriptorium || 0) * 50
-              + getResearchBonus('capBonus', 'lore');
+              + getResearchBonus('capBonus', 'lore') + Math.floor(_sylvanusLoreBonus);
     // Coin cap scales with currency tier; ironLockbox adds 50,000 cp; thievesGuild adds 25,000 cp; racial coinCapBonus applies
     const baseCoinCap = r2.goldStandard ? COIN_CAP_GP : r2.silverCurrency ? COIN_CAP_SP : COIN_CAP_CP;
     const raceEffects = (RACE_DATA[gameState.run && gameState.run.race] || {}).effects || {};
@@ -2006,7 +2191,17 @@ function runOneTick() {
     const raceDataG  = RACE_DATA[gameState.run && gameState.run.race];
     const raceGrowthMult = (raceDataG && raceDataG.effects && raceDataG.effects.growthBonus) || 1;
     const researchGrowthMult = gameState.research && gameState.research.herbalHusbandry ? 0.97 : 1;
-    const growthThreshold = Math.max(3, Math.round(GROWTH_TICKS * raceGrowthMult * researchGrowthMult));
+    // Morale multiplier: high morale speeds growth (threshold lower = faster), low morale slows it
+    const moraleGrowthMult = getMoraleMult() > 0 ? (1 / getMoraleMult()) : 2;
+    // Pelor deity bonus: reduces threshold (faster growth), scaled by faith
+    let pelorGrowthMult = 1;
+    if (typeof DEITIES !== 'undefined' && isDeityFavorActive() && gameState.religion.deity === 'pelor') {
+        const _pd = DEITIES.pelor;
+        const _ff = getFaithScore() / 30;
+        pelorGrowthMult = _pd.bonuses.growthMult + (_pd.templeBonus.growthMult * (gameState.buildings.temple || 0) * _ff);
+        pelorGrowthMult = Math.max(0.5, pelorGrowthMult); // floor at 50% of base threshold
+    }
+    const growthThreshold = Math.max(3, Math.round(GROWTH_TICKS * raceGrowthMult * researchGrowthMult * moraleGrowthMult * pelorGrowthMult));
     if (pop.count < housing && gameState.resources.food >= foodBuffer) {
         pop.growthTimer = (pop.growthTimer || 0) + 1;
         if (pop.growthTimer >= growthThreshold) {
@@ -2022,9 +2217,10 @@ function runOneTick() {
     gameState.time.tick++;
     if (gameState.time.tick % TICKS_PER_DAY === 0) {
         // Taxation: base 1 cp/creature/day + taxBonus from research (taxCollector adds 1 more)
+        // Morale multiplier: high morale = more willing workers and better tax compliance
         const taxRate = getResearchBonus('taxBonus');
         if (taxRate > 0) {
-            gameState.resources.coins = (gameState.resources.coins || 0) + gameState.population.count * taxRate;
+            gameState.resources.coins = (gameState.resources.coins || 0) + gameState.population.count * taxRate * getMoraleMult();
         }
         // Trade Caravans: 10 cp/day if both cloth and potions are at or above 75% of their cap
         if (gameState.research && gameState.research.tradeGoods) {
@@ -2075,6 +2271,56 @@ function runOneTick() {
         maybeFireRandomEvent();
         if (gameState.time.day % DAYS_PER_SEASON === 1 && gameState.time.day !== 1) {
             flashEl('season');
+        }
+
+        // ── Religion: daily tithe ────────────────────────────────────────────
+        const _rel = gameState.religion;
+        if (_rel && _rel.deity && _rel.active && typeof DEITIES !== 'undefined') {
+            const _deityDef = DEITIES[_rel.deity];
+            if (_deityDef) {
+                const _titheReduced = (gameState.research && gameState.research.titheReduction) ? 0.5 : 1;
+                let _canPay = true;
+                for (const [_res, _amt] of Object.entries(_deityDef.tithe)) {
+                    if ((gameState.resources[_res] || 0) < _amt * _titheReduced) { _canPay = false; break; }
+                }
+                if (_canPay) {
+                    for (const [_res, _amt] of Object.entries(_deityDef.tithe)) {
+                        gameState.resources[_res] = (gameState.resources[_res] || 0) - _amt * _titheReduced;
+                    }
+                    _rel.titheFailed = 0;
+                } else {
+                    _rel.titheFailed = (_rel.titheFailed || 0) + 1;
+                }
+
+                // Gruumsh periodic sacrifice
+                if (_rel.deity === 'gruumsh' && isDeityFavorActive()) {
+                    const _sacrifice = _deityDef.periodicSacrifice;
+                    if (_sacrifice) {
+                        const _absDay = gameState.time.day + (gameState.time.year - 1) * DAYS_PER_SEASON * 4;
+                        const _daysSince = _absDay - (_rel.lastSacrificeDay || 0);
+                        if (_daysSince >= _sacrifice.every && getFaithScore() >= _sacrifice.minFaith && gameState.population.count > 1) {
+                            gameState.population.count = Math.max(1, gameState.population.count - _sacrifice.popCost);
+                            _rel.productionSurgeDays = _sacrifice.surgeDays;
+                            _rel.lastSacrificeDay = _absDay;
+                            addLogEntry("Gruumsh demands a life. One of your people is taken. Production surges for " + _sacrifice.surgeDays + " days.", "", "events");
+                        }
+                    }
+                }
+
+                // Countdown production surge
+                if ((_rel.productionSurgeDays || 0) > 0) {
+                    _rel.productionSurgeDays--;
+                }
+            }
+        }
+
+        // ── Morale: drift toward target ──────────────────────────────────────
+        if (gameState.morale) {
+            const _moraleTarget = getMoraleTarget();
+            gameState.morale.target = _moraleTarget;
+            const _diff = _moraleTarget - gameState.morale.value;
+            const _step = Math.min(Math.abs(_diff), MORALE_DRIFT_RATE) * Math.sign(_diff);
+            gameState.morale.value = Math.max(0, Math.min(100, gameState.morale.value + _step));
         }
     }
 
@@ -2150,7 +2396,7 @@ function fmtRate(r) {
 function getCoinsDailyRate() {
     let net = 0;
     const taxRate = getResearchBonus('taxBonus');
-    if (taxRate > 0) net += gameState.population.count * taxRate;
+    if (taxRate > 0) net += gameState.population.count * taxRate * getMoraleMult();
     if (gameState.research && gameState.research.tradeGoods) {
         const caps = getCaps();
         const clothOk   = (gameState.resources.cloth   || 0) >= (caps.cloth   || 0) * 0.75;
@@ -2212,9 +2458,10 @@ function updateUI() {
     updatePauseBtn();
     updateBankDisplay();
     updateEraTabVisibility();
-    // Re-render the trade tab when it's active so rates and capacities stay current
+    // Re-render the trade/religion tab when active so values stay current
     const _activeTabBtn = document.querySelector('.tab-btn.active');
     if (_activeTabBtn && _activeTabBtn.dataset.tab === 'trade') renderTradeTab();
+    if (_activeTabBtn && _activeTabBtn.dataset.tab === 'religion') renderReligionTab();
     renderEra1Tree();
     renderEra1Actions();
     const caps     = getCaps();
@@ -2232,6 +2479,18 @@ function updateUI() {
     setText("popMax",    housing);
     const popRow = document.getElementById("pop-row");
     if (popRow) popRow.classList.toggle("starving", isStarving);
+
+    // Morale
+    const moraleEl = document.getElementById("moraleDisplay");
+    if (moraleEl && gameState.morale) {
+        const mv = Math.round(gameState.morale.value);
+        moraleEl.textContent = mv + '%';
+        moraleEl.style.color = mv >= 75 ? 'var(--enabled)' : mv >= 50 ? '#f5a623' : 'var(--disabled)';
+        const moraleRow = document.getElementById("res-row-morale");
+        if (moraleRow) {
+            moraleRow.title = `Target: ${Math.round(gameState.morale.target)}% · Affects coins, lore & growth`;
+        }
+    }
 
     // Coins (now in Population section)
     const coinsNow = gameState.resources.coins || 0;
@@ -2620,6 +2879,10 @@ const BUILDING_ERA = {
     // Era 2 late — Endgame / dark
     ritualCircle:  2, arcaneCrucible: 2,
     darkAltar:     2, mithrilForge:  2,
+    // Era 2 — Morale & Religion
+    entertainersStage: 2, shrine: 2, temple: 2,
+    pelorSanctuary: 2, gruumshWarPit: 2, sylvanGrove: 2,
+    scriptorium: 2,
 };
 
 // Era-gated research: defaults to Era 1 if not listed.
@@ -2636,19 +2899,23 @@ const ERA_2_RESEARCH = [
     // 2.2
     "herbGarden", "animalHusbandry", "carpentry", "quarrying", "oreProspecting",
     "coalBunker", "silverCurrency", "composting", "communalLiving", "taxCollector", "favoredTerrain",
+    "shrineUnlock",
     // 2.3
     "shadowMarket", "prototypeTools", "stoneSplitting", "logDrying",
     "deepMining", "crystalLore", "sulphurStudy", "bellowsDesign", "concentratedExtracts",
     "highFireKiln", "loomMastery", "packHunting", "trapLines",
     "reinforcedShelving", "dryCellar", "militiaDrill", "bookkeeping", "goldStandard", "taxes",
+    "bardMastery", "templeUnlock",
     // 2.4
     "warFormations", "refinedAlchemy", "quenchingTechniques", "dwarvenShoring", "communalArchitecture",
     "ironFittings", "oilRendering", "prefabTimber", "stockpiledStone",
     "crystalFocus", "forgeMastery", "mortaredMasonry", "roadNetwork",
     "guildCharter", "mintStandard", "arcaneTapping", "arcaneInscription", "loreKeeping", "ironLockbox",
     "greenwardenLore", "trackerSign", "annotatedTexts",
+    "priestAmplify", "godUniqueUnlock", "sylvanFavor",
     // 2.5
     "bonecraft", "boneTools", "hearthStones", "rationing", "phosphorLamps", "herbalHusbandry",
+    "titheReduction",
     "alchemicalFertilizer", "dedicatedTanners", "crystalPolishing", "tradeGoods",
     "runicScript", "essenceHarvest", "ichorRefinement", "manaConductorCoils",
     "mithrilTemper", "ritualPrep", "darkTexts", "silkenWarren", "manaConduit", "goldOnly", "infernalLore",
@@ -2740,6 +3007,12 @@ function checkUnlock(id) {
         for (const key of def.requiresResearch) {
             if (!gameState.research || !gameState.research[key]) return false;
         }
+    }
+    // Unique deity buildings are only available to their specific patron
+    const _deityGate = { pelorSanctuary: 'pelor', gruumshWarPit: 'gruumsh', sylvanGrove: 'silvanus' };
+    if (_deityGate[id]) {
+        const _rel = gameState.religion;
+        if (!_rel || _rel.deity !== _deityGate[id]) return false;
     }
     return true;
 }
@@ -4929,6 +5202,13 @@ function updateEraTabVisibility() {
         tradeBtn.style.display = showTrade ? '' : 'none';
     }
 
+    // Religion tab: visible in Era 2 once shrineUnlock research is complete
+    const religionBtn = document.querySelector('.tab-btn[data-tab="religion"]');
+    if (religionBtn) {
+        const showReligion = era >= 2 && !!(gameState.research && gameState.research.shrineUnlock);
+        religionBtn.style.display = showReligion ? '' : 'none';
+    }
+
     // Show/hide left-column elements that only belong in Era 2
     const displayEra2 = era === 1 ? 'none' : '';
     document.querySelectorAll('.era2-only').forEach(el => {
@@ -6507,6 +6787,118 @@ function initIdentityTooltips() {
     attachTooltip('.di-race-row',  'di-race-tooltip');
 }
 
+// ── Religion Tab ──────────────────────────────────────────────────────────────
+
+function renderReligionTab() {
+    const rel       = gameState.religion || {};
+    const research  = gameState.research || {};
+    const morale    = gameState.morale   || { value: MORALE_BASE, target: MORALE_BASE };
+    const faithScore = getFaithScore();
+
+    // ── Morale breakdown ──────────────────────────────────────────────────────
+    const moraleDetail = document.getElementById('religion-morale-detail');
+    if (moraleDetail) {
+        const employed = getEmployed();
+        const idle     = Math.max(0, gameState.population.count - employed);
+        const season   = SEASONS[gameState.time.seasonIndex];
+        const seasonMorale = season === 'Summer' ? +10 : (season === 'Winter' ? -10 : +5);
+
+        const lines = [];
+        lines.push(`<div class="morale-line"><span>Base</span><span>+${MORALE_BASE}</span></div>`);
+        if (employed > 0) lines.push(`<div class="morale-line drain"><span>Workers (${employed} × −0.25)</span><span>${(-(employed * 0.25)).toFixed(1)}</span></div>`);
+        if (idle > 0)     lines.push(`<div class="morale-line drain"><span>Idle peasants (${idle} × −1)</span><span>−${idle.toFixed(0)}</span></div>`);
+
+        const entWorkers = (getWorkersPerBuilding().entertainersStage || 0);
+        if (entWorkers > 0) {
+            const bardMult = research.bardMastery ? 1.5 : 1;
+            const entBonus = entWorkers * (ROOMS.entertainersStage.moralePerWorker || 3) * bardMult;
+            lines.push(`<div class="morale-line boost"><span>Entertainers (${entWorkers})</span><span>+${entBonus.toFixed(1)}</span></div>`);
+        }
+        for (const id of ['shrine', 'temple', 'pelorSanctuary', 'sylvanGrove']) {
+            const cnt = gameState.buildings[id] || 0;
+            const def = ROOMS[id];
+            if (cnt > 0 && def && def.moralePassive) {
+                lines.push(`<div class="morale-line boost"><span>${def.name} (${cnt})</span><span>+${cnt * def.moralePassive}</span></div>`);
+            }
+        }
+        const seasonSign = seasonMorale >= 0 ? '+' : '';
+        lines.push(`<div class="morale-line ${seasonMorale < 0 ? 'drain' : 'boost'}"><span>Season: ${season}</span><span>${seasonSign}${seasonMorale}</span></div>`);
+
+        if (isDeityFavorActive()) {
+            const dd  = DEITIES[rel.deity];
+            const ff  = faithScore / 30;
+            lines.push(`<div class="morale-line boost"><span>Patron god bonus</span><span>+3</span></div>`);
+            if (dd.bonuses.moraleBonus) lines.push(`<div class="morale-line boost"><span>${dd.name} blessing</span><span>+${(dd.bonuses.moraleBonus * ff).toFixed(1)}</span></div>`);
+            if (dd.bonuses.moralePenalty) lines.push(`<div class="morale-line drain"><span>${dd.name} harshness</span><span>${(dd.bonuses.moralePenalty * ff).toFixed(1)}</span></div>`);
+        }
+
+        const moraleColor = morale.value >= 75 ? 'var(--enabled)' : morale.value >= 50 ? '#f5a623' : 'var(--disabled)';
+        moraleDetail.innerHTML = `
+            <div class="morale-summary">
+                <span style="color:${moraleColor};font-weight:bold">${Math.round(morale.value)}%</span>
+                <span class="morale-arrow">→</span>
+                <span>target: ${Math.round(morale.target)}%</span>
+            </div>
+            <div class="morale-breakdown">${lines.join('')}</div>
+        `;
+    }
+
+    // ── Deity cards ───────────────────────────────────────────────────────────
+    const deityContainer = document.getElementById('religion-deity-cards');
+    if (!deityContainer || typeof DEITIES === 'undefined') return;
+
+    if (!research.shrineUnlock) {
+        deityContainer.innerHTML = '<div class="religion-locked">Research <em>Spiritual Foundations</em> to commune with the gods.</div>';
+        return;
+    }
+
+    let html = '';
+    for (const [key, dd] of Object.entries(DEITIES)) {
+        const isActive   = rel.deity === key;
+        const canPledge  = !rel.deity && rel.active !== true;
+        const favorGone  = isActive && (rel.titheFailed || 0) > 3;
+        const surgeDays  = isActive && (rel.productionSurgeDays || 0);
+
+        const titheLines = Object.entries(dd.tithe).map(([r, a]) => {
+            const titheReduce = research.titheReduction ? 0.5 : 1;
+            return `${a * titheReduce} ${(RESOURCES[r] && RESOURCES[r].name) || r}`;
+        }).join(', ');
+
+        const faithBar = isActive
+            ? `<div class="faith-bar-wrap"><div class="faith-bar" style="width:${Math.round(faithScore/30*100)}%"></div></div><span class="faith-label">Faith: ${faithScore} / 30</span>`
+            : '';
+
+        const surgeNotice = surgeDays > 0
+            ? `<div class="deity-surge">⚔ Production surge active: ${surgeDays} day${surgeDays !== 1 ? 's' : ''} remaining</div>`
+            : '';
+        const titheWarn = favorGone
+            ? `<div class="deity-tithe-warn">⚠ God's favor has withdrawn — tithe unpaid for ${rel.titheFailed} days</div>`
+            : '';
+
+        const btnHtml = isActive
+            ? `<button class="deity-abandon-btn" onclick="abandonDeity()">Abandon ${dd.name}</button>`
+            : (canPledge
+                ? `<button class="deity-pledge-btn" onclick="pledgeDeity('${key}')">Pledge to ${dd.name}</button>`
+                : `<button class="deity-pledge-btn" disabled>Switch patron to pledge</button>`);
+
+        html += `
+        <div class="deity-card ${isActive ? 'deity-card-active' : ''} ${dd.alignClass}">
+            <div class="deity-card-header">
+                <span class="deity-name">${dd.name}</span>
+                <span class="deity-align-badge">${dd.alignment}</span>
+            </div>
+            <div class="deity-quote">${dd.flavorQuote}</div>
+            <div class="deity-desc">${dd.desc}</div>
+            <div class="deity-tithe">Daily tithe: <strong>${titheLines}</strong></div>
+            ${faithBar}
+            ${surgeNotice}
+            ${titheWarn}
+            <div class="deity-actions">${btnHtml}</div>
+        </div>`;
+    }
+    deityContainer.innerHTML = html;
+}
+
 // ── Tabs ──────────────────────────────────────────────────────────────────────
 
 function switchTab(tabId) {
@@ -6518,6 +6910,7 @@ function switchTab(tabId) {
     if (btn) btn.classList.add("active");
     if (tabId === "settings") updateSettingsUI();
     if (tabId === "trade") renderTradeTab();
+    if (tabId === "religion") renderReligionTab();
 }
 
 // ── Bootstrap ─────────────────────────────────────────────────────────────────
@@ -6562,6 +6955,19 @@ if (!Array.isArray(gameState.era1.unlocked)) gameState.era1.unlocked = [];
 if (gameState.resources.influence == null) gameState.resources.influence = 0;
 if (gameState.resources.mana == null) gameState.resources.mana = 0;
 if (gameState.resources.arcaneEssence == null) gameState.resources.arcaneEssence = 0;
+// Morale & Religion save normalization
+if (!gameState.morale)   gameState.morale   = { value: MORALE_BASE, target: MORALE_BASE };
+if (gameState.morale.value  == null) gameState.morale.value  = MORALE_BASE;
+if (gameState.morale.target == null) gameState.morale.target = MORALE_BASE;
+if (!gameState.religion) gameState.religion = { deity: null, active: false, titheFailed: 0, productionSurgeDays: 0, lastSacrificeDay: 0 };
+if (gameState.religion.titheFailed        == null) gameState.religion.titheFailed        = 0;
+if (gameState.religion.productionSurgeDays == null) gameState.religion.productionSurgeDays = 0;
+if (gameState.religion.lastSacrificeDay   == null) gameState.religion.lastSacrificeDay   = 0;
+// Religion buildings normalization
+const _religionBlds = ['entertainersStage','shrine','temple','pelorSanctuary','gruumshWarPit','sylvanGrove'];
+for (const _rb of _religionBlds) {
+    if (gameState.buildings[_rb] == null) gameState.buildings[_rb] = 0;
+}
 // ── Random Event System ───────────────────────────────────────────────────────
 
 let _logActiveTab = 'all';

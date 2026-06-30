@@ -4730,3 +4730,193 @@ body.reduce-motion *::after {
     color: #c8a84b;
 }
 
+/* ── Religion Tab ────────────────────────────────────────────────────────── */
+
+.religion-header {
+    padding: 6px 0 10px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    margin: 0 auto 10px;
+    max-width: 520px;
+}
+.religion-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.religion-header-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+}
+.religion-section {
+    max-width: 520px;
+    margin: 0 auto 18px;
+}
+.religion-section-title {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+    margin: 0 0 8px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.religion-locked {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-style: italic;
+    padding: 6px 0;
+}
+.morale-summary {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    margin-bottom: 8px;
+}
+.morale-arrow {
+    color: var(--text-muted);
+    font-size: 12px;
+}
+.morale-breakdown {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+.morale-line {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    padding: 2px 6px;
+    border-radius: 3px;
+    color: var(--text);
+}
+.morale-line.boost {
+    background: rgba(100,180,100,0.08);
+    color: var(--enabled);
+}
+.morale-line.drain {
+    background: rgba(180,80,80,0.08);
+    color: var(--disabled);
+}
+.deity-card {
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 6px;
+    padding: 12px 14px;
+    margin-bottom: 10px;
+    background: rgba(0,0,0,0.2);
+}
+.deity-card-active {
+    border-color: rgba(200,168,75,0.5);
+    background: rgba(200,168,75,0.06);
+}
+.deity-light  { border-left: 3px solid #f0d060; }
+.deity-dark   { border-left: 3px solid #a040a0; }
+.deity-neutral { border-left: 3px solid #60b0a0; }
+.deity-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+}
+.deity-name {
+    font-size: 14px;
+    font-weight: bold;
+    color: var(--text);
+}
+.deity-align-badge {
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 2px 6px;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.08);
+    color: var(--text-muted);
+}
+.deity-light  .deity-align-badge { color: #f0d060; background: rgba(240,208,96,0.12); }
+.deity-dark   .deity-align-badge { color: #c080c0; background: rgba(160,64,160,0.12); }
+.deity-neutral .deity-align-badge { color: #80c8b8; background: rgba(96,176,160,0.12); }
+.deity-quote {
+    font-size: 10px;
+    font-style: italic;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+}
+.deity-desc {
+    font-size: 11px;
+    color: var(--text);
+    margin-bottom: 8px;
+    line-height: 1.5;
+}
+.deity-tithe {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+}
+.deity-tithe strong {
+    color: var(--disabled);
+}
+.faith-bar-wrap {
+    height: 5px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 3px;
+    margin-bottom: 4px;
+    overflow: hidden;
+}
+.faith-bar {
+    height: 100%;
+    background: #c8a84b;
+    border-radius: 3px;
+    transition: width 0.4s ease;
+}
+.faith-label {
+    font-size: 10px;
+    color: var(--text-muted);
+    display: block;
+    margin-bottom: 8px;
+}
+.deity-surge {
+    font-size: 11px;
+    color: #e08040;
+    margin-bottom: 6px;
+    font-weight: bold;
+}
+.deity-tithe-warn {
+    font-size: 11px;
+    color: var(--disabled);
+    margin-bottom: 6px;
+}
+.deity-actions {
+    display: flex;
+    gap: 8px;
+}
+.deity-pledge-btn, .deity-abandon-btn {
+    padding: 4px 12px;
+    font-size: 11px;
+    border-radius: 4px;
+    cursor: pointer;
+    border: 1px solid;
+    background: transparent;
+    font-family: inherit;
+    transition: background 0.15s;
+}
+.deity-pledge-btn {
+    border-color: rgba(200,168,75,0.5);
+    color: #c8a84b;
+}
+.deity-pledge-btn:hover:not(:disabled) {
+    background: rgba(200,168,75,0.15);
+}
+.deity-pledge-btn:disabled {
+    opacity: 0.4;
+    cursor: default;
+}
+.deity-abandon-btn {
+    border-color: rgba(180,80,80,0.5);
+    color: var(--disabled);
+}
+.deity-abandon-btn:hover {
+    background: rgba(180,80,80,0.15);
+}
+

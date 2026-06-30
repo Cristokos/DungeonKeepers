@@ -343,6 +343,89 @@ const ROOMS = {
         effect: () => `Increases Mana storage cap by ${getReservoirBonus()}.`,
         flavor: "Power pooled in silence, patient as stone, cold as the spaces between stars.",
     },
+
+    // ── Morale & Religion ───────────────────────────────────────────────────────
+
+    entertainersStage: {
+        name: "Entertainer's Stage",
+        cost: { wood: 30, stone: 15 },
+        costScale: 1.18,
+        jobs: 1,
+        workerName: "Entertainer",
+        moralePerWorker: 3,
+        unlock: { lair: 10 },
+        requiresResearch: ["shrineUnlock"],
+        desc: "A stage for performers, jesters, and storytellers. Keeps your workers' spirits up.",
+        flavor: "A good joke costs nothing. A miserable dungeon costs everything.",
+    },
+
+    shrine: {
+        name: "Shrine",
+        cost: { stone: 40, wood: 20 },
+        costScale: 1.15,
+        jobs: 1,
+        workerName: "Priest",
+        moralePassive: 1,
+        faithPerPriest: 1,
+        requiresResearch: ["shrineUnlock"],
+        desc: "A modest place of worship. Priests tend its flame, spreading devotion and lifting morale.",
+        flavor: "Every journey toward the divine begins with a single candle.",
+    },
+
+    temple: {
+        name: "Temple",
+        cost: { stone: 120, wood: 60, iron: 30 },
+        costScale: 1.20,
+        jobs: 2,
+        workerName: "High Priest",
+        moralePassive: 2,
+        faithPerPriest: 2,
+        requiresResearch: ["templeUnlock"],
+        unlock: { shrine: 3 },
+        desc: "A grand temple housing High Priests who deepen your patron's favor and bolster morale.",
+        flavor: "The gods hear those who build worthy enough houses.",
+    },
+
+    pelorSanctuary: {
+        name: "Pelor's Sanctuary",
+        cost: { stone: 80, food: 60, coins: 500 },
+        costScale: 1.25,
+        jobs: 1,
+        workerName: "Sun Priest",
+        moralePassive: 3,
+        faithPerPriest: 3,
+        requiresResearch: ["godUniqueUnlock"],
+        unlock: { temple: 1 },
+        desc: "A sun-drenched sanctuary where Sun Priests channel Pelor's light into healing and hope.",
+        flavor: "In Pelor's house, there are no shadows.",
+    },
+
+    gruumshWarPit: {
+        name: "Gruumsh's War Pit",
+        cost: { stone: 100, ore: 80, bones: 40 },
+        costScale: 1.25,
+        jobs: 1,
+        workerName: "Warchanter",
+        faithPerPriest: 3,
+        requiresResearch: ["godUniqueUnlock"],
+        unlock: { temple: 1 },
+        desc: "A brutal pit where Warchanters conduct rites of conquest and steel. No comfort, only power.",
+        flavor: "Gruumsh does not ask. He takes.",
+    },
+
+    sylvanGrove: {
+        name: "Sylvan Grove",
+        cost: { wood: 100, herbs: 60, stone: 40 },
+        costScale: 1.25,
+        jobs: 1,
+        workerName: "Druid",
+        moralePassive: 2,
+        faithPerPriest: 3,
+        requiresResearch: ["godUniqueUnlock"],
+        unlock: { temple: 1 },
+        desc: "A sacred grove where Druids commune with Silvanus, drawing nature's bounty into your dungeon.",
+        flavor: "The roots run deep where the old god walks.",
+    },
 };
 
 const GATHER_ACTIONS = {

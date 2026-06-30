@@ -234,6 +234,16 @@ RESEARCH.logDrying = {
     effects: { productionBonus: { lumber: 1.10 } },
 };
 
+// ── Religion Chain ─────────────────────────────────────────────────────────────
+
+RESEARCH.shrineUnlock = {
+    tier: "2.2",
+    name: "Spiritual Foundations",
+    desc: "Erect a shrine and hire an Entertainer to keep your dungeon's spirit alive. Unlocks the Religion tab, the Shrine building, and the Entertainer's Stage.",
+    cost: { stone: 80, wood: 60, lore: 10 },
+    effects: { flag: "shrineUnlock" },
+};
+
 // ── 2.3 — Mid ─────────────────────────────────────────────────────────────────
 
 RESEARCH.deepMining = {
@@ -501,6 +511,25 @@ RESEARCH.boneTools = {
     effects: { allGatherBonus: 1 },
 };
 
+RESEARCH.bardMastery = {
+    tier: "2.3",
+    name: "Bardic Mastery",
+    desc: "Your entertainers hone their performances into true art. Entertainer's Stage morale bonus +50%.",
+    cost: { lore: 25, herbs: 60, food: 80 },
+    requiresResearch: ["shrineUnlock"],
+    effects: { flag: "bardMastery" },
+};
+
+RESEARCH.templeUnlock = {
+    tier: "2.3",
+    name: "Temple Construction",
+    desc: "Raise a Temple to house High Priests who deepen your patron's favor. Requires 3 Shrines.",
+    cost: { stone: 200, iron: 60, lore: 20 },
+    requiresResearch: ["shrineUnlock"],
+    requiresBuildings: { shrine: 3 },
+    effects: { flag: "templeUnlock" },
+};
+
 // ── 2.4 — Mid-Late ────────────────────────────────────────────────────────────
 
 RESEARCH.crystalFocus = {
@@ -672,6 +701,34 @@ RESEARCH.dedicatedTanners = {
     effects: { productionBonus: { huntingLodge: 1.10 } },
 };
 
+RESEARCH.priestAmplify = {
+    tier: "2.4",
+    name: "Priestly Devotion",
+    desc: "Your priests dedicate themselves more fully to the divine rites. Faith score from all priest buildings +30%.",
+    cost: { lore: 50, crystals: 40 },
+    requiresResearch: ["templeUnlock"],
+    effects: { flag: "priestAmplify" },
+};
+
+RESEARCH.godUniqueUnlock = {
+    tier: "2.4",
+    name: "Sacred Architecture",
+    desc: "Erect a structure sacred to your chosen patron, unlocking their deepest blessings. Requires an active patron god and at least 1 Temple.",
+    cost: { stone: 150, lore: 40, coins: 300 },
+    requiresResearch: ["templeUnlock"],
+    requiresBuildings: { temple: 1 },
+    effects: { flag: "godUniqueUnlock" },
+};
+
+RESEARCH.sylvanFavor = {
+    tier: "2.4",
+    name: "Sylvan Favor",
+    desc: "Silvanus blesses your people with endurance against the cold. Winter morale penalty is halved.",
+    cost: { herbs: 100, lore: 35, wood: 80 },
+    requiresResearch: ["shrineUnlock"],
+    effects: { flag: "sylvanFavor" },
+};
+
 // ── 2.5 — Late Arcane ─────────────────────────────────────────────────────────
 
 RESEARCH.runicScript = {
@@ -681,6 +738,15 @@ RESEARCH.runicScript = {
     cost: { lore: 340 },
     requiresResearch: ["arcaneInscription"],
     effects: { converterBonus: { arcaneBench: 1.15 } },
+};
+
+RESEARCH.titheReduction = {
+    tier: "2.5",
+    name: "Efficient Devotion",
+    desc: "Your priests streamline sacred rites, reducing the material burden of worship. Daily tithe costs reduced by 50%.",
+    cost: { lore: 80, manaGold: 20 },
+    requiresResearch: ["templeUnlock", "priestAmplify"],
+    effects: { flag: "titheReduction" },
 };
 
 RESEARCH.essenceHarvest = {

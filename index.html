@@ -470,6 +470,13 @@
             </span>
         </div>
 
+        <div class="res-row era2-only" id="res-row-morale">
+            <span class="res-name">Morale</span>
+            <span class="res-right">
+                <span id="moraleDisplay">90%</span>
+            </span>
+        </div>
+
         <div class="res-row era2-only" id="res-row-coins">
             <span class="res-name">Money</span>
             <span class="res-right">
@@ -713,6 +720,7 @@
             <button class="tab-btn" data-tab="research" onclick="switchTab('research')">Research</button>
             <button class="tab-btn" data-tab="workers"  onclick="switchTab('workers')">Workers</button>
             <button class="tab-btn" data-tab="trade"    onclick="switchTab('trade')" style="display:none">Trade</button>
+            <button class="tab-btn" data-tab="religion" onclick="switchTab('religion')" style="display:none">Religion</button>
             <button class="tab-btn" data-tab="info"     onclick="switchTab('info')">Info</button>
             <button class="tab-btn" data-tab="settings" onclick="switchTab('settings')">Settings</button>
             <button class="tab-btn dev-tab" data-tab="dev" onclick="switchTab('dev')">Dev</button>
@@ -2415,6 +2423,27 @@
 
         </div><!-- /tab-trade -->
 
+        <!-- RELIGION TAB -->
+        <div class="tab-body tab-content" id="tab-religion" style="display:none">
+
+            <div class="religion-header">
+                <div class="religion-header-row">
+                    <span class="religion-header-label">Religion &amp; Morale</span>
+                </div>
+            </div>
+
+            <div id="religion-morale-section" class="religion-section">
+                <h3 class="religion-section-title">Morale</h3>
+                <div id="religion-morale-detail"></div>
+            </div>
+
+            <div id="religion-deity-section" class="religion-section">
+                <h3 class="religion-section-title">Patron God</h3>
+                <div id="religion-deity-cards"></div>
+            </div>
+
+        </div><!-- /tab-religion -->
+
         <!-- INFO TAB -->
         <div class="tab-body tab-content" id="tab-info" style="display:none">
 
@@ -2724,7 +2753,7 @@
 <script>
     // Load local game scripts in dependency order, cache-busted by GAME_VERSION (see version.js).
     // lz-string must precede save.js (save/load uses LZString for (de)compression).
-    ["lib/lz-string.min.js", "data/resources.js", "data/rooms.js", "data/research.js", "data/era1tree.js", "data/randomEvents.js", "save.js", "game.js"].forEach(function (src) {
+    ["lib/lz-string.min.js", "data/resources.js", "data/rooms.js", "data/research.js", "data/religion.js", "data/era1tree.js", "data/randomEvents.js", "save.js", "game.js"].forEach(function (src) {
         document.write('<scr' + 'ipt src="' + src + '?v=' + window.GAME_VERSION + '"></scr' + 'ipt>');
     });
 </script>
