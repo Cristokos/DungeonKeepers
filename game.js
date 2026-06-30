@@ -2667,8 +2667,8 @@ function updateUI() {
             coinsRateEl.style.display = "none";
         } else {
             const sign = dailyNet > 0 ? "+" : "-";
-            coinsRateEl.title = sign + formatCoins(Math.abs(dailyNet)) + "/day";
-            coinsRateEl.textContent = sign + formatCoinsCompact(Math.abs(dailyNet)) + "/day";
+            coinsRateEl.title = sign + formatCoins(Math.abs(dailyNet)) + "/d";
+            coinsRateEl.textContent = sign + formatCoinsCompact(Math.abs(dailyNet)) + "/d";
             coinsRateEl.style.display = "";
             coinsRateEl.style.color = dailyNet < 0 ? "var(--disabled)" : "var(--enabled)";
         }
