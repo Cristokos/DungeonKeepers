@@ -5349,17 +5349,18 @@ function updateEraTabVisibility() {
         if (btn) btn.style.display = era === 1 ? 'none' : '';
     }
 
-    // Village sub-tab buttons: build and workers always visible in Era 2
+    // Village sub-tab buttons: only visible when Village is the active top tab
+    const villageActive = !!document.querySelector('.tab-btn[data-tab="village"].active');
     const villageSubs = ['build', 'workers'];
     for (const id of villageSubs) {
         const btn = document.querySelector(`.sub-tab-btn[data-tab="${id}"]`);
-        if (btn) btn.style.display = era === 1 ? 'none' : '';
+        if (btn) btn.style.display = (era >= 2 && villageActive) ? '' : 'none';
     }
 
-    // Trade sub-tab: visible in Era 2 once at least one Market Stall is built
+    // Trade sub-tab: only visible when Village is active and Market Stall is built
     const tradeBtn = document.querySelector('.sub-tab-btn[data-tab="trade"]');
     if (tradeBtn) {
-        const showTrade = era >= 2 && (gameState.buildings.marketStall > 0);
+        const showTrade = era >= 2 && villageActive && (gameState.buildings.marketStall > 0);
         tradeBtn.style.display = showTrade ? '' : 'none';
     }
 
