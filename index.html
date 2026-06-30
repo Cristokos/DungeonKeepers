@@ -718,17 +718,26 @@
     <!-- CENTER: Tabbed content -->
     <div class="panel center">
 
-        <!-- Tab bar -->
-        <div class="tab-bar">
+        <!-- Primary tab bar -->
+        <div class="tab-bar" id="tab-bar-primary">
             <button class="tab-btn active" data-tab="awakening" onclick="switchTab('awakening')">Awakening</button>
-            <button class="tab-btn" data-tab="build"    onclick="switchTab('build')">Build</button>
-            <button class="tab-btn" data-tab="research" onclick="switchTab('research')">Research</button>
-            <button class="tab-btn" data-tab="workers"  onclick="switchTab('workers')">Workers</button>
-            <button class="tab-btn" data-tab="trade"    onclick="switchTab('trade')" style="display:none">Trade</button>
-            <button class="tab-btn" data-tab="religion" onclick="switchTab('religion')" style="display:none">Religion</button>
-            <button class="tab-btn" data-tab="info"     onclick="switchTab('info')">Info</button>
-            <button class="tab-btn" data-tab="settings" onclick="switchTab('settings')">Settings</button>
+            <button class="tab-btn" data-tab="village"   onclick="switchTab('village')">Village</button>
+            <button class="tab-btn" data-tab="research"  onclick="switchTab('research')">Research</button>
+            <button class="tab-btn" data-tab="religion"  onclick="switchTab('religion')" style="display:none">Religion</button>
+            <button class="tab-btn" data-tab="info"      onclick="switchTab('info')">Info</button>
+            <button class="tab-btn" data-tab="settings"  onclick="switchTab('settings')">Settings</button>
             <button class="tab-btn dev-tab" data-tab="dev" onclick="switchTab('dev')">Dev</button>
+        </div>
+
+        <!-- Secondary tab bar (shown only for Village and Research) -->
+        <div class="tab-bar tab-bar-secondary" id="tab-bar-secondary" style="display:none">
+            <!-- Village sub-tabs -->
+            <button class="tab-btn sub-tab-btn" data-tab="build"    data-group="village" onclick="switchSubTab('build')"   style="display:none">Build</button>
+            <button class="tab-btn sub-tab-btn" data-tab="workers"  data-group="village" onclick="switchSubTab('workers')" style="display:none">Workers</button>
+            <button class="tab-btn sub-tab-btn" data-tab="trade"    data-group="village" onclick="switchSubTab('trade')"   style="display:none">Trade</button>
+            <!-- Research sub-tabs -->
+            <button class="tab-btn sub-tab-btn active" data-tab="research-available" data-group="research" onclick="switchSubTab('research-available')" style="display:none">Available</button>
+            <button class="tab-btn sub-tab-btn"        data-tab="research-completed" data-group="research" onclick="switchSubTab('research-completed')" style="display:none">Completed</button>
         </div>
 
         <!-- AWAKENING TAB (Era 1 only) -->
@@ -1112,11 +1121,6 @@
         <div class="tab-body tab-content" id="tab-research" style="display:none">
 
             <h2>Research</h2>
-
-            <div class="research-sub-tabs">
-                <button class="research-sub-tab-btn active" data-tab="available" onclick="switchResearchTab('available')">Available</button>
-                <button class="research-sub-tab-btn" data-tab="completed" onclick="switchResearchTab('completed')">Completed</button>
-            </div>
 
             <div id="research-panel-available">
             <div class="research-list" style="margin-top:10px">
@@ -2228,6 +2232,81 @@
                 </div>
             </div>
 
+            <div class="worker-row" id="wrow-shrine" style="display:none">
+                <div class="worker-left">
+                    <span class="worker-name">Shrine</span>
+                    <span class="worker-sub">Priest</span>
+                    <span class="worker-slots" id="wslots-shrine">0 / 0</span>
+                </div>
+                <div class="worker-controls">
+                    <button class="wbtn wbtn-mm" onclick="setWorkersMin(this)" title="Unassign all">&#9664;&#9664;</button>
+                    <button class="wbtn" onclick="adjustWorkers('shrine', -1)">&#9664;</button>
+                    <input  class="winput" type="number" id="winput-shrine" value="0" min="0" oninput="setWorkers('shrine', this.value)">
+                    <button class="wbtn" onclick="adjustWorkers('shrine', 1)">&#9654;</button>
+                    <button class="wbtn wbtn-mm" onclick="setWorkersMax(this)" title="Assign max">&#9654;&#9654;</button>
+                </div>
+            </div>
+
+            <div class="worker-row" id="wrow-temple" style="display:none">
+                <div class="worker-left">
+                    <span class="worker-name">Temple</span>
+                    <span class="worker-sub">Priest</span>
+                    <span class="worker-slots" id="wslots-temple">0 / 0</span>
+                </div>
+                <div class="worker-controls">
+                    <button class="wbtn wbtn-mm" onclick="setWorkersMin(this)" title="Unassign all">&#9664;&#9664;</button>
+                    <button class="wbtn" onclick="adjustWorkers('temple', -1)">&#9664;</button>
+                    <input  class="winput" type="number" id="winput-temple" value="0" min="0" oninput="setWorkers('temple', this.value)">
+                    <button class="wbtn" onclick="adjustWorkers('temple', 1)">&#9654;</button>
+                    <button class="wbtn wbtn-mm" onclick="setWorkersMax(this)" title="Assign max">&#9654;&#9654;</button>
+                </div>
+            </div>
+
+            <div class="worker-row" id="wrow-pelorSanctuary" style="display:none">
+                <div class="worker-left">
+                    <span class="worker-name">Pelor's Sanctuary</span>
+                    <span class="worker-sub">Priest</span>
+                    <span class="worker-slots" id="wslots-pelorSanctuary">0 / 0</span>
+                </div>
+                <div class="worker-controls">
+                    <button class="wbtn wbtn-mm" onclick="setWorkersMin(this)" title="Unassign all">&#9664;&#9664;</button>
+                    <button class="wbtn" onclick="adjustWorkers('pelorSanctuary', -1)">&#9664;</button>
+                    <input  class="winput" type="number" id="winput-pelorSanctuary" value="0" min="0" oninput="setWorkers('pelorSanctuary', this.value)">
+                    <button class="wbtn" onclick="adjustWorkers('pelorSanctuary', 1)">&#9654;</button>
+                    <button class="wbtn wbtn-mm" onclick="setWorkersMax(this)" title="Assign max">&#9654;&#9654;</button>
+                </div>
+            </div>
+
+            <div class="worker-row" id="wrow-gruumshWarPit" style="display:none">
+                <div class="worker-left">
+                    <span class="worker-name">Gruumsh's War Pit</span>
+                    <span class="worker-sub">Priest</span>
+                    <span class="worker-slots" id="wslots-gruumshWarPit">0 / 0</span>
+                </div>
+                <div class="worker-controls">
+                    <button class="wbtn wbtn-mm" onclick="setWorkersMin(this)" title="Unassign all">&#9664;&#9664;</button>
+                    <button class="wbtn" onclick="adjustWorkers('gruumshWarPit', -1)">&#9664;</button>
+                    <input  class="winput" type="number" id="winput-gruumshWarPit" value="0" min="0" oninput="setWorkers('gruumshWarPit', this.value)">
+                    <button class="wbtn" onclick="adjustWorkers('gruumshWarPit', 1)">&#9654;</button>
+                    <button class="wbtn wbtn-mm" onclick="setWorkersMax(this)" title="Assign max">&#9654;&#9654;</button>
+                </div>
+            </div>
+
+            <div class="worker-row" id="wrow-sylvanGrove" style="display:none">
+                <div class="worker-left">
+                    <span class="worker-name">Sylvan Grove</span>
+                    <span class="worker-sub">Priest</span>
+                    <span class="worker-slots" id="wslots-sylvanGrove">0 / 0</span>
+                </div>
+                <div class="worker-controls">
+                    <button class="wbtn wbtn-mm" onclick="setWorkersMin(this)" title="Unassign all">&#9664;&#9664;</button>
+                    <button class="wbtn" onclick="adjustWorkers('sylvanGrove', -1)">&#9664;</button>
+                    <input  class="winput" type="number" id="winput-sylvanGrove" value="0" min="0" oninput="setWorkers('sylvanGrove', this.value)">
+                    <button class="wbtn" onclick="adjustWorkers('sylvanGrove', 1)">&#9654;</button>
+                    <button class="wbtn wbtn-mm" onclick="setWorkersMax(this)" title="Assign max">&#9654;&#9654;</button>
+                </div>
+            </div>
+
             <div class="worker-row" id="wrow-clayPit"       style="display:none">
                 <div class="worker-left">
                     <span class="worker-name">Clay Pit</span>
@@ -2524,81 +2603,6 @@
                     <button class="wbtn" onclick="adjustWorkers('entertainersStage', -1)">&#9664;</button>
                     <input  class="winput" type="number" id="winput-entertainersStage" value="0" min="0" oninput="setWorkers('entertainersStage', this.value)">
                     <button class="wbtn" onclick="adjustWorkers('entertainersStage', 1)">&#9654;</button>
-                    <button class="wbtn wbtn-mm" onclick="setWorkersMax(this)" title="Assign max">&#9654;&#9654;</button>
-                </div>
-            </div>
-
-            <div class="worker-row" id="wrow-shrine" style="display:none">
-                <div class="worker-left">
-                    <span class="worker-name">Shrine</span>
-                    <span class="worker-sub">Priest</span>
-                    <span class="worker-slots" id="wslots-shrine">0 / 0</span>
-                </div>
-                <div class="worker-controls">
-                    <button class="wbtn wbtn-mm" onclick="setWorkersMin(this)" title="Unassign all">&#9664;&#9664;</button>
-                    <button class="wbtn" onclick="adjustWorkers('shrine', -1)">&#9664;</button>
-                    <input  class="winput" type="number" id="winput-shrine" value="0" min="0" oninput="setWorkers('shrine', this.value)">
-                    <button class="wbtn" onclick="adjustWorkers('shrine', 1)">&#9654;</button>
-                    <button class="wbtn wbtn-mm" onclick="setWorkersMax(this)" title="Assign max">&#9654;&#9654;</button>
-                </div>
-            </div>
-
-            <div class="worker-row" id="wrow-temple" style="display:none">
-                <div class="worker-left">
-                    <span class="worker-name">Temple</span>
-                    <span class="worker-sub">Priest</span>
-                    <span class="worker-slots" id="wslots-temple">0 / 0</span>
-                </div>
-                <div class="worker-controls">
-                    <button class="wbtn wbtn-mm" onclick="setWorkersMin(this)" title="Unassign all">&#9664;&#9664;</button>
-                    <button class="wbtn" onclick="adjustWorkers('temple', -1)">&#9664;</button>
-                    <input  class="winput" type="number" id="winput-temple" value="0" min="0" oninput="setWorkers('temple', this.value)">
-                    <button class="wbtn" onclick="adjustWorkers('temple', 1)">&#9654;</button>
-                    <button class="wbtn wbtn-mm" onclick="setWorkersMax(this)" title="Assign max">&#9654;&#9654;</button>
-                </div>
-            </div>
-
-            <div class="worker-row" id="wrow-pelorSanctuary" style="display:none">
-                <div class="worker-left">
-                    <span class="worker-name">Pelor's Sanctuary</span>
-                    <span class="worker-sub">Priest</span>
-                    <span class="worker-slots" id="wslots-pelorSanctuary">0 / 0</span>
-                </div>
-                <div class="worker-controls">
-                    <button class="wbtn wbtn-mm" onclick="setWorkersMin(this)" title="Unassign all">&#9664;&#9664;</button>
-                    <button class="wbtn" onclick="adjustWorkers('pelorSanctuary', -1)">&#9664;</button>
-                    <input  class="winput" type="number" id="winput-pelorSanctuary" value="0" min="0" oninput="setWorkers('pelorSanctuary', this.value)">
-                    <button class="wbtn" onclick="adjustWorkers('pelorSanctuary', 1)">&#9654;</button>
-                    <button class="wbtn wbtn-mm" onclick="setWorkersMax(this)" title="Assign max">&#9654;&#9654;</button>
-                </div>
-            </div>
-
-            <div class="worker-row" id="wrow-gruumshWarPit" style="display:none">
-                <div class="worker-left">
-                    <span class="worker-name">Gruumsh's War Pit</span>
-                    <span class="worker-sub">Priest</span>
-                    <span class="worker-slots" id="wslots-gruumshWarPit">0 / 0</span>
-                </div>
-                <div class="worker-controls">
-                    <button class="wbtn wbtn-mm" onclick="setWorkersMin(this)" title="Unassign all">&#9664;&#9664;</button>
-                    <button class="wbtn" onclick="adjustWorkers('gruumshWarPit', -1)">&#9664;</button>
-                    <input  class="winput" type="number" id="winput-gruumshWarPit" value="0" min="0" oninput="setWorkers('gruumshWarPit', this.value)">
-                    <button class="wbtn" onclick="adjustWorkers('gruumshWarPit', 1)">&#9654;</button>
-                    <button class="wbtn wbtn-mm" onclick="setWorkersMax(this)" title="Assign max">&#9654;&#9654;</button>
-                </div>
-            </div>
-
-            <div class="worker-row" id="wrow-sylvanGrove" style="display:none">
-                <div class="worker-left">
-                    <span class="worker-name">Sylvan Grove</span>
-                    <span class="worker-sub">Priest</span>
-                    <span class="worker-slots" id="wslots-sylvanGrove">0 / 0</span>
-                </div>
-                <div class="worker-controls">
-                    <button class="wbtn wbtn-mm" onclick="setWorkersMin(this)" title="Unassign all">&#9664;&#9664;</button>
-                    <button class="wbtn" onclick="adjustWorkers('sylvanGrove', -1)">&#9664;</button>
-                    <input  class="winput" type="number" id="winput-sylvanGrove" value="0" min="0" oninput="setWorkers('sylvanGrove', this.value)">
-                    <button class="wbtn" onclick="adjustWorkers('sylvanGrove', 1)">&#9654;</button>
                     <button class="wbtn wbtn-mm" onclick="setWorkersMax(this)" title="Assign max">&#9654;&#9654;</button>
                 </div>
             </div>

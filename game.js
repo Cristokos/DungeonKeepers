@@ -4,7 +4,7 @@ const DAYS_PER_SEASON = 30;
 const GROWTH_TICKS   = 20;
 const STARVE_TICKS   = 5;
 const MORALE_BASE    = 90;
-const MORALE_DRIFT_RATE = 2; // max points morale moves toward target per day
+const MORALE_DRIFT_RATE = 0.1; // max points morale moves toward target per day
 
 const BASE_CAPS = {
     // Tier 1 — Raw
@@ -1658,14 +1658,16 @@ function initResearchTooltips() {
 }
 
 function switchResearchTab(tab) {
-    document.querySelectorAll('.research-sub-tab-btn').forEach(b => {
-        b.classList.toggle('active', b.dataset.tab === tab);
-    });
     const available = document.getElementById('research-panel-available');
     const completed = document.getElementById('research-panel-completed');
     if (available) available.style.display = tab === 'available' ? '' : 'none';
     if (completed) completed.style.display = tab === 'completed' ? '' : 'none';
     if (tab === 'completed') renderCompletedResearch();
+    // Sync secondary bar button state
+    const activeSubId = tab === 'available' ? 'research-available' : 'research-completed';
+    document.querySelectorAll('.sub-tab-btn[data-group="research"]').forEach(b => {
+        b.classList.toggle('active', b.dataset.tab === activeSubId);
+    });
 }
 
 function renderCompletedResearch() {
@@ -5334,27 +5336,34 @@ function era1CreateDiscoveryNode(slot, unlocked, revealed, offeredNames, prestig
 
 function updateEraTabVisibility() {
     const era = gameState.run.era || 1;
-    const era1Tabs = ['awakening'];
-    const era2Tabs = ['build', 'research', 'workers'];
 
-    // Show/hide tab buttons
-    for (const id of era1Tabs) {
+    // Top-bar buttons
+    const era1TopTabs = ['awakening'];
+    const era2TopTabs = ['village', 'research'];
+    for (const id of era1TopTabs) {
         const btn = document.querySelector(`.tab-btn[data-tab="${id}"]`);
         if (btn) btn.style.display = era === 1 ? '' : 'none';
     }
-    for (const id of era2Tabs) {
+    for (const id of era2TopTabs) {
         const btn = document.querySelector(`.tab-btn[data-tab="${id}"]`);
         if (btn) btn.style.display = era === 1 ? 'none' : '';
     }
 
-    // Trade tab: visible in Era 2 once at least one Market Stall is built
-    const tradeBtn = document.querySelector('.tab-btn[data-tab="trade"]');
+    // Village sub-tab buttons: build and workers always visible in Era 2
+    const villageSubs = ['build', 'workers'];
+    for (const id of villageSubs) {
+        const btn = document.querySelector(`.sub-tab-btn[data-tab="${id}"]`);
+        if (btn) btn.style.display = era === 1 ? 'none' : '';
+    }
+
+    // Trade sub-tab: visible in Era 2 once at least one Market Stall is built
+    const tradeBtn = document.querySelector('.sub-tab-btn[data-tab="trade"]');
     if (tradeBtn) {
         const showTrade = era >= 2 && (gameState.buildings.marketStall > 0);
         tradeBtn.style.display = showTrade ? '' : 'none';
     }
 
-    // Religion tab: visible in Era 2 once shrineUnlock research is complete
+    // Religion top-tab: visible in Era 2 once shrineUnlock research is complete
     const religionBtn = document.querySelector('.tab-btn[data-tab="religion"]');
     if (religionBtn) {
         const showReligion = era >= 2 && !!(gameState.research && gameState.research.shrineUnlock);
@@ -5375,15 +5384,19 @@ function updateEraTabVisibility() {
 
     // Active tab switching
     if (era !== 1) {
-        // Entering Era 2 — switch away from awakening tab
+        // Entering Era 2 — switch away from awakening tab if it's showing
         const awakTab = document.getElementById('tab-awakening');
         if (awakTab && awakTab.style.display !== 'none') {
-            switchTab('build');
+            switchTab('village');
         }
     } else {
         // In Era 1 — switch away from any Era 2 tab
-        const activeTab = document.querySelector('.tab-btn.active');
-        if (!activeTab || [...era2Tabs, 'trade'].includes(activeTab.dataset.tab)) {
+        const activeTopBtn = document.querySelector('.tab-btn:not(.sub-tab-btn).active');
+        const activeSubBtn = document.querySelector('.sub-tab-btn.active');
+        const activeId = activeTopBtn ? activeTopBtn.dataset.tab : null;
+        const activeSubId = activeSubBtn ? activeSubBtn.dataset.tab : null;
+        const era2Ids = ['village', 'research', 'build', 'workers', 'trade'];
+        if (!activeId || era2Ids.includes(activeId) || era2Ids.includes(activeSubId)) {
             switchTab('awakening');
         }
     }
@@ -7053,16 +7066,74 @@ function renderReligionTab() {
 
 // ── Tabs ──────────────────────────────────────────────────────────────────────
 
+// Top-level tabs that delegate to a sub-bar group instead of showing their own content
+const TAB_GROUPS = {
+    village:  { group: 'village',  default: 'build' },
+    research: { group: 'research', default: 'research-available' },
+};
+
 function switchTab(tabId) {
+    const secondaryBar = document.getElementById('tab-bar-secondary');
+
+    // Hide all sub-tab groups first
+    document.querySelectorAll('.sub-tab-btn').forEach(b => b.style.display = 'none');
+
+    if (TAB_GROUPS[tabId]) {
+        // Parent tab: show secondary bar with the right group, delegate to default sub-tab
+        document.querySelectorAll(".tab-content").forEach(el => { el.style.display = "none"; });
+        document.querySelectorAll(".tab-btn:not(.sub-tab-btn)").forEach(btn => btn.classList.remove("active"));
+        document.querySelectorAll(".sub-tab-btn").forEach(btn => btn.classList.remove("active"));
+
+        const group = TAB_GROUPS[tabId].group;
+        document.querySelectorAll(`.sub-tab-btn[data-group="${group}"]`).forEach(b => b.style.display = '');
+
+        if (secondaryBar) secondaryBar.style.display = '';
+
+        const parentBtn = document.querySelector(`.tab-btn[data-tab="${tabId}"]`);
+        if (parentBtn) parentBtn.classList.add("active");
+
+        switchSubTab(TAB_GROUPS[tabId].default);
+    } else {
+        // Regular tab: hide secondary bar, show content directly
+        if (secondaryBar) secondaryBar.style.display = 'none';
+
+        document.querySelectorAll(".tab-content").forEach(el => { el.style.display = "none"; });
+        document.querySelectorAll(".tab-btn").forEach(btn => btn.classList.remove("active"));
+
+        const content = document.getElementById("tab-" + tabId);
+        if (content) content.style.display = "block";
+        const btn = document.querySelector(`.tab-btn[data-tab="${tabId}"]`);
+        if (btn) btn.classList.add("active");
+
+        if (tabId === "settings") updateSettingsUI();
+        if (tabId === "religion") renderReligionTab();
+    }
+}
+
+function switchSubTab(subTabId) {
+    // Resolve research sub-tab aliases to actual content ids
+    const contentId = subTabId === 'research-available' ? 'research'
+                    : subTabId === 'research-completed'  ? 'research'
+                    : subTabId;
+
     document.querySelectorAll(".tab-content").forEach(el => { el.style.display = "none"; });
-    document.querySelectorAll(".tab-btn").forEach(btn => { btn.classList.remove("active"); });
-    const content = document.getElementById("tab-" + tabId);
-    if (content) content.style.display = "block";
-    const btn = document.querySelector(`.tab-btn[data-tab="${tabId}"]`);
+
+    // Show main research panel for both research sub-tabs
+    if (subTabId === 'research-available' || subTabId === 'research-completed') {
+        const researchContent = document.getElementById('tab-research');
+        if (researchContent) researchContent.style.display = 'block';
+        const researchTab = subTabId === 'research-available' ? 'available' : 'completed';
+        switchResearchTab(researchTab);
+    } else {
+        const content = document.getElementById("tab-" + contentId);
+        if (content) content.style.display = "block";
+    }
+
+    document.querySelectorAll(".sub-tab-btn").forEach(btn => btn.classList.remove("active"));
+    const btn = document.querySelector(`.sub-tab-btn[data-tab="${subTabId}"]`);
     if (btn) btn.classList.add("active");
-    if (tabId === "settings") updateSettingsUI();
-    if (tabId === "trade") renderTradeTab();
-    if (tabId === "religion") renderReligionTab();
+
+    if (subTabId === "trade") renderTradeTab();
 }
 
 // ── Bootstrap ─────────────────────────────────────────────────────────────────

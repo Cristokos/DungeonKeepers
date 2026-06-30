@@ -1671,6 +1671,18 @@ kbd {
     background: rgba(243, 156, 18, 0.10);
 }
 
+.tab-bar-secondary {
+    background: color-mix(in srgb, var(--bg-panel) 60%, var(--bg) 40%);
+    border-top: 1px solid color-mix(in srgb, var(--border) 50%, transparent 50%);
+    padding: 5px 12px;
+}
+
+.sub-tab-btn {
+    height: 30px;
+    padding: 0 14px;
+    font-size: 12px;
+}
+
 /* Each tab body scrolls independently */
 .tab-body {
     flex: 1;
