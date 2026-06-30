@@ -113,8 +113,8 @@ const ROOMS = {
     house: {
         name: "House",
         housingBonus: 10,
-        cost: { wood: 40, stone: 20, iron: 10 },
-        costScale: 1.18,
+        cost: { wood: 280, stone: 140, iron: 80 },
+        costScale: 1.22,
         requiresResearch: ["houseDesign"],
     },
     apartment: {

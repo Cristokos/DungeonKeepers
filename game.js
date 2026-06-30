@@ -826,6 +826,14 @@ function getResourceBreakdown(res) {
         lines.push({ label: def.name, sub, value: -rate, drain: true });
     }
 
+    // Potions: Herbalist's Den upkeep (Herbal Husbandry research)
+    if (res === 'potions' && gameState.research && gameState.research.herbalHusbandry) {
+        const denCount = gameState.buildings.herbalistDen || 0;
+        if (denCount > 0) {
+            lines.push({ label: "Herbalist's Den", sub: `×${denCount}`, value: -(denCount * 0.05), drain: true });
+        }
+    }
+
     // Food: population consumption
     if (res === 'food' && gameState.population.count > 0) {
         const mult = getResearchBonus('foodConsumption');
@@ -1231,6 +1239,9 @@ function _buildBldTooltipHTML(id, def) {
                 html += `<div class="bld-tt-effect">Produces ${rate} ${rname}</div>`;
             }
         }
+        if (id === 'herbalistDen' && gameState.research && gameState.research.herbalHusbandry) {
+            html += `<div class="bld-tt-consume">Consumes ${_fmtRate(0.05 * TICKS_PER_DAY)} Potions</div>`;
+        }
         if (def.converts) {
             const outRes  = def.converts.output;
             const outName = (RESOURCES[outRes] && RESOURCES[outRes].name) || outRes;
@@ -1429,6 +1440,7 @@ function _researchEffectLines(effects) {
     if (effects.allGatherBonus)     lines.push(`+${effects.allGatherBonus} to all gathering`);
     if (effects.allProductionBonus) lines.push(`+${Math.round(effects.allProductionBonus * 100)}% all production`);
     if (effects.foodConsumption)    lines.push(`${Math.round((1 - effects.foodConsumption) * 100)}% less food consumption`);
+    if (effects.growthBonus)        lines.push(`${Math.round((1 - effects.growthBonus) * 100)}% faster population growth`);
     if (effects.gatherBonus) {
         for (const [res, amt] of Object.entries(effects.gatherBonus)) {
             const n = (RESOURCES[res] && RESOURCES[res].name) || (res.charAt(0).toUpperCase() + res.slice(1));
@@ -1961,6 +1973,15 @@ function runOneTick() {
         gameState.resources[outRes] = (gameState.resources[outRes] || 0) + outAmt;
     }
 
+    // 1c. Herbalist's Den potion upkeep (Herbal Husbandry research)
+    if (gameState.research && gameState.research.herbalHusbandry) {
+        const denCount = gameState.buildings.herbalistDen || 0;
+        if (denCount > 0) {
+            const potionsNeeded = denCount * 0.05;
+            gameState.resources.potions = Math.max(0, (gameState.resources.potions || 0) - potionsNeeded);
+        }
+    }
+
     // 2. Food consumption (rationing research reduces consumption by 20%)
     const foodConsumptionMult = getResearchBonus('foodConsumption'); // 1.0 normally, 0.80 with rationing
     const foodNeeded = Math.ceil(pop.count * foodConsumptionMult);
@@ -1983,8 +2004,9 @@ function runOneTick() {
     const housing    = getHousing();
     const foodBuffer = pop.count * 3 + 5;
     const raceDataG  = RACE_DATA[gameState.run && gameState.run.race];
-    const growthMult = (raceDataG && raceDataG.effects && raceDataG.effects.growthBonus) || 1;
-    const growthThreshold = Math.max(3, Math.round(GROWTH_TICKS * growthMult));
+    const raceGrowthMult = (raceDataG && raceDataG.effects && raceDataG.effects.growthBonus) || 1;
+    const researchGrowthMult = gameState.research && gameState.research.herbalHusbandry ? 0.97 : 1;
+    const growthThreshold = Math.max(3, Math.round(GROWTH_TICKS * raceGrowthMult * researchGrowthMult));
     if (pop.count < housing && gameState.resources.food >= foodBuffer) {
         pop.growthTimer = (pop.growthTimer || 0) + 1;
         if (pop.growthTimer >= growthThreshold) {
@@ -2626,7 +2648,7 @@ const ERA_2_RESEARCH = [
     "guildCharter", "mintStandard", "arcaneTapping", "arcaneInscription", "loreKeeping", "ironLockbox",
     "greenwardenLore", "trackerSign", "annotatedTexts",
     // 2.5
-    "bonecraft", "boneTools", "hearthStones", "rationing", "phosphorLamps",
+    "bonecraft", "boneTools", "hearthStones", "rationing", "phosphorLamps", "herbalHusbandry",
     "alchemicalFertilizer", "dedicatedTanners", "crystalPolishing", "tradeGoods",
     "runicScript", "essenceHarvest", "ichorRefinement", "manaConductorCoils",
     "mithrilTemper", "ritualPrep", "darkTexts", "silkenWarren", "manaConduit", "goldOnly", "infernalLore",

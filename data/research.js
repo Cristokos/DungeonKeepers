@@ -481,6 +481,16 @@ RESEARCH.hearthStones = {
     effects: { productionBonus: { farm: 1.08 } },
 };
 
+// Standalone: Herbal Husbandry
+RESEARCH.herbalHusbandry = {
+    tier: "2.5",
+    name: "Herbal Husbandry",
+    desc: "Tonics brewed from surplus potions ease childbirth and speed recovery. Population grows 3% faster, but each Herbalist's Den now draws a small supply of potions to keep the tonics flowing.",
+    cost: { herbs: 260, potions: 60 },
+    requiresResearch: ["refinedAlchemy"],
+    effects: { growthBonus: 0.97, flag: "herbalHusbandry" },
+};
+
 // Standalone: Bone-Handled Tools
 RESEARCH.boneTools = {
     tier: "2.5",
@@ -1005,10 +1015,10 @@ RESEARCH.runicCalibration = {
 RESEARCH.eliteCompany = {
     tier: "2.9",
     name: "Elite Company",
-    desc: "A veteran elite company in mithril-reinforced gear. Each Armory houses +8 more creatures and the settlement's overall production rises 3%.",
+    desc: "A veteran elite company in mithril-reinforced gear. The settlement's overall production rises 3%.",
     cost: { lore: 1940 },
     requiresResearch: ["shieldGuard", "mithrilTemper"],
-    effects: { housingBonus: { armory: 8 }, allProductionBonus: 0.03 },
+    effects: { allProductionBonus: 0.03 },
 };
 
 // Chain I — Runes of the Deep (step 3)
