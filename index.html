@@ -401,6 +401,9 @@
 
     </div>
 
+    <!-- Roll dice button -->
+    <button class="splash-roll-btn" onclick="splashRollDice()" title="Roll the dice" data-no-roll>&#9670; Roll</button>
+
     <!-- Chrome extension toast -->
     <div id="splash-ext-toast" class="splash-ext-toast" style="display:none">
         <div class="splash-ext-toast-inner">
@@ -2804,6 +2807,10 @@
 
         function stopD20() {
             if (d20bg) { d20bg.destroy(); d20bg = null; }
+        }
+
+        function splashRollDice() {
+            if (d20bg) d20bg.roll();
         }
 
         // ── Keyboard shortcuts ────────────────────────────────────────────────
