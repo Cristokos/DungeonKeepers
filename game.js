@@ -788,6 +788,19 @@ function getResourceBreakdown(res) {
         const rate = def.production[res] * n * bldgMult * allBonus;
         const sub = (def.jobs ? `${Math.round(n)}w` : `×${count}`) + (paused > 0 ? ` · ${paused} paused` : '');
         lines.push({ label: def.name, sub, value: rate, drain: false });
+
+        // Surface stacking productionBonus buildings (e.g. Focused Meditation) as their own line
+        for (const [bonusId, bonusDef] of Object.entries(ROOMS)) {
+            if (!bonusDef.productionBonus || !bonusDef.productionBonus[id]) continue;
+            const bonusCount = gameState.buildings[bonusId] || 0;
+            if (bonusCount === 0) continue;
+            const perUnit = bonusDef.productionBonus[id];
+            const totalMult = Math.pow(perUnit, bonusCount);
+            const bonusRate = rate - rate / totalMult;
+            if (bonusRate === 0) continue;
+            const pctEach = ((perUnit - 1) * 100).toFixed(0);
+            lines.push({ label: bonusDef.name, sub: `+${pctEach}% × ${bonusCount}`, value: bonusRate, drain: false, isBonus: true });
+        }
     }
 
     // Converter outputs (this resource is produced by a converter)

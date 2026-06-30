@@ -30,32 +30,71 @@
         <section id="wiki-intro" class="wiki-section">
             <h2>Dungeon Keeper</h2>
             <p class="wiki-lead">
-                You are a will without a body — a dungeon consciousness newly awakened in the Material Plane. 
+                You are a will without a body — a dungeon consciousness newly awakened in the Material Plane.
                 No hands to build. No voice to command. Not yet able to manifest a physical form.
-                To reclaim your power and forge a physical form, you need help.
+                To establish your power and forge a physical form, you need help.
             </p>
             <p class="wiki-lead">
-                Drawn by an instinct to your presence, feeling a synergy to your projected affinity, a group of creatures has gathered nearby.
+                Drawn by an instinct or magic to your presence, feeling a synergy to your projected affinity, a group of creatures has gathered nearby.
                 They don't know what you are — only that something <em>called</em>, and they answered.
                 Grow your power, guide them, and build through them. Once they are settled into a thriving community,
                 they may be able to help you. They can eventually give you the body you need to truly rule.
             </p>
             <p class="wiki-lead">
                 Dungeon Keeper is an incremental dungeon-management game based on the classic Dungeons & Dragons setting.
-                Every run is different, so you'll need to adapt your strategy each time. Settle a new race, gather resources, grow your population, 
-                raise buildings, research upgrades, and prestige to carry bonuses into future runs and unlock new content.
+                Every run is different, so you'll need to adapt your strategy each time. Settle a new race, gather resources,
+                grow your population, raise buildings, research upgrades, and prestige to carry bonuses into future runs
+                and unlock new content. You won't see all content each run, but each time you prestige you will carry
+                permanent bonuses into future runs — helping you progress further, see more content, and achieve greater
+                success. Achievements will be unlocked as you progress, providing additional rewards, races, and other
+                bonuses.
+            </p>
 
-                You won't see all content each run, but each time you prestige you will carry permanent bonuses into future runs.
-                These should help you progress further in each new run, seeing more content and achieving greater success.
-                Achievements will be unlocked as you progress, providing additional rewards, races, and other bonuses.
-            </p>
-            <h3 class="creature-category">Sections</h3>
-            <p class="wiki-lead">
-                <b>Gameplay</b> — the core loop and what each part of the interface does.<br>
-                <b>Biomes</b> — every starting biome, the creature-suitability scale, and the full modifier glossary.<br>
-                <b>Creatures</b> — the complete bestiary, grouped by creature type.<br>
-                <b>Changelog</b> — recent version history.
-            </p>
+            <h3 class="wiki-subheading">Sections</h3>
+            <div class="wiki-intro-grid">
+                <a class="wiki-intro-card" onclick="showWiki('gameplay')">
+                    <div class="wiki-intro-icon">&#9876;</div>
+                    <div>
+                        <div class="wiki-intro-card-title">Gameplay</div>
+                        <p class="biome-desc">The core loop, game phases, resources, and what each part of the interface does.</p>
+                    </div>
+                </a>
+                <a class="wiki-intro-card" onclick="showWiki('biomes')">
+                    <div class="wiki-intro-icon">&#127794;</div>
+                    <div>
+                        <div class="wiki-intro-card-title">Biomes</div>
+                        <p class="biome-desc">Every starting biome, the creature-suitability scale, and the full modifier glossary.</p>
+                    </div>
+                </a>
+                <a class="wiki-intro-card" onclick="showWiki('creatures')">
+                    <div class="wiki-intro-icon">&#128058;</div>
+                    <div>
+                        <div class="wiki-intro-card-title">Creatures</div>
+                        <p class="biome-desc">The complete bestiary, grouped by creature type, plus the full creature tree.</p>
+                    </div>
+                </a>
+                <a class="wiki-intro-card" onclick="showWiki('research')">
+                    <div class="wiki-intro-icon">&#128218;</div>
+                    <div>
+                        <div class="wiki-intro-card-title">Research</div>
+                        <p class="biome-desc">Every research tier and entry, organized by era and unlock chain.</p>
+                    </div>
+                </a>
+                <a class="wiki-intro-card" onclick="showWiki('extension')">
+                    <div class="wiki-intro-icon">&#9670;</div>
+                    <div>
+                        <div class="wiki-intro-card-title">Extension</div>
+                        <p class="biome-desc">Install the Idle Save Manager companion extension to sync saves across machines.</p>
+                    </div>
+                </a>
+                <a class="wiki-intro-card" onclick="showWiki('changelog')">
+                    <div class="wiki-intro-icon">&#128220;</div>
+                    <div>
+                        <div class="wiki-intro-card-title">Changelog</div>
+                        <p class="biome-desc">Recent version history.</p>
+                    </div>
+                </a>
+            </div>
         </section>
 
         <!-- GAMEPLAY -->
@@ -94,62 +133,75 @@
             <table class="wiki-table">
                 <thead><tr><th>Resource</th><th>Base Cap</th><th>Sources</th></tr></thead>
                 <tbody>
-                    <tr><td>Food</td><td>100</td><td>Manual: Scavenge Food · Farm (passive)</td></tr>
-                    <tr><td>Wood</td><td>100</td><td>Manual: Fell a Tree · Lumber Camp (passive)</td></tr>
-                    <tr><td>Stone</td><td>100</td><td>Manual: Break Stones · Quarry (passive)</td></tr>
-                    <tr><td>Ore</td><td>150</td><td>Mine (passive, req. 3 Quarry)</td></tr>
-                    <tr><td>Herbs</td><td>100</td><td>Herbalist's Den (passive, req. 3 Farm)</td></tr>
-                    <tr><td>Crystals</td><td>75</td><td>Crystal Seam (passive, req. 3 Mine)</td></tr>
-                    <tr><td>Coal</td><td>150</td><td>Coal Seam (req. 2 Mine)</td></tr>
-                    <tr><td>Clay</td><td>120</td><td>Clay Pit (req. 2 Quarry)</td></tr>
-                    <tr><td>Bones</td><td>100</td><td>Hunting Lodge (req. 3 Hovels)</td></tr>
-                    <tr><td>Sulphur</td><td>80</td><td>Sulphur Vent (req. 3 Mine + 1 Smelter)</td></tr>
+                    <tr><td>Food</td><td>100</td><td>Manual: Scavenge Food · Farm 2/worker/tick</td></tr>
+                    <tr><td>Wood</td><td>100</td><td>Manual: Fell a Tree · Lumber Camp 0.8/worker/tick</td></tr>
+                    <tr><td>Stone</td><td>100</td><td>Manual: Break Stones · Quarry 0.8/worker/tick</td></tr>
+                    <tr><td>Ore</td><td>150</td><td>Mine 0.6/worker/tick (req. 3 Quarry)</td></tr>
+                    <tr><td>Herbs</td><td>100</td><td>Herbalist's Den 0.5/worker/tick (req. 3 Farm)</td></tr>
+                    <tr><td>Crystals</td><td>75</td><td>Crystal Seam, passive (Deep Mining research) · Mage Tower 0.3/tick (req. 1 Smelter)</td></tr>
+                    <tr><td>Coal</td><td>150</td><td>Coal Seam, passive (req. 2 Mine)</td></tr>
+                    <tr><td>Clay</td><td>120</td><td>Clay Pit, passive (req. 2 Quarry)</td></tr>
+                    <tr><td>Bones</td><td>100</td><td>Hunting Lodge 0.4/worker/tick, also produces 0.5 Food (req. 3 Hovels)</td></tr>
+                    <tr><td>Sulphur</td><td>80</td><td>Sulphur Vent, passive (req. 3 Mine + 1 Smelter)</td></tr>
                 </tbody>
             </table>
 
             <h4 style="color:var(--label);margin:14px 0 6px">Tier 2 — Crafted</h4>
             <p class="wiki-lead">Produced by converter buildings. Converters consume Tier 1 inputs each tick proportional to assigned workers. If inputs run short, output drops proportionally.</p>
             <table class="wiki-table">
-                <thead><tr><th>Resource</th><th>Base Cap</th><th>Converter</th><th>Inputs</th></tr></thead>
+                <thead><tr><th>Resource</th><th>Base Cap</th><th>Converter</th><th>Ratio (per worker/tick)</th></tr></thead>
                 <tbody>
-                    <tr><td>Iron</td><td>150</td><td>Smelter</td><td>1 Ore → 0.5 Iron/worker/tick</td></tr>
-                    <tr><td>Potions</td><td>75</td><td>Alchemy Lab</td><td>0.8 Herbs → 0.3 Potions/w/t</td></tr>
-                    <tr><td>Arcane Dust</td><td>75</td><td>Arcane Grinder</td><td>0.5 Crystals → 0.3 Arcane Dust/w/t</td></tr>
-                    <tr><td>Steel</td><td>100</td><td>Forge</td><td>1 Iron + 0.5 Coal → 0.4 Steel/w/t</td></tr>
-                    <tr><td>Bricks</td><td>120</td><td>Kiln</td><td>1 Clay + 0.5 Stone → 0.6 Bricks/w/t</td></tr>
-                    <tr><td>Cloth</td><td>100</td><td>Loom</td><td>0.6 Herbs → 0.4 Cloth/w/t</td></tr>
-                    <tr><td>Runes</td><td>60</td><td>Arcane Bench</td><td>0.5 Crystals + 0.3 Arcane Dust → 0.2 Runes/w/t</td></tr>
+                    <tr><td>Iron</td><td>150</td><td>Smelter</td><td>1 Ore → 0.5 Iron</td></tr>
+                    <tr><td>Potions</td><td>75</td><td>Alchemy Lab</td><td>0.8 Herbs → 0.3 Potions</td></tr>
+                    <tr><td>Arcane Dust</td><td>75</td><td>Arcane Grinder</td><td>0.5 Crystals → 0.3 Arcane Dust</td></tr>
+                    <tr><td>Steel</td><td>100</td><td>Forge</td><td>1 Iron + 0.5 Coal → 0.4 Steel</td></tr>
+                    <tr><td>Bricks</td><td>120</td><td>Kiln</td><td>1 Clay + 0.5 Stone → 0.6 Bricks</td></tr>
+                    <tr><td>Cloth</td><td>100</td><td>Loom</td><td>0.6 Herbs → 0.4 Cloth</td></tr>
+                    <tr><td>Runes</td><td>60</td><td>Arcane Bench</td><td>0.5 Crystals + 0.3 Arcane Dust → 0.2 Runes</td></tr>
                 </tbody>
             </table>
 
             <h4 style="color:var(--label);margin:14px 0 6px">Tier 3 — Magical &amp; Rare</h4>
             <table class="wiki-table">
-                <thead><tr><th>Resource</th><th>Base Cap</th><th>Converter</th><th>Inputs</th></tr></thead>
+                <thead><tr><th>Resource</th><th>Base Cap</th><th>Converter</th><th>Ratio (per worker/tick)</th></tr></thead>
                 <tbody>
-                    <tr><td>Essence</td><td>50</td><td>Ritual Circle</td><td>0.3 Arcane Dust → 0.05 Essence/w/t</td></tr>
-                    <tr><td>Silk</td><td>40</td><td>Spider Nest</td><td>0.5 Bones + 0.5 Food → 0.1 Silk/w/t</td></tr>
-                    <tr><td>Mana Gold</td><td>40</td><td>Arcane Crucible</td><td>1 Iron + 0.5 Arcane Dust → 0.1 Mana Gold/w/t</td></tr>
-                    <tr><td>Ichor</td><td>30</td><td>Dark Altar</td><td>1 Bones + 0.1 Essence → 0.05 Ichor/w/t</td></tr>
-                    <tr><td>Mithril</td><td>20</td><td>Mithril Forge</td><td>1 Steel + 0.5 Crystals → 0.02 Mithril/w/t</td></tr>
+                    <tr><td>Arcane Essence</td><td>50</td><td>Ritual Circle</td><td>0.3 Arcane Dust → 0.05 Arcane Essence</td></tr>
+                    <tr><td>Silk</td><td>40</td><td>Spider Nest</td><td>0.5 Bones + 0.5 Food → 0.1 Silk</td></tr>
+                    <tr><td>Mana Gold</td><td>40</td><td>Arcane Crucible</td><td>1 Iron + 0.5 Arcane Dust → 0.1 Mana Gold</td></tr>
+                    <tr><td>Ichor</td><td>30</td><td>Dark Altar</td><td>1 Bones + 0.1 Arcane Essence → 0.05 Ichor</td></tr>
+                    <tr><td>Mithril</td><td>20</td><td>Mithril Forge</td><td>1 Steel + 0.5 Crystals → 0.02 Mithril</td></tr>
                 </tbody>
             </table>
 
+            <p class="wiki-lead" style="margin-top:8px">
+                <b>Lore</b> is a separate knowledge resource produced by the Scriptorium (1/worker/tick, unlocked via the
+                <b>Lore Keeping</b> research). It has no base cap on its own — each Scriptorium raises the cap by 50.
+            </p>
+
             <h3 class="creature-category">Coins</h3>
             <p class="wiki-lead">
-                Coins are a parallel currency tracked in the classic Dungeons and Dragons style,
+                Coins are a parallel currency tracked in the classic Dungeons &amp; Dragons style,
                 measured in copper pieces (cp), displayed as gold, silver,
                 and copper (100 cp = 1 sp, 10 sp = 1 gp), capped at 1,000 coins to start. Storage buildings have
-                no effect on coins, but other buildings might. Passive coin income requires the <b>Taxation</b> research, after
-                which your dungeon earns coins per day based on your current population, their jobs, and other factors. Many mid-to-late
-                buildings cost coins in addition to materials.
+                no effect on coins, but other buildings might. Many mid-to-late buildings cost coins in addition
+                to materials, and some are coin-free below a small building count (e.g. the first few Smelters).
+            </p>
+            <p class="wiki-lead">
+                Two research-gated systems generate coins passively. <b>Taxation</b> unlocks the <b>Market Stall</b>,
+                which assigns a Merchant to generate coins per game day from commerce and opens your settlement's
+                trade network. <b>Trade Goods</b> unlocks the <b>Trade Cart</b>, which adds trade route slots — each
+                active route automatically buys or sells a resource at a per-unit rate every game day, letting you
+                convert a surplus into coins or buy your way past a bottleneck.
             </p>
 
             <h3 class="creature-category">Population &amp; Jobs</h3>
             <p class="wiki-lead">
-                Your creature count grows toward a cap set by your housing. Hovels (or other thematically named buildings) and other unlockable housings each
-                contribute to that cap. Population in general needs food — a sustained deficit causes starvation which can kill your population.
-                Creatures often need to fill <b>job slots</b> at production buildings in order for them to function; the Population panel shows
-                employed creatures out of total available slots. All population starts as peseants for their defualt job. 
+                Your creature count grows toward a cap set by your housing. Hovels and other unlockable housing
+                (House, Apartment, Armory) each contribute to that cap. Population in general needs food — a
+                sustained deficit causes starvation, which can kill your population. Creatures fill <b>job slots</b>
+                at production and converter buildings to make them function; the Population panel shows employed
+                creatures out of total available slots. Any creature not currently assigned to a job counts as a
+                <b>Peasant</b> — useful as a buffer of idle labor you can redirect the moment a new job slot opens up.
             </p>
 
             <h3 class="creature-category">Build Tab</h3>
@@ -158,22 +210,25 @@
                 <b>Fell a Tree</b>, and <b>Break Stones</b> — alongside all constructable buildings.
                 Hovels add housing. Storage raises every material cap. Production buildings create job
                 slots that turn idle creatures into steady resource income. New building types unlock
-                automatically once prerequisite counts are met.
+                automatically once prerequisite counts (or specific research) are met. Hover a building's
+                card to reveal a per-unit pause stepper, letting you idle individual units (e.g. 3 of 10
+                Smelters) instead of pausing the whole building — useful for rebalancing input/output ratios
+                without demolishing anything.
             </p>
 
             <h3 class="creature-category">Research Tab</h3>
             <p class="wiki-lead">
                 The <b>Research</b> tab unlocks technologies that improve your race's output,
                 population ceiling, and late-game capabilities. Technologies are organized by tier;
-                earlier unlocks gate access to more powerful options deeper in the tree.
+                earlier unlocks gate access to more powerful options deeper in the tree. Research is paid
+                for with Lore, produced by the Scriptorium once unlocked.
             </p>
 
             <h3 class="creature-category">Biome &amp; Race</h3>
             <p class="wiki-lead">
-                Every run begins with a choice of what race to play as: these are the creatures that will populate your dungeon.                
+                Every run begins with a choice of what race to play as: these are the creatures that will populate your dungeon.
                 Not every race is equally suited to every biome. The <b>biome</b> is where you manifested in the Material Plane (which sets starting resources and
                 persistent modifiers) and is randomly selected at game start. Later runs will eventually allow a method (prestige option) to choose your own biome!
-
                 The combination of biome and race shapes production efficiency, growth rates, and the flavour of your run.
                 See the <b>Biomes</b> and <b>Creatures</b> pages for the full reference.
             </p>
@@ -181,8 +236,33 @@
             <h3 class="creature-category">Prestige</h3>
             <p class="wiki-lead">
                 When a run ends you can <b>prestige</b> — resetting your dungeon in exchange for lasting
-                bonuses that persist into future runs. Prestige count and currencyis tracked globally across all runs.
+                bonuses that persist into future runs. Prestige count and currency are tracked globally across all runs.
             </p>
+
+            <h3 class="creature-category">Pause &amp; Accelerated Time</h3>
+            <p class="wiki-lead">
+                The pause button in the header stops the simulation entirely — production, population growth,
+                and research all freeze. Time spent paused is banked (up to 8 hours) as <b>Accelerated Time</b>;
+                once you resume, the game automatically runs at double speed until the bank is drained, letting
+                you catch up on the time you spent away without losing any progress.
+            </p>
+
+            <h3 class="creature-category">General Hints</h3>
+            <ul class="wiki-list">
+                <li>Build a couple of Storage buildings early — every material cap rises together, so it's
+                    cheaper to avoid wasted overflow than to recover from it later.</li>
+                <li>Watch your input chains before scaling a converter up: a Forge needs both Iron and Coal
+                    flowing in, so an idle Coal Seam will quietly cap your Steel output even with plenty of workers
+                    assigned.</li>
+                <li>Keep a buffer of unassigned Peasants rather than filling every job slot — new buildings and
+                    unlocks need workers immediately, and growing population takes time.</li>
+                <li>Check biome suitability before committing to a race-heavy build order — a Hostile pairing's
+                    −25% production penalty compounds across every tier of your chain.</li>
+                <li>Use the per-building pause stepper to idle a few units of an overproducing converter rather
+                    than the whole building — it keeps the job slots filled without wasting inputs.</li>
+                <li>Trade routes are most useful for offloading a resource you're capped on or buying your way
+                    past a stalled converter chain — check current rates before committing workers to a Merchant.</li>
+            </ul>
         </section>
 
         <!-- BIOMES (moved from the in-game Biome tab) -->
@@ -718,6 +798,13 @@
                     <div class="creature-mods"><span class="cmod cmod-pos">▲ Gnoll Pack Hunt — Hunting Lodges extra +15%; Bone cap +50.</span><span class="cmod cmod-neg">▼ Ravenous — Eats 20% more (stacks with Goblinoid base).</span></div>
                     <span class="creature-biome"><span class="biome-best">Badlands</span><span class="biome-hard">Arctic Glacier</span></span>
                 </div>
+                <div class="creature-entry">
+                    <span class="creature-tag tag-goblinoid">Goblinoid</span>
+                    <span class="creature-name">Barghest</span>
+                    <span class="creature-desc">A fiend-touched goblinoid wolf-beast who stalks and feeds on souls. Barghests grow more powerful with every creature they consume, boosting dungeon output as their hunger is sated.</span>
+                    <div class="creature-mods"><span class="cmod cmod-pos">▲ Soul-Fed Growth — Hunting Lodges extra +10%; extra +2% all production — the barghest's power grows with each kill.</span></div>
+                    <span class="creature-biome"><span class="biome-best">Abyssal Rift</span><span class="biome-hard">Celestial Foothold</span></span>
+                </div>
             </div>
 
             <!-- FEY -->
@@ -866,6 +953,13 @@
                     <div class="creature-mods"><span class="cmod cmod-pos">▲ Null Containment — Further 50% food reduction; Storage buildings hold 20 more per building.</span></div>
                     <span class="creature-biome"><span class="biome-best">Blighted Wastes</span><span class="biome-hard">Celestial Foothold</span></span>
                 </div>
+                <div class="creature-entry">
+                    <span class="creature-tag tag-ooze">Ooze</span>
+                    <span class="creature-name">Oblex</span>
+                    <span class="creature-desc">A cunning ooze that absorbs the memories of those it consumes, then disguises itself as its victims. Oblexes use stolen knowledge to streamline arcane and alchemical processes.</span>
+                    <div class="creature-mods"><span class="cmod cmod-pos">▲ Stolen Memories — Alchemy Labs and Arcane Grinders extra +10%; +1 cp/creature/day — the oblex impersonates your best workers.</span></div>
+                    <span class="creature-biome"><span class="biome-best">Deep Caverns</span><span class="biome-hard">Celestial Foothold</span></span>
+                </div>
             </div>
 
             <!-- ELEMENTALS -->
@@ -899,6 +993,20 @@
                     <div class="creature-mods"><span class="cmod cmod-pos">▲ Wind Courier — Extra +1 to all manual gather yields; slightly faster growth than base Elemental.</span></div>
                     <span class="creature-biome"><span class="biome-best">Mountain Stronghold</span><span class="biome-hard">Underdark Depths</span></span>
                 </div>
+                <div class="creature-entry">
+                    <span class="creature-tag tag-elemental">Elemental</span>
+                    <span class="creature-name">Magmin</span>
+                    <span class="creature-desc">Squat, manic creatures of living magma who can't help but set things on fire — including, helpfully, the fuel for your smelters and forges. Their chaotic enthusiasm somehow accelerates coal and metal production.</span>
+                    <div class="creature-mods"><span class="cmod cmod-pos">▲ Pyromaniac Glee — Coal Seams extra +15%; Smelters extra +10%.</span><span class="cmod cmod-neg">▼ Eats 15% more — burning things works up an appetite.</span></div>
+                    <span class="creature-biome"><span class="biome-best">Volcanic Caldera</span><span class="biome-hard">Frozen Tundra</span></span>
+                </div>
+                <div class="creature-entry">
+                    <span class="creature-tag tag-elemental">Elemental</span>
+                    <span class="creature-name">Galeb Duhr</span>
+                    <span class="creature-desc">Ancient boulder-beings who roll through the dungeon with deceptive patience. Galeb Duhr have a deep attunement to stone and can animate nearby rocks to assist in quarrying.</span>
+                    <div class="creature-mods"><span class="cmod cmod-pos">▲ Rolling Warden — Quarries extra +15%; +2 stone per manual gather; Stone cap +75.</span></div>
+                    <span class="creature-biome"><span class="biome-best">Mountain Stronghold</span><span class="biome-hard">Fetid Swamp</span></span>
+                </div>
             </div>
 
             <!-- MONSTROUS -->
@@ -931,13 +1039,6 @@
                     <span class="creature-desc">Regenerating brutes with an insatiable appetite and indestructible bodies. Trolls eat more but work without fatigue.</span>
                     <div class="creature-mods"><span class="cmod cmod-pos">▲ Regenerating Workforce — Extra +8% all production.</span><span class="cmod cmod-neg">▼ Insatiable — Eats 20% more (stacks with Monstrous base).</span></div>
                     <span class="creature-biome"><span class="biome-best">Fetid Swamp</span><span class="biome-hard">Desert Wastes</span></span>
-                </div>
-                <div class="creature-entry">
-                    <span class="creature-tag tag-monstrous">Monstrous</span>
-                    <span class="creature-name">Werewolf</span>
-                    <span class="creature-desc">Lycanthropic monstrosities who hunt and howl. Werewolves bridge the gap between Monstrous and Lycanthrope instincts.</span>
-                    <div class="creature-mods"><span class="cmod cmod-pos">▲ Full Moon Hunt — Hunting Lodges extra +15%; +1 to all gather yields.</span></div>
-                    <span class="creature-biome"><span class="biome-best">Verdant Forest</span><span class="biome-hard">Desert Wastes</span></span>
                 </div>
                 <div class="creature-entry">
                     <span class="creature-tag tag-monstrous">Monstrous</span>
@@ -1712,6 +1813,52 @@
             </div>
 
             <!-- PRIMORDIAL -->
+            <h3 class="creature-category">Sovereign</h3>
+            <div class="creature-list">
+                <div class="creature-entry">
+                    <span class="creature-tag tag-sovereign">Sovereign</span>
+                    <span class="creature-name">Wyrm</span>
+                    <span class="creature-desc">Older than most kingdoms and larger than some, a Wyrm is what a dragon becomes when it has outlived every reason to be reasonable. They do not hoard gold. They hoard time.</span>
+                    <div class="creature-mods"><span class="cmod cmod-pos">▲ Ancient Dominance — +1 to all manual gather yields, a Wyrm has learned where everything worth taking is buried.</span></div>
+                    <span class="creature-biome"><span class="biome-best">Mountain Stronghold</span><span class="biome-hard">Sunken Ruins</span></span>
+                </div>
+                <div class="creature-entry">
+                    <span class="creature-tag tag-sovereign">Sovereign</span>
+                    <span class="creature-name">Umbral Hunter</span>
+                    <span class="creature-desc">A predator that has made shadow into a hunting ground. The Umbral Hunter does not stalk through darkness — it is the reason darkness feels like it is watching you.</span>
+                    <div class="creature-mods"><span class="cmod cmod-pos">▲ Living Dark — Ritual Circles extra +20%; Arcane Grinders extra +15%; Arcane Essence cap +75.</span></div>
+                    <span class="creature-biome"><span class="biome-best">Shadowfell Crossing</span><span class="biome-hard">Celestial Foothold</span></span>
+                </div>
+                <div class="creature-entry">
+                    <span class="creature-tag tag-sovereign">Sovereign</span>
+                    <span class="creature-name">Storm Roc</span>
+                    <span class="creature-desc">A bird large enough that its wingspan generates its own weather. Storm Rocs do not migrate — they arrive, and the sky adjusts accordingly.</span>
+                    <div class="creature-mods"><span class="cmod cmod-pos">▲ Sky Sovereign — Extra +1 to all manual gather yields; Hunting Lodges extra +20%.</span></div>
+                    <span class="creature-biome"><span class="biome-best">Rolling Grasslands</span><span class="biome-hard">Underdark Depths</span></span>
+                </div>
+                <div class="creature-entry">
+                    <span class="creature-tag tag-sovereign">Sovereign</span>
+                    <span class="creature-name">Ironback</span>
+                    <span class="creature-desc">A creature so heavily armored by centuries of growth that it has become a landscape feature. Ironbacks move slowly and do not need to move quickly — nothing has survived making them feel rushed.</span>
+                    <div class="creature-mods"><span class="cmod cmod-pos">▲ Ancient Shell — Storage buildings hold 30 more; Clay Pits extra +20%; Food cap +200.</span></div>
+                    <span class="creature-biome"><span class="biome-best">Mountain Stronghold</span><span class="biome-hard">Feywild Glade</span></span>
+                </div>
+                <div class="creature-entry">
+                    <span class="creature-tag tag-sovereign">Sovereign</span>
+                    <span class="creature-name">Rift Drake</span>
+                    <span class="creature-desc">A drake that has fed on planar energy long enough that it no longer fully exists in one place. Rift Drakes phase in and out of the material world with the casual indifference of a creature that has stopped finding reality binding.</span>
+                    <div class="creature-mods"><span class="cmod cmod-pos">▲ Void-Touched — +1 to all manual gather yields; Arcane Grinders extra +20%; further 50% food reduction.</span></div>
+                    <span class="creature-biome"><span class="biome-best">Arcane Nexus</span><span class="biome-hard">Rolling Grasslands</span></span>
+                </div>
+                <div class="creature-entry">
+                    <span class="creature-tag tag-sovereign">Sovereign</span>
+                    <span class="creature-name">Ashborn</span>
+                    <span class="creature-desc">Not a phoenix — something that has burned so many times it has stopped bothering to fully come back. The Ashborn exists in a permanent state of smoldering, and everything near it knows it.</span>
+                    <div class="creature-mods"><span class="cmod cmod-pos">▲ Eternal Flame — Smelters and Forges extra +25%; Coal Seams extra +15%; nearly foodless, the flame sustains it.</span></div>
+                    <span class="creature-biome"><span class="biome-best">Volcanic Caldera</span><span class="biome-hard">Arctic Glacier</span></span>
+                </div>
+            </div>
+
             <h3 class="creature-category">Primordials</h3>
             <div class="creature-list">
                 <div class="creature-entry">
@@ -1784,6 +1931,27 @@
                     <span class="creature-desc">A powerful undead archmage who transcended death to pursue magical mastery. Liches push arcane infrastructure to impossible heights, eat nothing, and demand to be alone in their sanctum.</span>
                     <div class="creature-mods"><span class="cmod cmod-pos">▲ Phylactery Focus — Crystal Seams, Mage Towers, and Arcane Grinders extra +15%.</span><span class="cmod cmod-pos">▲ Undying Hunger — Does not eat — subsists on soul energy alone; only 1 fits per Hovel.</span></div>
                     <span class="creature-biome"><span class="biome-best">Arcane Nexus</span><span class="biome-hard">Celestial Foothold</span></span>
+                </div>
+                <div class="creature-entry">
+                    <span class="creature-tag tag-legendary">Legendary</span>
+                    <span class="creature-name">Sphinx</span>
+                    <span class="creature-desc">Ancient and enigmatic, a sphinx's riddling wisdom unlocks insights that improve all arcane processes.</span>
+                    <div class="creature-mods"><span class="cmod cmod-pos">▲ Riddling Wisdom — Arcane Grinders and Benches extra +15%; Crystal Seams extra +10%.</span></div>
+                    <span class="creature-biome"><span class="biome-best">Arcane Nexus</span><span class="biome-hard">Underdark Depths</span></span>
+                </div>
+                <div class="creature-entry">
+                    <span class="creature-tag tag-legendary">Legendary</span>
+                    <span class="creature-name">Tarrasque</span>
+                    <span class="creature-desc">The most feared creature in existence — an engine of annihilation that cannot be permanently slain. Its very presence drives all lesser creatures to work harder out of pure survival instinct.</span>
+                    <div class="creature-mods"><span class="cmod cmod-pos">▲ Primal Terror — Extra +2% all production and +2 to all gather yields — pure survival instinct.</span><span class="cmod cmod-neg">▼ World-Eater — Consumes 5× the food of a normal Monstrous creature; only 1 fits per Hovel.</span></div>
+                    <span class="creature-biome"><span class="biome-best">Volcanic Caldera</span><span class="biome-hard">Feywild Glade</span></span>
+                </div>
+                <div class="creature-entry">
+                    <span class="creature-tag tag-legendary">Legendary</span>
+                    <span class="creature-name">Kraken</span>
+                    <span class="creature-desc">The ancient terror of the deep ocean. A kraken's immense intelligence and dominion over water amplifies all aquatic and storage operations to impossible scales.</span>
+                    <div class="creature-mods"><span class="cmod cmod-pos">▲ Deep Dominion — Extra +2% all production; Storage buildings hold 30 more; Food cap +200; Coin cap +1,000 coins + 10% of tier base.</span><span class="cmod cmod-neg">▼ Titanic Appetite — Consumes 2.5× the food of a normal Aquatic creature; only 1 fits per Hovel.</span></div>
+                    <span class="creature-biome"><span class="biome-best">Sunken Ruins</span><span class="biome-hard">Desert Wastes</span></span>
                 </div>
             </div>
 
@@ -1937,6 +2105,31 @@
         <!-- CHANGELOG -->
         <section id="wiki-changelog" class="wiki-section wiki-changelog" style="display:none">
             <h2>Changelog</h2>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.83.2</span><span class="cl-date">2026-06-30</span></div>
+                <p class="biome-desc">The Anima resource tooltip now shows a separate line for the Focused Meditation stacking bonus on Anima Wells, so the active buff is visible instead of being silently folded into the well's production total.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.83.1</span><span class="cl-date">2026-06-30</span></div>
+                <p class="biome-desc">Audited the Creatures wiki tab against the live race roster in game.js. Added the missing Sovereign type section (Wyrm, Umbral Hunter, Storm Roc, Ironback, Rift Drake, Ashborn), four missing races (Barghest, Oblex, Magmin, Galeb Duhr), and three missing Secret Legendaries (Sphinx, Tarrasque, Kraken). Removed a stray duplicate Werewolf card that had been misfiled under Monstrous instead of Cursed. The bestiary now lists all 171 creatures from CREATURE_ROSTER and LEGENDARY_ROSTER with current mod text.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.83.0</span><span class="cl-date">2026-06-30</span></div>
+                <p class="biome-desc">Refreshed the wiki's Gameplay tab: corrected stale production ratios, added Lore/Scriptorium, Market Stall, Trade Cart, Peasants, the per-building pause stepper, and Accelerated Time, plus a new General Hints subsection.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.82.1</span><span class="cl-date">2026-06-30</span></div>
+                <p class="biome-desc">Wiki subsection headers (e.g. "Resources" in the Gameplay tab) now use the active theme's accent color with an underline, making them stand out more clearly from body text.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.82.0</span><span class="cl-date">2026-06-30</span></div>
+                <p class="biome-desc">Redesigned the wiki's Intro page: replaced the plain text section list with a clickable card grid (matching the styling used elsewhere in the wiki) linking to every section, including the previously-missing Research and Extension pages.</p>
+            </div>
 
             <div class="biome-card">
                 <div><span class="cl-ver">v0.81.0</span><span class="cl-date">2026-06-30</span></div>

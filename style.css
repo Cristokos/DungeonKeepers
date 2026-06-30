@@ -306,11 +306,36 @@ html, body {
     max-width: 780px;
 }
 .wiki-changelog .biome-card { max-width: 780px; }
-.wiki-subheading { color: var(--label); font-size: 15px; margin: 20px 0 6px; }
+.wiki-subheading { color: var(--accent); font-size: 15px; font-weight: bold; margin: 20px 0 6px; padding-bottom: 4px; border-bottom: 1px solid var(--border); }
+.wiki-content .creature-category { color: var(--accent); border-bottom-color: rgba(255,255,255,0.15); }
 .wiki-list { color: var(--text-muted); font-size: 14px; line-height: 1.8; max-width: 780px; padding-left: 20px; }
 .wiki-list li { margin-bottom: 4px; }
 .wiki-link { color: var(--label); text-decoration: underline; }
 .wiki-link:hover { color: #fff; }
+.wiki-intro-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 10px;
+    max-width: 780px;
+    margin-top: 4px;
+}
+.wiki-intro-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 4px;
+    padding: 10px 12px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: border-color 0.15s, background 0.15s;
+}
+.wiki-intro-card:hover { border-color: rgba(255,255,255,0.22); background: rgba(255,255,255,0.02); }
+.wiki-intro-icon { font-size: 18px; line-height: 1; flex-shrink: 0; margin-top: 1px; }
+.wiki-intro-card-title { font-weight: bold; font-size: 13px; color: var(--text); margin-bottom: 2px; }
+.wiki-intro-card .biome-desc { font-size: 11px; margin: 0; }
 .wiki-ext-preview { margin: 16px 0 24px; display: flex; flex-direction: column; align-items: flex-start; gap: 8px; }
 .wiki-ext-img { border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; max-width: 280px; box-shadow: 0 4px 18px rgba(0,0,0,0.5); }
 .wiki-ext-caption { color: var(--text-muted); font-size: 12px; font-style: italic; margin: 0; }
