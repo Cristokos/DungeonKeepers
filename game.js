@@ -3048,6 +3048,10 @@ function era1PickRaceOffers(l4Node) {
 function unlockEra1Node(nodeId) {
     const node = ERA1_TREE[nodeId];
     if (!node) return;
+    if (node.legendary) {
+        const prestiged = new Set(Object.keys(gameState.meta.racesPlayed || {}));
+        if (!prestiged.has(node.race)) return; // earned, not chosen — locked until unlock condition is met
+    }
     if (!canAffordEra1(nodeId)) {
         const el = document.getElementById('era1-node-' + nodeId);
         if (el) { el.classList.add('era1-flash-deny'); setTimeout(() => el.classList.remove('era1-flash-deny'), 600); }
@@ -4129,6 +4133,19 @@ let _era1TooltipEl = null;
 function _era1TooltipHTML(nodeId) {
     const node = ERA1_TREE[nodeId];
     if (!node) return '';
+
+    if (node.legendary) {
+        const prestiged = new Set(Object.keys(gameState.meta.racesPlayed || {}));
+        const isUnlocked = prestiged.has(node.race);
+        if (!isUnlocked) {
+            return `
+                <div class="bld-tt-name">&#128274; ${node.name}</div>
+                <div class="era1-legendary-unlock-label">Unlock condition</div>
+                <div class="bld-tt-desc">${node.legendaryUnlock || 'Unknown — keep exploring this lineage.'}</div>
+            `;
+        }
+    }
+
     const costEntries = Object.entries(node.cost);
     let costHtml = '';
     if (costEntries.length === 0) {
@@ -4432,7 +4449,6 @@ function renderEra1TreeLegacy() {
     const stateKey = [...unlocked].join(',') + '|' + [...revealed].join(',') + '|' + getCaps().essence;
     if (stateKey === _era1TreeState && _era1Canvas) {
         era1UpdateNodeStyles(unlocked, revealed, offeredNames, prestiged);
-        era1RenderLegendary(prestiged);
         return;
     }
     _era1TreeState = stateKey;
@@ -4527,7 +4543,18 @@ function renderEra1TreeLegacy() {
         el.style.height = nh + 'px';
         el.setAttribute('data-nid', nodeId);
 
-        if (node.layer === 5) {
+        if (node.layer === 5 && node.legendary) {
+            // Legendary leaf — earned, not chosen. Always fogged with a lock
+            // glyph until prestiged; never appears in random offers.
+            el.classList.add('era1-cn-legendary');
+            const isPrestiged = prestiged.has(node.race);
+            const isChosen    = unlocked.has(nodeId) || (era1.chosen === nodeId);
+            if (isChosen || isPrestiged) {
+                el.innerHTML = `<div class="era1-lc-crown">&#10022;</div><div class="era1-cn-name">${node.name}</div><div class="era1-cn-sub">${node.type}</div>`;
+            } else {
+                el.innerHTML = `<div class="era1-lc-lock">&#128274;</div>`;
+            }
+        } else if (node.layer === 5) {
             // Race leaf — may be fogged
             const isRevealed = revealed.has(node.race);
             const isOffered  = offeredNames.has(node.race);
@@ -4555,9 +4582,6 @@ function renderEra1TreeLegacy() {
 
     // Apply visual state classes
     era1UpdateNodeStyles(unlocked, revealed, offeredNames, prestiged);
-
-    // Render legendary sidebar below canvas
-    era1RenderLegendary(prestiged);
 
     // ── Pan & zoom ────────────────────────────────────────────────────────────
     let zoom = 0.52, panX = 0, panY = 0;
@@ -4635,49 +4659,6 @@ function renderEra1TreeLegacy() {
     wrap.style.cursor = 'grab';
 }
 
-// Render the Legendary Races box below the canvas.
-let _era1LegendaryKey = null;
-function era1RenderLegendary(prestiged) {
-    const container = document.getElementById('era1-tree');
-    if (!container) return;
-
-    const allLegendary = Object.values(LEGENDARY_ROSTER).flat();
-    const stateKey = allLegendary.map(n => prestiged.has(n) ? '1' : '0').join('');
-    if (stateKey === _era1LegendaryKey && document.getElementById('era1-legendary-box')) return;
-    _era1LegendaryKey = stateKey;
-
-    let box = document.getElementById('era1-legendary-box');
-    if (!box) {
-        box = document.createElement('div');
-        box.id = 'era1-legendary-box';
-        box.className = 'era1-legendary-box';
-        container.appendChild(box);
-    }
-
-    let html = `<div class="era1-legendary-title">✦ Legendary Races ✦</div><div class="era1-legendary-grid">`;
-    for (const name of allLegendary) {
-        const seen = prestiged.has(name);
-        if (seen) {
-            html += `<div class="era1-legendary-card era1-lc-revealed"
-                onmouseenter="era1ShowLegendaryPanel('${name}', event)"
-                onmousemove="_era1MoveTooltip(event)"
-                onmouseleave="era1HidePanel()">
-                <div class="era1-lc-name">${name}</div>
-            </div>`;
-        } else {
-            html += `<div class="era1-legendary-card era1-lc-fogged"><div class="era1-lc-fog">?</div></div>`;
-        }
-    }
-    html += '</div>';
-    box.innerHTML = html;
-}
-
-function era1ShowLegendaryPanel(name, e) {
-    // Reuse the existing tooltip panel to show legendary flavor
-    const node = Object.values(ERA1_TREE).find(n => n.race === name);
-    if (node) era1ShowPanel(node.id, e);
-}
-
 // Apply the most-specific color for a node as an inline --dn-clr CSS variable.
 const _ERA1_DOMAIN_COLORS_STATIC = { deep: '#8899aa', wild: '#5a9e60', beyond: '#8866bb' };
 function era1ApplyColorClass(el, nodeId) {
@@ -4715,7 +4696,21 @@ function era1UpdateNodeStyles(unlocked, revealed, offeredNames, prestiged) {
         const parentUnlocked = node.parent && unlocked.has(node.parent);
         const isChosen = nodeId === chosenL5;
 
-        if (node.layer === 5) {
+        if (node.layer === 5 && node.legendary) {
+            const race = node.race || '';
+            const isRaceChosen = isChosen || isUnlocked;
+            const isPrestiged  = prestiged.has(race);
+
+            if (isRaceChosen) {
+                el.classList.add('era1-cn-chosen');
+            } else if (isPrestiged) {
+                el.classList.add('era1-cn-prestiged');
+                el.style.pointerEvents = '';
+            } else {
+                el.classList.add('era1-cn-fogged');
+                el.style.pointerEvents = 'none';
+            }
+        } else if (node.layer === 5) {
             const race = node.race || '';
             const isRaceChosen  = isChosen || (isUnlocked);
             const isPrestiged   = prestiged.has(race);
@@ -4841,7 +4836,6 @@ function renderEra1Tree() {
         window.addEventListener('resize', era1FitDiscoveryScene);
         _era1DiscoveryResizeBound = true;
     }
-    era1RenderLegendary(prestiged);
 }
 
 function era1GetDiscoveryFocusId() {
@@ -4938,10 +4932,15 @@ function era1RenderDiscoveryScene(centerId, unlocked, revealed, offeredNames, pr
     const center = ERA1_TREE[centerId] || ERA1_TREE.root;
     const parentIds = center.parent ? [center.parent] : [];
     const childIds = (center.children || []).slice().sort((a, b) => {
-        const ak = era1NodeKnowledge(ERA1_TREE[a], unlocked, revealed, offeredNames, prestiged);
-        const bk = era1NodeKnowledge(ERA1_TREE[b], unlocked, revealed, offeredNames, prestiged);
-        const rank = { discovered: 0, seen: 1, unknown: 2 };
-        return (rank[ak] || 9) - (rank[bk] || 9);
+        const an = ERA1_TREE[a], bn = ERA1_TREE[b];
+        const ak = era1NodeKnowledge(an, unlocked, revealed, offeredNames, prestiged);
+        const bk = era1NodeKnowledge(bn, unlocked, revealed, offeredNames, prestiged);
+        // Legendary leaves always stay visible (as a lock) ahead of unseen
+        // standard races, so they never get pushed behind a "+more" stub.
+        const rank = { discovered: 0, seen: 1, legendary: 2, unknown: 3 };
+        const aKey = (ak === 'unknown' && an && an.legendary) ? 'legendary' : ak;
+        const bKey = (bk === 'unknown' && bn && bn.legendary) ? 'legendary' : bk;
+        return (rank[aKey] || 9) - (rank[bKey] || 9);
     });
     const siblingIds = center.parent
         ? (ERA1_TREE[center.parent].children || []).filter(id => id !== center.id)
@@ -4949,13 +4948,17 @@ function era1RenderDiscoveryScene(centerId, unlocked, revealed, offeredNames, pr
     const slots = [{ id: center.id, role: 'center', x: 370, y: 196, w: 160, h: 88 }];
 
     function spread(ids, role, x, w, h, limit) {
-        const visible = ids.slice(0, limit);
+        // Always keep legendary leaves visible even past the normal cap —
+        // they're a fixed, small set and shouldn't hide behind "+more".
+        const legendaryIds = ids.filter(id => ERA1_TREE[id] && ERA1_TREE[id].legendary);
+        const normalIds = ids.filter(id => !ERA1_TREE[id] || !ERA1_TREE[id].legendary);
+        const visible = normalIds.slice(0, limit).concat(legendaryIds);
         if (!visible.length) return;
         const gap = visible.length === 1 ? 0 : Math.min(82, 284 / (visible.length - 1));
         const start = 240 - ((visible.length - 1) * gap) / 2 - h / 2;
         visible.forEach((id, i) => slots.push({ id, role, x, y: start + i * gap, w, h }));
-        if (ids.length > limit) {
-            slots.push({ id: visible[visible.length - 1], role: role + '-more', forceUnknown: true, x, y: start + visible.length * gap, w, h });
+        if (normalIds.length > limit) {
+            slots.push({ id: visible[normalIds.slice(0, limit).length - 1], role: role + '-more', forceUnknown: true, x, y: start + visible.length * gap, w, h });
         }
     }
 
@@ -5023,11 +5026,15 @@ function era1CreateDiscoveryNode(slot, unlocked, revealed, offeredNames, prestig
     const isOffered = node.layer === 5 && offeredNames.has(node.race);
     const isPrestiged = node.layer === 5 && prestiged.has(node.race);
     const canUnlock = era1NodeCanUnlock(node, unlocked, offeredNames);
+    const isLegendary = !!node.legendary;
+    const legendaryLocked = isLegendary && !isPrestiged && !isUnlocked;
 
     el.className = 'era1-cn era1-dnode era1-dnode-' + slot.role;
     era1ApplyColorClass(el, node.id);
+    if (isLegendary) el.classList.add('era1-cn-legendary');
     if (node.id === 'root') el.classList.add('era1-cn-root');
     if (isCenter) el.classList.add('era1-cn-chosen', 'era1-dnode-center');
+    else if (legendaryLocked) el.classList.add('era1-cn-fogged');
     else if (knowledge === 'unknown') el.classList.add('era1-cn-fogged', 'era1-dnode-unknown');
     else if (isPrestiged) el.classList.add('era1-cn-prestiged');
     else if (isOffered) el.classList.add('era1-cn-offered');
@@ -5041,6 +5048,18 @@ function era1CreateDiscoveryNode(slot, unlocked, revealed, offeredNames, prestig
     el.style.height = slot.h + 'px';
     el.setAttribute('data-nid', node.id);
 
+    // Legendary leaves are earned, not chosen — always show a lock (or crown
+    // once earned) instead of the generic "???" fog, with their own tooltip.
+    if (legendaryLocked) {
+        el.innerHTML = `<div class="era1-lc-lock">&#128274;</div>`;
+        el.addEventListener('mouseenter', e => era1ShowPanel(node.id, e));
+        el.addEventListener('mousemove', e => _era1MoveTooltip(e));
+        el.addEventListener('mouseleave', () => era1HidePanel());
+        el.style.pointerEvents = '';
+        el.style.cursor = 'default';
+        return el;
+    }
+
     if (knowledge === 'unknown') {
         el.innerHTML = `<div class="era1-cn-fog">???</div>`;
         el.style.pointerEvents = 'none';
@@ -5052,7 +5071,8 @@ function era1CreateDiscoveryNode(slot, unlocked, revealed, offeredNames, prestig
         : era1LayerLabel(node.layer);
     const rootPrompt = (node.id === 'root' && isCenter)
         ? `<div class="era1-cn-prompt">Choose your domain →</div>` : '';
-    el.innerHTML = `<div class="era1-cn-name">${node.name}</div>${sub ? `<div class="era1-cn-sub">${sub}</div>` : ''}${rootPrompt}`;
+    const crown = isLegendary ? `<div class="era1-lc-crown">&#10022;</div>` : '';
+    el.innerHTML = `${crown}<div class="era1-cn-name">${node.name}</div>${sub ? `<div class="era1-cn-sub">${sub}</div>` : ''}${rootPrompt}`;
     el.addEventListener('mouseenter', e => era1ShowPanel(node.id, e));
     el.addEventListener('mousemove', e => _era1MoveTooltip(e));
     el.addEventListener('mouseleave', () => era1HidePanel());

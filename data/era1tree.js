@@ -519,6 +519,19 @@ const RACE_LEAF_DEFS = [
     { race: 'Void Shard',       type: 'Primordial', flavor: 'A fragment of the nothing that existed before existence — the cold that predates cold, the dark that predates dark. Void Shards do not act. They negate, persistently and without malice.' },
 ];
 
+// ── L5 Legendary leaf definitions ─────────────────────────────────────────────
+// Earned, not chosen. These render as locked leaves on their existing type
+// branch and are excluded from the normal random L5 race offers. The
+// `unlock` string is shown in their tooltip describing how to earn them.
+const LEGENDARY_LEAF_DEFS = [
+    { race: 'Chromatic Dragon', type: 'Draconic',  flavor: 'An ancient chromatic dragon whose very presence warps the dungeon around it. Their dominance over lesser races increases all production dramatically.', unlock: 'Reach Draconic mastery: prestige every standard Draconic race at least once.' },
+    { race: 'Dracolich',        type: 'Draconic',  flavor: 'A dragon who refused death and bound its soul to a phylactery. The dracolich fuses draconic production might with undead arcane mastery in one terrible form.', unlock: 'Prestige as both a Draconic and an Undead race in the same playthrough lineage.' },
+    { race: 'Lich',             type: 'Undead',    flavor: 'A powerful undead archmage who transcended death to pursue magical mastery. Liches push arcane infrastructure to impossible heights.', unlock: 'Reach Undead mastery: prestige every standard Undead race at least once.' },
+    { race: 'Sphinx',           type: 'Monstrous', flavor: "Ancient and enigmatic, a sphinx's riddling wisdom unlocks insights that improve all arcane processes.", unlock: 'Accumulate a vast hoard of Mana in a single Monstrous run.' },
+    { race: 'Tarrasque',        type: 'Monstrous', flavor: 'The most feared creature in existence — an engine of annihilation that cannot be permanently slain. Its very presence drives all lesser creatures to work harder out of pure survival instinct.', unlock: 'Reach Monstrous mastery: prestige every standard Monstrous race at least once.' },
+    { race: 'Kraken',           type: 'Aquatic',   flavor: "The ancient terror of the deep ocean. A kraken's immense intelligence and dominion over water amplifies all aquatic and storage operations to impossible scales.", unlock: 'Reach Aquatic mastery: prestige every standard Aquatic race at least once.' },
+];
+
 // ── Build L5 nodes and patch L4 children from RACE_LEAF_DEFS ─────────────────
 (function buildRaceLeaves() {
     // Map type name → L4 node id
@@ -551,6 +564,31 @@ const RACE_LEAF_DEFS = [
             children: [],
             type: def.type,
             race: def.race,
+        };
+
+        ERA1_TREE[l4Id].children.push(nodeId);
+    }
+
+    // Legendary leaves — same orbit mechanics, flagged as earned-not-chosen.
+    for (const def of LEGENDARY_LEAF_DEFS) {
+        const l4Id = typeToL4[def.type];
+        if (!l4Id) continue;
+
+        const slug = def.race.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-+$/, '');
+        const nodeId = `race-${slug}`;
+
+        ERA1_TREE[nodeId] = {
+            id: nodeId,
+            name: def.race,
+            layer: 5,
+            parent: l4Id,
+            flavor: def.flavor,
+            cost: { essence: 1000, influence: 500, mana: 500 },
+            children: [],
+            type: def.type,
+            race: def.race,
+            legendary: true,
+            legendaryUnlock: def.unlock,
         };
 
         ERA1_TREE[l4Id].children.push(nodeId);
