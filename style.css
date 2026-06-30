@@ -1491,6 +1491,38 @@ kbd {
     background: var(--disabled);
 }
 
+/* PAUSE TOGGLE (per-building production on/off) */
+.btn-pause-toggle {
+    position: absolute;
+    top: 8px;
+    left: 10px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 1.5px solid var(--enabled);
+    background: transparent;
+    cursor: pointer;
+    z-index: 2;
+}
+
+.btn-pause-toggle:hover {
+    border-color: var(--accent);
+}
+
+.btn-pause-toggle.is-paused {
+    background: var(--disabled);
+    border-color: var(--disabled);
+}
+
+.build-btn.building-paused {
+    opacity: 0.6;
+}
+
+.build-btn.building-paused .btn-title {
+    text-decoration: line-through;
+    text-decoration-color: var(--disabled);
+}
+
 /* ── TABS ───────────────────────────────────────────────────────────────────── */
 
 .tab-bar {

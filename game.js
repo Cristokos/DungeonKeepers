@@ -231,6 +231,7 @@ const gameState = {
         ritualCircle: 0, spiderNest: 0, arcaneCrucible: 0, darkAltar: 0, mithrilForge: 0,
     },
     tradeRoutes: {},
+    buildingDisabled: {}, // building id → true if player has paused its production/consumption
     research:          {},
     workerAssignments: {},
     population: { count: 0, growthTimer: 0, starveTick: 0 },
@@ -742,6 +743,7 @@ function getProduction() {
     const allBonus  = (1 + getResearchBonus('allProductionBonus')) * getQuintessenceProductionMult();
     for (const [id, def] of Object.entries(ROOMS)) {
         if (!def.production || def.converts) continue;
+        if (gameState.buildingDisabled && gameState.buildingDisabled[id]) continue;
         const count = gameState.buildings[id] || 0;
         if (count === 0) continue;
         // Worker buildings scale by assigned workers; all others scale by building count
@@ -771,9 +773,10 @@ function getResourceBreakdown(res) {
         if (count === 0) continue;
         const n = def.jobs ? (workers[id] || 0) : count;
         if (n === 0) continue;
+        const isOff = gameState.buildingDisabled && gameState.buildingDisabled[id];
         const bldgMult = getResearchBonus('productionBonus', id) * getBuildingProductionBonus(id);
-        const rate = def.production[res] * n * bldgMult * allBonus;
-        const sub = def.jobs ? `${n}w` : `×${count}`;
+        const rate = isOff ? 0 : def.production[res] * n * bldgMult * allBonus;
+        const sub = (def.jobs ? `${n}w` : `×${count}`) + (isOff ? ' · paused' : '');
         lines.push({ label: def.name, sub, value: rate, drain: false });
     }
 
@@ -784,9 +787,10 @@ function getResourceBreakdown(res) {
         if (count === 0) continue;
         const n = def.jobs ? (workers[id] || 0) : count;
         if (n === 0) continue;
+        const isOff = gameState.buildingDisabled && gameState.buildingDisabled[id];
         const convMult = getResearchBonus('converterBonus', id);
-        const rate = def.converts.outputRate * convMult * n;
-        const sub = (def.jobs ? `${n}w` : `×${count}`) + ' · max';
+        const rate = isOff ? 0 : def.converts.outputRate * convMult * n;
+        const sub = (def.jobs ? `${n}w` : `×${count}`) + (isOff ? ' · paused' : ' · max');
         lines.push({ label: def.name, sub, value: rate, drain: false });
     }
 
@@ -797,8 +801,9 @@ function getResourceBreakdown(res) {
         if (count === 0) continue;
         const n = def.jobs ? (workers[id] || 0) : count;
         if (n === 0) continue;
-        const rate = def.converts.inputs[res] * n;
-        const sub = (def.jobs ? `${n}w` : `×${count}`) + ' · max';
+        const isOff = gameState.buildingDisabled && gameState.buildingDisabled[id];
+        const rate = isOff ? 0 : def.converts.inputs[res] * n;
+        const sub = (def.jobs ? `${n}w` : `×${count}`) + (isOff ? ' · paused' : ' · max');
         lines.push({ label: def.name, sub, value: -rate, drain: true });
     }
 
@@ -1585,6 +1590,16 @@ function build(id) {
     saveGame();
 }
 
+// Toggles whether a production/converter building runs its production+consumption.
+// Used to let players pause overbuilt converters without losing the buildings.
+function toggleBuildingEnabled(id, event) {
+    if (event) event.stopPropagation();
+    if (!gameState.buildingDisabled) gameState.buildingDisabled = {};
+    gameState.buildingDisabled[id] = !gameState.buildingDisabled[id];
+    updateUI();
+    saveGame();
+}
+
 // ── Trade system ──────────────────────────────────────────────────────────────
 
 function getTradeCapacity() {
@@ -1854,6 +1869,7 @@ function runOneTick() {
     const workers2 = getWorkersPerBuilding();
     for (const [id, def] of Object.entries(ROOMS)) {
         if (!def.converts) continue;
+        if (gameState.buildingDisabled && gameState.buildingDisabled[id]) continue;
         const count = gameState.buildings[id] || 0;
         if (count === 0) continue;
         // Worker buildings need assigned workers; others run automatically per building
@@ -2193,6 +2209,25 @@ function updateUI() {
         if (btn) {
             btn.style.display = checkUnlock(id) ? "" : "none";
             btn.classList.toggle("disabled", !canAfford(id));
+        }
+        // Pause toggle for production/converter buildings — lets players stop an
+        // overbuilt building from consuming/producing without demolishing it
+        if (btn && (def.production || def.converts) && count > 0) {
+            let toggleEl = btn.querySelector(".btn-pause-toggle");
+            if (!toggleEl) {
+                toggleEl = document.createElement("div");
+                toggleEl.className = "btn-pause-toggle";
+                toggleEl.onclick = (e) => toggleBuildingEnabled(id, e);
+                btn.appendChild(toggleEl);
+            }
+            const isOff = !!(gameState.buildingDisabled && gameState.buildingDisabled[id]);
+            toggleEl.classList.toggle("is-paused", isOff);
+            toggleEl.title = isOff ? "Paused — click to resume" : "Click to pause production";
+            btn.classList.toggle("building-paused", isOff);
+        } else if (btn) {
+            const toggleEl = btn.querySelector(".btn-pause-toggle");
+            if (toggleEl) toggleEl.remove();
+            btn.classList.remove("building-paused");
         }
         const countEl = document.getElementById(id + "Count");
         if (countEl) {
