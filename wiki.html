@@ -2107,6 +2107,11 @@
             <h2>Changelog</h2>
 
             <div class="biome-card">
+                <div><span class="cl-ver">v0.85.0</span><span class="cl-date">2026-06-30</span></div>
+                <p class="biome-desc">Creature Tree now shows the full Awakening tree structure: added the missing L2 Drive and L3 Form rings (e.g. Beyond → Undying/Bargain → Kept/Anchored/Pact/Covenant) between Domain and Type, matching the choices presented in-game. Search and hover ancestry highlighting now cascade through all five layers.</p>
+            </div>
+
+            <div class="biome-card">
                 <div><span class="cl-ver">v0.84.2</span><span class="cl-date">2026-06-30</span></div>
                 <p class="biome-desc">Dev panel's Era 1 → 2 transition preview dropdown now lists all 24 creature types, not just the original 15 — the 9 types added in v0.84.0 (Swarm, Beast, Specter, Planar, Celestial, Titan, Cursed, Sovereign, Primordial) are now directly selectable for previewing their Panel III art.</p>
             </div>
@@ -3710,14 +3715,65 @@ function showWiki(id) {
     };
 
     var NS = 'http://www.w3.org/2000/svg';
-    var CX = 1200, CY = 1200;
-    var R1 = 220, R2 = 640, R3 = 1080;
+    var CX = 2200, CY = 2200;
+    var R1 = 160, R1B = 420, R2 = 760, R3 = 1180;
 
     var RACE_PATHS = [
-        { name: 'The Deep',   color: '#8899aa', angle: 0,   types: ['Goblinoid','Giant','Titan','Swarm','Aberration','Construct','Cursed','Draconic'] },
-        { name: 'The Wild',   color: '#5a9e60', angle: 120, types: ['Flora','Ooze','Lycanthrope','Fey','Aquatic','Monstrous','Sovereign','Beast'] },
-        { name: 'The Beyond', color: '#8866bb', angle: 240, types: ['Undead','Specter','Elemental','Primordial','Fiend','Humanoid','Planar','Celestial'] },
+        { name: 'The Deep',   color: '#8899aa', angle: 0,   drives: [
+            { name: 'Dominance', color: '#7799cc', forms: [
+                { name: 'The Horde',    color: '#5577dd', types: ['Goblinoid','Swarm'] },
+                { name: 'The Colossus', color: '#99bbee', types: ['Giant','Titan'] },
+            ] },
+            { name: 'Ancient Wisdom', color: '#55aabb', forms: [
+                { name: 'The Anomaly', color: '#33ccbb', types: ['Aberration','Draconic'] },
+                { name: 'The Forged',  color: '#77ccdd', types: ['Construct','Cursed'] },
+            ] },
+        ] },
+        { name: 'The Wild',   color: '#5a9e60', angle: 120, drives: [
+            { name: 'Growth', color: '#4daa6a', forms: [
+                { name: 'The Root',    color: '#33bb55', types: ['Flora','Ooze'] },
+                { name: 'The Changed', color: '#88cc44', types: ['Lycanthrope','Fey'] },
+            ] },
+            { name: 'The Hunt', color: '#8daa33', forms: [
+                { name: 'The Pack', color: '#bbcc22', types: ['Aquatic','Beast'] },
+                { name: 'The Apex', color: '#ddaa11', types: ['Monstrous','Sovereign'] },
+            ] },
+        ] },
+        { name: 'The Beyond', color: '#8866bb', angle: 240, drives: [
+            { name: 'Undying', color: '#6666cc', forms: [
+                { name: 'The Kept',     color: '#9955ee', types: ['Undead','Specter'] },
+                { name: 'The Anchored', color: '#5544cc', types: ['Elemental','Primordial'] },
+            ] },
+            { name: 'The Bargain', color: '#bb55aa', forms: [
+                { name: 'The Pact',     color: '#ee44aa', types: ['Fiend','Humanoid'] },
+                { name: 'The Covenant', color: '#cc2266', types: ['Planar','Celestial'] },
+            ] },
+        ] },
     ];
+
+    var DRIVE_DESCS = {
+        'Dominance':      'Strength is the only law in the deep. What cannot be crushed is not worth having. Creatures that impose their will on all around them.',
+        'Ancient Wisdom': 'The deep holds secrets older than the world. Knowledge others fear to touch — mysteries buried under stone since before the first age.',
+        'Growth':         'Life conquers all in time. Even stone yields to root and vine given enough years — the slow, patient power of living things spreading outward without end.',
+        'The Hunt':       'Every living thing is prey or predator. The razor edge of predation — the clarity of pursuit, the purity of violence in service of survival.',
+        'Undying':        'Death is not an ending — it is a transformation. The dead remember, and memory is power.',
+        'The Bargain':    'Power is always given in exchange for something. The planes are full of entities willing to deal — the grammar of contracts and the weight of oaths.',
+    };
+
+    var FORM_DESCS = {
+        'The Horde':    'Countless and relentless. Individually weak — together, an unstoppable tide. Servants who do not need to be strong, only many.',
+        'The Colossus': 'Not many — one. One that cracks the ground with each step and forces the world to reorganize itself around its presence.',
+        'The Anomaly':  'A mind so alien it reshapes reality around it. Understanding is impossible — and that impossibility is itself a kind of power.',
+        'The Forged':   'Knowledge made manifest. Servants shaped by craft and purpose, not born by accident.',
+        'The Root':     'Slow, patient, inevitable growth. What seems dead is merely waiting — things that spread, consume, and transform their environment over time.',
+        'The Changed':  'Life does not merely grow — it transforms. Creatures that carry their change inside them, unstable and magnificent.',
+        'The Pack':     'Strength in numbers and coordination. The hunt is better shared — flanking, driving, pulling down prey too large for any one creature alone.',
+        'The Apex':     'The hunt ends with one creature standing — not because it hunted in numbers, but because it is simply beyond what was sent against it.',
+        'The Kept':     'Servants who cannot die, only obey. Death could not take them — what death left behind, put to use.',
+        'The Anchored': 'Not dead — never alive. Forces bound into form, compelled to serve by laws older than language. Elemental and eternal.',
+        'The Pact':     'Bound by infernal contract — terrible and precise. Every agreement has a price, and every price has a collector.',
+        'The Covenant': 'Not a contract but a vow — sworn across the fabric of the planes themselves. These beings agreed because they chose to.',
+    };
 
     var ROSTER = {
         'Goblinoid':   ['Goblin','Hobgoblin','Bugbear','Orc','Gnoll','Barghest'],
@@ -4076,8 +4132,26 @@ function showWiki(id) {
     function buildPathTip(path) {
         var h = '<div class="rtip-name" style="color:' + path.color + '">' + path.name + '</div>';
         h += '<div class="rtip-desc">' + (PATH_DESCS[path.name] || '') + '</div>';
+        h += '<div class="rtip-efx-head">Drives:</div><ul class="rtip-efx">';
+        path.drives.forEach(function(d) { h += '<li>' + d.name + '</li>'; });
+        h += '</ul>';
+        return h;
+    }
+
+    function buildDriveTip(drive) {
+        var h = '<div class="rtip-name" style="color:' + drive.color + '">' + drive.name + '</div>';
+        h += '<div class="rtip-desc">' + (DRIVE_DESCS[drive.name] || '') + '</div>';
+        h += '<div class="rtip-efx-head">Forms:</div><ul class="rtip-efx">';
+        drive.forms.forEach(function(f) { h += '<li>' + f.name + '</li>'; });
+        h += '</ul>';
+        return h;
+    }
+
+    function buildFormTip(form) {
+        var h = '<div class="rtip-name" style="color:' + form.color + '">' + form.name + '</div>';
+        h += '<div class="rtip-desc">' + (FORM_DESCS[form.name] || '') + '</div>';
         h += '<div class="rtip-efx-head">Types:</div><ul class="rtip-efx">';
-        path.types.forEach(function(t) { h += '<li>' + t + '</li>'; });
+        form.types.forEach(function(t) { h += '<li>' + t + '</li>'; });
         h += '</ul>';
         return h;
     }
@@ -4130,9 +4204,9 @@ function showWiki(id) {
         var edgeG = document.createElementNS(NS, 'g'); g.appendChild(edgeG);
         var nodeG = document.createElementNS(NS, 'g'); g.appendChild(nodeG);
 
-        /* Radial guide rings at R1 and R2 only (creature nodes use local grids now) */
+        /* Radial guide rings (creature nodes use local grids now) */
         var guideG = document.createElementNS(NS, 'g');
-        [R1, R2].forEach(function(r) {
+        [R1, R1B, R2, R3].forEach(function(r) {
             var ring = document.createElementNS(NS, 'circle');
             ring.setAttribute('cx', CX); ring.setAttribute('cy', CY); ring.setAttribute('r', r);
             ring.setAttribute('fill', 'none');
@@ -4171,203 +4245,260 @@ function showWiki(id) {
         nodeG.appendChild(cgrp0);
         allNodes.push({ el: cgrp0, name: 'center', level: 0 });
 
+        /* Generic small-circle node builder for Domain/Drive levels */
+        function mkCircleNode(parentX, parentY, x, y, color, label, delay, radius, fontSize, tipBuilder, levelInfo) {
+            var edge = mkEdge(edgeG, parentX, parentY, x, y, color);
+            var grp = animGroup(delay);
+            var c = document.createElementNS(NS, 'circle');
+            c.setAttribute('cx', x); c.setAttribute('cy', y); c.setAttribute('r', radius);
+            c.setAttribute('fill', color); c.setAttribute('fill-opacity', '0.22');
+            c.setAttribute('stroke', color); c.setAttribute('stroke-width', '2');
+            c.style.cursor = 'pointer';
+            c.style.transition = 'filter 0.15s, fill-opacity 0.15s, stroke-width 0.15s';
+            grp.appendChild(c);
+            mkTxt(grp, x, y + radius + fontSize + 4, label, fontSize, color);
+            nodeG.appendChild(grp);
+
+            c.addEventListener('mouseenter', function() {
+                c.setAttribute('filter', 'url(#rtrace-glow)');
+                c.setAttribute('fill-opacity', '0.40');
+                edge.setAttribute('stroke-width', '2.5'); edge.setAttribute('opacity', '0.85');
+            });
+            c.addEventListener('mouseleave', function() {
+                c.removeAttribute('filter');
+                c.setAttribute('fill-opacity', '0.22');
+                edge.setAttribute('stroke-width', '1'); edge.setAttribute('opacity', '0.28');
+            });
+            wireTooltip(c, tipBuilder);
+            levelInfo.el = grp;
+            allNodes.push(levelInfo);
+            return { edge: edge, el: c };
+        }
+
         RACE_PATHS.forEach(function (path, pi) {
             var pp = rpos(path.angle, R1);
 
-            /* center → path edge */
-            var cpEdge = mkEdge(edgeG, CX, CY, pp.x, pp.y, path.color);
+            /* center → domain edge */
+            var domainNode = mkCircleNode(CX, CY, pp.x, pp.y, path.color, path.name, 80 + pi * 60, 26, 13,
+                buildPathTip.bind(null, path),
+                { name: path.name, level: 1, pathName: path.name });
+            var cpEdge = domainNode.edge;
 
-            /* Path circle */
-            var pgrp = animGroup(80 + pi * 60);
-            var pc = document.createElementNS(NS, 'circle');
-            pc.setAttribute('cx', pp.x); pc.setAttribute('cy', pp.y); pc.setAttribute('r', 26);
-            pc.setAttribute('fill', path.color); pc.setAttribute('fill-opacity', '0.22');
-            pc.setAttribute('stroke', path.color); pc.setAttribute('stroke-width', '2');
-            pc.style.cursor = 'pointer';
-            pc.style.transition = 'filter 0.15s, fill-opacity 0.15s';
-            pgrp.appendChild(pc);
-            /* Path label just beyond circle */
-            var lp = rpos(path.angle, R1 + 42);
-            mkTxt(pgrp, lp.x, lp.y, path.name, '13', path.color);
-            nodeG.appendChild(pgrp);
-
-            /* Path hover: glow */
-            pc.addEventListener('mouseenter', function() {
-                pc.setAttribute('filter', 'url(#rtrace-glow)');
-                pc.setAttribute('fill-opacity', '0.40');
+            /* --- Proportional angular allocation across drives, then forms, then types --- */
+            var driveCreatureCounts = path.drives.map(function(d) {
+                return d.forms.reduce(function(sum, f) {
+                    return sum + f.types.reduce(function(s2, t) { return s2 + (ROSTER[t] || []).length; }, 0);
+                }, 0);
             });
-            pc.addEventListener('mouseleave', function() {
-                pc.removeAttribute('filter');
-                pc.setAttribute('fill-opacity', '0.22');
-            });
-            wireTooltip(pc, buildPathTip.bind(null, path));
-            allNodes.push({ el: pgrp, name: path.name, level: 1, pathName: path.name });
-
-            /* --- Proportional angular allocation --- */
-            var typeCreatureCounts = path.types.map(function(t) { return (ROSTER[t] || []).length; });
-            var totalCreatures = typeCreatureCounts.reduce(function(a,b){return a+b;}, 0);
-            var typeAngles = [];
+            var totalCreatures = driveCreatureCounts.reduce(function(a,b){return a+b;}, 0);
+            var driveAngles = [];
             var cursor = path.angle - 60;
-            path.types.forEach(function(typeName, ti) {
-                var arc = typeCreatureCounts[ti] / totalCreatures * 120;
-                typeAngles.push({ start: cursor, mid: cursor + arc / 2, end: cursor + arc });
+            path.drives.forEach(function(drive, di) {
+                var arc = driveCreatureCounts[di] / totalCreatures * 120;
+                driveAngles.push({ start: cursor, mid: cursor + arc / 2, end: cursor + arc });
                 cursor += arc;
             });
 
-            path.types.forEach(function (typeName, ti) {
-                var typeAngle  = typeAngles[ti].mid;
-                var typeStart  = typeAngles[ti].start;
-                var typeEnd    = typeAngles[ti].end;
-                var tp         = rpos(typeAngle, R2);
-                var typeColor  = TYPE_COLORS[typeName] || '#888';
-                var creatures  = ROSTER[typeName] || [];
+            path.drives.forEach(function (drive, di) {
+                var driveAngle = driveAngles[di].mid;
+                var dp = rpos(driveAngle, R1B);
+                var driveColor = drive.color;
 
-                /* path → type edge */
-                var ptEdge = mkEdge(edgeG, pp.x, pp.y, tp.x, tp.y, typeColor);
-                typeEdges[typeName] = { edge: ptEdge, pathEdge: cpEdge, color: typeColor };
+                var driveNodeRes = mkCircleNode(pp.x, pp.y, dp.x, dp.y, driveColor, drive.name, 140 + pi * 60 + di * 40, 20, 11,
+                    buildDriveTip.bind(null, drive),
+                    { name: drive.name, level: 2, driveName: drive.name, pathName: path.name });
+                var pdEdge = driveNodeRes.edge;
 
-                /* Type rect group */
-                var TW = 130, TH = 36;
-                var tgrp = animGroup(200 + pi * 60 + ti * 40);
-                tgrp.style.cursor = 'pointer';
-
-                var trect = document.createElementNS(NS, 'rect');
-                trect.setAttribute('x', tp.x - TW/2); trect.setAttribute('y', tp.y - TH/2);
-                trect.setAttribute('width', TW); trect.setAttribute('height', TH); trect.setAttribute('rx', 6);
-                trect.setAttribute('fill', typeColor); trect.setAttribute('fill-opacity', '0.28');
-                trect.setAttribute('stroke', typeColor); trect.setAttribute('stroke-width', '1.8');
-                trect.style.transition = 'filter 0.15s, fill-opacity 0.15s, stroke-width 0.15s';
-                tgrp.appendChild(trect);
-
-                /* Top shine stripe */
-                var tshine = document.createElementNS(NS, 'rect');
-                tshine.setAttribute('x', tp.x - TW/2 + 3); tshine.setAttribute('y', tp.y - TH/2 + 2);
-                tshine.setAttribute('width', TW - 6); tshine.setAttribute('height', 2); tshine.setAttribute('rx', 1);
-                tshine.setAttribute('fill', 'rgba(255,255,255,0.15)'); tshine.style.pointerEvents = 'none';
-                tgrp.appendChild(tshine);
-
-                var ttxt = document.createElementNS(NS, 'text');
-                ttxt.setAttribute('x', tp.x); ttxt.setAttribute('y', tp.y);
-                ttxt.setAttribute('text-anchor', 'middle'); ttxt.setAttribute('dominant-baseline', 'middle');
-                ttxt.setAttribute('font-size', '12'); ttxt.setAttribute('font-family', 'Lato, sans-serif');
-                ttxt.setAttribute('fill', typeColor); ttxt.style.pointerEvents = 'none';
-                ttxt.textContent = typeName + ' (' + creatures.length + ')';
-                tgrp.appendChild(ttxt);
-                nodeG.appendChild(tgrp);
-
-                /* Type hover: glow + edge highlight */
-                tgrp.addEventListener('mouseenter', function() {
-                    trect.setAttribute('filter', 'url(#rtrace-glow)');
-                    trect.setAttribute('fill-opacity', '0.45');
-                    trect.setAttribute('stroke-width', '2.5');
-                    ptEdge.setAttribute('stroke-width', '2.5'); ptEdge.setAttribute('opacity', '0.85');
+                /* Proportional angular allocation across forms within this drive */
+                var formCreatureCounts = drive.forms.map(function(f) {
+                    return f.types.reduce(function(s, t) { return s + (ROSTER[t] || []).length; }, 0);
                 });
-                tgrp.addEventListener('mouseleave', function() {
-                    trect.removeAttribute('filter');
-                    trect.setAttribute('fill-opacity', '0.28');
-                    trect.setAttribute('stroke-width', '1.8');
-                    ptEdge.setAttribute('stroke-width', '1'); ptEdge.setAttribute('opacity', '0.28');
+                var formTotal = formCreatureCounts.reduce(function(a,b){return a+b;}, 0);
+                var formAngles = [];
+                var fcursor = driveAngles[di].start;
+                drive.forms.forEach(function(form, fi) {
+                    var arc = formCreatureCounts[fi] / formTotal * (driveAngles[di].end - driveAngles[di].start);
+                    formAngles.push({ start: fcursor, mid: fcursor + arc / 2, end: fcursor + arc });
+                    fcursor += arc;
                 });
 
-                wireTooltip(tgrp, buildTypeTip.bind(null, typeName, creatures));
-                allNodes.push({ el: tgrp, name: typeName, level: 2, typeName: typeName, pathName: path.name });
+                drive.forms.forEach(function (form, fi) {
+                    var formAngle = formAngles[fi].mid;
+                    var fp = rpos(formAngle, R2);
+                    var formColor = form.color;
 
-                /* --- Radial grid layout for creatures ---
-                   Creatures are placed in a 2- or 3-column grid extending radially
-                   outward from the type node, avoiding arc-based overlap entirely. */
-                var CNW = 124, CNH = 30;
-                var COLS = creatures.length > 10 ? 3 : 2;
-                var CROW = CNH + 16;   // row spacing (radial direction)
-                var CCOL = CNW + 12;   // col spacing (perpendicular direction)
-                var CSTART = TH / 2 + CNH / 2 + 36; // gap from type node center to first row center
+                    var formNodeRes = mkCircleNode(dp.x, dp.y, fp.x, fp.y, formColor, form.name, 200 + pi * 60 + di * 40 + fi * 30, 16, 10,
+                        buildFormTip.bind(null, form),
+                        { name: form.name, level: 3, formName: form.name, driveName: drive.name, pathName: path.name });
+                    var dfEdge = formNodeRes.edge;
 
-                /* Radial unit vector from SVG center toward this type node */
-                var rad_ang = (typeAngle - 90) * Math.PI / 180;
-                var ur = { x: Math.cos(rad_ang), y: Math.sin(rad_ang) };  // radial (outward)
-                var up = { x: -Math.sin(rad_ang), y: Math.cos(rad_ang) }; // perpendicular
+                    /* Proportional angular allocation across types within this form */
+                    var typeCreatureCounts = form.types.map(function(t) { return (ROSTER[t] || []).length; });
+                    var typeTotal = typeCreatureCounts.reduce(function(a,b){return a+b;}, 0);
+                    var typeAngles = [];
+                    var tcursor = formAngles[fi].start;
+                    form.types.forEach(function(typeName, ti) {
+                        var arc = typeCreatureCounts[ti] / typeTotal * (formAngles[fi].end - formAngles[fi].start);
+                        typeAngles.push({ start: tcursor, mid: tcursor + arc / 2, end: tcursor + arc });
+                        tcursor += arc;
+                    });
 
-                creatures.forEach(function(cname, i) {
-                    var col = i % COLS;
-                    var row = Math.floor(i / COLS);
-                    var colOffset = (col - (COLS - 1) / 2) * CCOL;
-                    var rowOffset = CSTART + row * CROW;
+                    form.types.forEach(function (typeName, ti) {
+                        var typeAngle  = typeAngles[ti].mid;
+                        var tp         = rpos(typeAngle, R3);
+                        var typeColor  = TYPE_COLORS[typeName] || '#888';
+                        var creatures  = ROSTER[typeName] || [];
 
-                    var cpx = tp.x + ur.x * rowOffset + up.x * colOffset;
-                    var cpy = tp.y + ur.y * rowOffset + up.y * colOffset;
+                        /* form → type edge */
+                        var ptEdge = mkEdge(edgeG, fp.x, fp.y, tp.x, tp.y, typeColor);
+                        typeEdges[typeName] = { edge: ptEdge, formEdge: dfEdge, driveEdge: pdEdge, pathEdge: cpEdge, color: typeColor };
 
-                    var tcEdge = mkEdge(edgeG, tp.x, tp.y, cpx, cpy, typeColor);
-                    creatureEdges[cname] = { edge: tcEdge, typeEdge: ptEdge, pathEdge: cpEdge };
+                        /* Type rect group */
+                        var TW = 130, TH = 36;
+                        var tgrp = animGroup(260 + pi * 60 + di * 40 + fi * 30 + ti * 20);
+                        tgrp.style.cursor = 'pointer';
 
-                    var cgrp = animGroup(380 + pi * 60 + ti * 40 + i * 10);
-                    cgrp.style.cursor = 'pointer';
+                        var trect = document.createElementNS(NS, 'rect');
+                        trect.setAttribute('x', tp.x - TW/2); trect.setAttribute('y', tp.y - TH/2);
+                        trect.setAttribute('width', TW); trect.setAttribute('height', TH); trect.setAttribute('rx', 6);
+                        trect.setAttribute('fill', typeColor); trect.setAttribute('fill-opacity', '0.28');
+                        trect.setAttribute('stroke', typeColor); trect.setAttribute('stroke-width', '1.8');
+                        trect.style.transition = 'filter 0.15s, fill-opacity 0.15s, stroke-width 0.15s';
+                        tgrp.appendChild(trect);
 
-                    var crect = document.createElementNS(NS, 'rect');
-                    crect.setAttribute('x', cpx - CNW/2); crect.setAttribute('y', cpy - CNH/2);
-                    crect.setAttribute('width', CNW); crect.setAttribute('height', CNH);
-                    crect.setAttribute('rx', 5);
-                    crect.setAttribute('fill', typeColor); crect.setAttribute('fill-opacity', '0.32');
-                    crect.setAttribute('stroke', typeColor); crect.setAttribute('stroke-width', '1.5');
-                    crect.style.transition = 'filter 0.12s, fill-opacity 0.12s, stroke-width 0.12s';
-                    cgrp.appendChild(crect);
+                        /* Top shine stripe */
+                        var tshine = document.createElementNS(NS, 'rect');
+                        tshine.setAttribute('x', tp.x - TW/2 + 3); tshine.setAttribute('y', tp.y - TH/2 + 2);
+                        tshine.setAttribute('width', TW - 6); tshine.setAttribute('height', 2); tshine.setAttribute('rx', 1);
+                        tshine.setAttribute('fill', 'rgba(255,255,255,0.15)'); tshine.style.pointerEvents = 'none';
+                        tgrp.appendChild(tshine);
 
-                    /* Top shine */
-                    var cshine = document.createElementNS(NS, 'rect');
-                    cshine.setAttribute('x', cpx - CNW/2 + 3); cshine.setAttribute('y', cpy - CNH/2 + 2);
-                    cshine.setAttribute('width', CNW - 6); cshine.setAttribute('height', 2); cshine.setAttribute('rx', 1);
-                    cshine.setAttribute('fill', 'rgba(255,255,255,0.10)'); cshine.style.pointerEvents = 'none';
-                    cgrp.appendChild(cshine);
+                        var ttxt = document.createElementNS(NS, 'text');
+                        ttxt.setAttribute('x', tp.x); ttxt.setAttribute('y', tp.y);
+                        ttxt.setAttribute('text-anchor', 'middle'); ttxt.setAttribute('dominant-baseline', 'middle');
+                        ttxt.setAttribute('font-size', '12'); ttxt.setAttribute('font-family', 'Lato, sans-serif');
+                        ttxt.setAttribute('fill', typeColor); ttxt.style.pointerEvents = 'none';
+                        ttxt.textContent = typeName + ' (' + creatures.length + ')';
+                        tgrp.appendChild(ttxt);
+                        nodeG.appendChild(tgrp);
 
-                    /* Vertical divider between icon and name */
-                    var divX = cpx - CNW/2 + 20;
-                    var divL = document.createElementNS(NS, 'line');
-                    divL.setAttribute('x1', divX); divL.setAttribute('y1', cpy - CNH/2 + 3);
-                    divL.setAttribute('x2', divX); divL.setAttribute('y2', cpy + CNH/2 - 3);
-                    divL.setAttribute('stroke', typeColor); divL.setAttribute('stroke-width', '0.8');
-                    divL.setAttribute('opacity', '0.35'); divL.style.pointerEvents = 'none';
-                    cgrp.appendChild(divL);
+                        /* Type hover: glow + edge highlight */
+                        tgrp.addEventListener('mouseenter', function() {
+                            trect.setAttribute('filter', 'url(#rtrace-glow)');
+                            trect.setAttribute('fill-opacity', '0.45');
+                            trect.setAttribute('stroke-width', '2.5');
+                            ptEdge.setAttribute('stroke-width', '2.5'); ptEdge.setAttribute('opacity', '0.85');
+                        });
+                        tgrp.addEventListener('mouseleave', function() {
+                            trect.removeAttribute('filter');
+                            trect.setAttribute('fill-opacity', '0.28');
+                            trect.setAttribute('stroke-width', '1.8');
+                            ptEdge.setAttribute('stroke-width', '1'); ptEdge.setAttribute('opacity', '0.28');
+                        });
 
-                    mkIcon(cgrp, cpx - CNW/2 + 10, cpy, typeName, typeColor);
+                        wireTooltip(tgrp, buildTypeTip.bind(null, typeName, creatures));
+                        allNodes.push({ el: tgrp, name: typeName, level: 4, typeName: typeName, formName: form.name, driveName: drive.name, pathName: path.name });
 
-                    var nameEl = document.createElementNS(NS, 'text');
-                    nameEl.setAttribute('x', cpx - CNW/2 + 20 + (CNW - 20) / 2);
-                    nameEl.setAttribute('y', cpy);
-                    nameEl.setAttribute('text-anchor', 'middle');
-                    nameEl.setAttribute('dominant-baseline', 'middle');
-                    nameEl.setAttribute('font-size', '11');
-                    nameEl.setAttribute('font-family', 'Lato, sans-serif');
-                    nameEl.setAttribute('fill', typeColor);
-                    nameEl.style.pointerEvents = 'none';
-                    nameEl.style.userSelect = 'none';
-                    nameEl.textContent = cname;
-                    cgrp.appendChild(nameEl);
+                        /* --- Radial grid layout for creatures ---
+                           Creatures are placed in a 2- or 3-column grid extending radially
+                           outward from the type node, avoiding arc-based overlap entirely. */
+                        var CNW = 124, CNH = 30;
+                        var COLS = creatures.length > 10 ? 3 : 2;
+                        var CROW = CNH + 16;   // row spacing (radial direction)
+                        var CCOL = CNW + 12;   // col spacing (perpendicular direction)
+                        var CSTART = TH / 2 + CNH / 2 + 36; // gap from type node center to first row center
 
-                    nodeG.appendChild(cgrp);
+                        /* Radial unit vector from SVG center toward this type node */
+                        var rad_ang = (typeAngle - 90) * Math.PI / 180;
+                        var ur = { x: Math.cos(rad_ang), y: Math.sin(rad_ang) };  // radial (outward)
+                        var up = { x: -Math.sin(rad_ang), y: Math.cos(rad_ang) }; // perpendicular
 
-                    /* Creature hover: glow + ancestry edge highlight */
-                    cgrp.addEventListener('mouseenter', (function(cr, tc, te, pe) {
-                        return function() {
-                            cr.setAttribute('filter', 'url(#rtrace-glow)');
-                            cr.setAttribute('fill-opacity', '0.52');
-                            cr.setAttribute('stroke-width', '2.2');
-                            tc.setAttribute('stroke-width', '2.5'); tc.setAttribute('opacity', '0.9');
-                            te.setAttribute('stroke-width', '2'); te.setAttribute('opacity', '0.75');
-                            pe.setAttribute('stroke-width', '2'); pe.setAttribute('opacity', '0.65');
-                        };
-                    })(crect, tcEdge, ptEdge, cpEdge));
+                        creatures.forEach(function(cname, i) {
+                            var col = i % COLS;
+                            var row = Math.floor(i / COLS);
+                            var colOffset = (col - (COLS - 1) / 2) * CCOL;
+                            var rowOffset = CSTART + row * CROW;
 
-                    cgrp.addEventListener('mouseleave', (function(cr, tc, te, pe) {
-                        return function() {
-                            cr.removeAttribute('filter');
-                            cr.setAttribute('fill-opacity', '0.32');
-                            cr.setAttribute('stroke-width', '1.5');
-                            tc.setAttribute('stroke-width', '1'); tc.setAttribute('opacity', '0.28');
-                            te.setAttribute('stroke-width', '1'); te.setAttribute('opacity', '0.28');
-                            pe.setAttribute('stroke-width', '1'); pe.setAttribute('opacity', '0.28');
-                        };
-                    })(crect, tcEdge, ptEdge, cpEdge));
+                            var cpx = tp.x + ur.x * rowOffset + up.x * colOffset;
+                            var cpy = tp.y + ur.y * rowOffset + up.y * colOffset;
 
-                    wireTooltip(cgrp, buildCreatureTip.bind(null, cname, typeName));
-                    allNodes.push({ el: cgrp, name: cname, level: 3, typeName: typeName, pathName: path.name });
+                            var tcEdge = mkEdge(edgeG, tp.x, tp.y, cpx, cpy, typeColor);
+                            creatureEdges[cname] = { edge: tcEdge, typeEdge: ptEdge, formEdge: dfEdge, driveEdge: pdEdge, pathEdge: cpEdge };
+
+                            var cgrp = animGroup(420 + pi * 60 + di * 40 + fi * 30 + ti * 20 + i * 10);
+                            cgrp.style.cursor = 'pointer';
+
+                            var crect = document.createElementNS(NS, 'rect');
+                            crect.setAttribute('x', cpx - CNW/2); crect.setAttribute('y', cpy - CNH/2);
+                            crect.setAttribute('width', CNW); crect.setAttribute('height', CNH);
+                            crect.setAttribute('rx', 5);
+                            crect.setAttribute('fill', typeColor); crect.setAttribute('fill-opacity', '0.32');
+                            crect.setAttribute('stroke', typeColor); crect.setAttribute('stroke-width', '1.5');
+                            crect.style.transition = 'filter 0.12s, fill-opacity 0.12s, stroke-width 0.12s';
+                            cgrp.appendChild(crect);
+
+                            /* Top shine */
+                            var cshine = document.createElementNS(NS, 'rect');
+                            cshine.setAttribute('x', cpx - CNW/2 + 3); cshine.setAttribute('y', cpy - CNH/2 + 2);
+                            cshine.setAttribute('width', CNW - 6); cshine.setAttribute('height', 2); cshine.setAttribute('rx', 1);
+                            cshine.setAttribute('fill', 'rgba(255,255,255,0.10)'); cshine.style.pointerEvents = 'none';
+                            cgrp.appendChild(cshine);
+
+                            /* Vertical divider between icon and name */
+                            var divX = cpx - CNW/2 + 20;
+                            var divL = document.createElementNS(NS, 'line');
+                            divL.setAttribute('x1', divX); divL.setAttribute('y1', cpy - CNH/2 + 3);
+                            divL.setAttribute('x2', divX); divL.setAttribute('y2', cpy + CNH/2 - 3);
+                            divL.setAttribute('stroke', typeColor); divL.setAttribute('stroke-width', '0.8');
+                            divL.setAttribute('opacity', '0.35'); divL.style.pointerEvents = 'none';
+                            cgrp.appendChild(divL);
+
+                            mkIcon(cgrp, cpx - CNW/2 + 10, cpy, typeName, typeColor);
+
+                            var nameEl = document.createElementNS(NS, 'text');
+                            nameEl.setAttribute('x', cpx - CNW/2 + 20 + (CNW - 20) / 2);
+                            nameEl.setAttribute('y', cpy);
+                            nameEl.setAttribute('text-anchor', 'middle');
+                            nameEl.setAttribute('dominant-baseline', 'middle');
+                            nameEl.setAttribute('font-size', '11');
+                            nameEl.setAttribute('font-family', 'Lato, sans-serif');
+                            nameEl.setAttribute('fill', typeColor);
+                            nameEl.style.pointerEvents = 'none';
+                            nameEl.style.userSelect = 'none';
+                            nameEl.textContent = cname;
+                            cgrp.appendChild(nameEl);
+
+                            nodeG.appendChild(cgrp);
+
+                            /* Creature hover: glow + ancestry edge highlight */
+                            cgrp.addEventListener('mouseenter', (function(cr, tc, fe, de, pe) {
+                                return function() {
+                                    cr.setAttribute('filter', 'url(#rtrace-glow)');
+                                    cr.setAttribute('fill-opacity', '0.52');
+                                    cr.setAttribute('stroke-width', '2.2');
+                                    tc.setAttribute('stroke-width', '2.5'); tc.setAttribute('opacity', '0.9');
+                                    fe.setAttribute('stroke-width', '2'); fe.setAttribute('opacity', '0.8');
+                                    de.setAttribute('stroke-width', '2'); de.setAttribute('opacity', '0.72');
+                                    pe.setAttribute('stroke-width', '2'); pe.setAttribute('opacity', '0.65');
+                                };
+                            })(crect, tcEdge, ptEdge, pdEdge, cpEdge));
+
+                            cgrp.addEventListener('mouseleave', (function(cr, tc, fe, de, pe) {
+                                return function() {
+                                    cr.removeAttribute('filter');
+                                    cr.setAttribute('fill-opacity', '0.32');
+                                    cr.setAttribute('stroke-width', '1.5');
+                                    tc.setAttribute('stroke-width', '1'); tc.setAttribute('opacity', '0.28');
+                                    fe.setAttribute('stroke-width', '1'); fe.setAttribute('opacity', '0.28');
+                                    de.setAttribute('stroke-width', '1'); de.setAttribute('opacity', '0.28');
+                                    pe.setAttribute('stroke-width', '1'); pe.setAttribute('opacity', '0.28');
+                                };
+                            })(crect, tcEdge, ptEdge, pdEdge, cpEdge));
+
+                            wireTooltip(cgrp, buildCreatureTip.bind(null, cname, typeName));
+                            allNodes.push({ el: cgrp, name: cname, level: 5, typeName: typeName, formName: form.name, driveName: drive.name, pathName: path.name });
+                        });
+                    });
                 });
             });
         });
@@ -4381,11 +4512,12 @@ function showWiki(id) {
                 return;
             }
 
-            var hitTypes = new Set(), hitPaths = new Set();
+            var hitTypes = new Set(), hitForms = new Set(), hitDrives = new Set(), hitPaths = new Set();
             allNodes.forEach(function (n) {
                 if (n.name.toLowerCase().indexOf(q) !== -1) {
-                    if (n.level === 3) { hitTypes.add(n.typeName); hitPaths.add(n.pathName); }
-                    if (n.level === 2) { hitTypes.add(n.typeName); hitPaths.add(n.pathName); }
+                    if (n.level === 5 || n.level === 4) { hitTypes.add(n.typeName); hitForms.add(n.formName); hitDrives.add(n.driveName); hitPaths.add(n.pathName); }
+                    if (n.level === 3) { hitForms.add(n.formName); hitDrives.add(n.driveName); hitPaths.add(n.pathName); }
+                    if (n.level === 2) { hitDrives.add(n.driveName); hitPaths.add(n.pathName); }
                     if (n.level === 1) hitPaths.add(n.name);
                 }
             });
@@ -4393,8 +4525,10 @@ function showWiki(id) {
             allNodes.forEach(function (n) {
                 var match = n.level === 0
                     || n.name.toLowerCase().indexOf(q) !== -1
-                    || (n.level === 3 && hitTypes.has(n.typeName))
-                    || (n.level === 2 && (hitTypes.has(n.typeName) || hitPaths.has(n.pathName)))
+                    || (n.level === 5 && hitTypes.has(n.typeName))
+                    || (n.level === 4 && (hitTypes.has(n.typeName) || hitForms.has(n.formName)))
+                    || (n.level === 3 && (hitForms.has(n.formName) || hitDrives.has(n.driveName)))
+                    || (n.level === 2 && (hitDrives.has(n.driveName) || hitPaths.has(n.pathName)))
                     || (n.level === 1 && hitPaths.has(n.name));
                 n.el.style.transition = 'opacity 0.2s';
                 n.el.style.opacity = match ? '1' : '0.06';
