@@ -618,6 +618,11 @@
                 the base type bonuses visible in the Creature Tree.
             </p>
 
+            <div class="creature-count-badge" id="creature-count-badge">
+                <span class="ccb-num" id="creature-count-num">0</span>
+                <span class="ccb-label">playable races in the game</span>
+            </div>
+
             <!-- Creature search -->
             <div class="creature-search-wrap" id="creature-search-wrap">
                 <div class="creature-search-box">
@@ -2107,6 +2112,11 @@
             <h2>Changelog</h2>
 
             <div class="biome-card">
+                <div><span class="cl-ver">v0.85.2</span><span class="cl-date">2026-06-30</span></div>
+                <p class="biome-desc">Added a playable race count badge to the top of the Creatures wiki page, showing the total number of creatures in the bestiary at a glance.</p>
+            </div>
+
+            <div class="biome-card">
                 <div><span class="cl-ver">v0.85.1</span><span class="cl-date">2026-06-30</span></div>
                 <p class="biome-desc">Research list now sorts affordable researches above ones you can't currently afford, with cost still ascending within each group, instead of strictly by cost regardless of affordability.</p>
             </div>
@@ -3368,6 +3378,11 @@ window.addEventListener('DOMContentLoaded', function () {
     var id = (location.hash || '#intro').slice(1);
     if (!document.getElementById('wiki-' + id)) id = 'intro';
     showWiki(id);
+
+    var countNum = document.getElementById('creature-count-num');
+    if (countNum) {
+        countNum.textContent = document.querySelectorAll('#wiki-creatures .creature-entry').length;
+    }
 });
 </script>
 

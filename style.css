@@ -1883,6 +1883,26 @@ kbd {
 .biome-hard         { color: #c84040; }
 .biome-hard::before { content: "▼ "; }
 
+/* ── CREATURE COUNT BADGE ────────────────────────────────────────────────────── */
+
+.creature-count-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+    padding: 6px 14px;
+    background: rgba(122, 182, 72, 0.1);
+    border: 1px solid rgba(122, 182, 72, 0.4);
+    border-radius: 20px;
+    font-size: 13px;
+    color: var(--text);
+}
+.creature-count-badge .ccb-num {
+    color: #7ab648;
+    font-weight: bold;
+    font-size: 15px;
+}
+
 /* ── CREATURE SEARCH ─────────────────────────────────────────────────────────── */
 
 .creature-search-wrap {
