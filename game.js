@@ -1070,7 +1070,102 @@ function _formatTTTime(seconds) {
     return d + 'd';
 }
 
+function _buildMoraleTooltipHTML() {
+    const research = gameState.research || {};
+    const workers  = getWorkersPerBuilding();
+    const employed = getEmployed();
+    const idle     = Math.max(0, gameState.population.count - employed);
+    const morale   = gameState.morale || { value: MORALE_BASE, target: MORALE_BASE };
+    const season   = SEASONS[gameState.time.seasonIndex];
+
+    const rows = [];
+    rows.push({ label: 'Base', value: MORALE_BASE, drain: false });
+
+    if (employed > 0) rows.push({ label: 'Workers', sub: `${employed} × −0.25`, value: -(employed * 0.25), drain: true });
+    if (idle > 0)     rows.push({ label: 'Idle peasants', sub: `${idle} × −1`, value: -idle, drain: true });
+
+    const entW = workers.entertainersStage || 0;
+    if (entW > 0) {
+        const bardMult  = research.bardMastery ? 1.5 : 1;
+        const entBonus  = entW * ((ROOMS.entertainersStage && ROOMS.entertainersStage.moralePerWorker) || 3) * bardMult;
+        const bardLabel = research.bardMastery ? ' (mastery)' : '';
+        rows.push({ label: "Entertainer's Stage" + bardLabel, sub: `${entW}w`, value: entBonus, drain: false });
+    }
+
+    for (const id of ['shrine', 'temple', 'pelorSanctuary', 'sylvanGrove']) {
+        const cnt = gameState.buildings[id] || 0;
+        const def = ROOMS[id];
+        if (cnt > 0 && def && def.moralePassive) {
+            rows.push({ label: def.name, sub: `×${cnt}`, value: cnt * def.moralePassive, drain: false });
+        }
+    }
+
+    let seasonVal = 0;
+    if (season === 'Summer')                             seasonVal = 10;
+    else if (season === 'Spring' || season === 'Autumn') seasonVal = 5;
+    else if (season === 'Winter') {
+        const sylvReduce = (isDeityFavorActive() && gameState.religion.deity === 'silvanus'
+            && DEITIES.silvanus.bonuses.winterPenaltyMult) || 1;
+        const researchReduce = research.sylvanFavor ? 0.5 : 1;
+        seasonVal = -10 * sylvReduce * researchReduce;
+    }
+    if (seasonVal !== 0) rows.push({ label: `Season: ${season}`, value: seasonVal, drain: seasonVal < 0 });
+
+    if (isDeityFavorActive()) {
+        const dd = DEITIES[gameState.religion.deity];
+        const ff = getFaithScore() / 30;
+        rows.push({ label: 'Patron god', sub: 'active', value: 3, drain: false });
+        if (dd.bonuses.moraleBonus)   rows.push({ label: `${dd.name} blessing`,  sub: `faith ${Math.round(ff*100)}%`, value: dd.bonuses.moraleBonus * ff,   drain: false });
+        if (dd.bonuses.moralePenalty) rows.push({ label: `${dd.name} harshness`, sub: `faith ${Math.round(ff*100)}%`, value: dd.bonuses.moralePenalty * ff, drain: true  });
+        if (gameState.religion.deity === 'pelor' && dd.templeBonus && dd.templeBonus.moraleBonus) {
+            const tb = (gameState.buildings.temple || 0) * dd.templeBonus.moraleBonus * ff;
+            if (tb > 0) rows.push({ label: 'Pelor temples', sub: `×${gameState.buildings.temple}`, value: tb, drain: false });
+        }
+    }
+
+    const sources = rows.filter(r => !r.drain);
+    const drains  = rows.filter(r =>  r.drain);
+
+    let html = `<div class="res-tt-title">Morale</div><div class="res-tt-cols">`;
+
+    html += `<div class="res-tt-col"><div class="res-tt-col-head">Bonuses</div>`;
+    for (const r of sources) {
+        const sign = r.value >= 0 ? '+' : '';
+        const sub  = r.sub ? `<span class="res-tt-sub"> ${r.sub}</span>` : '';
+        html += `<div class="res-tt-row"><span class="res-tt-label">${r.label}${sub}</span><span class="res-tt-val pos">${sign}${r.value.toFixed(1)}</span></div>`;
+    }
+    if (!sources.length) html += `<div class="res-tt-none">—</div>`;
+    html += `</div>`;
+
+    html += `<div class="res-tt-col"><div class="res-tt-col-head">Penalties</div>`;
+    for (const r of drains) {
+        const sub = r.sub ? `<span class="res-tt-sub"> ${r.sub}</span>` : '';
+        html += `<div class="res-tt-row"><span class="res-tt-label">${r.label}${sub}</span><span class="res-tt-val neg">${r.value.toFixed(1)}</span></div>`;
+    }
+    if (!drains.length) html += `<div class="res-tt-none">—</div>`;
+    html += `</div></div>`; // .res-tt-cols
+
+    // Current vs target
+    const mv       = morale.value.toFixed(1);
+    const mt       = morale.target.toFixed(1);
+    const driftDir = morale.target > morale.value ? '▲' : morale.target < morale.value ? '▼' : '=';
+    const driftCls = morale.target > morale.value ? 'pos' : morale.target < morale.value ? 'neg' : '';
+    html += `<div class="res-tt-divider"></div>`;
+    html += `<div class="res-tt-row res-tt-total-row"><span class="res-tt-label">Current morale</span><span class="res-tt-val">${mv}%</span></div>`;
+    html += `<div class="res-tt-row"><span class="res-tt-label">Target <span class="res-tt-sub">${MORALE_DRIFT_RATE}pts/day max drift</span></span><span class="res-tt-val ${driftCls}">${driftDir} ${mt}%</span></div>`;
+
+    // Effect line
+    const mult   = getMoraleMult();
+    const pct    = (mult * 100).toFixed(1);
+    const effCls = mult < 1 ? 'neg' : mult > 1 ? 'pos' : '';
+    html += `<div class="res-tt-divider"></div>`;
+    html += `<div class="res-tt-row"><span class="res-tt-label">Coins, lore &amp; growth ×</span><span class="res-tt-val ${effCls}">${pct}%</span></div>`;
+
+    return html;
+}
+
 function _buildResTooltipHTML(res) {
+    if (res === 'morale') return _buildMoraleTooltipHTML();
     const lines = getResourceBreakdown(res);
     if (lines.length === 0) return '';
     const sources = lines.filter(l => !l.drain);
@@ -2483,12 +2578,71 @@ function updateUI() {
     // Morale
     const moraleEl = document.getElementById("moraleDisplay");
     if (moraleEl && gameState.morale) {
-        const mv = Math.round(gameState.morale.value);
+        const mv   = Math.round(gameState.morale.value);
+        const mult = getMoraleMult();
         moraleEl.textContent = mv + '%';
         moraleEl.style.color = mv >= 75 ? 'var(--enabled)' : mv >= 50 ? '#f5a623' : 'var(--disabled)';
-        const moraleRow = document.getElementById("res-row-morale");
-        if (moraleRow) {
-            moraleRow.title = `Target: ${Math.round(gameState.morale.target)}% · Affects coins, lore & growth`;
+
+        // Drift label in the rate column
+        const moraleRateEl = document.getElementById('moraleRateLabel');
+        if (moraleRateEl) {
+            const diff = gameState.morale.target - gameState.morale.value;
+            if (Math.abs(diff) < 0.5) {
+                moraleRateEl.style.display = 'none';
+            } else {
+                const arrow = diff > 0 ? '▲' : '▼';
+                moraleRateEl.textContent   = arrow + ' ' + Math.abs(diff).toFixed(0) + 'pts';
+                moraleRateEl.style.display = '';
+                moraleRateEl.style.color   = diff > 0 ? 'var(--enabled)' : 'var(--disabled)';
+            }
+        }
+
+        // Sub-line on coins row
+        const _coinsMoraleSub = document.getElementById('coinsMoraleSub');
+        if (_coinsMoraleSub) {
+            if (mult < 1) {
+                _coinsMoraleSub.textContent   = '▼ morale ' + mv + '%';
+                _coinsMoraleSub.style.display = '';
+                _coinsMoraleSub.className     = 'res-rate-sub neg';
+            } else if (mult > 1) {
+                _coinsMoraleSub.textContent   = '▲ morale ' + mv + '%';
+                _coinsMoraleSub.style.display = '';
+                _coinsMoraleSub.className     = 'res-rate-sub pos';
+            } else {
+                _coinsMoraleSub.style.display = 'none';
+            }
+        }
+
+        // Sub-line on lore row
+        const _loreMoraleSub = document.getElementById('loreMoraleSub');
+        if (_loreMoraleSub) {
+            if (mult < 1) {
+                _loreMoraleSub.textContent   = '▼ morale ' + mv + '%';
+                _loreMoraleSub.style.display = '';
+                _loreMoraleSub.className     = 'res-rate-sub neg';
+            } else if (mult > 1) {
+                _loreMoraleSub.textContent   = '▲ morale ' + mv + '%';
+                _loreMoraleSub.style.display = '';
+                _loreMoraleSub.className     = 'res-rate-sub pos';
+            } else {
+                _loreMoraleSub.style.display = 'none';
+            }
+        }
+
+        // Sub-line on pop-row
+        const _popMoraleSub = document.getElementById('popGrowthMorale');
+        if (_popMoraleSub) {
+            if (mult < 1) {
+                _popMoraleSub.textContent   = '▼ slow';
+                _popMoraleSub.style.display = '';
+                _popMoraleSub.style.color   = 'var(--disabled)';
+            } else if (mult > 1) {
+                _popMoraleSub.textContent   = '▲ fast';
+                _popMoraleSub.style.display = '';
+                _popMoraleSub.style.color   = 'var(--enabled)';
+            } else {
+                _popMoraleSub.style.display = 'none';
+            }
         }
     }
 
@@ -2637,12 +2791,13 @@ function updateUI() {
     {
         const era2Sections = {
             'era2-label-countryside': ['farm', 'lumber', 'quarry'],
-            'era2-label-warren':      ['lair', 'house', 'apartment'],
+            'era2-label-warren':      ['lair', 'house', 'apartment', 'entertainersStage'],
             'era2-label-craftsmen':   ['smelter', 'kiln', 'loom', 'alchemyLab', 'forge', 'arcaneGrinder', 'arcaneBench'],
             'era2-label-merchant':    ['storage', 'marketStall', 'tradeCart'],
             'era2-label-arcane':      ['mageTower', 'scriptorium'],
             'era2-label-war':         ['armory'],
             'era2-label-extraction':  ['mine', 'coalSeam', 'crystalSeam', 'sulphurVent', 'herbalistDen', 'huntingLodge', 'clayPit', 'ritualCircle', 'spiderNest', 'arcaneCrucible', 'darkAltar', 'mithrilForge'],
+            'era2-label-religion':    ['shrine', 'temple', 'pelorSanctuary', 'gruumshWarPit', 'sylvanGrove'],
         };
         for (const [labelId, ids] of Object.entries(era2Sections)) {
             const label = document.getElementById(labelId);

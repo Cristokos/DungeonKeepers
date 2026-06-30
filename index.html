@@ -468,13 +468,15 @@
             <span class="res-right">
                 <span id="popCount">0</span> / <span id="popMax">0</span>
             </span>
+            <span id="popGrowthMorale" class="rate" style="display:none"></span>
         </div>
 
-        <div class="res-row era2-only" id="res-row-morale">
+        <div class="res-row era2-only" id="res-row-morale" style="cursor:default">
             <span class="res-name">Morale</span>
             <span class="res-right">
                 <span id="moraleDisplay">90%</span>
             </span>
+            <span id="moraleRateLabel" class="rate" style="display:none"></span>
         </div>
 
         <div class="res-row era2-only" id="res-row-coins">
@@ -483,7 +485,10 @@
                 <span id="coinsDisplay">0 cp</span>
                 <span class="res-label-sm"> / <span id="coinsCap">1000 gp</span></span>
             </span>
-            <span id="coinsRate" class="rate" style="display:none"></span>
+            <span class="rate rate-col">
+                <span id="coinsRate" style="display:none"></span>
+                <span id="coinsMoraleSub" class="res-rate-sub" style="display:none"></span>
+            </span>
         </div>
 
         <div class="res-row" id="res-row-lore" style="display:none">
@@ -491,7 +496,10 @@
             <span class="res-right">
                 <span id="lore">0</span>/<span id="loreCap">0</span>
             </span>
-            <span id="loreRate" class="rate" style="display:none"></span>
+            <span class="rate rate-col">
+                <span id="loreRate" style="display:none"></span>
+                <span id="loreMoraleSub" class="res-rate-sub" style="display:none"></span>
+            </span>
         </div>
 
         <h2 class="section-gap era2-only">Resources</h2>
@@ -869,6 +877,12 @@
                     <div class="btn-cost" id="apartmentCost"></div>
                 </button>
 
+                <button class="build-btn disabled" onclick="build('entertainersStage')" id="btn-entertainersStage" style="display:none">
+                    <div class="btn-title">Entertainer's Stage</div>
+                    <div class="btn-count" id="entertainersStageCount">0</div>
+                    <div class="btn-cost" id="entertainersStageCost"></div>
+                </button>
+
             </div>
 
             <!-- Craftsmen's Quarter -->
@@ -1054,6 +1068,43 @@
                     <div class="btn-title">Mithril Forge</div>
                     <div class="btn-count" id="mithrilForgeCount">0</div>
                     <div class="btn-cost" id="mithrilForgeCost"></div>
+                </button>
+
+            </div>
+
+            <!-- Religion -->
+
+            <h2 class="section-gap" id="era2-label-religion">Religion</h2>
+            <div class="grid">
+
+                <button class="build-btn disabled" onclick="build('shrine')" id="btn-shrine" style="display:none">
+                    <div class="btn-title">Shrine</div>
+                    <div class="btn-count" id="shrineCount">0</div>
+                    <div class="btn-cost" id="shrineCost"></div>
+                </button>
+
+                <button class="build-btn disabled" onclick="build('temple')" id="btn-temple" style="display:none">
+                    <div class="btn-title">Temple</div>
+                    <div class="btn-count" id="templeCount">0</div>
+                    <div class="btn-cost" id="templeCost"></div>
+                </button>
+
+                <button class="build-btn disabled" onclick="build('pelorSanctuary')" id="btn-pelorSanctuary" style="display:none">
+                    <div class="btn-title">Pelor Sanctuary</div>
+                    <div class="btn-count" id="pelorSanctuaryCount">0</div>
+                    <div class="btn-cost" id="pelorSanctuaryCost"></div>
+                </button>
+
+                <button class="build-btn disabled" onclick="build('gruumshWarPit')" id="btn-gruumshWarPit" style="display:none">
+                    <div class="btn-title">Gruumsh War Pit</div>
+                    <div class="btn-count" id="gruumshWarPitCount">0</div>
+                    <div class="btn-cost" id="gruumshWarPitCost"></div>
+                </button>
+
+                <button class="build-btn disabled" onclick="build('sylvanGrove')" id="btn-sylvanGrove" style="display:none">
+                    <div class="btn-title">Sylvan Grove</div>
+                    <div class="btn-count" id="sylvanGroveCount">0</div>
+                    <div class="btn-cost" id="sylvanGroveCost"></div>
                 </button>
 
             </div>

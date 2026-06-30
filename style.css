@@ -983,6 +983,23 @@ h3 {
     width: 4em;
 }
 
+.rate-col {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 1px;
+    width: 4em;
+}
+
+.res-rate-sub {
+    font-size: 10px;
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+}
+
+.res-rate-sub.neg { color: var(--disabled); }
+.res-rate-sub.pos { color: var(--enabled); }
+
 .res-label-sm {
     color: var(--text-muted);
     font-size: 12px;
