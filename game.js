@@ -230,7 +230,7 @@ const gameState = {
         scriptorium: 0,
         ritualCircle: 0, spiderNest: 0, arcaneCrucible: 0, darkAltar: 0, mithrilForge: 0,
     },
-    tradeRoutes: [],
+    tradeRoutes: {},
     research:          {},
     workerAssignments: {},
     population: { count: 0, growthTimer: 0, starveTick: 0 },
@@ -1525,59 +1525,66 @@ function getTradeCapacity() {
     return 5 + (gameState.buildings.tradeCart || 0) * 2;
 }
 
-function findTradeRouteSlot(resource) {
-    if (!gameState.tradeRoutes) return -1;
-    return gameState.tradeRoutes.findIndex(r => r && r.resource === resource);
+// Total route-units committed across all resources (abs value of each signed count).
+function getUsedTradeCapacity() {
+    const routes = gameState.tradeRoutes || {};
+    let used = 0;
+    for (const res of Object.keys(routes)) used += Math.abs(routes[res] || 0);
+    return used;
 }
 
-function setTradeRoute(resource, mode) {
+// Sets a resource's signed route count directly (positive = sell N/day, negative = buy N/day),
+// clamped so total committed routes never exceed capacity.
+function setTradeRouteCount(resource, count) {
     if (!TRADE_RATES[resource]) return;
-    if (!gameState.tradeRoutes) gameState.tradeRoutes = [];
-    const capacity = getTradeCapacity();
-    let slot = findTradeRouteSlot(resource);
-    if (slot === -1) {
-        slot = gameState.tradeRoutes.findIndex(r => r == null);
-        if (slot === -1 || slot >= capacity) {
-            if (gameState.tradeRoutes.length >= capacity) return;
-            gameState.tradeRoutes.push(null);
-            slot = gameState.tradeRoutes.length - 1;
-        }
-    }
-    gameState.tradeRoutes[slot] = { resource, mode };
-    renderTradeTab();
-    saveGame();
-}
-
-function clearTradeRouteForResource(resource) {
-    const slot = findTradeRouteSlot(resource);
-    if (slot !== -1) gameState.tradeRoutes[slot] = null;
+    if (!gameState.tradeRoutes) gameState.tradeRoutes = {};
+    const capacity   = getTradeCapacity();
+    const current    = gameState.tradeRoutes[resource] || 0;
+    const usedByRest = getUsedTradeCapacity() - Math.abs(current);
+    const maxAbs     = Math.max(0, capacity - usedByRest);
+    const clamped    = Math.max(-maxAbs, Math.min(maxAbs, count));
+    if (clamped === 0) delete gameState.tradeRoutes[resource];
+    else gameState.tradeRoutes[resource] = clamped;
     renderTradeTab();
     saveGame();
 }
 
 function adjustTradeRoute(resource, dir) {
-    const slot  = findTradeRouteSlot(resource);
-    const route = slot !== -1 ? gameState.tradeRoutes[slot] : null;
-    const mode  = route ? route.mode : null;
-    if (dir > 0) {
-        if (mode === null)        setTradeRoute(resource, 'sell');
-        else if (mode === 'sell') setTradeRoute(resource, 'buy');
-        else                       clearTradeRouteForResource(resource);
-    } else {
-        if (mode === null)       setTradeRoute(resource, 'buy');
-        else if (mode === 'buy') setTradeRoute(resource, 'sell');
-        else                      clearTradeRouteForResource(resource);
-    }
+    const current = (gameState.tradeRoutes && gameState.tradeRoutes[resource]) || 0;
+    setTradeRouteCount(resource, current + dir);
+}
+
+function setTradeRouteInput(resource, rawValue) {
+    const n = parseInt(rawValue, 10);
+    setTradeRouteCount(resource, isNaN(n) ? 0 : n);
+}
+
+// Sells the maximum number of routes this resource's remaining capacity allows.
+function setTradeRouteSellMax(resource) {
+    const routes     = gameState.tradeRoutes || {};
+    const current    = routes[resource] || 0;
+    const usedByRest = getUsedTradeCapacity() - Math.abs(current);
+    const maxAbs     = Math.max(0, getTradeCapacity() - usedByRest);
+    setTradeRouteCount(resource, maxAbs);
+}
+
+// Buys the maximum number of routes this resource's remaining capacity allows.
+function setTradeRouteBuyMax(resource) {
+    const routes     = gameState.tradeRoutes || {};
+    const current    = routes[resource] || 0;
+    const usedByRest = getUsedTradeCapacity() - Math.abs(current);
+    const maxAbs     = Math.max(0, getTradeCapacity() - usedByRest);
+    setTradeRouteCount(resource, -maxAbs);
 }
 
 function renderTradeTab() {
     const container = document.getElementById('trade-routes');
     if (!container) return;
     const capacity = getTradeCapacity();
-    if (!gameState.tradeRoutes) gameState.tradeRoutes = [];
+    if (!gameState.tradeRoutes) gameState.tradeRoutes = {};
     const routes = gameState.tradeRoutes;
     const fencedBonus = (gameState.research && gameState.research.fencedGoods) ? 1.5 : 1;
-    const activeCount = routes.slice(0, capacity).filter(r => r != null).length;
+    const activeCount = getUsedTradeCapacity();
 
     const hdr = document.getElementById('trade-capacity-display');
     if (hdr) hdr.textContent = `${activeCount} / ${capacity} routes active`;
@@ -1595,38 +1602,68 @@ function renderTradeTab() {
 
     const tradeableResources = Object.keys(TRADE_RATES).filter(shouldShowResource);
 
-    let html = '';
+    if (!tradeableResources.length) {
+        container.innerHTML = '<div class="trade-empty">No tradeable resources unlocked yet.</div>';
+        return;
+    }
+
+    // Rebuild the row list only if the set of resources shown has changed (e.g. a new
+    // resource unlocked); otherwise update existing rows in place so a focused input
+    // (mid-typing) isn't clobbered by an innerHTML rebuild.
+    const existingIds = Array.from(container.children).map(el => el.id);
+    const wantedIds   = tradeableResources.map(res => 'trow-' + res);
+    const structureChanged = existingIds.length !== wantedIds.length
+        || existingIds.some((id, i) => id !== wantedIds[i]);
+
+    if (structureChanged) {
+        let html = '';
+        for (const res of tradeableResources) {
+            html += `<div class="worker-row" id="trow-${res}">
+                <div class="worker-left">
+                    <span class="worker-name">${(RESOURCES[res] && RESOURCES[res].name) || res}</span>
+                    <span class="worker-sub" id="tsub-${res}"></span>
+                </div>
+                <div class="worker-controls">
+                    <button class="wbtn wbtn-mm" onclick="setTradeRouteBuyMax('${res}')" title="Buy max">&#9664;&#9664;</button>
+                    <button class="wbtn" onclick="adjustTradeRoute('${res}', -1)" title="Buy one more route">&#9664;</button>
+                    <input  class="winput" type="number" id="tinput-${res}" oninput="setTradeRouteInput('${res}', this.value)">
+                    <button class="wbtn" onclick="adjustTradeRoute('${res}', 1)" title="Sell one more route">&#9654;</button>
+                    <button class="wbtn wbtn-mm" onclick="setTradeRouteSellMax('${res}')" title="Sell max">&#9654;&#9654;</button>
+                </div>
+            </div>`;
+        }
+        container.innerHTML = html;
+    }
+
     for (const res of tradeableResources) {
-        const rate    = TRADE_RATES[res] || 0;
-        const resName = (RESOURCES[res] && RESOURCES[res].name) || res;
-        const slot    = findTradeRouteSlot(res);
-        const route   = slot !== -1 ? routes[slot] : null;
-        const mode    = route ? route.mode : null;
+        const rate  = TRADE_RATES[res] || 0;
+        const count = routes[res] || 0;
+        const usedByRest = activeCount - Math.abs(count);
+        const maxAbs = Math.max(0, capacity - usedByRest);
 
         let sub;
-        if (mode === 'sell') {
-            const income = Math.floor(TRADE_AMOUNT * rate * fencedBonus);
-            sub = `<span class="trade-dir trade-sell">SELL</span> ${TRADE_AMOUNT}/day &rarr; +${formatCoins(income)}/day`;
-        } else if (mode === 'buy') {
-            const spend = TRADE_AMOUNT * rate * 2;
-            sub = `<span class="trade-dir trade-buy">BUY</span> ${formatCoins(spend)}/day &larr; +${TRADE_AMOUNT}/day`;
+        if (count > 0) {
+            const amount = count * TRADE_AMOUNT;
+            const income = Math.floor(amount * rate * fencedBonus);
+            sub = `<span class="trade-dir trade-sell">SELL</span> ${amount}/day &rarr; +${formatCoins(income)}/day`;
+        } else if (count < 0) {
+            const amount = -count * TRADE_AMOUNT;
+            const spend  = amount * rate * 2;
+            sub = `<span class="trade-dir trade-buy">BUY</span> ${formatCoins(spend)}/day &larr; +${amount}/day`;
         } else {
             sub = `Inactive (${rate} cp/unit)`;
         }
 
-        html += `<div class="worker-row" id="trow-${res}">
-            <div class="worker-left">
-                <span class="worker-name">${resName}</span>
-                <span class="worker-sub">${sub}</span>
-            </div>
-            <div class="worker-controls">
-                <button class="wbtn" onclick="adjustTradeRoute('${res}', -1)" title="Shift toward buy">&#9664;</button>
-                <span class="trade-route-mode trade-route-mode-${mode || 'none'}">${mode ? mode.toUpperCase() : '—'}</span>
-                <button class="wbtn" onclick="adjustTradeRoute('${res}', 1)" title="Shift toward sell">&#9654;</button>
-            </div>
-        </div>`;
+        const subEl = document.getElementById('tsub-' + res);
+        if (subEl) subEl.innerHTML = sub;
+
+        const inputEl = document.getElementById('tinput-' + res);
+        if (inputEl) {
+            inputEl.min = -maxAbs;
+            inputEl.max = maxAbs;
+            if (document.activeElement !== inputEl) inputEl.value = count;
+        }
     }
-    container.innerHTML = html || '<div class="trade-empty">No tradeable resources unlocked yet.</div>';
 }
 
 function gather(key) {
@@ -1830,23 +1867,25 @@ function runOneTick() {
         if (stallWorkers > 0) {
             gameState.resources.coins = (gameState.resources.coins || 0) + stallWorkers * 5;
         }
-        // Trade routes: each configured route executes once per day
-        if (gameState.tradeRoutes && gameState.tradeRoutes.length > 0) {
+        // Trade routes: each resource's signed route count executes once per day
+        if (gameState.tradeRoutes) {
             const fencedBonus = (gameState.research && gameState.research.fencedGoods) ? 1.5 : 1;
-            for (const route of gameState.tradeRoutes) {
-                if (!route || !TRADE_RATES[route.resource]) continue;
-                const rate = TRADE_RATES[route.resource];
-                if (route.mode === 'sell') {
-                    const toSell = Math.min(TRADE_AMOUNT, gameState.resources[route.resource] || 0);
+            for (const res of Object.keys(gameState.tradeRoutes)) {
+                const count = gameState.tradeRoutes[res] || 0;
+                if (count === 0 || !TRADE_RATES[res]) continue;
+                const rate = TRADE_RATES[res];
+                if (count > 0) {
+                    const toSell = Math.min(TRADE_AMOUNT * count, gameState.resources[res] || 0);
                     if (toSell > 0) {
-                        gameState.resources[route.resource] -= toSell;
+                        gameState.resources[res] -= toSell;
                         gameState.resources.coins = (gameState.resources.coins || 0) + Math.floor(toSell * rate * fencedBonus);
                     }
                 } else {
-                    const coinCost = TRADE_AMOUNT * rate * 2;
+                    const amount   = TRADE_AMOUNT * -count;
+                    const coinCost = amount * rate * 2;
                     if ((gameState.resources.coins || 0) >= coinCost) {
                         gameState.resources.coins -= coinCost;
-                        gameState.resources[route.resource] = (gameState.resources[route.resource] || 0) + TRADE_AMOUNT;
+                        gameState.resources[res] = (gameState.resources[res] || 0) + amount;
                     }
                 }
             }
@@ -1943,15 +1982,16 @@ function getCoinsDailyRate() {
     }
     const stallWorkers = (gameState.workerAssignments && gameState.workerAssignments.marketStall) || 0;
     if (stallWorkers > 0) net += stallWorkers * 5;
-    if (gameState.tradeRoutes && gameState.tradeRoutes.length > 0) {
+    if (gameState.tradeRoutes) {
         const fencedBonus = (gameState.research && gameState.research.fencedGoods) ? 1.5 : 1;
-        for (const route of gameState.tradeRoutes) {
-            if (!route || !TRADE_RATES[route.resource]) continue;
-            const rate = TRADE_RATES[route.resource];
-            if (route.mode === 'sell') {
-                net += Math.floor(TRADE_AMOUNT * rate * fencedBonus);
+        for (const res of Object.keys(gameState.tradeRoutes)) {
+            const count = gameState.tradeRoutes[res] || 0;
+            if (count === 0 || !TRADE_RATES[res]) continue;
+            const rate = TRADE_RATES[res];
+            if (count > 0) {
+                net += Math.floor(TRADE_AMOUNT * count * rate * fencedBonus);
             } else {
-                net -= TRADE_AMOUNT * rate * 2;
+                net -= TRADE_AMOUNT * -count * rate * 2;
             }
         }
     }
@@ -6211,7 +6251,7 @@ function doPrestige() {
     for (const k of Object.keys(gameState.stats)) gameState.stats[k] = 0;
     gameState.run         = { biome: null, race: null, mods: [], era: 1 };
     gameState.era1        = { unlocked: [], chosen: null, raceOptions: null };
-    gameState.tradeRoutes = [];
+    gameState.tradeRoutes = {};
     _era1TreeState = '';
     gameState.meta = savedMeta;
 
@@ -6387,7 +6427,18 @@ if (gameState.stats.woodProduced         == null) gameState.stats.woodProduced  
 if (gameState.stats.stoneProduced        == null) gameState.stats.stoneProduced        = 0;
 if (!gameState.workerAssignments)            gameState.workerAssignments = {};
 if (!gameState.research)                     gameState.research = {};
-if (!Array.isArray(gameState.tradeRoutes))   gameState.tradeRoutes = [];
+if (Array.isArray(gameState.tradeRoutes)) {
+    // Migrate old slot-array format ([{resource, mode}, ...]) to signed-count-per-resource object
+    const migrated = {};
+    for (const route of gameState.tradeRoutes) {
+        if (!route || !route.resource) continue;
+        const delta = route.mode === 'buy' ? -1 : 1;
+        migrated[route.resource] = (migrated[route.resource] || 0) + delta;
+    }
+    gameState.tradeRoutes = migrated;
+} else if (!gameState.tradeRoutes || typeof gameState.tradeRoutes !== 'object') {
+    gameState.tradeRoutes = {};
+}
 if (!gameState.run.era)                      gameState.run.era = 1;
 if (gameState.pauseBank == null || isNaN(gameState.pauseBank)) gameState.pauseBank = 0;
 gameState.pauseBank = Math.min(gameState.pauseBank, 28800);
