@@ -1525,21 +1525,49 @@ function getTradeCapacity() {
     return 5 + (gameState.buildings.tradeCart || 0) * 2;
 }
 
-function applyTradeRoute(slot, mode) {
-    const sel = document.getElementById('trade-sel-' + slot);
-    const resource = sel ? sel.value : '';
-    if (!resource || !TRADE_RATES[resource]) return;
+function findTradeRouteSlot(resource) {
+    if (!gameState.tradeRoutes) return -1;
+    return gameState.tradeRoutes.findIndex(r => r && r.resource === resource);
+}
+
+function setTradeRoute(resource, mode) {
+    if (!TRADE_RATES[resource]) return;
     if (!gameState.tradeRoutes) gameState.tradeRoutes = [];
-    while (gameState.tradeRoutes.length <= slot) gameState.tradeRoutes.push(null);
+    const capacity = getTradeCapacity();
+    let slot = findTradeRouteSlot(resource);
+    if (slot === -1) {
+        slot = gameState.tradeRoutes.findIndex(r => r == null);
+        if (slot === -1 || slot >= capacity) {
+            if (gameState.tradeRoutes.length >= capacity) return;
+            gameState.tradeRoutes.push(null);
+            slot = gameState.tradeRoutes.length - 1;
+        }
+    }
     gameState.tradeRoutes[slot] = { resource, mode };
     renderTradeTab();
     saveGame();
 }
 
-function clearTradeRoute(slot) {
-    if (gameState.tradeRoutes) gameState.tradeRoutes[slot] = null;
+function clearTradeRouteForResource(resource) {
+    const slot = findTradeRouteSlot(resource);
+    if (slot !== -1) gameState.tradeRoutes[slot] = null;
     renderTradeTab();
     saveGame();
+}
+
+function adjustTradeRoute(resource, dir) {
+    const slot  = findTradeRouteSlot(resource);
+    const route = slot !== -1 ? gameState.tradeRoutes[slot] : null;
+    const mode  = route ? route.mode : null;
+    if (dir > 0) {
+        if (mode === null)        setTradeRoute(resource, 'sell');
+        else if (mode === 'sell') setTradeRoute(resource, 'buy');
+        else                       clearTradeRouteForResource(resource);
+    } else {
+        if (mode === null)       setTradeRoute(resource, 'buy');
+        else if (mode === 'buy') setTradeRoute(resource, 'sell');
+        else                      clearTradeRouteForResource(resource);
+    }
 }
 
 function renderTradeTab() {
@@ -1547,8 +1575,6 @@ function renderTradeTab() {
     if (!container) return;
     const capacity = getTradeCapacity();
     if (!gameState.tradeRoutes) gameState.tradeRoutes = [];
-    // Grow route array to match capacity; never shrink (preserves routes if capacity temporarily differs)
-    while (gameState.tradeRoutes.length < capacity) gameState.tradeRoutes.push(null);
     const routes = gameState.tradeRoutes;
     const fencedBonus = (gameState.research && gameState.research.fencedGoods) ? 1.5 : 1;
     const activeCount = routes.slice(0, capacity).filter(r => r != null).length;
@@ -1567,54 +1593,40 @@ function renderTradeTab() {
         return;
     }
 
-    const resOpts = Object.entries(TRADE_RATES)
-        .map(([key, rate]) => {
-            const name = (RESOURCES[key] && RESOURCES[key].name) || key;
-            return `<option value="${key}">${name} (${rate} cp/unit)</option>`;
-        }).join('');
+    const tradeableResources = Object.keys(TRADE_RATES).filter(shouldShowResource);
 
     let html = '';
-    for (let i = 0; i < capacity; i++) {
-        const route = (i < routes.length) ? routes[i] : null;
-        if (route) {
-            const rate = TRADE_RATES[route.resource] || 0;
-            const resName = (RESOURCES[route.resource] && RESOURCES[route.resource].name) || route.resource;
-            if (route.mode === 'sell') {
-                const income = Math.floor(TRADE_AMOUNT * rate * fencedBonus);
-                html += `<div class="trade-slot trade-slot-active">
-                    <span class="trade-slot-num">#${i + 1}</span>
-                    <div class="trade-slot-info">
-                        <span class="trade-dir trade-sell">SELL</span>
-                        <span class="trade-slot-res">${resName}</span>
-                        <span class="trade-slot-rate">${TRADE_AMOUNT}/day &rarr; +${formatCoins(income)}/day</span>
-                    </div>
-                    <button class="trade-clear-btn" onclick="clearTradeRoute(${i})">&#x2715;</button>
-                </div>`;
-            } else {
-                const spend = TRADE_AMOUNT * rate * 2;
-                html += `<div class="trade-slot trade-slot-active">
-                    <span class="trade-slot-num">#${i + 1}</span>
-                    <div class="trade-slot-info">
-                        <span class="trade-dir trade-buy">BUY</span>
-                        <span class="trade-slot-res">${resName}</span>
-                        <span class="trade-slot-rate">${formatCoins(spend)}/day &larr; +${TRADE_AMOUNT}/day</span>
-                    </div>
-                    <button class="trade-clear-btn" onclick="clearTradeRoute(${i})">&#x2715;</button>
-                </div>`;
-            }
+    for (const res of tradeableResources) {
+        const rate    = TRADE_RATES[res] || 0;
+        const resName = (RESOURCES[res] && RESOURCES[res].name) || res;
+        const slot    = findTradeRouteSlot(res);
+        const route   = slot !== -1 ? routes[slot] : null;
+        const mode    = route ? route.mode : null;
+
+        let sub;
+        if (mode === 'sell') {
+            const income = Math.floor(TRADE_AMOUNT * rate * fencedBonus);
+            sub = `<span class="trade-dir trade-sell">SELL</span> ${TRADE_AMOUNT}/day &rarr; +${formatCoins(income)}/day`;
+        } else if (mode === 'buy') {
+            const spend = TRADE_AMOUNT * rate * 2;
+            sub = `<span class="trade-dir trade-buy">BUY</span> ${formatCoins(spend)}/day &larr; +${TRADE_AMOUNT}/day`;
         } else {
-            html += `<div class="trade-slot trade-slot-empty">
-                <span class="trade-slot-num">#${i + 1}</span>
-                <select id="trade-sel-${i}" class="trade-res-sel">
-                    <option value="">— select resource —</option>
-                    ${resOpts}
-                </select>
-                <button class="trade-mode-btn trade-sell-btn" onclick="applyTradeRoute(${i}, 'sell')">Sell</button>
-                <button class="trade-mode-btn trade-buy-btn"  onclick="applyTradeRoute(${i}, 'buy')">Buy</button>
-            </div>`;
+            sub = `Inactive (${rate} cp/unit)`;
         }
+
+        html += `<div class="worker-row" id="trow-${res}">
+            <div class="worker-left">
+                <span class="worker-name">${resName}</span>
+                <span class="worker-sub">${sub}</span>
+            </div>
+            <div class="worker-controls">
+                <button class="wbtn" onclick="adjustTradeRoute('${res}', -1)" title="Shift toward buy">&#9664;</button>
+                <span class="trade-route-mode trade-route-mode-${mode || 'none'}">${mode ? mode.toUpperCase() : '—'}</span>
+                <button class="wbtn" onclick="adjustTradeRoute('${res}', 1)" title="Shift toward sell">&#9654;</button>
+            </div>
+        </div>`;
     }
-    container.innerHTML = html;
+    container.innerHTML = html || '<div class="trade-empty">No tradeable resources unlocked yet.</div>';
 }
 
 function gather(key) {
