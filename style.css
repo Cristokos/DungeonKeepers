@@ -1101,6 +1101,7 @@ kbd {
     padding: 5px 0;
     border-bottom: 1px solid rgba(255,255,255,0.04);
     gap: 8px;
+    max-width: 400px;
 }
 
 .worker-peasant {
