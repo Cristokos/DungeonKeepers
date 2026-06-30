@@ -79,7 +79,7 @@ const RANDOM_EVENTS = {
             weight: 7,
             cooldownDays: 25,
             effects: [
-                { type: "resource", resource: "influence", amount: 1 }
+                { type: "resource", resource: "coins", amount: 6 }
             ]
         },
         {
@@ -120,7 +120,7 @@ const RANDOM_EVENTS = {
                 cooldownDays: 20,
                 effects: [
                     { type: "resource", resource: "wood", amount: -3 },
-                    { type: "resource", resource: "influence", amount: 1 }
+                    { type: "resource", resource: "coins", amount: 5 }
                 ]
             },
             {
@@ -225,7 +225,7 @@ const RANDOM_EVENTS = {
                 cooldownDays: 25,
                 effects: [
                     { type: "resource", resource: "food", amount: -3 },
-                    { type: "resource", resource: "influence", amount: 2 }
+                    { type: "resource", resource: "ore", amount: 2 }
                 ]
             }
         ],
@@ -236,7 +236,7 @@ const RANDOM_EVENTS = {
                 weight: 10,
                 cooldownDays: 20,
                 effects: [
-                    { type: "resource", resource: "mana", amount: 1 }
+                    { type: "resource", resource: "arcaneDust", amount: 1 }
                 ]
             },
             {
@@ -263,8 +263,8 @@ const RANDOM_EVENTS = {
                 weight: 7,
                 cooldownDays: 25,
                 effects: [
-                    { type: "resource", resource: "mana", amount: 2 },
-                    { type: "resource", resource: "influence", amount: -1 }
+                    { type: "resource", resource: "arcaneDust", amount: 2 },
+                    { type: "resource", resource: "coins", amount: -5 }
                 ]
             }
         ],
@@ -285,7 +285,7 @@ const RANDOM_EVENTS = {
                 cooldownDays: 20,
                 effects: [
                     { type: "resource", resource: "ore", amount: -2 },
-                    { type: "resource", resource: "influence", amount: 2 }
+                    { type: "resource", resource: "coins", amount: 8 }
                 ]
             },
             {
@@ -323,8 +323,7 @@ const RANDOM_EVENTS = {
                 weight: 9,
                 cooldownDays: 22,
                 effects: [
-                    { type: "resource", resource: "coins", amount: 15 },
-                    { type: "resource", resource: "influence", amount: -1 }
+                    { type: "resource", resource: "coins", amount: 12 }
                 ]
             },
             {
@@ -420,7 +419,7 @@ const RANDOM_EVENTS = {
                 weight: 7,
                 cooldownDays: 25,
                 effects: [
-                    { type: "resource", resource: "influence", amount: 1 }
+                    { type: "resource", resource: "coins", amount: 5 }
                 ]
             }
         ],
@@ -431,7 +430,7 @@ const RANDOM_EVENTS = {
                 weight: 10,
                 cooldownDays: 20,
                 effects: [
-                    { type: "resource", resource: "influence", amount: 1 }
+                    { type: "resource", resource: "leather", amount: 2 }
                 ]
             },
             {
@@ -449,7 +448,7 @@ const RANDOM_EVENTS = {
                 weight: 8,
                 cooldownDays: 22,
                 effects: [
-                    { type: "resource", resource: "influence", amount: 2 }
+                    { type: "resource", resource: "coins", amount: 10 }
                 ]
             },
             {
@@ -517,8 +516,7 @@ const RANDOM_EVENTS = {
                 weight: 9,
                 cooldownDays: 22,
                 effects: [
-                    { type: "resource", resource: "coins", amount: 12 },
-                    { type: "resource", resource: "influence", amount: 1 }
+                    { type: "resource", resource: "coins", amount: 16 }
                 ]
             },
             {
@@ -537,7 +535,7 @@ const RANDOM_EVENTS = {
                 weight: 7,
                 cooldownDays: 25,
                 effects: [
-                    { type: "resource", resource: "influence", amount: 3 }
+                    { type: "resource", resource: "bones", amount: 5 }
                 ]
             }
         ],
@@ -567,7 +565,7 @@ const RANDOM_EVENTS = {
                 weight: 8,
                 cooldownDays: 22,
                 effects: [
-                    { type: "resource", resource: "influence", amount: 2 }
+                    { type: "resource", resource: "food", amount: 4 }
                 ]
             },
             {
@@ -645,7 +643,7 @@ const RANDOM_EVENTS = {
                 weight: 8,
                 cooldownDays: 22,
                 effects: [
-                    { type: "resource", resource: "influence", amount: 1 },
+                    { type: "resource", resource: "ore", amount: 2 },
                     { type: "resource", resource: "coins", amount: 5 }
                 ]
             },
@@ -667,7 +665,7 @@ const RANDOM_EVENTS = {
                 weight: 10,
                 cooldownDays: 20,
                 effects: [
-                    { type: "resource", resource: "mana", amount: 1 }
+                    { type: "resource", resource: "arcaneDust", amount: 1 }
                 ]
             },
             {
@@ -676,7 +674,7 @@ const RANDOM_EVENTS = {
                 weight: 9,
                 cooldownDays: 20,
                 effects: [
-                    { type: "resource", resource: "influence", amount: 2 }
+                    { type: "resource", resource: "lore", amount: 1 }
                 ]
             },
             {
@@ -695,7 +693,7 @@ const RANDOM_EVENTS = {
                 weight: 7,
                 cooldownDays: 25,
                 effects: [
-                    { type: "resource", resource: "mana", amount: 2 }
+                    { type: "resource", resource: "arcaneDust", amount: 2 }
                 ]
             }
         ],
@@ -715,8 +713,7 @@ const RANDOM_EVENTS = {
                 weight: 9,
                 cooldownDays: 22,
                 effects: [
-                    { type: "resource", resource: "coins", amount: 18 },
-                    { type: "resource", resource: "influence", amount: -1 }
+                    { type: "resource", resource: "coins", amount: 14 }
                 ]
             },
             {
@@ -725,8 +722,7 @@ const RANDOM_EVENTS = {
                 weight: 8,
                 cooldownDays: 25,
                 effects: [
-                    { type: "resource", resource: "coins", amount: 12 },
-                    { type: "resource", resource: "influence", amount: 1 }
+                    { type: "resource", resource: "coins", amount: 16 }
                 ]
             },
             {
@@ -828,7 +824,7 @@ const RANDOM_EVENTS = {
                 weight: 10,
                 cooldownDays: 20,
                 effects: [
-                    { type: "resource", resource: "influence", amount: 1 }
+                    { type: "resource", resource: "lore", amount: 1 }
                 ]
             },
             {
@@ -837,8 +833,8 @@ const RANDOM_EVENTS = {
                 weight: 9,
                 cooldownDays: 22,
                 effects: [
-                    { type: "resource", resource: "influence", amount: 2 },
-                    { type: "resource", resource: "mana", amount: 1 }
+                    { type: "resource", resource: "lore", amount: 1 },
+                    { type: "resource", resource: "arcaneDust", amount: 1 }
                 ]
             },
             {
@@ -856,7 +852,7 @@ const RANDOM_EVENTS = {
                 weight: 7,
                 cooldownDays: 30,
                 effects: [
-                    { type: "resource", resource: "influence", amount: 3 }
+                    { type: "resource", resource: "lore", amount: 2 }
                 ]
             }
         ]
