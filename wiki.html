@@ -138,7 +138,7 @@
                     <tr><td>Stone</td><td>100</td><td>Manual: Break Stones · Quarry 0.8/worker/tick</td></tr>
                     <tr><td>Ore</td><td>150</td><td>Mine 0.6/worker/tick (req. 3 Quarry)</td></tr>
                     <tr><td>Herbs</td><td>100</td><td>Herbalist's Den 0.5/worker/tick (req. 3 Farm)</td></tr>
-                    <tr><td>Crystals</td><td>75</td><td>Crystal Seam, passive (Deep Mining research) · Mage Tower 0.3/tick (req. 1 Smelter)</td></tr>
+                    <tr><td>Crystals</td><td>75</td><td>Mage Tower 0.3/tick (req. 1 Smelter) · Crystal Seam 0.5/tick (req. 1 Mage Tower); each Mage Tower boosts Crystal Seams +5%</td></tr>
                     <tr><td>Coal</td><td>150</td><td>Coal Seam, passive (req. 2 Mine)</td></tr>
                     <tr><td>Clay</td><td>120</td><td>Clay Pit, passive (req. 2 Quarry)</td></tr>
                     <tr><td>Bones</td><td>100</td><td>Hunting Lodge 0.4/worker/tick, also produces 0.5 Food (req. 3 Hovels)</td></tr>
@@ -2110,6 +2110,46 @@
         <!-- CHANGELOG -->
         <section id="wiki-changelog" class="wiki-section wiki-changelog" style="display:none">
             <h2>Changelog</h2>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.86.10</span><span class="cl-date">2026-06-30</span></div>
+                <p class="biome-desc">Lowered the Taxation research unlock requirement from 30 Hovels to 20 Hovels.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.86.9</span><span class="cl-date">2026-06-30</span></div>
+                <p class="biome-desc">Rebalanced crystal production: Mage Tower is now the entry point (0.3/tick, unlocks Crystal Seam), and each Mage Tower boosts Crystal Seam output by +5% multiplicatively. Crystal Seam rate raised to 0.5/tick. Deep Mining research no longer unlocks Crystal Seams.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.86.8</span><span class="cl-date">2026-06-30</span></div>
+                <p class="biome-desc">Removed dead code: deleted unused functions (getRaceData, formatCoinCost, devAddResource, renderEra1TreeLegacy) and the empty data/monsters.js placeholder file.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.86.7</span><span class="cl-date">2026-06-30</span></div>
+                <p class="biome-desc">Renamed the Trade Cart worker from "Carter" to "Hauler".</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.86.6</span><span class="cl-date">2026-06-30</span></div>
+                <p class="biome-desc">Simplified worker row sublines to show only the job name (e.g. "Farmer", "Miner", "Scribe") with no trailing description.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.86.5</span><span class="cl-date">2026-06-30</span></div>
+                <p class="biome-desc">Added grey job title sublines to all worker rows in the Workers tab — each now shows the worker's role name and a brief one-phrase description (e.g. "Farmer — tends crops", "Miner — digs ore").</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.86.4</span><span class="cl-date">2026-06-30</span></div>
+                <p class="biome-desc">Fixed Armory tooltip not updating its Max Citizens bonus after Militia Drill, Combat Formations, or Elite Company research is purchased — the tooltip now shows the full total including research bonuses.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.86.3</span><span class="cl-date">2026-06-30</span></div>
+                <p class="biome-desc">Fixed the Storage building tooltip showing a hardcoded "+100 to all material storage" — it now reflects the actual per-building cap bonus (base 50, scaling with Reinforced Shelving, Iron Fittings, and race bonuses), and notes that Lore is excluded.</p>
+            </div>
 
             <div class="biome-card">
                 <div><span class="cl-ver">v0.86.2</span><span class="cl-date">2026-06-30</span></div>

@@ -207,9 +207,6 @@ const MOD_DESCRIPTIONS = {
 //   lairHousing  — override base lair housing per building (replaces ROOMS.lair.housingBonus)
 const RACE_DATA = {};
 const RACE_DATA_FALLBACK = 'Wyrm';
-function getRaceData(name) {
-    return RACE_DATA[name] || RACE_DATA[RACE_DATA_FALLBACK] || null;
-}
 
 const gameState = {
     resources: {
@@ -1135,7 +1132,13 @@ function _bldEffectRates(id, def) {
             out: _fmtRate(def.converts.outputRate * convMult * TICKS_PER_DAY),
         };
     }
-    // Storage buildings — cap bonus is currently fixed at 100
+    // Storage buildings — per-resource cap bonus (varies with research + race), excludes lore
+    if (id === 'storage') {
+        const r2 = gameState.research || {};
+        const raceData2   = RACE_DATA[gameState.run && gameState.run.race];
+        const raceStorage = (raceData2 && raceData2.effects && raceData2.effects.storageBonus) || 0;
+        return { cap: (r2.reinforcedShelving ? 75 : 50) + (r2.ironFittings ? 15 : 0) + raceStorage };
+    }
     return { cap: 100 };
 }
 
@@ -1225,13 +1228,17 @@ function _buildBldTooltipHTML(id, def) {
                 html += `<div class="bld-tt-consume">Consumes ${_fmtRate(inRate * TICKS_PER_DAY)} ${inName}</div>`;
             }
         }
-        if (def.housingBonus) html += `<div class="bld-tt-effect">+${def.housingBonus} Max Citizens</div>`;
+        if (def.housingBonus) {
+            const researchHousing = getResearchBonus('housingBonus', id);
+            const totalHousing = def.housingBonus + researchHousing;
+            html += `<div class="bld-tt-effect">+${totalHousing} Max Citizens</div>`;
+        }
         if (def.jobs) {
             const wn = def.workerName || 'Worker';
             html += `<div class="bld-tt-effect">+${def.jobs} max ${wn}</div>`;
         }
         if (!def.production && !def.converts && !def.housingBonus && !def.jobs && r.cap) {
-            html += `<div class="bld-tt-effect">+${r.cap} to all material storage</div>`;
+            html += `<div class="bld-tt-effect">+${r.cap} to all material storage (except Lore)</div>`;
         }
     }
 
@@ -2522,11 +2529,6 @@ function formatCoins(n) {
     return parts.length ? parts.join(" ") : "0 cp";
 }
 
-// Format a coin *cost* — rounds up sub-denomination remainders when higher
-// denominations have been researched, so display matches what is charged.
-function formatCoinCost(n) {
-    return formatCoins(effectiveCoinCost(n));
-}
 
 // Compact single-denomination display for the main resource bar: shows only
 // the highest unlocked unit, with a decimal remainder instead of stacking
@@ -2780,12 +2782,6 @@ function devSetEra(n) {
     saveGame();
 }
 
-function devAddResource(res, amount) {
-    const caps = getCaps();
-    gameState.resources[res] = Math.min((gameState.resources[res] || 0) + amount, caps[res]);
-    updateUI();
-    saveGame();
-}
 
 function devFillPercent(pct) {
     const caps = getCaps();
@@ -4430,238 +4426,6 @@ function era1ComputeLayout() {
     return pos;
 }
 
-function renderEra1TreeLegacy() {
-    const container = document.getElementById('era1-tree');
-    if (!container) return;
-    if ((gameState.run.era || 1) !== 1) { container.innerHTML = ''; renderEra1Lore(0); return; }
-
-    const era1    = gameState.era1 || { unlocked: [], chosen: null };
-    const unlocked = new Set(era1.unlocked || []);
-    const revealed = era1GetRevealedRaces();
-    const offeredNames = new Set((era1.raceOptions && era1.raceOptions.names) || []);
-    const prestiged    = new Set(Object.keys(gameState.meta.racesPlayed || {}));
-
-    // Determine frontier layer for lore
-    const chosenL1 = era1GetChosenChild('root');
-    const chosenL2 = chosenL1 ? era1GetChosenChild(chosenL1) : null;
-    const chosenL3 = chosenL2 ? era1GetChosenChild(chosenL2) : null;
-    const chosenL4 = chosenL3 ? era1GetChosenChild(chosenL3) : null;
-    const frontierLayer = !chosenL1 ? 1 : !chosenL2 ? 2 : !chosenL3 ? 3 : !chosenL4 ? 4 : 5;
-    renderEra1Lore(frontierLayer);
-
-    // State key — rebuild only when something meaningful changes
-    const stateKey = [...unlocked].join(',') + '|' + [...revealed].join(',') + '|' + getCaps().essence;
-    if (stateKey === _era1TreeState && _era1Canvas) {
-        era1UpdateNodeStyles(unlocked, revealed, offeredNames, prestiged);
-        return;
-    }
-    _era1TreeState = stateKey;
-    era1HidePanel();
-
-    // ── Build canvas wrapper ──────────────────────────────────────────────────
-    container.innerHTML = `
-        <div class="era1-canvas-wrap" id="era1-canvas-wrap">
-            <svg class="era1-canvas-svg" id="era1-canvas-svg" style="position:absolute;top:0;left:0;width:100%;height:100%;overflow:visible;pointer-events:none;"></svg>
-            <div class="era1-canvas-nodes" id="era1-canvas-nodes"></div>
-            <div class="era1-legend" id="era1-legend">
-                <span class="era1-leg era1-leg-chosen">Chosen path</span>
-                <span class="era1-leg era1-leg-prestiged">Unlocked</span>
-                <span class="era1-leg era1-leg-offered">Offered this run</span>
-                <span class="era1-leg era1-leg-fogged">Undiscovered</span>
-            </div>
-        </div>`;
-
-    const wrap      = document.getElementById('era1-canvas-wrap');
-    const svgEl     = document.getElementById('era1-canvas-svg');
-    const nodeLayer = document.getElementById('era1-canvas-nodes');
-
-    // ── Compute layout ────────────────────────────────────────────────────────
-    const positions = era1ComputeLayout();
-
-    // Find bounding box to size the canvas
-    let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
-    for (const [nodeId, p] of positions) {
-        const node = ERA1_TREE[nodeId];
-        const hw = (node && node.layer === 5 ? ERA1_LEAF_W : ERA1_NODE_W) / 2;
-        const hh = (node && node.layer === 5 ? ERA1_LEAF_H : ERA1_NODE_H) / 2;
-        minX = Math.min(minX, p.x - hw);
-        maxX = Math.max(maxX, p.x + hw);
-        minY = Math.min(minY, p.y - hh);
-        maxY = Math.max(maxY, p.y + hh);
-    }
-    const PADDING = 60;
-    const canvasW = maxX - minX + PADDING * 2;
-    const canvasH = maxY - minY + PADDING * 2;
-    const ox = -minX + PADDING; // origin offset so (0,0) maps correctly
-
-    nodeLayer.style.width  = canvasW + 'px';
-    nodeLayer.style.height = canvasH + 'px';
-
-    // ── Draw SVG connector lines ──────────────────────────────────────────────
-    const DOMAIN_COLORS = { deep: '#8899aa', wild: '#5a9e60', beyond: '#8866bb' };
-    let svgContent = '';
-    for (const [nodeId, node] of Object.entries(ERA1_TREE)) {
-        if (!node.parent) continue;
-        const ppos = positions.get(node.parent);
-        const cpos = positions.get(nodeId);
-        if (!ppos || !cpos) continue;
-        const color  = era1GetColor(nodeId, DOMAIN_COLORS);
-        const px = ppos.x + ox;
-        const py = ppos.y + ox; // note: using separate axes below
-        const cx = cpos.x + ox;
-        const cy = cpos.y + ox;
-        // Correct y: uses oy not ox
-        const pY = ppos.y + (PADDING - minY);
-        const cY = cpos.y + (PADDING - minY);
-        const pX = ppos.x + (PADDING - minX);
-        const cX = cpos.x + (PADDING - minX);
-
-        // Determine if this node is on the chosen path
-        const onPath = unlocked.has(nodeId) || unlocked.has(node.parent) || nodeId === 'root' || node.parent === 'root';
-        const opacity = onPath ? 0.7 : 0.2;
-        // Bezier curve for smooth look
-        const midX = (pX + cX) / 2;
-        const midY = (pY + cY) / 2;
-        svgContent += `<path d="M${pX},${pY} C${midX},${pY} ${midX},${cY} ${cX},${cY}"
-            stroke="${color}" stroke-width="${onPath ? 2 : 1}" fill="none" opacity="${opacity}"/>`;
-    }
-    svgEl.innerHTML = svgContent;
-    svgEl.style.width  = canvasW + 'px';
-    svgEl.style.height = canvasH + 'px';
-
-    // ── Place node elements ───────────────────────────────────────────────────
-    for (const [nodeId, node] of Object.entries(ERA1_TREE)) {
-        const p = positions.get(nodeId);
-        if (!p) continue;
-        const nw = node.layer === 5 ? ERA1_LEAF_W : ERA1_NODE_W;
-        const nh = node.layer === 5 ? ERA1_LEAF_H : ERA1_NODE_H;
-        const x = p.x + (PADDING - minX) - nw / 2;
-        const y = p.y + (PADDING - minY) - nh / 2;
-
-        const el = document.createElement('div');
-        el.className = 'era1-cn'; // canvas node
-        el.id = 'era1-node-' + nodeId;
-        el.style.left   = x + 'px';
-        el.style.top    = y + 'px';
-        el.style.width  = nw + 'px';
-        el.style.height = nh + 'px';
-        el.setAttribute('data-nid', nodeId);
-
-        if (node.layer === 5 && node.legendary) {
-            // Legendary leaf — earned, not chosen. Always fogged with a lock
-            // glyph until prestiged; never appears in random offers.
-            el.classList.add('era1-cn-legendary');
-            const isPrestiged = prestiged.has(node.race);
-            const isChosen    = unlocked.has(nodeId) || (era1.chosen === nodeId);
-            if (isChosen || isPrestiged) {
-                el.innerHTML = `<div class="era1-lc-crown">&#10022;</div><div class="era1-cn-name">${node.name}</div><div class="era1-cn-sub">${node.type}</div>`;
-            } else {
-                el.innerHTML = `<div class="era1-lc-lock">&#128274;</div>`;
-            }
-        } else if (node.layer === 5) {
-            // Race leaf — may be fogged
-            const isRevealed = revealed.has(node.race);
-            const isOffered  = offeredNames.has(node.race);
-            const isPrestiged = prestiged.has(node.race);
-            const isChosen   = unlocked.has(nodeId) || (era1.chosen === nodeId);
-            if (isChosen) {
-                el.innerHTML = `<div class="era1-cn-name">${node.name}</div><div class="era1-cn-sub">${node.type}</div>`;
-            } else if (isPrestiged) {
-                el.innerHTML = `<div class="era1-cn-name">${node.name}</div><div class="era1-cn-sub">${node.type}</div>`;
-            } else if (isOffered) {
-                el.innerHTML = `<div class="era1-cn-name">${node.name}</div><div class="era1-cn-sub">offered</div>`;
-            } else {
-                el.innerHTML = `<div class="era1-cn-fog">?</div>`;
-            }
-        } else {
-            el.innerHTML = `<div class="era1-cn-name">${node.name}</div>`;
-        }
-
-        el.addEventListener('mouseenter', e => era1ShowPanel(nodeId, e));
-        el.addEventListener('mousemove',  e => _era1MoveTooltip(e));
-        el.addEventListener('mouseleave', () => era1HidePanel());
-        el.addEventListener('click',      () => unlockEra1Node(nodeId));
-        nodeLayer.appendChild(el);
-    }
-
-    // Apply visual state classes
-    era1UpdateNodeStyles(unlocked, revealed, offeredNames, prestiged);
-
-    // ── Pan & zoom ────────────────────────────────────────────────────────────
-    let zoom = 0.52, panX = 0, panY = 0;
-    let dragging = false, lastMX = 0, lastMY = 0;
-
-    function applyTransform() {
-        nodeLayer.style.transform = `translate(${panX}px,${panY}px) scale(${zoom})`;
-        nodeLayer.style.transformOrigin = '0 0';
-        svgEl.style.transform = `translate(${panX}px,${panY}px) scale(${zoom})`;
-        svgEl.style.transformOrigin = '0 0';
-    }
-
-    // Initial center: root node
-    function centerOnNode(nodeId) {
-        const p = positions.get(nodeId);
-        if (!p) return;
-        const wRect = wrap.getBoundingClientRect();
-        const nx = p.x + (PADDING - minX);
-        const ny = p.y + (PADDING - minY);
-        panX = wRect.width  / 2 - nx * zoom;
-        panY = wRect.height / 2 - ny * zoom;
-        applyTransform();
-    }
-
-    _era1Canvas = { wrap, svgEl, nodeLayer, positions, minX, minY, PADDING,
-                    get zoom() { return zoom; }, set zoom(v) { zoom = v; },
-                    get panX() { return panX; }, set panX(v) { panX = v; },
-                    get panY() { return panY; }, set panY(v) { panY = v; },
-                    applyTransform, centerOnNode };
-
-    centerOnNode('root');
-
-    wrap.addEventListener('wheel', e => {
-        e.preventDefault();
-        const delta = e.deltaY > 0 ? 0.9 : 1.1;
-        const rect  = wrap.getBoundingClientRect();
-        const mx = e.clientX - rect.left;
-        const my = e.clientY - rect.top;
-        panX = mx - (mx - panX) * delta;
-        panY = my - (my - panY) * delta;
-        zoom = Math.max(0.25, Math.min(2.5, zoom * delta));
-        applyTransform();
-    }, { passive: false });
-
-    wrap.addEventListener('mousedown', e => {
-        if (e.button !== 0) return;
-        dragging = true;
-        lastMX = e.clientX;
-        lastMY = e.clientY;
-        wrap.style.cursor = 'grabbing';
-    });
-
-    // ── Auto-recenter after 3s of no mouse movement over the wrap ────────────
-    let _idleTimer = null;
-    function resetIdleTimer() {
-        clearTimeout(_idleTimer);
-        _idleTimer = setTimeout(() => era1PanToMostRecent(), 3000);
-    }
-    wrap.addEventListener('mousemove', resetIdleTimer);
-    wrap.addEventListener('mouseleave', () => clearTimeout(_idleTimer));
-
-    window.addEventListener('mousemove', e => {
-        if (!dragging) return;
-        panX += e.clientX - lastMX;
-        panY += e.clientY - lastMY;
-        lastMX = e.clientX;
-        lastMY = e.clientY;
-        applyTransform();
-        resetIdleTimer();
-    });
-    window.addEventListener('mouseup', () => {
-        dragging = false;
-        if (wrap) wrap.style.cursor = 'grab';
-    });
-    wrap.style.cursor = 'grab';
-}
 
 // Apply the most-specific color for a node as an inline --dn-clr CSS variable.
 const _ERA1_DOMAIN_COLORS_STATIC = { deep: '#8899aa', wild: '#5a9e60', beyond: '#8866bb' };

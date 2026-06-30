@@ -86,9 +86,8 @@ const ROOMS = {
         name: "Crystal Seam",
         cost: { stone: 30, wood: 15 },
         costScale: 1.18,
-        production: { crystals: 0.4 },
-        // Unlocked via the "Deep Mining Techniques" research, not a building count
-        requiresResearch: ["deepMining"],
+        production: { crystals: 0.5 },
+        unlock: { mageTower: 1 },
     },
     marketStall: {
         name: "Market Stall",
@@ -108,7 +107,7 @@ const ROOMS = {
         coinCost: 200,
         costScale: 1.13,
         jobs: 1,
-        workerName: "Carter",
+        workerName: "Hauler",
         requiresResearch: ["tradeGoods"],
     },
     house: {
@@ -198,6 +197,7 @@ const ROOMS = {
         coinCost: 1000,
         costScale: 1.18,
         production: { crystals: 0.3 },
+        productionBonus: { crystalSeam: 1.05 },
         unlock: { smelter: 1 },
     },
     armory: {

@@ -27,7 +27,7 @@ RESEARCH.taxes = {
     name: "Taxation",
     desc: "Levy a tax on your population. Each creature contributes 1 cp per in-game day.",
     cost: { ore: 120, wood: 80 },
-    requiresBuildings: { lair: 30 },
+    requiresBuildings: { lair: 20 },
     effects: { taxBonus: 1, flag: "taxesEnabled" },
 };
 
@@ -239,10 +239,10 @@ RESEARCH.logDrying = {
 RESEARCH.deepMining = {
     tier: "2.3",
     name: "Deep Mining Techniques",
-    desc: "Shafts, bracing, and lung-burning bravery. Mines produce 15% more ore and Crystal Seams become available.",
+    desc: "Shafts, bracing, and lung-burning bravery. Mines produce 15% more ore.",
     cost: { stone: 320, ore: 160 },
     requiresResearch: ["oreProspecting"],
-    effects: { productionBonus: { mine: 1.15 }, unlockBuildings: ["crystalSeam"] },
+    effects: { productionBonus: { mine: 1.15 } },
 };
 
 RESEARCH.crystalLore = {
