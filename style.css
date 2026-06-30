@@ -3824,7 +3824,7 @@ body.reduce-motion *::after {
 }
 .era1-dnode-center {
     border-width: 2px;
-    background: color-mix(in srgb, var(--dn-clr, var(--accent)) 24%, var(--bg-panel));
+    background: color-mix(in srgb, var(--dn-clr, var(--accent)) 24%, var(--bg-panel) 96%);
     box-shadow:
         0 0 0 2px rgba(184,144,42,0.18),
         0 0 18px color-mix(in srgb, var(--dn-clr, var(--accent)) 35%, transparent);
@@ -3834,10 +3834,10 @@ body.reduce-motion *::after {
     font-size: 14px;
 }
 .era1-dnode-sibling {
-    opacity: 0.72;
+    opacity: 0.88;
 }
 .era1-dnode-unknown {
-    opacity: 0.8;
+    opacity: 0.95;
 }
 @media (max-width: 760px) {
     .era1-discovery-wrap {
@@ -3938,7 +3938,7 @@ body.reduce-motion *::after {
 /* Root node */
 .era1-cn.era1-cn-root {
     border-color: rgba(184,144,42,0.8);
-    background: rgba(184,144,42,0.1);
+    background: color-mix(in srgb, rgba(184,144,42,0.6) 35%, var(--bg-panel) 95%);
     cursor: default;
 }
 .era1-cn.era1-cn-root .era1-cn-name { color: rgba(184,144,42,0.9); font-size: 11px; }
@@ -3946,7 +3946,7 @@ body.reduce-motion *::after {
 /* Chosen path (bought by player this run) */
 .era1-cn.era1-cn-chosen {
     border-color: var(--dn-clr, var(--accent));
-    background: color-mix(in srgb, var(--dn-clr, var(--accent)) 18%, transparent);
+    background: color-mix(in srgb, var(--dn-clr, var(--accent)) 32%, var(--bg-panel) 95%);
     box-shadow: 0 0 8px color-mix(in srgb, var(--dn-clr, var(--accent)) 30%, transparent);
     cursor: default;
 }
@@ -3966,20 +3966,22 @@ body.reduce-motion *::after {
 /* Waiting (frontier, can't afford) */
 .era1-cn.era1-cn-waiting {
     border-color: var(--border);
-    opacity: 0.6;
+    background: var(--bg-panel);
+    opacity: 0.85;
 }
 
 /* Sibling (branch not yet reachable) */
 .era1-cn.era1-cn-sibling {
     border-color: var(--border);
-    opacity: 0.25;
+    background: var(--bg-panel);
+    opacity: 0.55;
     pointer-events: none;
 }
 
 /* Prestiged race (permanently unlocked) — green tint */
 .era1-cn.era1-cn-prestiged {
     border-color: rgba(90,200,100,0.7);
-    background: rgba(90,200,100,0.1);
+    background: color-mix(in srgb, rgba(90,200,100,0.6) 30%, var(--bg-panel) 95%);
 }
 .era1-cn.era1-cn-prestiged .era1-cn-name { color: rgba(140,230,150,0.95); }
 .era1-cn.era1-cn-prestiged:hover {
@@ -3990,7 +3992,7 @@ body.reduce-motion *::after {
 /* Offered this run — amber tint */
 .era1-cn.era1-cn-offered {
     border-color: rgba(200,160,50,0.7);
-    background: rgba(200,160,50,0.1);
+    background: color-mix(in srgb, rgba(200,160,50,0.6) 30%, var(--bg-panel) 95%);
 }
 .era1-cn.era1-cn-offered .era1-cn-name { color: rgba(230,190,90,0.95); }
 .era1-cn.era1-cn-offered:hover {
@@ -4001,7 +4003,7 @@ body.reduce-motion *::after {
 /* Fogged / undiscovered race */
 .era1-cn.era1-cn-fogged {
     border-color: rgba(80,80,90,0.5);
-    background: rgba(20,20,28,0.7);
+    background: rgba(20,20,28,0.95);
     filter: blur(0px);
     cursor: default;
 }

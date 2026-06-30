@@ -4828,7 +4828,8 @@ function renderEra1Tree() {
             <div class="era1-discovery-nodes" id="era1-discovery-nodes"></div>
             <div class="era1-legend" id="era1-legend">
                 <span class="era1-leg era1-leg-chosen">Center</span>
-                <span class="era1-leg era1-leg-offered">Seen</span>
+                <span class="era1-leg era1-leg-offered">New</span>
+                <span class="era1-leg era1-leg-prestiged">Previously played</span>
                 <span class="era1-leg era1-leg-fogged">Unknown</span>
             </div>
         </div>`;
@@ -5046,7 +5047,9 @@ function era1CreateDiscoveryNode(slot, unlocked, revealed, offeredNames, prestig
         return el;
     }
 
-    const sub = node.layer === 5 ? (isOffered ? 'seen' : node.type) : era1LayerLabel(node.layer);
+    const sub = node.layer === 5
+        ? (isOffered ? 'new' : isPrestiged ? 'previously played' : node.type)
+        : era1LayerLabel(node.layer);
     const rootPrompt = (node.id === 'root' && isCenter)
         ? `<div class="era1-cn-prompt">Choose your domain →</div>` : '';
     el.innerHTML = `<div class="era1-cn-name">${node.name}</div>${sub ? `<div class="era1-cn-sub">${sub}</div>` : ''}${rootPrompt}`;
