@@ -455,7 +455,6 @@
                 <div class="mod-row"><span class="mod-n">33</span><span class="mod-name">Symbiotic Ecosystem</span><span class="mod-cat mod-cat-pos">Positive</span><span class="mod-fx">Population growth requires 1 fewer food surplus than normal.</span></div>
                 <div class="mod-row"><span class="mod-n">34</span><span class="mod-name">Overcrowding Risk</span><span class="mod-cat mod-cat-neg">Negative</span><span class="mod-fx">After population reaches 20, growth rate reduced by −10%.</span></div>
                 <div class="mod-row"><span class="mod-n">35</span><span class="mod-name">Pack Mentality</span><span class="mod-cat mod-cat-pos">Positive</span><span class="mod-fx">All workers produce +10% more per tick.</span></div>
-                <div class="mod-row"><span class="mod-n">36</span><span class="mod-name">Territorial Instincts</span><span class="mod-cat mod-cat-pos">Positive</span><span class="mod-fx">Each Hovel provides 6 housing instead of the normal 1.</span></div>
                 <div class="mod-row"><span class="mod-n">37</span><span class="mod-name">Plague Risk</span><span class="mod-cat mod-cat-neg">Negative</span><span class="mod-fx">Every 30 days: 5% chance of a −10% population loss event. (Future: events)</span></div>
                 <div class="mod-row"><span class="mod-n">38</span><span class="mod-name">Elder's Blessing</span><span class="mod-cat mod-cat-pos">Positive</span><span class="mod-fx">First 5 population require no food (they forage independently).</span></div>
                 <div class="mod-row"><span class="mod-n">39</span><span class="mod-name">Starvation Resilience</span><span class="mod-cat mod-cat-pos">Positive</span><span class="mod-fx">Death timer before first starvation death extended by +3 ticks.</span></div>
@@ -493,7 +492,6 @@
                 <div class="mod-row"><span class="mod-n">68</span><span class="mod-name">Arcane Residue</span><span class="mod-cat mod-cat-fut">Future</span><span class="mod-fx">Begin run with 10 bonus research points.</span></div>
                 <div class="mod-row"><span class="mod-n">69</span><span class="mod-name">Corrupted Knowledge</span><span class="mod-cat mod-cat-fut">Future</span><span class="mod-fx">Each research has a 20% chance of a random side effect.</span></div>
                 <div class="mod-row"><span class="mod-n">70</span><span class="mod-name">Prophecy Shard</span><span class="mod-cat mod-cat-fut">Future</span><span class="mod-fx">Once per run: one research completes instantly.</span></div>
-                <div class="mod-row"><span class="mod-n">71</span><span class="mod-name">Forbidden Lore</span><span class="mod-cat mod-cat-fut">Future</span><span class="mod-fx">Unique dark research tree unlocked.</span></div>
                 <div class="mod-row"><span class="mod-n">72</span><span class="mod-name">Eldritch Interference</span><span class="mod-cat mod-cat-fut">Future</span><span class="mod-fx">Research speed −15%.</span></div>
                 <div class="mod-row"><span class="mod-n">73</span><span class="mod-name">Blessed Ground</span><span class="mod-cat mod-cat-fut">Future</span><span class="mod-fx">Divine research tree +25% speed.</span></div>
                 <div class="mod-row"><span class="mod-n">74</span><span class="mod-name">Wild Magic Zone</span><span class="mod-cat mod-cat-mix">Mixed</span><span class="mod-fx">10% chance each research grants a random bonus side effect. (Future)</span></div>
@@ -762,10 +760,10 @@
                 </div>
                 <div class="creature-entry">
                     <span class="creature-tag tag-fey">Fey</span>
-                    <span class="creature-name">Homunculus</span>
-                    <span class="creature-desc">A tiny alchemical familiar born from arcane rituals. Though crafted rather than born, homunculi resonate with fey magic and amplify alchemical processes.</span>
-                    <div class="creature-mods"><span class="cmod cmod-pos">▲ Alchemical Familiar — Alchemy Labs extra +15%; Arcane Grinders extra +10%; breeds faster than typical Fey.</span></div>
-                    <span class="creature-biome"><span class="biome-best">Arcane Nexus</span><span class="biome-hard">Blighted Wastes</span></span>
+                    <span class="creature-name">Redcap</span>
+                    <span class="creature-desc">A murderous faerie that keeps its cap red by soaking it in the blood of its kills. Redcaps are maintenance-oriented in the most alarming sense — their violent labor drives exceptional bone yields.</span>
+                    <div class="creature-mods"><span class="cmod cmod-pos">▲ Blood-Soaked Cap — Hunting Lodges extra +10%; Bone cap +50; +1 to all manual gather yields.</span></div>
+                    <span class="creature-biome"><span class="biome-best">Ancient Battlefield</span><span class="biome-hard">Celestial Foothold</span></span>
                 </div>
             </div>
 
@@ -989,6 +987,13 @@
                     <span class="creature-desc">Two-headed giants with a constant internal debate. Despite themselves, dual perspectives improve oversight and tax collection.</span>
                     <div class="creature-mods"><span class="cmod cmod-pos">▲ Divided Mind — Extra +8% all production; +1 cp/creature/day.</span></div>
                     <span class="creature-biome"><span class="biome-best">Rolling Grasslands</span><span class="biome-hard">Arcane Nexus</span></span>
+                </div>
+                <div class="creature-entry">
+                    <span class="creature-tag tag-monstrous">Monstrous</span>
+                    <span class="creature-name">Worg</span>
+                    <span class="creature-desc">Evil-aligned wolves of great cunning who speak and scheme, holding goblinoids in contempt while working alongside them. Worg senses sharpen all gathering.</span>
+                    <div class="creature-mods"><span class="cmod cmod-pos">▲ Dark Pack Instincts — +1 to all manual gather yields; Hunting Lodges extra +10%.</span></div>
+                    <span class="creature-biome"><span class="biome-best">Verdant Forest</span><span class="biome-hard">Arcane Nexus</span></span>
                 </div>
             </div>
 
@@ -1377,10 +1382,386 @@
                 </div>
             </div>
 
-            <!-- LEGENDARY -->
+            <!-- SWARM -->
+            <h3 class="creature-category">Swarms</h3>
+            <div class="creature-list">
+                <div class="creature-entry">
+                    <span class="creature-tag tag-swarm">Swarm</span>
+                    <span class="creature-name">Stirge</span>
+                    <span class="creature-desc">Blood-drinking, bat-winged horrors that strike in clouds and drain prey dry. Individually trivial, collectively catastrophic — and they breed with terrifying speed.</span>
+                    <div class="creature-mods"><span class="cmod cmod-pos">▲ Bloodcloud — Hunting Lodges extra +10%; fastest growth of any Swarm.</span></div>
+                    <span class="creature-biome"><span class="biome-best">Haunted Moor</span><span class="biome-hard">Celestial Foothold</span></span>
+                </div>
+                <div class="creature-entry">
+                    <span class="creature-tag tag-swarm">Swarm</span>
+                    <span class="creature-name">Cranium Rat</span>
+                    <span class="creature-desc">Mind Flayer-bred vermin with collective psychic intelligence. A swarm becomes a single, distributed telepathic mind hungry for secrets — and arcane knowledge.</span>
+                    <div class="creature-mods"><span class="cmod cmod-pos">▲ Hive-Mind — Crystal Seams extra +10%; Arcane Essence cap +25.</span></div>
+                    <span class="creature-biome"><span class="biome-best">Underdark Depths</span><span class="biome-hard">Celestial Foothold</span></span>
+                </div>
+                <div class="creature-entry">
+                    <span class="creature-tag tag-swarm">Swarm</span>
+                    <span class="creature-name">Rot Grub</span>
+                    <span class="creature-desc">Tiny burrowing parasites that infest corpses and the living alike. Rot Grubs do not fight — they infiltrate, and by the time their presence is known it is already too late. Exceptional bone processors.</span>
+                    <div class="creature-mods"><span class="cmod cmod-pos">▲ Infestation — Hunting Lodges extra +10%; Bone cap +75.</span></div>
+                    <span class="creature-biome"><span class="biome-best">Ancient Battlefield</span><span class="biome-hard">Celestial Foothold</span></span>
+                </div>
+                <div class="creature-entry">
+                    <span class="creature-tag tag-swarm">Swarm</span>
+                    <span class="creature-name">Shadow Swarm</span>
+                    <span class="creature-desc">Fragments of darkness given appetite. Ten thousand shadow-motes moving as one hungry mass through a corridor are something the darkness keeps even from itself.</span>
+                    <div class="creature-mods"><span class="cmod cmod-pos">▲ Living Dark — Extra 30% food reduction; +1 to all manual gather yields.</span></div>
+                    <span class="creature-biome"><span class="biome-best">Shadowfell Crossing</span><span class="biome-hard">Celestial Foothold</span></span>
+                </div>
+                <div class="creature-entry">
+                    <span class="creature-tag tag-swarm">Swarm</span>
+                    <span class="creature-name">Spore Cloud</span>
+                    <span class="creature-desc">A fungal colony with collective direction and terrible patience. A Spore Cloud drifts until it finds warmth, then it finds purchase — then the host has a new purpose and Herbalist Dens thrive.</span>
+                    <div class="creature-mods"><span class="cmod cmod-pos">▲ Spore Infestation — Herbalist Dens extra +15%; Herb cap +50.</span></div>
+                    <span class="creature-biome"><span class="biome-best">Fetid Swamp</span><span class="biome-hard">Desert Wastes</span></span>
+                </div>
+                <div class="creature-entry">
+                    <span class="creature-tag tag-swarm">Swarm</span>
+                    <span class="creature-name">Plague Locust</span>
+                    <span class="creature-desc">Individually nothing. Collectively, a verdict. Plague Locusts consume everything in their path with no malice and no mercy — appetite elevated to a geological force that devastates farms but fills storage.</span>
+                    <div class="creature-mods"><span class="cmod cmod-pos">▲ Devouring Wave — Storage buildings hold 15 more per building; Food cap +100.</span><span class="cmod cmod-neg">▼ Locust Logic — Farms produce 10% less — the locusts eat a portion of what they generate.</span></div>
+                    <span class="creature-biome"><span class="biome-best">Rolling Grasslands</span><span class="biome-hard">Underdark Depths</span></span>
+                </div>
+            </div>
+
+            <!-- BEAST -->
+            <h3 class="creature-category">Beasts</h3>
+            <div class="creature-list">
+                <div class="creature-entry">
+                    <span class="creature-tag tag-beast">Beast</span>
+                    <span class="creature-name">Dire Wolf</span>
+                    <span class="creature-desc">The wolf taken to its logical extreme — larger, stronger, faster, and possessed of an intelligence that stops just short of language. Dire Wolves lead lesser wolves the way generals lead armies.</span>
+                    <div class="creature-mods"><span class="cmod cmod-pos">▲ Pack General — Hunting Lodges extra +15%; +1 to all manual gather yields.</span></div>
+                    <span class="creature-biome"><span class="biome-best">Verdant Forest</span><span class="biome-hard">Arcane Nexus</span></span>
+                </div>
+                <div class="creature-entry">
+                    <span class="creature-tag tag-beast">Beast</span>
+                    <span class="creature-name">Cave Bear</span>
+                    <span class="creature-desc">The apex of the underground wilderness. Cave Bears are territorial, enormously powerful, and utterly without interest in negotiation. They have not needed it once in their entire evolutionary history.</span>
+                    <div class="creature-mods"><span class="cmod cmod-pos">▲ Apex Predator — Quarries and Mines extra +10%; Bone cap +50.</span></div>
+                    <span class="creature-biome"><span class="biome-best">Deep Caverns</span><span class="biome-hard">Desert Wastes</span></span>
+                </div>
+                <div class="creature-entry">
+                    <span class="creature-tag tag-beast">Beast</span>
+                    <span class="creature-name">Giant Eagle</span>
+                    <span class="creature-desc">Proud, ancient, and capable of genuine speech — though they rarely bother. Giant Eagles see everything from above and judge most of it unworthy.</span>
+                    <div class="creature-mods"><span class="cmod cmod-pos">▲ Aerial Sight — +2 to all manual gather yields; slightly faster growth.</span></div>
+                    <span class="creature-biome"><span class="biome-best">Mountain Stronghold</span><span class="biome-hard">Underdark Depths</span></span>
+                </div>
+                <div class="creature-entry">
+                    <span class="creature-tag tag-beast">Beast</span>
+                    <span class="creature-name">Sabre Cat</span>
+                    <span class="creature-desc">A predator from the age before civilization, when the world was colder and meaner. Sabre Cats hunt the largest prey they can find as a matter of principle. The fangs are long for a reason.</span>
+                    <div class="creature-mods"><span class="cmod cmod-pos">▲ Ancient Fang — Hunting Lodges extra +15%; food consumption slightly reduced.</span></div>
+                    <span class="creature-biome"><span class="biome-best">Frozen Tundra</span><span class="biome-hard">Fetid Swamp</span></span>
+                </div>
+                <div class="creature-entry">
+                    <span class="creature-tag tag-beast">Beast</span>
+                    <span class="creature-name">Giant Ape</span>
+                    <span class="creature-desc">Immense, intelligent, and deeply territorial. Giant Apes understand tool use, social hierarchy, and the concept of ownership. What they own, they defend — and their quarry work reflects that strength.</span>
+                    <div class="creature-mods"><span class="cmod cmod-pos">▲ Tool-User — Quarries extra +15%; +1 stone per manual gather.</span></div>
+                    <span class="creature-biome"><span class="biome-best">Jungle Canopy</span><span class="biome-hard">Arctic Glacier</span></span>
+                </div>
+                <div class="creature-entry">
+                    <span class="creature-tag tag-beast">Beast</span>
+                    <span class="creature-name">Bulette</span>
+                    <span class="creature-desc">The landshark — an armored predator that swims through earth the way a fish moves through water. Bulettes surface only to strike, and they always strike upward from below, loosening ore as they go.</span>
+                    <div class="creature-mods"><span class="cmod cmod-pos">▲ Earthshark — Mines extra +20%; +1 stone per manual gather.</span></div>
+                    <span class="creature-biome"><span class="biome-best">Badlands</span><span class="biome-hard">Feywild Glade</span></span>
+                </div>
+            </div>
+
+            <!-- SPECTER -->
+            <h3 class="creature-category">Specters</h3>
+            <div class="creature-list">
+                <div class="creature-entry">
+                    <span class="creature-tag tag-specter">Specter</span>
+                    <span class="creature-name">Ghost</span>
+                    <span class="creature-desc">The unfinished dead, haunting the place of their greatest regret. Ghosts are powerful and unpredictable — their emotional state is their weapon, and it is always loaded.</span>
+                    <div class="creature-mods"><span class="cmod cmod-pos">▲ Lingering Presence — +1 cp/creature/day; Arcane Essence cap +25.</span></div>
+                    <span class="creature-biome"><span class="biome-best">Haunted Moor</span><span class="biome-hard">Desert Wastes</span></span>
+                </div>
+                <div class="creature-entry">
+                    <span class="creature-tag tag-specter">Specter</span>
+                    <span class="creature-name">Specter</span>
+                    <span class="creature-desc">Pure malice stripped of everything human. The Specter does not remember what it was. It knows only cold, and the desire to share it.</span>
+                    <div class="creature-mods"><span class="cmod cmod-pos">▲ Base Specter — No creature bonus beyond the Specter type. Cold efficiency.</span></div>
+                    <span class="creature-biome"><span class="biome-best">Shadowfell Crossing</span><span class="biome-hard">Celestial Foothold</span></span>
+                </div>
+                <div class="creature-entry">
+                    <span class="creature-tag tag-specter">Specter</span>
+                    <span class="creature-name">Poltergeist</span>
+                    <span class="creature-desc">A ghost too angry to manifest fully, expressing its rage through hurled objects and shattered glass. The poltergeist cannot be reasoned with — but its chaos paradoxically accelerates production.</span>
+                    <div class="creature-mods"><span class="cmod cmod-pos">▲ Kinetic Fury — Extra +2% all production; Storage buildings hold 10 more per building.</span></div>
+                    <span class="creature-biome"><span class="biome-best">Ancient Battlefield</span><span class="biome-hard">Celestial Foothold</span></span>
+                </div>
+                <div class="creature-entry">
+                    <span class="creature-tag tag-specter">Specter</span>
+                    <span class="creature-name">Will-o'-Wisp</span>
+                    <span class="creature-desc">A cold light over dark water, leading the unwary somewhere they will not return from. Will-o'-Wisps do not hunt so much as wait — patient, luminous, and entirely without mercy.</span>
+                    <div class="creature-mods"><span class="cmod cmod-pos">▲ Luring Light — 75% food reduction; Arcane Essence cap +50; Ritual Circles extra +10%.</span></div>
+                    <span class="creature-biome"><span class="biome-best">Shadowfell Crossing</span><span class="biome-hard">Celestial Foothold</span></span>
+                </div>
+                <div class="creature-entry">
+                    <span class="creature-tag tag-specter">Specter</span>
+                    <span class="creature-name">Nighthaunt</span>
+                    <span class="creature-desc">Spectral warriors bound to a cause that ended centuries ago. Nighthaunts ride the grief of their ancient allegiance like a weapon, manifesting dread wherever they pass — dread that translates to tax compliance.</span>
+                    <div class="creature-mods"><span class="cmod cmod-pos">▲ Grievous Dread — +1 cp/creature/day; extra +2% all production.</span></div>
+                    <span class="creature-biome"><span class="biome-best">Ancient Battlefield</span><span class="biome-hard">Feywild Glade</span></span>
+                </div>
+                <div class="creature-entry">
+                    <span class="creature-tag tag-specter">Specter</span>
+                    <span class="creature-name">Allip</span>
+                    <span class="creature-desc">The mad remnant of someone driven to self-destruction by forbidden knowledge. The Allip babbles constantly — incoherent fragments of the thing that broke it. The babbling accelerates arcane processes nearby.</span>
+                    <div class="creature-mods"><span class="cmod cmod-pos">▲ Mad Babbling — Arcane Grinders and Arcane Benches extra +15%.</span></div>
+                    <span class="creature-biome"><span class="biome-best">Arcane Nexus</span><span class="biome-hard">Celestial Foothold</span></span>
+                </div>
+            </div>
+
+            <!-- TITAN -->
+            <h3 class="creature-category">Titans</h3>
+            <div class="creature-list">
+                <div class="creature-entry">
+                    <span class="creature-tag tag-titan">Titan</span>
+                    <span class="creature-name">Empyrean</span>
+                    <span class="creature-desc">The divine offspring of gods — carrying that inheritance in every action. Empyreans reshape battlefields by existing on them and their divine aura amplifies all output.</span>
+                    <div class="creature-mods"><span class="cmod cmod-pos">▲ Divine Radiance — Extra +3% all production; Coin cap +1,000 + 10% of tier base.</span></div>
+                    <span class="creature-biome"><span class="biome-best">Celestial Foothold</span><span class="biome-hard">Abyssal Rift</span></span>
+                </div>
+                <div class="creature-entry">
+                    <span class="creature-tag tag-titan">Titan</span>
+                    <span class="creature-name">Behemoth</span>
+                    <span class="creature-desc">The land-bound counterpart to the Leviathan — a creature of such mass that the earth reshapes itself around its passage. Its presence supercharges all quarrying and mining.</span>
+                    <div class="creature-mods"><span class="cmod cmod-pos">▲ Earth Shaker — Quarries and Mines extra +20%; Stone cap +100.</span></div>
+                    <span class="creature-biome"><span class="biome-best">Badlands</span><span class="biome-hard">Feywild Glade</span></span>
+                </div>
+                <div class="creature-entry">
+                    <span class="creature-tag tag-titan">Titan</span>
+                    <span class="creature-name">Astral Dreadnought</span>
+                    <span class="creature-desc">A predator native to the Astral Plane that has drifted through the void since before the gods named it. Its alien mass produces arcane resonance that amplifies crystal and converter operations.</span>
+                    <div class="creature-mods"><span class="cmod cmod-pos">▲ Void Resonance — Crystal Seams extra +15%; Arcane Grinders extra +15%.</span></div>
+                    <span class="creature-biome"><span class="biome-best">Arcane Nexus</span><span class="biome-hard">Feywild Glade</span></span>
+                </div>
+                <div class="creature-entry">
+                    <span class="creature-tag tag-titan">Titan</span>
+                    <span class="creature-name">Leviathan</span>
+                    <span class="creature-desc">The sea given agency and appetite. Leviathans are not fish — they are the ocean's verdict on those who forget what lives beneath it. Their presence dramatically amplifies aquatic and storage operations.</span>
+                    <div class="creature-mods"><span class="cmod cmod-pos">▲ Tidal Authority — Clay Pits extra +15%; Storage buildings hold +25 per building; Food cap +150.</span></div>
+                    <span class="creature-biome"><span class="biome-best">Sunken Ruins</span><span class="biome-hard">Desert Wastes</span></span>
+                </div>
+                <div class="creature-entry">
+                    <span class="creature-tag tag-titan">Titan</span>
+                    <span class="creature-name">War Colossus</span>
+                    <span class="creature-desc">An animated statue on a scale that makes fortresses look modest. War Colossi were built by civilizations that no longer exist to serve purposes no one fully remembers. They continue anyway — and mine magnificently.</span>
+                    <div class="creature-mods"><span class="cmod cmod-pos">▲ Inexorable Labor — Quarries and Mines extra +20%; Stone cap +100.</span></div>
+                    <span class="creature-biome"><span class="biome-best">Ancient Battlefield</span><span class="biome-hard">Feywild Glade</span></span>
+                </div>
+                <div class="creature-entry">
+                    <span class="creature-tag tag-titan">Titan</span>
+                    <span class="creature-name">Elder Titan</span>
+                    <span class="creature-desc">A being from the age before the current cosmic order — older than the gods who replaced them. Something has opened the prison. Its presence amplifies everything around it.</span>
+                    <div class="creature-mods"><span class="cmod cmod-pos">▲ Primordial Authority — Extra +3% all production; all resource caps +75.</span></div>
+                    <span class="creature-biome"><span class="biome-best">Mountain Stronghold</span><span class="biome-hard">Feywild Glade</span></span>
+                </div>
+            </div>
+
+            <!-- CURSED -->
+            <h3 class="creature-category">Cursed</h3>
+            <div class="creature-list">
+                <div class="creature-entry">
+                    <span class="creature-tag tag-cursed">Cursed</span>
+                    <span class="creature-name">Death Knight</span>
+                    <span class="creature-desc">A paladin who broke their sacred oath and was resurrected as something worse. Death Knights bear their original training as a weapon — every order they once upheld now fuels their bone reserves and martial output.</span>
+                    <div class="creature-mods"><span class="cmod cmod-pos">▲ Broken Oath — Bone cap +75; all martial production extra +10%.</span></div>
+                    <span class="creature-biome"><span class="biome-best">Ancient Battlefield</span><span class="biome-hard">Feywild Glade</span></span>
+                </div>
+                <div class="creature-entry">
+                    <span class="creature-tag tag-cursed">Cursed</span>
+                    <span class="creature-name">Petrified Medusa</span>
+                    <span class="creature-desc">Once something else — now this. The curse that made a Medusa is older than the Medusa herself, and it does not want to be cured. The endless petrification creates a surplus of worked stone.</span>
+                    <div class="creature-mods"><span class="cmod cmod-pos">▲ Stone Gaze — Quarries extra +20%; Stone cap +100; +1 stone per manual gather.</span></div>
+                    <span class="creature-biome"><span class="biome-best">Ancient Battlefield</span><span class="biome-hard">Feywild Glade</span></span>
+                </div>
+                <div class="creature-entry">
+                    <span class="creature-tag tag-cursed">Cursed</span>
+                    <span class="creature-name">Werewolf</span>
+                    <span class="creature-desc">The oldest lycanthropic curse, spreading fastest of all. A Werewolf does not choose their nature — but in a dungeon, that nature becomes a resource. The pack grows quickly and hunts ferociously.</span>
+                    <div class="creature-mods"><span class="cmod cmod-pos">▲ The Curse Spreads — Hunting Lodges extra +15%; +1 to all gather yields; growth timer faster than other Cursed.</span></div>
+                    <span class="creature-biome"><span class="biome-best">Verdant Forest</span><span class="biome-hard">Desert Wastes</span></span>
+                </div>
+                <div class="creature-entry">
+                    <span class="creature-tag tag-cursed">Cursed</span>
+                    <span class="creature-name">Serpent Abomination</span>
+                    <span class="creature-desc">The furthest any serpent cult goes — more serpent than humanoid, having sacrificed humanity so completely that what remains is something the serpent gods actually want to talk to. Alchemy flows from that relationship.</span>
+                    <div class="creature-mods"><span class="cmod cmod-pos">▲ Serpent Ascension — Alchemy Labs extra +20%; Arcane Grinders extra +10%.</span></div>
+                    <span class="creature-biome"><span class="biome-best">Jungle Canopy</span><span class="biome-hard">Frozen Tundra</span></span>
+                </div>
+                <div class="creature-entry">
+                    <span class="creature-tag tag-cursed">Cursed</span>
+                    <span class="creature-name">Cursed Knight</span>
+                    <span class="creature-desc">A warrior bound to an oath they broke, or a cause that destroyed them, or a weapon that wouldn't let them die. The Cursed Knight fights on because stopping is no longer available as an option — and that drives output.</span>
+                    <div class="creature-mods"><span class="cmod cmod-pos">▲ Unyielding Oath — Extra +2% all production; +1 cp/creature/day; slightly faster growth.</span></div>
+                    <span class="creature-biome"><span class="biome-best">Ancient Battlefield</span><span class="biome-hard">Feywild Glade</span></span>
+                </div>
+                <div class="creature-entry">
+                    <span class="creature-tag tag-cursed">Cursed</span>
+                    <span class="creature-name">Wereraven</span>
+                    <span class="creature-desc">Cursed watchers who carry the affliction lightly — or so they claim. Wereravens observe, remember, and report, flitting between human and bird with an ease that suggests the curse suits them perfectly.</span>
+                    <div class="creature-mods"><span class="cmod cmod-pos">▲ Dark Wing Network — +2 to all manual gather yields; Hunting Lodges extra +10%.</span></div>
+                    <span class="creature-biome"><span class="biome-best">Haunted Moor</span><span class="biome-hard">Desert Wastes</span></span>
+                </div>
+            </div>
+
+            <!-- PLANAR -->
+            <h3 class="creature-category">Planar</h3>
+            <div class="creature-list">
+                <div class="creature-entry">
+                    <span class="creature-tag tag-planar">Planar</span>
+                    <span class="creature-name">Githzerai</span>
+                    <span class="creature-desc">Ascetics of Limbo who have trained themselves to impose order on chaos through sheer will. Githzerai are calm, precise, and their mental discipline amplifies all production.</span>
+                    <div class="creature-mods"><span class="cmod cmod-pos">▲ Zerth Discipline — Extra +2% all production; slightly faster growth.</span></div>
+                    <span class="creature-biome"><span class="biome-best">Arcane Nexus</span><span class="biome-hard">Blighted Wastes</span></span>
+                </div>
+                <div class="creature-entry">
+                    <span class="creature-tag tag-planar">Planar</span>
+                    <span class="creature-name">Githyanki</span>
+                    <span class="creature-desc">Astral conquerors with silver swords that sever the soul from the body. Githyanki do not live on the material plane — they raid it. Their aggressive efficiency translates to exceptional gathering.</span>
+                    <div class="creature-mods"><span class="cmod cmod-pos">▲ Astral Raid — +2 to all manual gather yields; +1 cp/creature/day.</span></div>
+                    <span class="creature-biome"><span class="biome-best">Ancient Battlefield</span><span class="biome-hard">Feywild Glade</span></span>
+                </div>
+                <div class="creature-entry">
+                    <span class="creature-tag tag-planar">Planar</span>
+                    <span class="creature-name">Modron</span>
+                    <span class="creature-desc">Living mathematics from Mechanus, the plane of absolute law. Modrons process reality as a series of hierarchical instructions — and their mechanical efficiency makes every production process optimal.</span>
+                    <div class="creature-mods"><span class="cmod cmod-pos">▲ Hierarchical Processing — Extra +3% all production; converter efficiency +10%.</span></div>
+                    <span class="creature-biome"><span class="biome-best">Arcane Nexus</span><span class="biome-hard">Abyssal Rift</span></span>
+                </div>
+                <div class="creature-entry">
+                    <span class="creature-tag tag-planar">Planar</span>
+                    <span class="creature-name">Slaad</span>
+                    <span class="creature-desc">Living chaos from Limbo — frog-like, violent, and reproducing through horrific infestation of living hosts. Slaadi do not follow logic. They follow entropy, and entropy breeds fast.</span>
+                    <div class="creature-mods"><span class="cmod cmod-pos">▲ Entropic Reproduction — Fastest growth of any Planar; Food cap +75.</span></div>
+                    <span class="creature-biome"><span class="biome-best">Abyssal Rift</span><span class="biome-hard">Arcane Nexus</span></span>
+                </div>
+                <div class="creature-entry">
+                    <span class="creature-tag tag-planar">Planar</span>
+                    <span class="creature-name">Xorn</span>
+                    <span class="creature-desc">Three-armed, three-eyed beings from the elemental plane of earth who move through stone like water and hunger for precious metals. A dungeon is, to the Xorn, a buffet — and they mine exceptionally.</span>
+                    <div class="creature-mods"><span class="cmod cmod-pos">▲ Stone Swimmer — Mines and Quarries extra +15%; Stone cap +50.</span></div>
+                    <span class="creature-biome"><span class="biome-best">Deep Caverns</span><span class="biome-hard">Celestial Foothold</span></span>
+                </div>
+                <div class="creature-entry">
+                    <span class="creature-tag tag-planar">Planar</span>
+                    <span class="creature-name">Inevitables</span>
+                    <span class="creature-desc">Constructs of absolute law dispatched to enforce the rules of the cosmos. Inevitables do not pursue — they continue moving toward their target until one of them stops existing. Their relentless efficiency is unmatched.</span>
+                    <div class="creature-mods"><span class="cmod cmod-pos">▲ Inevitable Purpose — Extra +2% all production; +1 cp/creature/day; foodless as constructs.</span></div>
+                    <span class="creature-biome"><span class="biome-best">Arcane Nexus</span><span class="biome-hard">Abyssal Rift</span></span>
+                </div>
+            </div>
+
+            <!-- CELESTIAL -->
+            <h3 class="creature-category">Celestials</h3>
+            <div class="creature-list">
+                <div class="creature-entry">
+                    <span class="creature-tag tag-celestial">Celestial</span>
+                    <span class="creature-name">Planetar</span>
+                    <span class="creature-desc">A great angel of war and justice, bound now to a different cause. The Planetar does not forget what it was — it has simply decided that this dungeon is where the real work happens.</span>
+                    <div class="creature-mods"><span class="cmod cmod-pos">▲ War Angel — Extra +3% all production; +1 cp/creature/day.</span></div>
+                    <span class="creature-biome"><span class="biome-best">Celestial Foothold</span><span class="biome-hard">Abyssal Rift</span></span>
+                </div>
+                <div class="creature-entry">
+                    <span class="creature-tag tag-celestial">Celestial</span>
+                    <span class="creature-name">Deva</span>
+                    <span class="creature-desc">Celestial messengers who carry divine will across planes. A Deva serving a dungeon lord carries something else now — but the grace, the power, and the efficiency of divine purpose remain.</span>
+                    <div class="creature-mods"><span class="cmod cmod-pos">▲ Divine Messenger — Extra +2% all production; Arcane Essence cap +50.</span></div>
+                    <span class="creature-biome"><span class="biome-best">Celestial Foothold</span><span class="biome-hard">Abyssal Rift</span></span>
+                </div>
+                <div class="creature-entry">
+                    <span class="creature-tag tag-celestial">Celestial</span>
+                    <span class="creature-name">Couatl</span>
+                    <span class="creature-desc">Feathered serpents of divine mandate who speak truth and protect the innocent. A Couatl in a dungeon has made peace with contradiction — and their arcane attunement amplifies magic production.</span>
+                    <div class="creature-mods"><span class="cmod cmod-pos">▲ Feathered Wisdom — Crystal Seams extra +10%; Ritual Circles extra +15%; Herb cap +50.</span></div>
+                    <span class="creature-biome"><span class="biome-best">Jungle Canopy</span><span class="biome-hard">Abyssal Rift</span></span>
+                </div>
+                <div class="creature-entry">
+                    <span class="creature-tag tag-celestial">Celestial</span>
+                    <span class="creature-name">Pegasus</span>
+                    <span class="creature-desc">A winged horse of pure celestial lineage. The Pegasus carries riders through the sky with speed that makes everything else feel insufficient. Their aerial agility enhances all gathering.</span>
+                    <div class="creature-mods"><span class="cmod cmod-pos">▲ Celestial Wings — +2 to all manual gather yields; growth timer slightly faster.</span></div>
+                    <span class="creature-biome"><span class="biome-best">Mountain Stronghold</span><span class="biome-hard">Underdark Depths</span></span>
+                </div>
+                <div class="creature-entry">
+                    <span class="creature-tag tag-celestial">Celestial</span>
+                    <span class="creature-name">Unicorn</span>
+                    <span class="creature-desc">A guardian of sacred places whose horn heals and whose presence sanctifies. A Unicorn has chosen to sanctify a dungeon — which says something about the dungeon. Their presence reduces food needs dramatically.</span>
+                    <div class="creature-mods"><span class="cmod cmod-pos">▲ Sacred Presence — Food consumption further −30%; Herb cap +75; Herbalist Dens extra +10%.</span></div>
+                    <span class="creature-biome"><span class="biome-best">Feywild Glade</span><span class="biome-hard">Abyssal Rift</span></span>
+                </div>
+                <div class="creature-entry">
+                    <span class="creature-tag tag-celestial">Celestial</span>
+                    <span class="creature-name">Hollyphant</span>
+                    <span class="creature-desc">A tiny celestial elephant of improbable power. Hollyphants are gentle, ancient, and capable of releasing divine energy that makes much larger beings reconsider their choices — boosting morale enormously.</span>
+                    <div class="creature-mods"><span class="cmod cmod-pos">▲ Divine Trumpet — Extra +2% all production; +1 cp/creature/day; fastest growth of any Celestial.</span></div>
+                    <span class="creature-biome"><span class="biome-best">Celestial Foothold</span><span class="biome-hard">Abyssal Rift</span></span>
+                </div>
+            </div>
+
+            <!-- PRIMORDIAL -->
+            <h3 class="creature-category">Primordials</h3>
+            <div class="creature-list">
+                <div class="creature-entry">
+                    <span class="creature-tag tag-primordial">Primordial</span>
+                    <span class="creature-name">Elder Tempest</span>
+                    <span class="creature-desc">A storm that predates weather — a conscious atmospheric event from the era before the elemental planes were separated. The Elder Tempest does not rage. It simply is rage, expressed meteorologically.</span>
+                    <div class="creature-mods"><span class="cmod cmod-pos">▲ Primordial Storm — Extra +3% all production; +2 to all manual gather yields.</span></div>
+                    <span class="creature-biome"><span class="biome-best">Mountain Stronghold</span><span class="biome-hard">Underdark Depths</span></span>
+                </div>
+                <div class="creature-entry">
+                    <span class="creature-tag tag-primordial">Primordial</span>
+                    <span class="creature-name">Zaratan</span>
+                    <span class="creature-desc">An island-sized turtle of earth and stone from before the elemental planes had edges. The Zaratan has been sleeping so long that forests grow on its shell. Its waking amplifies all stone and storage operations.</span>
+                    <div class="creature-mods"><span class="cmod cmod-pos">▲ Living Island — Quarries extra +20%; Storage buildings hold +30 per building; Stone cap +150.</span></div>
+                    <span class="creature-biome"><span class="biome-best">Sunken Ruins</span><span class="biome-hard">Desert Wastes</span></span>
+                </div>
+                <div class="creature-entry">
+                    <span class="creature-tag tag-primordial">Primordial</span>
+                    <span class="creature-name">Abyssal Tide</span>
+                    <span class="creature-desc">Not a sea creature — the water itself, given ancient hunger. The Abyssal Tide does not swim through water; it becomes it. Food consumption is almost nil — the tide sustains itself from ambient moisture.</span>
+                    <div class="creature-mods"><span class="cmod cmod-pos">▲ Primordial Water — Food consumption −80%; Clay Pits extra +20%; Food cap +150.</span></div>
+                    <span class="creature-biome"><span class="biome-best">Sunken Ruins</span><span class="biome-hard">Desert Wastes</span></span>
+                </div>
+                <div class="creature-entry">
+                    <span class="creature-tag tag-primordial">Primordial</span>
+                    <span class="creature-name">Elder Fire</span>
+                    <span class="creature-desc">Fire from before fire had rules — not an elemental but a primordial burning, hungry in ways that ordinary flame is not. Elder Fire consumes concepts as readily as it consumes wood, but supercharges all smelting.</span>
+                    <div class="creature-mods"><span class="cmod cmod-pos">▲ Primordial Flame — Smelters and Forges extra +20%; Coal Seams extra +15%.</span></div>
+                    <span class="creature-biome"><span class="biome-best">Volcanic Caldera</span><span class="biome-hard">Arctic Glacier</span></span>
+                </div>
+                <div class="creature-entry">
+                    <span class="creature-tag tag-primordial">Primordial</span>
+                    <span class="creature-name">Obyrith</span>
+                    <span class="creature-desc">Demons older than the Abyss itself — beings of pure chaos from before the planes were organized. Obyriths are so alien that seeing their true form damages sanity. Their chaos somehow generates extraordinary arcane output.</span>
+                    <div class="creature-mods"><span class="cmod cmod-pos">▲ Maddening Form — Dark Altars and Ritual Circles extra +20%; Arcane Essence cap +100.</span></div>
+                    <span class="creature-biome"><span class="biome-best">Abyssal Rift</span><span class="biome-hard">Celestial Foothold</span></span>
+                </div>
+                <div class="creature-entry">
+                    <span class="creature-tag tag-primordial">Primordial</span>
+                    <span class="creature-name">Void Shard</span>
+                    <span class="creature-desc">A fragment of the nothing that existed before existence — the cold that predates cold, the dark that predates dark. Void Shards do not act. They negate, persistently and without malice, preserving resources through null-containment.</span>
+                    <div class="creature-mods"><span class="cmod cmod-pos">▲ Null Containment — Food consumption −90%; Storage buildings hold +40 per building; all resource caps +50.</span></div>
+                    <span class="creature-biome"><span class="biome-best">Shadowfell Crossing</span><span class="biome-hard">Celestial Foothold</span></span>
+                </div>
+            </div>
+
+            <!-- LEGENDARY (EARNED) -->
             <div class="legendary-section-header">
-                <h3>&#9670; Legendary Creatures</h3>
-                <p>These rare beings are not chosen at the start of a run — they must be earned. Some are said to appear only after a dungeon has proven itself through great feats of prestige or achievement. The exact conditions remain shrouded in mystery.</p>
+                <h3>&#9670; Secret Legendaries</h3>
+                <p>These singular beings cannot be chosen through the Awakening tree — they must be earned. Each is said to appear only after a dungeon has proven itself through extraordinary feats of prestige or achievement. The exact conditions remain shrouded in mystery.</p>
             </div>
             <div class="creature-list">
                 <div class="creature-entry">
@@ -1392,20 +1773,6 @@
                 </div>
                 <div class="creature-entry">
                     <span class="creature-tag tag-legendary">Legendary</span>
-                    <span class="creature-name">Lich</span>
-                    <span class="creature-desc">A powerful undead archmage who transcended death to pursue magical mastery. Liches push arcane infrastructure to impossible heights, eat nothing, and demand to be alone in their sanctum.</span>
-                    <div class="creature-mods"><span class="cmod cmod-pos">▲ Phylactery Focus — Crystal Seams, Mage Towers, and Arcane Grinders extra +15%.</span><span class="cmod cmod-pos">▲ Undying Hunger — Does not eat — subsists on soul energy alone; only 1 fits per Hovel.</span></div>
-                    <span class="creature-biome"><span class="biome-best">Arcane Nexus</span><span class="biome-hard">Celestial Foothold</span></span>
-                </div>
-                <div class="creature-entry">
-                    <span class="creature-tag tag-legendary">Legendary</span>
-                    <span class="creature-name">Sphinx</span>
-                    <span class="creature-desc">Ancient and enigmatic, a sphinx's riddling wisdom unlocks insights that improve all arcane processes. It does not submit to ownership — it condescends to coexist.</span>
-                    <div class="creature-mods"><span class="cmod cmod-pos">▲ Riddling Wisdom — Arcane Grinders and Benches extra +15%; Crystal Seams extra +10%.</span></div>
-                    <span class="creature-biome"><span class="biome-best">Ancient Battlefield</span><span class="biome-hard">Blighted Wastes</span></span>
-                </div>
-                <div class="creature-entry">
-                    <span class="creature-tag tag-legendary">Legendary</span>
                     <span class="creature-name">Dracolich</span>
                     <span class="creature-desc">A dragon who refused death and bound its soul to a phylactery. The dracolich fuses draconic production might with undead arcane mastery in one terrible form — and it never needs to eat.</span>
                     <div class="creature-mods"><span class="cmod cmod-pos">▲ Undying Dominance — Extra +10% all production; Arcane Grinders and Ritual Circles +15%.</span><span class="cmod cmod-pos">▲ Phylactery Bound — Requires no food; only 1 fits per Hovel.</span></div>
@@ -1413,17 +1780,10 @@
                 </div>
                 <div class="creature-entry">
                     <span class="creature-tag tag-legendary">Legendary</span>
-                    <span class="creature-name">Tarrasque</span>
-                    <span class="creature-desc">The most feared creature in existence — an engine of annihilation that cannot be permanently slain. Its very presence drives all lesser creatures to work harder out of pure survival instinct. The cost of feeding it is catastrophic.</span>
-                    <div class="creature-mods"><span class="cmod cmod-pos">▲ Primal Terror — Extra +15% all production and +2 to all gather yields.</span><span class="cmod cmod-neg">▼ World-Eater — Consumes 5× the food of a normal Monstrous creature; only 1 fits per Hovel.</span></div>
-                    <span class="creature-biome"><span class="biome-best">Badlands</span><span class="biome-hard">Arcane Nexus</span></span>
-                </div>
-                <div class="creature-entry">
-                    <span class="creature-tag tag-legendary">Legendary</span>
-                    <span class="creature-name">Kraken</span>
-                    <span class="creature-desc">The ancient terror of the deep ocean — a being of alien intelligence whose tentacles span entire sea floors. A kraken's dominion over water amplifies all storage and production to impossible scales.</span>
-                    <div class="creature-mods"><span class="cmod cmod-pos">▲ Deep Dominion — Extra +8% all production; Storage buildings hold 30 more; Food cap +200; Coin cap +10,000.</span><span class="cmod cmod-neg">▼ Titanic Appetite — Consumes 2.5× the food of a normal Aquatic creature; only 1 fits per Hovel.</span></div>
-                    <span class="creature-biome"><span class="biome-best">Sunken Ruins</span><span class="biome-hard">Desert Wastes</span></span>
+                    <span class="creature-name">Lich</span>
+                    <span class="creature-desc">A powerful undead archmage who transcended death to pursue magical mastery. Liches push arcane infrastructure to impossible heights, eat nothing, and demand to be alone in their sanctum.</span>
+                    <div class="creature-mods"><span class="cmod cmod-pos">▲ Phylactery Focus — Crystal Seams, Mage Towers, and Arcane Grinders extra +15%.</span><span class="cmod cmod-pos">▲ Undying Hunger — Does not eat — subsists on soul energy alone; only 1 fits per Hovel.</span></div>
+                    <span class="creature-biome"><span class="biome-best">Arcane Nexus</span><span class="biome-hard">Celestial Foothold</span></span>
                 </div>
             </div>
 
@@ -1463,16 +1823,16 @@
         <section id="wiki-racetree" class="wiki-section" style="display:none">
             <h2>Creature Tree</h2>
             <p class="wiki-lead">
-                All 91 playable creatures across 15 race types, organized by four lineage paths.
+                All playable creatures across 24 race types, organized by domain (Deep, Wild, Beyond) and lineage path.
                 <b>Drag</b> to pan &middot; <b>Scroll</b> to zoom &middot; <b>Hover</b> a node for details &middot; <b>Search</b> to highlight.
+                In-game, individual race leaves are hidden until offered or previously prestiged with.
             </p>
             <input id="rtrace-search" type="text" placeholder="Search creatures or types…"
                 style="width:260px;margin-bottom:10px;padding:5px 10px;background:#1a2020;border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:12px;font-family:Lato,sans-serif;outline:none">
             <div class="rtree-legend">
-                <span class="rtleg"><span class="rtleg-sw" style="background:#58b878"></span>Primal</span>
-                <span class="rtleg"><span class="rtleg-sw" style="background:#9b6dbe"></span>Shadow</span>
-                <span class="rtleg"><span class="rtleg-sw" style="background:#3cb0c8"></span>Arcane</span>
-                <span class="rtleg"><span class="rtleg-sw" style="background:#88a0b0"></span>Civilized</span>
+                <span class="rtleg"><span class="rtleg-sw" style="background:#8899aa"></span>The Deep</span>
+                <span class="rtleg"><span class="rtleg-sw" style="background:#5a9e60"></span>The Wild</span>
+                <span class="rtleg"><span class="rtleg-sw" style="background:#8866bb"></span>The Beyond</span>
             </div>
             <div class="rtrace-controls">
                 <button class="rtrace-btn" id="rtrace-zoom-in"  title="Zoom in">+</button>
@@ -1579,8 +1939,473 @@
             <h2>Changelog</h2>
 
             <div class="biome-card">
-                <div><span class="cl-ver">v0.66.1</span><span class="cl-date">2026-06-30</span></div>
-                <p class="biome-desc">The Idle Save Manager extension is now published on the Chrome Web Store. The Extension wiki page now lists the Web Store install as the primary method, with the manual GitHub install kept as an alternative.</p>
+                <div><span class="cl-ver">v0.80.2</span><span class="cl-date">2026-06-29</span></div>
+                <p class="biome-desc">Fixed the Accelerated Time bank tooltip, which incorrectly described it as an instant catch-up skip — it actually doubles tick speed automatically for as long as banked time remains.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.80.1</span><span class="cl-date">2026-06-29</span></div>
+                <p class="biome-desc">Reworked the building pause control into a hover-revealed stepper that idles individual units (e.g. 3 of 10 Smelters) instead of an all-or-nothing toggle, and moved it out of the way to a subtle corner of the card so it no longer dominates the button.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.80.0</span><span class="cl-date">2026-06-29</span></div>
+                <p class="biome-desc">Added a pause toggle to each production and converter building's Build tab card, letting players stop an individual building from producing or consuming resources without demolishing it — useful for rebalancing ratios after overbuying complex converters.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.79.1</span><span class="cl-date">2026-06-29</span></div>
+                <p class="biome-desc">Restyled the Accelerated Time bank tooltip to use the game's themed tooltip system instead of the browser's default mouseover text.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.79.0</span><span class="cl-date">2026-06-30</span></div>
+                <p class="biome-desc">Added a High Contrast theme for accessibility: near-black/white base with strong luminance separation and a blue/orange enabled-disabled pairing that stays distinguishable for red-green color blindness.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.78.1</span><span class="cl-date">2026-06-29</span></div>
+                <p class="biome-desc">Added a tooltip to the Accelerated Time bank explaining what it does and how it's earned.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.78.0</span><span class="cl-date">2026-06-30</span></div>
+                <p class="biome-desc">Added three multi-color "mashup" themes — Inferno Tide (magma orange vs. deep cyan), Toxic Bloom (acid purple vs. venom green), and Royal Bloodline (royal blue, gold, and crimson) — that mix contrasting hues across accents and highlights instead of a single tinted palette.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.77.0</span><span class="cl-date">2026-06-30</span></div>
+                <p class="biome-desc">Added three more selectable color themes: Verdant Forest, Golden Royal, and Frost.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.76.1</span><span class="cl-date">2026-06-30</span></div>
+                <p class="biome-desc">Reduced the height of resource rows in the left panel so all resources fit without scrolling once everything is unlocked.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.76.0</span><span class="cl-date">2026-06-29</span></div>
+                <p class="biome-desc">Added selectable UI color themes (Default, Crimson Stone, Arcane Violet) in Settings → Display.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.75.6</span><span class="cl-date">2026-06-29</span></div>
+                <p class="biome-desc">Added a Reset button next to the Tab Title setting to instantly restore the default browser tab title.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.75.5</span><span class="cl-date">2026-06-29</span></div>
+                <p class="biome-desc">Simplified the Money display in the resource bar to show a single rounded denomination (e.g. "12.3 gp") instead of a stacked gp/sp/cp breakdown; hover over the value to see the full breakdown in a tooltip.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.75.4</span><span class="cl-date">2026-06-29</span></div>
+                <p class="biome-desc">Fixed housing capacity from research bonuses sometimes producing fractional values (e.g. 95.1); the cap is now always rounded down to a whole number.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.75.3</span><span class="cl-date">2026-06-29</span></div>
+                <p class="biome-desc">Removed the redundant Exchange Rates panel from the Trade tab, since per-unit prices are already shown on each trade route row.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.75.2</span><span class="cl-date">2026-06-29</span></div>
+                <p class="biome-desc">Centered the Workers and Trade tab content (worker assignment rows and trade route rows) in the panel now that they sit closer together; reverted the previous tab-bar centering attempt.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.75.0</span><span class="cl-date">2026-06-29</span></div>
+                <p class="biome-desc">The Kiln and Loom now require assigned workers (Kilnworker and Weaver) to produce Bricks and Cloth, bringing them in line with other staffed production buildings.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.74.9</span><span class="cl-date">2026-06-29</span></div>
+                <p class="biome-desc">Fixed Era 2 random events occasionally granting Influence or Mana, two Era 1-only resources that are retired at the Era 2 transition; those rewards now use Era 2-appropriate resources instead.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.74.8</span><span class="cl-date">2026-06-29</span></div>
+                <p class="biome-desc">Raised housing costs: Hovel wood cost (15 → 25) and scaling (1.08 → 1.15), House scaling (1.09 → 1.18), and Apartment scaling (1.11 → 1.22), so housing no longer stays cheap to stack indefinitely.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.74.7</span><span class="cl-date">2026-06-29</span></div>
+                <p class="biome-desc">Increased Market Stall coin cost (100 → 250 cp) and cost scaling (1.13 → 1.18) so it no longer falls behind other buildings in price growth.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.74.6</span><span class="cl-date">2026-06-29</span></div>
+                <p class="biome-desc">Fixed building coin costs (e.g. Scriptorium) not scaling up with each purchase like their resource costs do.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.74.5</span><span class="cl-date">2026-06-29</span></div>
+                <p class="biome-desc">Fixed the Trade tab stepper arrows: left now decreases the count (sell more), right now increases it (buy more), matching the convention that positive numbers are buy routes and negative numbers are sell routes.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.74.4</span><span class="cl-date">2026-06-29</span></div>
+                <p class="biome-desc">Trade tab: the BUY/SELL indicator now sits in a fixed-width column next to the route stepper instead of inline with the description text, so it stays aligned regardless of resource name length. Also flipped the internal route sign convention so negative counts mean selling and positive counts mean buying.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.74.3</span><span class="cl-date">2026-06-29</span></div>
+                <p class="biome-desc">Research cards now pull their resource and building costs live from the research data instead of showing stale hardcoded numbers. Research tooltips also highlight any resource or building requirement you can't currently afford in red, matching building tooltips.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.74.1</span><span class="cl-date">2026-06-29</span></div>
+                <p class="biome-desc">Trade route rows now use a number input (with min/max buttons) instead of a simple toggle, so you can set a specific quantity of buy or sell routes for a resource — e.g. buy 10 routes of food at once — instead of one route at a time.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.74.0</span><span class="cl-date">2026-06-29</span></div>
+                <p class="biome-desc">Redesigned the Trade tab to match the Workers tab's layout: every unlocked tradeable resource now gets its own row showing live buy/sell status, with arrow buttons to cycle between buying, selling, and inactive instead of picking a resource from a dropdown into a numbered slot.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.73.9</span><span class="cl-date">2026-06-29</span></div>
+                <p class="biome-desc">Significantly increased resource costs for all non-lore research, scaling with tier: 2.1 costs roughly tripled, 2.2–2.3 costs ~3–4×, and 2.4+ resource costs ~4–5×. Pure-lore researches unchanged.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.73.8</span><span class="cl-date">2026-06-29</span></div>
+                <p class="biome-desc">Fixed duplicate race modifiers on Wyrm, Rift Drake, Elder Tempest, and Elder Titan — each was stacking the same +3% production bonus twice. Their unique trait is now a +1 to all manual gather yields instead.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.73.7</span><span class="cl-date">2026-06-29</span></div>
+                <p class="biome-desc">Fixed the Roll button on the main menu — splashRollDice was scoped inside an IIFE and not reachable from the inline onclick handler.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.73.6</span><span class="cl-date">2026-06-29</span></div>
+                <p class="biome-desc">Added a small "Roll" button to the bottom-left of the main menu that triggers the d20 to tumble to a random face.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.73.5</span><span class="cl-date">2026-06-29</span></div>
+                <p class="biome-desc">Fixed main menu overflowing on short screens; title, lore, and buttons now compact responsively so no scrolling is needed.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.73.4</span><span class="cl-date">2026-06-29</span></div>
+                <p class="biome-desc">Tuned splash screen dice physics: stronger gravity for a snappier fall and a more impactful cursor repel force.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.73.3</span><span class="cl-date">2026-06-29</span></div>
+                <p class="biome-desc">Fixed random event effects with negative amounts being able to set resources below zero; all event resource changes now clamp to a floor of 0.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.73.2</span><span class="cl-date">2026-06-29</span></div>
+                <p class="biome-desc">Fixed Era 1 resources (essence, influence, mana) not being zeroed on Era 2 transition; stale values persisted in saves with no cap or drain to remove them.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.73.1</span><span class="cl-date">2026-06-29</span></div>
+                <p class="biome-desc">Fixed trade routes not being cleared on prestige; stale Era 2 buy routes could silently drain starting coins each day tick after a reset.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.73.0</span><span class="cl-date">2026-06-29</span></div>
+                <p class="biome-desc">Major balance pass to slow the game down: research production and converter bonuses reduced by ~33% across the board, all-production bonuses trimmed, food consumption research halved, and building cost-reduction stacking capped at 20% total. Building cost scaling raised by tier (basic +0.03, converters +0.03), lore costs for mid/late research (tiers 2.5–2.10) increased by 50–65%, population growth slowed (GROWTH_TICKS 15→20), and storage cap bonuses from research reduced ~30%.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.72.23</span><span class="cl-date">2026-06-29</span></div>
+                <p class="biome-desc">Fixed old saves missing the stats object crashing the tick loop; added migration guards for all seven stats fields on load.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.72.22</span><span class="cl-date">2026-06-29</span></div>
+                <p class="biome-desc">Fixed Shadow Demon appearing in both Specter and Fiend rosters; it is now Fiend-only. Replaced the Specter slot with Will-o'-Wisp (low food, Arcane Essence cap bonus, Ritual Circle boost).</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.72.21</span><span class="cl-date">2026-06-29</span></div>
+                <p class="biome-desc">Fixed Sovereign races (Wyrm, Umbral Hunter, Storm Roc, Ironback, Rift Drake, Ashborn) having no type-level effects or mods; renamed the TYPES key from "Legendary" to "Sovereign" and added a distinct silver tag color for the type.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.72.20</span><span class="cl-date">2026-06-29</span></div>
+                <p class="biome-desc">Added fallback for saves with a removed race (e.g. Ancient Dragon); invalid races now migrate to Wyrm on load so race cards and tooltips display correctly.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.72.19</span><span class="cl-date">2026-06-29</span></div>
+                <p class="biome-desc">Fixed Accelerated Time bank not being capped to 8 hours on page load; saved values exceeding 28,800 seconds are now clamped on load.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.72.18</span><span class="cl-date">2026-06-25</span></div>
+                <p class="biome-desc">Removed Forbidden Lore and Territorial Instincts biome modifiers (unimplemented); also removed Forbidden Lore from Abyssal Rift, Shadowfell Crossing, and Blighted Wastes biomes.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.72.17</span><span class="cl-date">2026-06-25</span></div>
+                <p class="biome-desc">Fixed Dark Altar and Arcane Crucible not appearing after researching Forbidden Texts and Mana Conduit Forging; moved both buildings from Era 3 to Era 2.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.72.16</span><span class="cl-date">2026-06-25</span></div>
+                <p class="biome-desc">Fixed Silken Warren research not unlocking the Spider Nest building; Spider Nest is now an Era 2 building instead of Era 3.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.72.15</span><span class="cl-date">2026-06-25</span></div>
+                <p class="biome-desc">Moved Lore to display below Money in the resource panel rather than among standard resources; it still only appears once a Scriptorium is built.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.72.14</span><span class="cl-date">2026-06-25</span></div>
+                <p class="biome-desc">Fixed circular dependency blocking the Scriptorium: removed lore costs from Crystal Focus Arrays and Arcane Tapping so the Lore Keeping research chain is reachable before any lore income exists.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.72.13</span><span class="cl-date">2026-06-25</span></div>
+                <p class="biome-desc">Fixed Taxation research not appearing: the building prereq was checking for "house" (mid-game building) instead of "lair" (Hovel), which players actually build early. Now correctly requires 30 Hovels.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.72.12</span><span class="cl-date">2026-06-25</span></div>
+                <p class="biome-desc">Fixed circular research prereq softlock: Taxation now unlocks when you build 30 Hovels (cost: 30 Ore, 20 Wood), with Silver Currency and Gold Standard chaining from it. Added support for requiresBuildings prereqs on research.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.72.11</span><span class="cl-date">2026-06-25</span></div>
+                <p class="biome-desc">Fixed softlock: the first 5 Smelters are now free (no coin cost), allowing players to produce iron and unlock the Taxation research chain before earning any coins. The tooltip shows the free status with a count (e.g. "Free 1/5").</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.72.10</span><span class="cl-date">2026-06-25</span></div>
+                <p class="biome-desc">Era 1 race selection tree: replaced all semi-transparent node backgrounds with solid colors so connector lines no longer show through the boxes.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.72.8</span><span class="cl-date">2026-06-25</span></div>
+                <p class="biome-desc">Wiki Creature Tree: spread the three domain branches evenly at 0°/120°/240° and expanded each branch's arc from 90° to 120°, eliminating overlap and filling all sides of the radial layout.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.72.7</span><span class="cl-date">2026-06-25</span></div>
+                <p class="biome-desc">Renamed the Legendary type node to Sovereign and replaced its six races (Ancient Dragon, Nightwalker, Roc, Dragon Turtle, Void Dragon, Phoenix) with lower-key alternatives: Wyrm, Umbral Hunter, Storm Roc, Ironback, Rift Drake, Ashborn.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.72.6</span><span class="cl-date">2026-06-25</span></div>
+                <p class="biome-desc">Each layer of the Awakening tree now uses distinct colors: L3 Form nodes and L4 Type nodes each have their own accent color instead of inheriting their parent's tint.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.72.5</span><span class="cl-date">2026-06-25</span></div>
+                <p class="biome-desc">Replaced four Awakening tree race picks that conflicted with the earnable Legendary Roster: Tarrasque→Behemoth (Titan), Lich→Death Knight (Cursed), Sphinx→Nightwalker and Kraken→Void Dragon (Legendary). Updated era1tree.js, game.js, and the wiki bestiary and Creature Tree accordingly.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.72.4</span><span class="cl-date">2026-06-25</span></div>
+                <p class="biome-desc">Added a small footer bar at the bottom of the game crediting the creator.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.72.4</span><span class="cl-date">2026-06-25</span></div>
+                <p class="biome-desc">Expanded the wiki bestiary and Creature Tree to cover all 24 race types. Added 8 new type sections (Swarm, Beast, Specter, Titan, Cursed, Planar, Celestial, Primordial) with full creature entries. Updated the Fey section (replaced Homunculus with Redcap) and added Worg to Monstrous. The Creature Tree now shows all types with their full rosters, correct colors, icons, and descriptions.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.72.3</span><span class="cl-date">2026-06-25</span></div>
+                <p class="biome-desc">Removed duplicate entries for Chromatic Dragon and Lich in the creature data — both had stale non-legendary definitions shadowed by their correct legendary definitions, which are now the sole definitions.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.72.2</span><span class="cl-date">2026-06-25</span></div>
+                <p class="biome-desc">Completed the Awakening tree: filled Swarm, Beast, and Planar with real races; added 5 new L4 types (Titan, Cursed, Fey, Legendary, Primordial) as second choices on the Colossus, Forged, Changed, Apex, and Anchored branches, each with 6 races. Every path in the tree now leads to real, selectable races. Also fixed biome and race text overlap in the identity panel.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.72.1</span><span class="cl-date">2026-06-25</span></div>
+                <p class="biome-desc">Each L2 Drive branch now has its own distinct accent color throughout the Awakening tree — nodes, connector lines, and the detail panel all reflect the specific drive chosen rather than sharing a single domain color.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.72.0</span><span class="cl-date">2026-06-25</span></div>
+                <p class="biome-desc">Restructured the Awakening tree so every L2 Drive node now offers two L3 Form choices. Added six new nodes: The Colossus, The Forged, The Changed, The Apex, The Anchored, and The Covenant. Moved Giant, Construct, Lycanthrope, Monstrous, Elemental, and Planar/Celestial types to their respective new branches.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.71.2</span><span class="cl-date">2026-06-25</span></div>
+                <p class="biome-desc">Added spacing between the Biome and Race rows in the dungeon identity panel to fix text overlap after the font size increase.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.71.1</span><span class="cl-date">2026-06-25</span></div>
+                <p class="biome-desc">Fixed Awakening tree progress not persisting on refresh — a stale save-migration guard was wiping era1 state on every load. Removed the era1_settling_stone event (incorrectly awarded Stone in Era 1). L4 Type costs now include 800 Anima alongside 600 Influence + 300 Mana.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.71.0</span><span class="cl-date">2026-06-25</span></div>
+                <p class="biome-desc">Raised Awakening tree costs across all five layers: L1 Domain 200 Anima, L2 Drive 400 Anima + 200 Influence, L3 Form 600 Anima + 400 Influence, L4 Type 600 Influence + 300 Mana, L5 Race 1000 Anima + 500 Influence + 500 Mana.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.70.9</span><span class="cl-date">2026-06-25</span></div>
+                <p class="biome-desc">Breadcrumb bar now hidden when Awakening is the centered node, eliminating the empty bar before any domain is chosen.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.70.8</span><span class="cl-date">2026-06-25</span></div>
+                <p class="biome-desc">Hid the breadcrumb bar after domain is committed (removes the stray domain button below the lore). Siblings no longer appear connected to a committed center node — they only show when the center is still unchosen.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.70.7</span><span class="cl-date">2026-06-25</span></div>
+                <p class="biome-desc">Renamed root node from "The Mind Stirs" to "Awakening". Added a pulsing call-to-action prompt and glow on the domain child nodes when centered on root. Navigating back to Awakening is blocked once a domain is committed — the breadcrumb is hidden and focus lock is enforced.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.70.6</span><span class="cl-date">2026-06-25</span></div>
+                <p class="biome-desc">Redesigned the Era 1 race selection lore block as a dynamic top bar on the canvas panel. The heading and flavor text now sit inline above the tree canvas, updating as the player advances through each layer of the Awakening tree.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.70.5</span><span class="cl-date">2026-06-25</span></div>
+                <p class="biome-desc">Added a filter tab bar to the Log panel (All / Progress / Events) and a Clear button. Log entries carry a category tag so tabs correctly show and hide relevant entries.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.70.4</span><span class="cl-date">2026-06-25</span></div>
+                <p class="biome-desc">Added a "Force Fire Event" button to the Dev tab for testing the random event system without waiting for the natural trigger rate.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.70.3</span><span class="cl-date">2026-06-25</span></div>
+                <p class="biome-desc">Event log now persists across page refreshes — entries are saved in gameState and restored on load.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.70.2</span><span class="cl-date">2026-06-25</span></div>
+                <p class="biome-desc">Reduced random event trigger rate by 20× (from 30% to 1.5% per day).</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.70.1</span><span class="cl-date">2026-06-25</span></div>
+                <p class="biome-desc">Resource and log columns now scale dynamically with viewport width (clamped between 220px and 368px at 20vw each), keeping the layout readable at smaller screen sizes without overflowing.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.70.0</span><span class="cl-date">2026-06-25</span></div>
+                <p class="biome-desc">Implemented the random events system. Events now fire each day (~30% chance), drawn from era-appropriate and race-type pools with cooldowns. The Log panel displays each event with a timestamp and any resource effects. Added 3 additional events to every category (Era 1, General, and all 18 race types).</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.69.8</span><span class="cl-date">2026-06-25</span></div>
+                <p class="biome-desc">Increased font size by 3pt in the Biome and Race identity panel to match the resource and log column readability improvements.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.69.7</span><span class="cl-date">2026-06-25</span></div>
+                <p class="biome-desc">Widened the resource and log columns by 15% (320px → 368px) and increased all text in both panels by 3pt for improved readability.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.69.6</span><span class="cl-date">2026-06-25</span></div>
+                <p class="biome-desc">Fixed the Expanded Awareness tooltip to match the standard building tooltip format — description lines now use the tinted effect style and the Anima cost appears in its own block below a divider, with red tinting when you can't afford it.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.69.5</span><span class="cl-date">2026-06-25</span></div>
+                <p class="biome-desc">Fixed Era 1 tree blinking every day tick. The discovery view now re-renders only when tree state or node affordability changes, not on every resource increment.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.69.4</span><span class="cl-date">2026-06-25</span></div>
+                <p class="biome-desc">Fixed a bug in the Era 1 discovery view where clicking an ancestor (parent) node would navigate backwards up the tree. Parent nodes are now display-only; navigation backward is limited to the breadcrumb trail.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.69.3</span><span class="cl-date">2026-06-24</span></div>
+                <p class="biome-desc">Era 1 tree now uses descendant-weighted angular spacing: each node's arc allocation is proportional to how many L5 leaves are in its subtree, so larger type-clusters receive more angular room at every level.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.69.2</span><span class="cl-date">2026-06-24</span></div>
+                <p class="biome-desc">Era 1 tree: L5 race leaves now orbit their L4 type node in a full local circle rather than fanning outward along the ring edge.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.69.1</span><span class="cl-date">2026-06-24</span></div>
+                <p class="biome-desc">Era 1 tree: L5 race leaves no longer share one giant ring — they now cluster in a tight arc around their L4 type parent, eliminating leaf-on-leaf overlap. L5 nodes are slightly smaller than inner nodes.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.69.0</span><span class="cl-date">2026-06-24</span></div>
+                <p class="biome-desc">Era 1 tree: canvas panel taller (820px), nodes larger (130×54), radii expanded across all layers to eliminate overlap. Auto-recenters on the last purchased node after 3 seconds of mouse inactivity over the canvas.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.68.9</span><span class="cl-date">2026-06-24</span></div>
+                <p class="biome-desc">Era 1 race tree reworked to a fully radial layout: three domain branches at 120° increments from center, L5 leaves arranged in a perfect circle, inner nodes placed at the angular centroid of their subtree.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.68.8</span><span class="cl-date">2026-06-24</span></div>
+                <p class="biome-desc">Era 1 race tree now fans into a pyramid/wing shape — nodes further from center are pushed proportionally deeper, replacing the flat comb layout with a diagonal fanout silhouette.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.68.7</span><span class="cl-date">2026-06-24</span></div>
+                <p class="biome-desc">Era 1 race selection tree: L5 leaf nodes now zigzag in the depth axis (alternating even/odd children offset by 0.4 steps) to break up the flat comb layout.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.68.6</span><span class="cl-date">2026-06-24</span></div>
+                <p class="biome-desc">Tightened d20 cursor repel radius to R×2 so the die only reacts when the cursor is nearly touching it.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.68.5</span><span class="cl-date">2026-06-24</span></div>
+                <p class="biome-desc">Tuned d20 physics: increased gravity (1.8 → 4.5) and cursor repel force (14 → 28) for a heavier, more reactive feel.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.68.4</span><span class="cl-date">2026-06-24</span></div>
+                <p class="biome-desc">Reworked the splash screen d20: reduced opacity to 38%, replaced center-locked spring with full physics simulation — the die bounces around, falls under gravity to the bottom, and flees the cursor.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.68.3</span><span class="cl-date">2026-06-24</span></div>
+                <p class="biome-desc">Fixed d20 not appearing on return visits to the main menu — a reference to the undeclared variable <code>d20State</code> threw a ReferenceError in strict mode, silently preventing <code>startD20()</code> from running. Replaced with <code>d20bg</code> guard.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.68.2</span><span class="cl-date">2026-06-24</span></div>
+                <p class="biome-desc">Fixed the d20 WebGL canvas not appearing on the menu screen — changed its CSS position from fixed to absolute so it renders within the splash overlay's stacking context instead of behind it.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.68.1</span><span class="cl-date">2026-06-24</span></div>
+                <p class="biome-desc">Fixed the Era 1 lore box ("The First Question") re-rendering and blinking on every day tick by adding a layer-cache guard to renderEra1Lore.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.68.0</span><span class="cl-date">2026-06-24</span></div>
+                <p class="biome-desc">Replaced the flat SVG d20 on the main menu with a fully interactive WebGL 3D d20 (Three.js icosahedron) featuring authentic 1–20 face numbering, idle tumble, cursor repel, and a roll-and-settle animation.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.67.1</span><span class="cl-date">2026-06-24</span></div>
+                <p class="biome-desc">Fixed the Legendary Races box flickering on every UI update by adding a state-key guard that skips DOM rebuilds when the revealed set hasn't changed.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.67.0</span><span class="cl-date">2026-06-24</span></div>
+                <p class="biome-desc">Replaced the Era 1 awakening tree with a full zoomable/pannable canvas showing every possible race path. The tree now branches left (Deep), down (Wild), and right (Beyond) from the root, displaying all 131+ races as leaf nodes. Race leaves are fogged with a "?" until revealed — races you've prestiged with are always visible in green, and 2 random new races are offered in amber each run. Added a gold Legendary Races panel below the canvas. Restructured the tree to 6 L3 nodes (3 types each = 18 total types), adding Swarm, Celestial, Planar, Specter, and Beast as new types (Swarm/Beast/Planar have placeholder races pending future content). Wiki Creature Tree updated to reflect the new domain structure.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.66.1</span><span class="cl-date">2026-06-24</span></div>
+                <p class="biome-desc">Era 2 building category headers (Craftsmen's Quarter, Arcane Quarter, War Quarters, Extraction, etc.) are now hidden until at least one building in that category is unlocked. Removed a redundant "Buildings" header from the top of the buildings tab.</p>
             </div>
 
             <div class="biome-card">
@@ -2676,60 +3501,79 @@ function showWiki(id) {
     var R1 = 220, R2 = 640, R3 = 1080;
 
     var RACE_PATHS = [
-        { name: 'Primal',    color: '#58b878', angle: 0,   types: ['Monstrous','Lycanthrope','Flora','Aquatic'] },
-        { name: 'Shadow',    color: '#9b6dbe', angle: 90,  types: ['Undead','Fiend','Ooze'] },
-        { name: 'Arcane',    color: '#3cb0c8', angle: 180, types: ['Draconic','Aberration','Fey','Elemental'] },
-        { name: 'Civilized', color: '#88a0b0', angle: 270, types: ['Goblinoid','Giant','Humanoid','Construct'] },
+        { name: 'The Deep',   color: '#8899aa', angle: 0,   types: ['Goblinoid','Giant','Titan','Swarm','Aberration','Construct','Cursed','Draconic'] },
+        { name: 'The Wild',   color: '#5a9e60', angle: 120, types: ['Flora','Ooze','Lycanthrope','Fey','Aquatic','Monstrous','Sovereign','Beast'] },
+        { name: 'The Beyond', color: '#8866bb', angle: 240, types: ['Undead','Specter','Elemental','Primordial','Fiend','Humanoid','Planar','Celestial'] },
     ];
 
     var ROSTER = {
-        'Draconic':    ['Metallic Dragon','Lizardfolk','Kobold','Yuan-ti','Wyvern','Dragonborn'],
-        'Undead':      ['Skeleton','Zombie','Vampire','Wight','Ghoul','Revenant','Banshee','Wraith','Mummy','Demilich','Shadow'],
         'Goblinoid':   ['Goblin','Hobgoblin','Bugbear','Orc','Gnoll','Barghest'],
-        'Fey':         ['Pixie','Dryad','Satyr','Quickling','Green Hag','Homunculus'],
-        'Aberration':  ['Mind Flayer','Beholder','Aboleth','Gibbering Mouther','Nothic','Chuul','Grell','Flumph'],
-        'Ooze':        ['Gelatinous Cube','Black Pudding','Gray Ooze','Ochre Jelly','Void Ooze','Oblex'],
-        'Elemental':   ['Fire Elemental','Earth Elemental','Water Elemental','Air Elemental','Magmin','Galeb Duhr'],
-        'Monstrous':   ['Harpy','Medusa','Minotaur','Troll','Werewolf','Naga','Basilisk','Chimera','Manticore','Griffon','Hydra','Ettin'],
-        'Fiend':       ['Imp','Cambion','Barbed Devil','Night Hag','Succubus/Incubus','Pit Fiend','Balor','Rakshasa','Quasit','Shadow Demon'],
         'Giant':       ['Hill Giant','Stone Giant','Frost Giant','Fire Giant','Cloud Giant','Storm Giant'],
+        'Swarm':       ['Stirge','Cranium Rat','Rot Grub','Shadow Swarm','Spore Cloud','Plague Locust'],
+        'Aberration':  ['Mind Flayer','Beholder','Aboleth','Gibbering Mouther','Nothic','Chuul','Grell','Flumph'],
         'Construct':   ['Stone Golem','Iron Golem','Animated Armor','Clay Golem','Flesh Golem','Clockwork Horror'],
-        'Lycanthrope': ['Werebear','Wererat','Wereboar','Owlbear','Displacer Beast','Weretiger'],
+        'Draconic':    ['Metallic Dragon','Lizardfolk','Kobold','Yuan-ti','Wyvern','Dragonborn'],
         'Flora':       ['Treant','Myconid','Vegepygmy','Shambling Mound','Vine Blight','Wood Woad'],
+        'Ooze':        ['Gelatinous Cube','Black Pudding','Gray Ooze','Ochre Jelly','Void Ooze','Oblex'],
+        'Lycanthrope': ['Werebear','Wererat','Wereboar','Owlbear','Displacer Beast','Weretiger'],
         'Aquatic':     ['Merfolk','Sahuagin','Kuo-toa','Triton','Sea Hag','Locathah'],
+        'Monstrous':   ['Harpy','Medusa','Minotaur','Troll','Naga','Basilisk','Chimera','Manticore','Griffon','Hydra','Ettin','Worg'],
+        'Beast':       ['Dire Wolf','Cave Bear','Giant Eagle','Sabre Cat','Giant Ape','Bulette'],
+        'Undead':      ['Skeleton','Zombie','Vampire','Wight','Ghoul','Revenant','Banshee','Wraith','Mummy','Demilich','Shadow'],
+        'Elemental':   ['Fire Elemental','Earth Elemental','Water Elemental','Air Elemental','Magmin','Galeb Duhr'],
+        'Specter':     ['Ghost','Specter','Poltergeist',"Will-o'-Wisp",'Nighthaunt','Allip'],
+        'Fiend':       ['Imp','Cambion','Barbed Devil','Night Hag','Succubus/Incubus','Pit Fiend','Balor','Rakshasa','Quasit','Shadow Demon'],
         'Humanoid':    ['Kenku','Tabaxi','Aarakocra','Tortle','Centaur','Human','Elf','Dwarf','Half-Orc','Gnome'],
+        'Planar':      ['Githzerai','Githyanki','Modron','Slaad','Xorn','Inevitables'],
+        'Celestial':   ['Planetar','Deva','Couatl','Pegasus','Unicorn','Hollyphant'],
+        'Titan':       ['Empyrean','Behemoth','Astral Dreadnought','Leviathan','War Colossus','Elder Titan'],
+        'Cursed':      ['Death Knight','Petrified Medusa','Werewolf','Serpent Abomination','Cursed Knight','Wereraven'],
+        'Fey':         ['Pixie','Satyr','Dryad','Redcap','Quickling','Green Hag'],
+        'Sovereign':   ['Wyrm','Umbral Hunter','Storm Roc','Ironback','Rift Drake','Ashborn'],
+        'Primordial':  ['Elder Tempest','Zaratan','Abyssal Tide','Elder Fire','Obyrith','Void Shard'],
     };
 
     var TYPE_COLORS = {
-        'Draconic':'#e07b39','Undead':'#9b6dbe','Goblinoid':'#7ab648','Fey':'#c878d8',
-        'Aberration':'#3cb0c8','Ooze':'#a0c840','Elemental':'#e8c040','Monstrous':'#c84040',
-        'Fiend':'#d04060','Giant':'#c87840','Construct':'#88a0b0','Lycanthrope':'#8fbe60',
-        'Flora':'#58b878','Aquatic':'#40a8c8','Humanoid':'#60a8d0',
+        'Goblinoid':'#7ab648','Giant':'#c87840','Swarm':'#a0a030',
+        'Aberration':'#3cb0c8','Construct':'#88a0b0','Draconic':'#e07b39',
+        'Flora':'#58b878','Ooze':'#a0c840','Lycanthrope':'#8fbe60',
+        'Aquatic':'#40a8c8','Monstrous':'#c84040','Beast':'#b06030',
+        'Undead':'#9b6dbe','Elemental':'#e8c040','Specter':'#7060a0',
+        'Fiend':'#d04060','Humanoid':'#60a8d0','Planar':'#60a0b0','Celestial':'#d4b840',
+        'Titan':'#c05030','Cursed':'#8040a0','Fey':'#c878d8','Sovereign':'#c8d8e8','Primordial':'#3080a0',
     };
 
     var PATH_DESCS = {
-        'Primal':    'Creatures of claw, fang, and primal instinct. Hunters, beasts, and forces of raw nature.',
-        'Shadow':    'Creatures of darkness, death, and the beyond. Feed on the living — or nothing at all.',
-        'Arcane':    'Creatures bound to magic, mystery, and ancient power. Arcane amplifiers and enigmatic minds.',
-        'Civilized': 'Creatures with society, order, or purpose-built design. Structured, industrious, and disciplined.',
+        'The Deep':   'Underground creatures of dominance and ancient wisdom. Hordes, anomalies, and dragon-blooded power.',
+        'The Wild':   'Surface creatures of growth and the hunt. Root-bound, pack-driven, and relentlessly alive.',
+        'The Beyond': 'Creatures of death, planes, and bargains. Undying, incorporeal, infernal, and celestial.',
     };
 
     var TYPE_DESCS = {
         'Goblinoid':   'Prolific horde-breeders who compensate for individual weakness with sheer numbers and mob scavenging. Cramped but numerous.',
-        'Undead':      'Near-foodless undying labor — slow to raise but tireless. Thrive in darkness, collect bones, and draw on essence.',
-        'Draconic':    'Apex prestige race: powerful, greedy, and rare. Tremendous production and coin hoarding at the cost of vast appetites and slow growth.',
-        'Fey':         'Nimble nature-touched foragers with light appetites and a deep affinity for lumber, herbs, and forest gathering.',
-        'Aberration':  'Alien minds that resonate strongly with arcane and crystal production. Unusual biology demands unusual feeding.',
-        'Ooze':        'Passive, patient, and vast. Oozes barely eat, store enormous quantities, and seep into every production process.',
-        'Elemental':   'Beings of pure elemental force. Nearly foodless and tuned to raw material extraction, but slow to coalesce.',
-        'Monstrous':   'Savage heavyweights. Brute extraction specialists with tremendous production output and matching appetites.',
-        'Fiend':       'Infernal contract workers who tithe heavily, master dark rituals, and must be summoned rather than bred.',
         'Giant':       'Colossal laborers of immense productivity. Require vast food, vast lairs, and vast patience to assemble.',
+        'Swarm':       'Countless small creatures moving as one terrible whole. Not an army — a force of nature. (Coming soon.)',
+        'Aberration':  'Alien minds that resonate strongly with arcane and crystal production. Unusual biology demands unusual feeding.',
         'Construct':   'Built, not born. Indestructible, nearly foodless, and exceptionally efficient at mining and refining — but slow to forge.',
-        'Lycanthrope': 'Pack hunters with keen senses and fast growth. Excel at hunting and gathering but consume more food.',
+        'Draconic':    'Apex prestige race: powerful, greedy, and rare. Tremendous production and coin hoarding at the cost of vast appetites and slow growth.',
         'Flora':       'Living plant creatures who barely eat but grow slowly. Masters of lumber, herb, and botanical gathering.',
+        'Ooze':        'Passive, patient, and vast. Oozes barely eat, store enormous quantities, and seep into every production process.',
+        'Lycanthrope': 'Pack hunters with keen senses and fast growth. Excel at hunting and gathering but consume more food.',
         'Aquatic':     'Sea-adapted creatures with efficient metabolisms, excellent clay production, and swift growth cycles.',
+        'Monstrous':   'Savage heavyweights. Brute extraction specialists with tremendous production output and matching appetites.',
+        'Beast':       'Pure predators with no agenda beyond survival. Fast, efficient, and surprisingly effective dungeon denizens. (Coming soon.)',
+        'Undead':      'Near-foodless undying labor — slow to raise but tireless. Thrive in darkness, collect bones, and draw on essence.',
+        'Elemental':   'Beings of pure elemental force. Nearly foodless and tuned to raw material extraction, but slow to coalesce.',
+        'Specter':     'Incorporeal remnants of the dead — pass through walls and drain the living. Fragile to light, lethal in darkness.',
+        'Fiend':       'Infernal contract workers who tithe heavily, master dark rituals, and must be summoned rather than bred.',
         'Humanoid':    'Versatile generalists. Adaptable, civic-minded, and balanced — no extremes, all bases covered.',
+        'Planar':      'Beings shaped by realities with different rules. Their alien logic translates into extraordinary dungeon efficiency — law, chaos, or purpose made manifest.',
+        'Celestial':   'Fallen or bound celestials serving a dungeon lord. Their divine power remains — only their allegiance changed.',
+        'Titan':       'Colossi of the primordial age — beings of mythic scale whose very presence amplifies everything nearby. Consume vast food, but produce at a scale nothing else can match.',
+        'Cursed':      'Not born but unmade and remade — beings transformed by curses, oaths, or forbidden knowledge into something unrecognizable and formidable.',
+        'Fey':         'Ancient, enchanted, and utterly unconcerned with mortal logic. Fey do not follow rules — they follow moods, whims, and oaths sworn under moonlight that meant something once.',
+        'Sovereign':   'Apex beings that rule their domain absolutely — not through numbers or cunning, but through sheer presence. Where a Sovereign exists, everything else exists around it.',
+        'Primordial':  'Older than elements. Beings from before the planes were separated, who never agreed to the rules that followed. Their power is foundational in ways elementals cannot match.',
     };
 
     var CREATURE_DATA = {
@@ -2802,6 +3646,7 @@ function showWiki(id) {
         'Griffon':            { desc: 'Noble winged hunters whose aerial perspective reveals hidden veins of ore and pockets of resources.', mods: [{n:'Eagle Eye',p:true,d:'Mines extra +20%; extra +1 to all gather yields.'}] },
         'Hydra':              { desc: 'Nine-headed terrors that regenerate endlessly. A hydra processes resources in parallel through all its heads simultaneously.', mods: [{n:'Multi-Headed Efficiency',p:true,d:'Extra +2% all production; each head needs feeding (+20% food).'}] },
         'Ettin':              { desc: 'Two-headed giants with a constant internal debate. Despite themselves, dual perspectives improve oversight and tax collection.', mods: [{n:'Divided Mind',p:true,d:'Extra +2% all production; +1 cp/creature/day.'}] },
+        'Worg':               { desc: 'Evil-aligned wolves of great cunning who speak and scheme, holding goblinoids in contempt while working alongside them. Their keen senses sharpen all gathering.', mods: [{n:'Dark Pack Instincts',p:true,d:'+1 to all manual gather yields; Hunting Lodges extra +10%.'}] },
         // ── Fiend ────────────────────────────────────────────────────────────────
         'Imp':                { desc: 'Minor devils who delight in sabotage — of enemies. Imps sneak into rival operations and bring back extra resources.', mods: [{n:'Diabolical Theft',p:true,d:'Extra +1 all gather — imps steal it so you don\'t have to.'}] },
         'Cambion':            { desc: 'Half-fiend nobles with a foot in both worlds. Their dual nature extracts tribute from living and dead alike.', mods: [{n:'Dual Heritage',p:true,d:'+1 cp/creature/day; extra +2% all production.'}] },
@@ -2859,6 +3704,70 @@ function showWiki(id) {
         'Dwarf':              { desc: 'Stout miners and master smelters whose ancestral bond with stone and metal is unmatched among the surface races.', mods: [{n:'Stonecunning',p:true,d:'Mines and Quarries extra +10%; Smelters extra +10%.'}] },
         'Half-Orc':           { desc: 'Born of two worlds, half-orcs carry orcish physical power into a form that can direct it with humanoid focus.', mods: [{n:'Orcish Vigor',p:true,d:'Extra +1 to all gather yields; slightly faster emergence than pure Humanoids.'}] },
         'Gnome':              { desc: 'Tinkering inventors with an insatiable curiosity for alchemy and arcane machinery. Gnomes improve all conversion processes.', mods: [{n:'Tinker\'s Touch',p:true,d:'Alchemy Labs and Arcane Grinders extra +10%; extra +1 to all gather yields.'}] },
+        // ── Swarm ─────────────────────────────────────────────────────────────────
+        'Stirge':             { desc: 'Blood-drinking, bat-winged horrors that strike in clouds and drain prey dry. Individually trivial — collectively catastrophic.', mods: [{n:'Bloodcloud',p:true,d:'Hunting Lodges extra +10%; fastest growth of any Swarm.'}] },
+        'Cranium Rat':        { desc: 'Mind Flayer-bred vermin with collective psychic intelligence. A swarm becomes a single, distributed telepathic mind hungry for secrets.', mods: [{n:'Hive-Mind',p:true,d:'Crystal Seams extra +10%; Arcane Essence cap +25.'}] },
+        'Rot Grub':           { desc: 'Tiny burrowing parasites that infest corpses and the living alike. Exceptional bone processors.', mods: [{n:'Infestation',p:true,d:'Hunting Lodges extra +10%; Bone cap +75.'}] },
+        'Shadow Swarm':       { desc: 'Fragments of darkness given appetite. Ten thousand shadow-motes moving as one hungry mass through a corridor.', mods: [{n:'Living Dark',p:true,d:'Extra 30% food reduction; +1 to all manual gather yields.'}] },
+        'Spore Cloud':        { desc: 'A fungal colony with collective direction and terrible patience. Herbalist Dens thrive in their presence.', mods: [{n:'Spore Infestation',p:true,d:'Herbalist Dens extra +15%; Herb cap +50.'}] },
+        'Plague Locust':      { desc: 'Individually nothing. Collectively, a verdict. Appetite elevated to a geological force.', mods: [{n:'Devouring Wave',p:true,d:'Storage buildings hold 15 more; Food cap +100.'},{n:'Locust Logic',p:false,d:'Farms produce 10% less — the locusts eat a portion of what they generate.'}] },
+        // ── Beast ─────────────────────────────────────────────────────────────────
+        'Dire Wolf':          { desc: 'The wolf taken to its logical extreme — larger, stronger, faster, and possessed of an intelligence that stops just short of language.', mods: [{n:'Pack General',p:true,d:'Hunting Lodges extra +15%; +1 to all manual gather yields.'}] },
+        'Cave Bear':          { desc: 'The apex of the underground wilderness. Cave Bears are territorial, enormously powerful, and utterly without interest in negotiation.', mods: [{n:'Apex Predator',p:true,d:'Quarries and Mines extra +10%; Bone cap +50.'}] },
+        'Giant Eagle':        { desc: 'Proud, ancient, and capable of genuine speech — though they rarely bother. Giant Eagles see everything from above and judge most of it unworthy.', mods: [{n:'Aerial Sight',p:true,d:'+2 to all manual gather yields; slightly faster growth.'}] },
+        'Sabre Cat':          { desc: 'A predator from the age before civilization. Sabre Cats hunt the largest prey they can find as a matter of principle.', mods: [{n:'Ancient Fang',p:true,d:'Hunting Lodges extra +15%; food consumption slightly reduced.'}] },
+        'Giant Ape':          { desc: 'Immense, intelligent, and deeply territorial. Giant Apes understand tool use, social hierarchy, and the concept of ownership.', mods: [{n:'Tool-User',p:true,d:'Quarries extra +15%; +1 stone per manual gather.'}] },
+        'Bulette':            { desc: 'The landshark — an armored predator that swims through earth the way a fish moves through water. Surfaces only to strike.', mods: [{n:'Earthshark',p:true,d:'Mines extra +20%; +1 stone per manual gather.'}] },
+        // ── Specter ───────────────────────────────────────────────────────────────
+        'Ghost':              { desc: 'The unfinished dead, haunting the place of their greatest regret. Ghosts are powerful and unpredictable.', mods: [{n:'Lingering Presence',p:true,d:'+1 cp/creature/day; Arcane Essence cap +25.'}] },
+        'Specter':            { desc: 'Pure malice stripped of everything human. The Specter does not remember what it was. It knows only cold.' },
+        'Poltergeist':        { desc: 'A ghost too angry to manifest fully, expressing its rage through hurled objects. Its chaos paradoxically accelerates production.', mods: [{n:'Kinetic Fury',p:true,d:'Extra +2% all production; Storage buildings hold 10 more per building.'}] },
+        "Will-o'-Wisp":       { desc: "A cold light over dark water, leading the unwary somewhere they will not return from. Will-o'-Wisps do not hunt so much as wait — patient, luminous, and entirely without mercy.", mods: [{n:'Luring Light',p:true,d:'75% food reduction; Arcane Essence cap +50; Ritual Circles extra +10%.'}] },
+        'Nighthaunt':         { desc: 'Spectral warriors bound to a cause that ended centuries ago. Their dread manifests as tax compliance.', mods: [{n:'Grievous Dread',p:true,d:'+1 cp/creature/day; extra +2% all production.'}] },
+        'Allip':              { desc: 'The mad remnant of someone driven to self-destruction by forbidden knowledge. Its babbling accelerates arcane processes.', mods: [{n:'Mad Babbling',p:true,d:'Arcane Grinders and Arcane Benches extra +15%.'}] },
+        // ── Titan ─────────────────────────────────────────────────────────────────
+        'Empyrean':           { desc: 'The divine offspring of gods, carrying that inheritance in every action. Empyreans reshape battlefields by existing on them.', mods: [{n:'Divine Radiance',p:true,d:'Extra +3% all production; Coin cap +1,000 + 10% of tier base.'}] },
+        'Behemoth':           { desc: 'The land-bound counterpart to the Leviathan — a creature of such mass that the earth reshapes itself around its passage. Its presence supercharges all quarrying and mining.', mods: [{n:'Earth Shaker',p:true,d:'Quarries and Mines extra +20%; Stone cap +100.'}] },
+        'Astral Dreadnought': { desc: 'A predator native to the Astral Plane that has drifted through the void since before the gods named it.', mods: [{n:'Void Resonance',p:true,d:'Crystal Seams extra +15%; Arcane Grinders extra +15%.'}] },
+        'Leviathan':          { desc: 'The sea given agency and appetite. Their presence dramatically amplifies aquatic and storage operations.', mods: [{n:'Tidal Authority',p:true,d:'Clay Pits extra +15%; Storage buildings +25 per building; Food cap +150.'}] },
+        'War Colossus':       { desc: 'An animated statue built by civilizations that no longer exist to serve purposes no one fully remembers. They continue anyway.', mods: [{n:'Inexorable Labor',p:true,d:'Quarries and Mines extra +20%; Stone cap +100.'}] },
+        'Elder Titan':        { desc: 'A being from the age before the current cosmic order — older than the gods who replaced them. Something has opened the prison.', mods: [{n:'Primordial Authority',p:true,d:'Extra +3% all production; all resource caps +75.'}] },
+        // ── Cursed ────────────────────────────────────────────────────────────────
+        'Death Knight':       { desc: 'A paladin who broke their sacred oath and was resurrected as something worse. Death Knights bear their original training as a weapon — every order they once upheld now fuels bone reserves and martial output.', mods: [{n:'Broken Oath',p:true,d:'Bone cap +75; all martial production extra +10%.'}] },
+        'Petrified Medusa':   { desc: 'Once something else — now this. The curse is older than the Medusa herself, and it does not want to be cured. Endless stone output.', mods: [{n:'Stone Gaze',p:true,d:'Quarries extra +20%; Stone cap +100; +1 stone per manual gather.'}] },
+        'Serpent Abomination':{ desc: 'More serpent than humanoid, having sacrificed humanity so completely that what remains is something the serpent gods want to talk to.', mods: [{n:'Serpent Ascension',p:true,d:'Alchemy Labs extra +20%; Arcane Grinders extra +10%.'}] },
+        'Cursed Knight':      { desc: 'A warrior bound to an oath they broke. The Cursed Knight fights on because stopping is no longer available as an option.', mods: [{n:'Unyielding Oath',p:true,d:'Extra +2% all production; +1 cp/creature/day; slightly faster growth.'}] },
+        'Wereraven':          { desc: 'Cursed watchers who carry the affliction lightly — or so they claim. Wereravens observe, remember, and report.', mods: [{n:'Dark Wing Network',p:true,d:'+2 to all manual gather yields; Hunting Lodges extra +10%.'}] },
+        // ── Fey ───────────────────────────────────────────────────────────────────
+        'Redcap':             { desc: 'A murderous faerie that keeps its cap red by soaking it in the blood of its kills. Their violent labor drives exceptional bone yields.', mods: [{n:'Blood-Soaked Cap',p:true,d:'Hunting Lodges extra +10%; Bone cap +50; +1 to all manual gather yields.'}] },
+        // ── Sovereign ─────────────────────────────────────────────────────────────
+        'Wyrm':               { desc: 'Older than most kingdoms and larger than some. A Wyrm is what a dragon becomes when it has outlived every reason to be reasonable.', mods: [{n:'Ancient Dominance',p:true,d:'Extra +3% all production; Coin cap +2,000 + 15% of tier base.'}] },
+        'Umbral Hunter':      { desc: 'A predator that has made shadow into a hunting ground. It does not move through darkness — it is the reason darkness feels like it is watching you.', mods: [{n:'Living Dark',p:true,d:'Ritual Circles extra +20%; Arcane Grinders extra +15%; Arcane Essence cap +75.'}] },
+        'Storm Roc':          { desc: 'A bird large enough that its wingspan generates its own weather. Their aerial dominance gathers resources at mythic scale.', mods: [{n:'Sky Sovereign',p:true,d:'+1 to all manual gather yields; Hunting Lodges extra +20%.'}] },
+        'Ironback':           { desc: 'So heavily armored by centuries of growth it has become a landscape feature. Nothing has survived making one feel rushed.', mods: [{n:'Ancient Shell',p:true,d:'Storage buildings hold +30 per building; Clay Pits extra +20%; Food cap +200.'}] },
+        'Rift Drake':         { desc: 'A drake that has fed on planar energy long enough that it no longer fully exists in one place. Its arcane output reflects something that has stopped finding reality binding.', mods: [{n:'Void-Touched',p:true,d:'Extra +3% all production; Arcane Grinders extra +20%; further 50% food reduction.'}] },
+        'Ashborn':            { desc: 'Not a phoenix — something that has burned so many times it has stopped bothering to fully come back. Supercharges all fire and metal operations.', mods: [{n:'Eternal Flame',p:true,d:'Smelters and Forges extra +25%; Coal Seams extra +15%; nearly foodless — the flame sustains it.'}] },
+        // ── Planar ────────────────────────────────────────────────────────────────
+        'Githzerai':          { desc: 'Ascetics of Limbo who impose order on chaos through sheer will. Their mental discipline amplifies all production.', mods: [{n:'Zerth Discipline',p:true,d:'Extra +2% all production; slightly faster growth.'}] },
+        'Githyanki':          { desc: 'Astral conquerors with silver swords. Their aggressive efficiency translates to exceptional gathering.', mods: [{n:'Astral Raid',p:true,d:'+2 to all manual gather yields; +1 cp/creature/day.'}] },
+        'Modron':             { desc: 'Living mathematics from Mechanus, the plane of absolute law. Their mechanical efficiency makes every production process optimal.', mods: [{n:'Hierarchical Processing',p:true,d:'Extra +3% all production; converter efficiency +10%.'}] },
+        'Slaad':              { desc: 'Living chaos from Limbo — frog-like, violent, and reproducing through horrific infestation of living hosts. Entropy breeds fast.', mods: [{n:'Entropic Reproduction',p:true,d:'Fastest growth of any Planar; Food cap +75.'}] },
+        'Xorn':               { desc: 'Three-armed, three-eyed beings from the elemental plane of earth who move through stone like water and hunger for precious metals.', mods: [{n:'Stone Swimmer',p:true,d:'Mines and Quarries extra +15%; Stone cap +50.'}] },
+        'Inevitables':        { desc: 'Constructs of absolute law dispatched to enforce the rules of the cosmos. They continue moving toward their target until one of them stops existing.', mods: [{n:'Inevitable Purpose',p:true,d:'Extra +2% all production; +1 cp/creature/day; foodless as constructs.'}] },
+        // ── Celestial ─────────────────────────────────────────────────────────────
+        'Planetar':           { desc: 'A great angel of war and justice, bound now to a different cause. Their divine power drives extraordinary output.', mods: [{n:'War Angel',p:true,d:'Extra +3% all production; +1 cp/creature/day.'}] },
+        'Deva':               { desc: 'Celestial messengers who carry divine will across planes. The grace, the power, and the efficiency of divine purpose remain.', mods: [{n:'Divine Messenger',p:true,d:'Extra +2% all production; Arcane Essence cap +50.'}] },
+        'Couatl':             { desc: 'Feathered serpents of divine mandate. Their arcane attunement amplifies magic production.', mods: [{n:'Feathered Wisdom',p:true,d:'Crystal Seams extra +10%; Ritual Circles extra +15%; Herb cap +50.'}] },
+        'Pegasus':            { desc: 'A winged horse of pure celestial lineage whose aerial agility enhances all gathering.', mods: [{n:'Celestial Wings',p:true,d:'+2 to all manual gather yields; growth timer slightly faster.'}] },
+        'Unicorn':            { desc: 'A guardian of sacred places whose presence sanctifies. Their presence reduces food needs dramatically.', mods: [{n:'Sacred Presence',p:true,d:'Food consumption further −30%; Herb cap +75; Herbalist Dens extra +10%.'}] },
+        'Hollyphant':         { desc: 'A tiny celestial elephant of improbable power. Their divine energy boosts morale enormously.', mods: [{n:'Divine Trumpet',p:true,d:'Extra +2% all production; +1 cp/creature/day; fastest growth of any Celestial.'}] },
+        // ── Primordial ────────────────────────────────────────────────────────────
+        'Elder Tempest':      { desc: 'A storm that predates weather — a conscious atmospheric event from the era before elemental planes were separated.', mods: [{n:'Primordial Storm',p:true,d:'Extra +3% all production; +2 to all manual gather yields.'}] },
+        'Zaratan':            { desc: 'An island-sized turtle from before the elemental planes had edges. Its waking amplifies stone and storage.', mods: [{n:'Living Island',p:true,d:'Quarries extra +20%; Storage buildings +30 per building; Stone cap +150.'}] },
+        'Abyssal Tide':       { desc: 'The water itself, given ancient hunger. Food consumption is almost nil — the tide sustains itself from ambient moisture.', mods: [{n:'Primordial Water',p:true,d:'Food consumption −80%; Clay Pits extra +20%; Food cap +150.'}] },
+        'Elder Fire':         { desc: 'Fire from before fire had rules. Not an elemental but a primordial burning. Supercharges all smelting.', mods: [{n:'Primordial Flame',p:true,d:'Smelters and Forges extra +20%; Coal Seams extra +15%.'}] },
+        'Obyrith':            { desc: 'Demons older than the Abyss itself. Their chaos generates extraordinary arcane output.', mods: [{n:'Maddening Form',p:true,d:'Dark Altars and Ritual Circles extra +20%; Arcane Essence cap +100.'}] },
+        'Void Shard':         { desc: 'A fragment of the nothing that existed before existence. Preserves resources through null-containment.', mods: [{n:'Null Containment',p:true,d:'Food consumption −90%; Storage buildings +40 per building; all resource caps +50.'}] },
     };
 
     var ICONS = {
@@ -2877,6 +3786,15 @@ function showWiki(id) {
         'Flora':      'M0,-8 L0,8 M0,-3 C-4,-5 -7,-1 -5,2 M0,-3 C4,-5 7,-1 5,2',
         'Aquatic':    'M-8,-2 C-4,-6 4,-6 8,-2 M-8,2 C-4,6 4,6 8,2 M-8,-2 C-6,0 -8,2 M8,-2 C6,0 8,2',
         'Humanoid':   'M-2,-6 a2,2 0 1,0 4,0 a2,2 0 1,0 -4,0 M-3,-3 C-4,-1 -4,2 -3,5 L3,5 C4,2 4,-1 3,-3 M-4,0 L4,0 M-3,5 L-4,8 M3,5 L4,8',
+        'Swarm':      'M-7,-5 a2,2 0 1,0 3,0 M2,-6 a2,2 0 1,0 3,0 M-3,0 a2,2 0 1,0 3,0 M3,1 a2,2 0 1,0 3,0 M-6,4 a2,2 0 1,0 3,0 M1,5 a2,2 0 1,0 3,0',
+        'Beast':      'M-7,2 C-8,-2 -4,-7 0,-6 C4,-7 8,-2 7,2 C6,6 4,8 0,8 C-4,8 -6,6 -7,2 Z M-4,-4 a1,1 0 1,0 2,0 a1,1 0 1,0 -2,0 M3,-4 a1,1 0 1,0 2,0 a1,1 0 1,0 -2,0 M-5,-7 L-6,-9 M-3,-6 L-3,-9 M3,-6 L3,-9 M5,-7 L6,-9',
+        'Specter':    'M-5,8 C-6,2 -7,-4 -3,-8 C0,-10 3,-10 6,-7 C9,-4 8,0 6,4 C4,8 -4,8 -5,8 Z M-5,8 L5,8',
+        'Planar':     'M0,-8 L3,-3 L8,-3 L4,1 L6,7 L0,4 L-6,7 L-4,1 L-8,-3 L-3,-3 Z M0,-2 a1.5,1.5 0 1,0 3,0 a1.5,1.5 0 1,0 -3,0',
+        'Celestial':  'M0,-9 L1,-3 L7,-5 L3,1 L8,3 L2,3 L2,8 L0,5 L-2,8 L-2,3 L-8,3 L-3,1 L-7,-5 L-1,-3 Z',
+        'Titan':      'M-6,-8 L6,-8 L8,0 L6,8 L-6,8 L-8,0 Z M0,-8 L0,8 M-8,0 L8,0',
+        'Cursed':     'M0,-8 C4,-6 6,-2 4,2 C2,6 -2,7 -2,4 C-2,1 2,0 2,-3 C2,-6 0,-7 0,-8 Z M0,7 a1,1 0 1,0 2,0 a1,1 0 1,0 -2,0',
+        'Sovereign':  'M0,-9 L2,-3 L8,-3 L3,0 L5,7 L0,3 L-5,7 L-3,0 L-8,-3 L-2,-3 Z M0,-5 L1,-2 L4,-2 L2,0 L3,4 L0,2 L-3,4 L-2,0 L-4,-2 L-1,-2 Z',
+        'Primordial': 'M0,-8 C6,0 4,7 0,9 C-4,7 -6,0 0,-8 Z M-5,-3 C-2,0 2,0 5,-3 M-4,3 C-2,1 2,1 4,3',
     };
 
     function rpos(angleDeg, r) {
@@ -3076,9 +3994,9 @@ function showWiki(id) {
             var typeCreatureCounts = path.types.map(function(t) { return (ROSTER[t] || []).length; });
             var totalCreatures = typeCreatureCounts.reduce(function(a,b){return a+b;}, 0);
             var typeAngles = [];
-            var cursor = path.angle - 45;
+            var cursor = path.angle - 60;
             path.types.forEach(function(typeName, ti) {
-                var arc = typeCreatureCounts[ti] / totalCreatures * 90;
+                var arc = typeCreatureCounts[ti] / totalCreatures * 120;
                 typeAngles.push({ start: cursor, mid: cursor + arc / 2, end: cursor + arc });
                 cursor += arc;
             });

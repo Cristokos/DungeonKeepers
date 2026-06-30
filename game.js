@@ -1,7 +1,7 @@
 const SEASONS        = ["Spring", "Summer", "Autumn", "Winter"];
 const TICKS_PER_DAY  = 2;
 const DAYS_PER_SEASON = 30;
-const GROWTH_TICKS   = 15;
+const GROWTH_TICKS   = 20;
 const STARVE_TICKS   = 5;
 
 const BASE_CAPS = {
@@ -53,13 +53,13 @@ const BIOME_DATA = {
     "Underdark Depths":     { type:"D&D",      badge:"badge-dnd",      desc:"Far below any sunlit surface, in the realm of dark elves and stranger things. Rich beyond measure; strange beyond reckoning.",   start:"+45 Stone · +15 Food (fungi)",     mods:[{name:"Mineral Deposits",pos:true},{name:"Fungal Bloom",pos:true},{name:"Cavern Network",pos:true},{name:"Underground Access",pos:true},{name:"Perpetual Darkness",pos:false}],                                                             best:["Aberration","Goblinoid","Ooze"],               hard:["Giant","Humanoid","Fey"]                      },
     "Ancient Battlefield":  { type:"D&D",      badge:"badge-dnd",      desc:"The ground still remembers the war. Bones outnumber stones; residual magic pools in craters and corroded armor.",                start:"+20 Food · +20 Wood · +20 Stone",  mods:[{name:"Battleground Residue",pos:true},{name:"Ancient Foundations",pos:true},{name:"Contested Territory",pos:false},{name:"Natural Predators",pos:false}],                                                                               best:["Undead","Monstrous","Humanoid"],               hard:["Fey","Flora"]                                 },
     "Haunted Moor":         { type:"D&D",      badge:"badge-dnd",      desc:"Fog rolls in with the dead. The moor is alive with restless spirits and the slow surrender of all living things.",                start:"+20 Food · +15 Stone",             mods:[{name:"Arcane Residue",pos:true},{name:"Disease Vectors",pos:false},{name:"Cursed Ground",pos:false},{name:"Natural Predators",pos:false},{name:"Plague Risk",pos:false}],                                                                   best:["Undead","Fiend"],                              hard:["Fey","Flora","Construct"]                     },
-    "Abyssal Rift":         { type:"D&D",      badge:"badge-dnd",      desc:"A crack in the mortal plane bleeds Abyss energy constantly. Demons trickle through; power flows in both directions.",            start:"+30 Stone",                        mods:[{name:"Planar Tear",pos:true},{name:"Forbidden Lore",pos:true},{name:"Toxic Atmosphere",pos:false},{name:"Planar Pressure",pos:false},{name:"Unstable Plane",pos:false}],                                                                   best:["Fiend","Aberration"],                          hard:["Humanoid","Fey","Flora","Construct"]           },
+    "Abyssal Rift":         { type:"D&D",      badge:"badge-dnd",      desc:"A crack in the mortal plane bleeds Abyss energy constantly. Demons trickle through; power flows in both directions.",            start:"+30 Stone",                        mods:[{name:"Planar Tear",pos:true},{name:"Toxic Atmosphere",pos:false},{name:"Planar Pressure",pos:false},{name:"Unstable Plane",pos:false}],                                                                   best:["Fiend","Aberration"],                          hard:["Humanoid","Fey","Flora","Construct"]           },
     "Dragonspine Ridge":    { type:"D&D",      badge:"badge-dnd",      desc:"Scorched peaks where ancient dragons once nested. Their power lingers in the stone and sky in equal measure.",                    start:"+35 Stone · +15 Food",             mods:[{name:"Rich Ore Veins",pos:true},{name:"Fearsome Reputation",pos:true},{name:"Warlord's Domain",pos:true},{name:"Oppressive Heat",pos:false}],                                                                                          best:["Draconic","Monstrous"],                        hard:["Aquatic","Flora","Fey"]                       },
     "Giant's Graveyard":    { type:"D&D",      badge:"badge-dnd",      desc:"Colossal bones provide shelter and raw material; the lingering power of titans seeps into your dungeon's foundations.",           start:"+60 Stone",                        mods:[{name:"Mineral Deposits",pos:true},{name:"Solid Foundation",pos:true},{name:"Ancestral Home",pos:true},{name:"Pack Mentality",pos:true}],                                                                                               best:["Giant","Construct"],                           hard:["Fey","Aquatic","Flora"]                       },
-    "Shadowfell Crossing":  { type:"Magical",  badge:"badge-magical",  desc:"The boundary between worlds is paper-thin. The dead walk freely, the light never fully arrives, and dark knowledge seeps through.",start:"+10 Food · +10 Wood · +10 Stone",  mods:[{name:"Arcane Residue",pos:true},{name:"Forbidden Lore",pos:true},{name:"Planar Alignment",pos:true},{name:"Perpetual Darkness",pos:false},{name:"Cursed Ground",pos:false}],                                                               best:["Undead","Fiend"],                              hard:["Fey","Humanoid","Flora"]                      },
+    "Shadowfell Crossing":  { type:"Magical",  badge:"badge-magical",  desc:"The boundary between worlds is paper-thin. The dead walk freely, the light never fully arrives, and dark knowledge seeps through.",start:"+10 Food · +10 Wood · +10 Stone",  mods:[{name:"Arcane Residue",pos:true},{name:"Planar Alignment",pos:true},{name:"Perpetual Darkness",pos:false},{name:"Cursed Ground",pos:false}],                                                               best:["Undead","Fiend"],                              hard:["Fey","Humanoid","Flora"]                      },
     "Feywild Glade":        { type:"Magical",  badge:"badge-magical",  desc:"The Feywild bleeds through in flashes of impossible color. Time is unreliable; life explodes everywhere; magic is uncontrolled.", start:"+30 Food · +20 Wood",              mods:[{name:"Fertile Soil",pos:true},{name:"Warm Climate",pos:true},{name:"Rapid Breeding",pos:true},{name:"Wild Magic Zone",pos:false},{name:"Binding Contract",pos:false}],                                                                    best:["Fey","Flora"],                                 hard:["Undead","Fiend","Construct"]                  },
     "Arcane Nexus":         { type:"Magical",  badge:"badge-magical",  desc:"Ley lines converge in a web of invisible power. Magic saturates the very stone; knowledge comes easily, caution less so.",        start:"+25 Food · +10 Stone",             mods:[{name:"Ley Line Nexus",pos:true},{name:"Arcane Amplification",pos:true},{name:"Resonant Ley Lines",pos:true},{name:"Wild Magic Zone",pos:false}],                                                                                       best:["Aberration","Construct","Humanoid"],           hard:["Goblinoid","Monstrous"]                       },
-    "Blighted Wastes":      { type:"Magical",  badge:"badge-magical",  desc:"A cursed land where life struggles and death triumphs. Dangerous for the living; a paradise for those beyond it.",                start:"+10 Stone",                        mods:[{name:"Forbidden Lore",pos:true},{name:"Barren Soil",pos:false},{name:"Cursed Ground",pos:false},{name:"Toxic Atmosphere",pos:false},{name:"Blighted Air",pos:false},{name:"Disease Vectors",pos:false}],                             best:["Undead","Fiend"],                              hard:["Flora","Fey","Humanoid","Aquatic"]             },
+    "Blighted Wastes":      { type:"Magical",  badge:"badge-magical",  desc:"A cursed land where life struggles and death triumphs. Dangerous for the living; a paradise for those beyond it.",                start:"+10 Stone",                        mods:[{name:"Barren Soil",pos:false},{name:"Cursed Ground",pos:false},{name:"Toxic Atmosphere",pos:false},{name:"Blighted Air",pos:false},{name:"Disease Vectors",pos:false}],                             best:["Undead","Fiend"],                              hard:["Flora","Fey","Humanoid","Aquatic"]             },
     "Elemental Confluence": { type:"Magical",  badge:"badge-magical",  desc:"All four elements war constantly. Chaotic and powerful — nothing is predictable, everything is possible here.",                   start:"+20 Food · +20 Wood · +20 Stone",  mods:[{name:"Arcane Residue",pos:true},{name:"Abundant Prey",pos:true},{name:"Unstable Ground",pos:false},{name:"Geological Instability",pos:false},{name:"Wild Magic Zone",pos:false}],                                                          best:["Ooze/Elemental","Draconic","Aberration"],      hard:["Lycanthrope","Flora","Humanoid"]               },
     "Celestial Foothold":   { type:"Magical",  badge:"badge-magical",  desc:"Where divine light once burned, creation flourishes. The easiest start — for those the land deems worthy. Darkness is repelled.", start:"+25 Food · +25 Wood",              mods:[{name:"Warm Climate",pos:true},{name:"Sacred Ground",pos:true},{name:"Blessed Ground",pos:true},{name:"Hidden Refuge",pos:true},{name:"Unyielding",pos:true}],                                                                         best:["Humanoid","Fey","Flora"],                      hard:["Undead","Fiend","Aberration"]                 },
 };
@@ -79,7 +79,7 @@ const EXTRA_MOD_POOL = {
         "Warm Climate", "Abundant Prey", "Communal Living", "Pack Mentality",
         "Starvation Resilience", "Elder's Blessing", "Hidden Cache",
         "Rapid Breeding", "Migratory Patterns", "Slow Burn",
-        "Solid Foundation", "Territorial Instincts",
+        "Solid Foundation",
     ],
     negative: [
         "Harsh Winters", "Disease Vectors", "Oppressive Heat", "Crushing Cold",
@@ -128,7 +128,6 @@ const MOD_DESCRIPTIONS = {
     "Symbiotic Ecosystem":    "Population growth requires 1 fewer food surplus than normal.",
     "Overcrowding Risk":      "After population reaches 20, growth rate reduced by −10%.",
     "Pack Mentality":         "All workers produce +10% more per tick.",
-    "Territorial Instincts":  "Each Hovel provides 6 housing instead of the normal 1.",
     "Plague Risk":            "Every 30 days: 5% chance of a −10% population loss event.",
     "Elder's Blessing":       "First 5 population require no food (they forage independently).",
     "Starvation Resilience":  "Death timer before first starvation death extended by +3 ticks.",
@@ -166,7 +165,6 @@ const MOD_DESCRIPTIONS = {
     "Arcane Residue":         "Begin run with 10 bonus research points.",
     "Corrupted Knowledge":    "Each research has a 20% chance of a random side effect.",
     "Prophecy Shard":         "Once per run: one research completes instantly.",
-    "Forbidden Lore":         "Unique dark research tree unlocked.",
     "Eldritch Interference":  "Research speed −15%.",
     "Blessed Ground":         "Divine research tree +25% speed.",
     "Wild Magic Zone":        "10% chance each research grants a random bonus side effect.",
@@ -208,6 +206,10 @@ const MOD_DESCRIPTIONS = {
 //   growthBonus  — multiplier on GROWTH_TICKS (< 1 faster, > 1 slower)
 //   lairHousing  — override base lair housing per building (replaces ROOMS.lair.housingBonus)
 const RACE_DATA = {};
+const RACE_DATA_FALLBACK = 'Wyrm';
+function getRaceData(name) {
+    return RACE_DATA[name] || RACE_DATA[RACE_DATA_FALLBACK] || null;
+}
 
 const gameState = {
     resources: {
@@ -228,7 +230,8 @@ const gameState = {
         scriptorium: 0,
         ritualCircle: 0, spiderNest: 0, arcaneCrucible: 0, darkAltar: 0, mithrilForge: 0,
     },
-    tradeRoutes: [],
+    tradeRoutes: {},
+    buildingDisabled: {}, // building id → count of that building's units currently paused (0..count)
     research:          {},
     workerAssignments: {},
     population: { count: 0, growthTimer: 0, starveTick: 0 },
@@ -236,6 +239,8 @@ const gameState = {
     meta:       { seenBiomes: [], totalPrestiges: 0, racesPlayed: {} },
     time:       { tick: 0, day: 1, year: 1, seasonIndex: 0 },
     pauseBank:  0,   // seconds of Accelerated Time banked from pausing
+    randomEventCooldowns: {}, // eventId → absolute day the cooldown expires
+    randomEventLog: [],       // { text, effectSummary, day, year, seasonIndex } newest-first
     era1: {
         unlocked: [],   // node ids the player has purchased
         chosen:   null, // L5 race node id picked (null until Era 2 gate)
@@ -260,6 +265,7 @@ const gameSettings = {
     numberFormat:       "abbrev", // "abbrev" | "full"
     reducedAnimations:  false,
     tabTitle:           "",       // custom browser tab title; "" = default
+    colorTheme:         "default", // "default" | "crimson" | "arcane"
 };
 
 const TAB_TITLE_PRESETS = [
@@ -294,11 +300,29 @@ function saveSettings() {
 function applySettings() {
     document.body.classList.toggle("reduce-motion", gameSettings.reducedAnimations);
     applyTabTitle();
+    applyColorTheme();
     updateSettingsUI();
 }
 
 function applyTabTitle() {
     document.title = gameSettings.tabTitle || "Dungeon Keepers";
+}
+
+function applyColorTheme() {
+    const theme = gameSettings.colorTheme || "default";
+    if (theme === "default") {
+        document.body.removeAttribute("data-theme");
+    } else {
+        document.body.setAttribute("data-theme", theme);
+    }
+}
+
+function setColorTheme() {
+    const sel = document.getElementById("set-theme");
+    if (!sel) return;
+    gameSettings.colorTheme = sel.value;
+    saveSettings();
+    applyColorTheme();
 }
 
 function setTabTitleFromPreset() {
@@ -320,6 +344,16 @@ function setTabTitleFromInput() {
     saveSettings();
     applyTabTitle();
     input.value = "";
+    const sel = document.getElementById("set-title-preset");
+    if (sel) sel.value = "";
+}
+
+function resetTabTitle() {
+    gameSettings.tabTitle = "";
+    saveSettings();
+    applyTabTitle();
+    const input = document.getElementById("set-title-input");
+    if (input) input.value = "";
     const sel = document.getElementById("set-title-preset");
     if (sel) sel.value = "";
 }
@@ -348,6 +382,11 @@ function updateSettingsUI() {
     const tSel = document.getElementById("set-title-preset");
     if (tSel) {
         tSel.value = TAB_TITLE_PRESETS.includes(gameSettings.tabTitle) ? gameSettings.tabTitle : "";
+    }
+    // Color theme dropdown — reflect saved value
+    const thSel = document.getElementById("set-theme");
+    if (thSel) {
+        thSel.value = gameSettings.colorTheme || "default";
     }
     // Restore Backup button — reflects whether a checkpoint exists.
     const bkBtn  = document.getElementById("set-restore");
@@ -625,7 +664,7 @@ function getHousing() {
         const researchExtra = getResearchBonus('housingBonus', id);
         if (researchExtra > 0) total += count * researchExtra;
     }
-    return total;
+    return Math.floor(total);
 }
 
 function getJobs() {
@@ -697,6 +736,14 @@ function getBuildingProductionBonus(targetId) {
     return mult;
 }
 
+// Fraction (0..1) of a building's units that are still active (not paused by the player).
+function getActiveBuildingFraction(id) {
+    const count = gameState.buildings[id] || 0;
+    if (count === 0) return 1;
+    const paused = Math.min(count, (gameState.buildingDisabled && gameState.buildingDisabled[id]) || 0);
+    return (count - paused) / count;
+}
+
 function getProduction() {
     const prod      = {};
     for (const res of Object.keys(BASE_CAPS)) prod[res] = 0;
@@ -706,8 +753,10 @@ function getProduction() {
         if (!def.production || def.converts) continue;
         const count = gameState.buildings[id] || 0;
         if (count === 0) continue;
+        const activeFrac = getActiveBuildingFraction(id);
+        if (activeFrac === 0) continue;
         // Worker buildings scale by assigned workers; all others scale by building count
-        const n = def.jobs ? (workers[id] || 0) : count;
+        const n = (def.jobs ? (workers[id] || 0) : count) * activeFrac;
         if (n === 0) continue;
         const bldgMult = getResearchBonus('productionBonus', id)
                        * getBuildingProductionBonus(id);
@@ -731,11 +780,13 @@ function getResourceBreakdown(res) {
         if (def.production[res] === undefined) continue;
         const count = gameState.buildings[id] || 0;
         if (count === 0) continue;
-        const n = def.jobs ? (workers[id] || 0) : count;
+        const activeFrac = getActiveBuildingFraction(id);
+        const n = (def.jobs ? (workers[id] || 0) : count) * activeFrac;
         if (n === 0) continue;
+        const paused = (gameState.buildingDisabled && gameState.buildingDisabled[id]) || 0;
         const bldgMult = getResearchBonus('productionBonus', id) * getBuildingProductionBonus(id);
         const rate = def.production[res] * n * bldgMult * allBonus;
-        const sub = def.jobs ? `${n}w` : `×${count}`;
+        const sub = (def.jobs ? `${Math.round(n)}w` : `×${count}`) + (paused > 0 ? ` · ${paused} paused` : '');
         lines.push({ label: def.name, sub, value: rate, drain: false });
     }
 
@@ -744,11 +795,13 @@ function getResourceBreakdown(res) {
         if (!def.converts || def.converts.output !== res) continue;
         const count = gameState.buildings[id] || 0;
         if (count === 0) continue;
-        const n = def.jobs ? (workers[id] || 0) : count;
+        const activeFrac = getActiveBuildingFraction(id);
+        const n = (def.jobs ? (workers[id] || 0) : count) * activeFrac;
         if (n === 0) continue;
+        const paused = (gameState.buildingDisabled && gameState.buildingDisabled[id]) || 0;
         const convMult = getResearchBonus('converterBonus', id);
         const rate = def.converts.outputRate * convMult * n;
-        const sub = (def.jobs ? `${n}w` : `×${count}`) + ' · max';
+        const sub = (def.jobs ? `${Math.round(n)}w` : `×${count}`) + (paused > 0 ? ` · ${paused} paused` : ' · max');
         lines.push({ label: def.name, sub, value: rate, drain: false });
     }
 
@@ -757,10 +810,12 @@ function getResourceBreakdown(res) {
         if (!def.converts || def.converts.inputs[res] === undefined) continue;
         const count = gameState.buildings[id] || 0;
         if (count === 0) continue;
-        const n = def.jobs ? (workers[id] || 0) : count;
+        const activeFrac = getActiveBuildingFraction(id);
+        const n = (def.jobs ? (workers[id] || 0) : count) * activeFrac;
         if (n === 0) continue;
+        const paused = (gameState.buildingDisabled && gameState.buildingDisabled[id]) || 0;
         const rate = def.converts.inputs[res] * n;
-        const sub = (def.jobs ? `${n}w` : `×${count}`) + ' · max';
+        const sub = (def.jobs ? `${Math.round(n)}w` : `×${count}`) + (paused > 0 ? ` · ${paused} paused` : ' · max');
         lines.push({ label: def.name, sub, value: -rate, drain: true });
     }
 
@@ -1099,26 +1154,28 @@ function initBldTooltips() {
     if (eaBtn) {
         eaBtn.addEventListener('mouseenter', () => {
             if (!_bldTooltipEl) return;
-            const bonus = getReservoirBonus();
-            _bldTooltipEl.innerHTML =
-                `<div class="bld-tt-name">Expanded Awareness</div>` +
-                `<div class="bld-tt-line">Deepen your mental capacity, increasing the storage cap of all Anima, Influence, and Mana reservoirs by +10 each.</div>` +
-                `<div class="bld-tt-line">Each reservoir building currently grants +${bonus} capacity. Next purchase raises this to +${bonus + 10}.</div>` +
-                `<div class="bld-tt-flavor">The mind is not a vessel with fixed walls. It is a space you learn to widen.</div>`;
+            _bldTooltipEl.innerHTML = _buildExpandedAwarenessTooltipHTML();
             _bldTooltipEl.style.display = 'block';
         });
         eaBtn.addEventListener('mousemove', e => {
             if (!_bldTooltipEl) return;
-            const bonus = getReservoirBonus();
-            _bldTooltipEl.innerHTML =
-                `<div class="bld-tt-name">Expanded Awareness</div>` +
-                `<div class="bld-tt-line">Deepen your mental capacity, increasing the storage cap of all Anima, Influence, and Mana reservoirs by +10 each.</div>` +
-                `<div class="bld-tt-line">Each reservoir building currently grants +${bonus} capacity. Next purchase raises this to +${bonus + 10}.</div>` +
-                `<div class="bld-tt-flavor">The mind is not a vessel with fixed walls. It is a space you learn to widen.</div>`;
+            _bldTooltipEl.innerHTML = _buildExpandedAwarenessTooltipHTML();
             _positionBldTooltip(e);
         });
         eaBtn.addEventListener('mouseleave', () => { if (_bldTooltipEl) _bldTooltipEl.style.display = 'none'; });
     }
+}
+
+function _buildExpandedAwarenessTooltipHTML() {
+    const bonus = getReservoirBonus();
+    const cost  = getReservoirUpgradeCost();
+    const canAfford = (gameState.resources.essence || 0) >= cost;
+    return `<div class="bld-tt-name">Expanded Awareness</div>` +
+        `<div class="bld-tt-effect">Deepen your mental capacity, increasing the storage cap of all Anima, Influence, and Mana reservoirs by +10 each.</div>` +
+        `<div class="bld-tt-effect">Each reservoir building currently grants +${bonus} capacity.</div>` +
+        `<div class="bld-tt-divider"></div>` +
+        `<div class="bld-tt-line${canAfford ? '' : ' bld-tt-cant-afford'}">Anima: ${fmt(cost)}</div>` +
+        `<div class="bld-tt-flavor">The mind is not a vessel with fixed walls. It is a space you learn to widen.</div>`;
 }
 
 function _positionBldTooltip(e) {
@@ -1170,9 +1227,16 @@ function _buildBldTooltipHTML(id, def) {
     const hasCost = def.coinCost || Object.keys(costs).length > 0;
     if (hasCost) html += `<div class="bld-tt-divider"></div>`;
     if (def.coinCost) {
-        const coinCost = getEffectiveBuildingCoinCost(def.coinCost);
-        const canAffordCoins = (gameState.resources.coins || 0) >= coinCost;
-        html += `<div class="bld-tt-line${canAffordCoins ? '' : ' bld-tt-cant-afford'}">${formatCoins(coinCost)}</div>`;
+        const bldCount = gameState.buildings[id] || 0;
+        const coinFree = def.coinFreeBelow != null && bldCount < def.coinFreeBelow;
+        if (coinFree) {
+            html += `<div class="bld-tt-line" style="text-decoration:line-through;opacity:0.5">${formatCoins(getEffectiveBuildingCoinCost(def.coinCost, id))}</div>`;
+            html += `<div class="bld-tt-line" style="color:var(--accent);font-size:10px">Free (${bldCount + 1}/${def.coinFreeBelow})</div>`;
+        } else {
+            const coinCost = getEffectiveBuildingCoinCost(def.coinCost, id);
+            const canAffordCoins = (gameState.resources.coins || 0) >= coinCost;
+            html += `<div class="bld-tt-line${canAffordCoins ? '' : ' bld-tt-cant-afford'}">${formatCoins(coinCost)}</div>`;
+        }
     }
     for (const [res, amt] of Object.entries(costs)) {
         const rname = (RESOURCES[res] && RESOURCES[res].name) || (res.charAt(0).toUpperCase() + res.slice(1));
@@ -1264,6 +1328,27 @@ function renderCompletedResearch() {
     });
 }
 
+function _researchCostLine(key, def) {
+    const parts = [];
+    if (def.cost) {
+        for (const [res, amt] of Object.entries(def.cost)) {
+            const rname = (RESOURCES[res] && RESOURCES[res].name) || (res.charAt(0).toUpperCase() + res.slice(1));
+            const canAfford = (gameState.resources[res] || 0) >= amt;
+            parts.push(`<span${canAfford ? '' : ' class="research-cost-lacking"'}>${fmt(amt)} ${rname}</span>`);
+        }
+    }
+    let html = "Cost: " + parts.join(", ");
+    if (def.requiresBuildings) {
+        const reqs = Object.entries(def.requiresBuildings).map(([b, n]) => {
+            const bname = (ROOMS[b] && ROOMS[b].name) || b;
+            const met = (gameState.buildings[b] || 0) >= n;
+            return `<span${met ? '' : ' class="research-cost-lacking"'}>${n} ${bname}</span>`;
+        });
+        html += ` &nbsp;·&nbsp; Requires: ${reqs.join(', ')}`;
+    }
+    return html;
+}
+
 function _buildResearchTooltipHTML(key, def) {
     const done = !!(gameState.research && gameState.research[key]);
     let html = `<div class="bld-tt-name">${def.name}${done ? ' ✓' : ''}</div>`;
@@ -1273,7 +1358,15 @@ function _buildResearchTooltipHTML(key, def) {
     if (def.cost) {
         for (const [res, amt] of Object.entries(def.cost)) {
             const rname = (RESOURCES[res] && RESOURCES[res].name) || (res.charAt(0).toUpperCase() + res.slice(1));
-            html += `<div class="bld-tt-line">${rname}: ${fmt(amt)}</div>`;
+            const canAfford = (gameState.resources[res] || 0) >= amt;
+            html += `<div class="bld-tt-line${canAfford ? '' : ' bld-tt-cant-afford'}">${rname}: ${fmt(amt)}</div>`;
+        }
+    }
+    if (def.requiresBuildings) {
+        for (const [b, n] of Object.entries(def.requiresBuildings)) {
+            const bname = (ROOMS[b] && ROOMS[b].name) || b;
+            const met = (gameState.buildings[b] || 0) >= n;
+            html += `<div class="bld-tt-line${met ? '' : ' bld-tt-cant-afford'}">Requires: ${n} ${bname}</div>`;
         }
     }
 
@@ -1430,28 +1523,32 @@ function getBuildCost(id) {
     if (r.communalArchitecture && id === 'lair') scale = Math.max(1.01, scale - 0.02);
     const guildDiscount = r.guildCharter && GUILD_DISCOUNT_BUILDINGS.has(id);
     let matReduction = 0;
-    if (r.prototypeTools)   matReduction += 0.10;
-    if (r.blueprintLibrary) matReduction += 0.10;
-    if (r.masterCraft)      matReduction += 0.15;
+    if (r.prototypeTools)   matReduction += 0.05;
+    if (r.blueprintLibrary) matReduction += 0.07;
+    if (r.masterCraft)      matReduction += 0.08;
     for (const [res, base] of Object.entries(def.cost)) {
         let cost = Math.floor(base * Math.pow(scale, n));
-        if (guildDiscount) cost = Math.floor(cost * 0.80);
+        if (guildDiscount) cost = Math.floor(cost * 0.85);
         let resReduction = matReduction;
-        if (res === 'wood'  && r.prefabTimber)    resReduction += 0.15;
-        if (res === 'stone' && r.stockpiledStone) resReduction += 0.15;
+        if (res === 'wood'  && r.prefabTimber)    resReduction += 0.10;
+        if (res === 'stone' && r.stockpiledStone) resReduction += 0.10;
         if (resReduction > 0) cost = Math.floor(cost * Math.max(0.05, 1 - resReduction));
         out[res] = cost;
     }
     return out;
 }
 
-function getEffectiveBuildingCoinCost(coinBase) {
+function getEffectiveBuildingCoinCost(coinBase, id) {
     if (!coinBase) return 0;
     const r = gameState.research || {};
+    const def = id ? ROOMS[id] : null;
+    const scale = def?.costScale || 1.2;
+    const n = id ? (gameState.buildings[id] || 0) : 0;
+    const scaled = Math.floor(coinBase * Math.pow(scale, n));
     let reduction = 0;
-    if (r.masterCraft) reduction += 0.20;
-    if (r.silkRope)    reduction += 0.10;
-    const reduced = reduction > 0 ? Math.floor(coinBase * Math.max(0.05, 1 - reduction)) : coinBase;
+    if (r.masterCraft) reduction += 0.10;
+    if (r.silkRope)    reduction += 0.05;
+    const reduced = reduction > 0 ? Math.floor(scaled * Math.max(0.05, 1 - reduction)) : scaled;
     return effectiveCoinCost(reduced);
 }
 
@@ -1460,7 +1557,11 @@ function canAfford(id) {
         if ((gameState.resources[res] || 0) < amount) return false;
     }
     const def = ROOMS[id];
-    if (def.coinCost && (gameState.resources.coins || 0) < getEffectiveBuildingCoinCost(def.coinCost)) return false;
+    if (def.coinCost) {
+        const bldCount = gameState.buildings[id] || 0;
+        const coinFree = def.coinFreeBelow != null && bldCount < def.coinFreeBelow;
+        if (!coinFree && (gameState.resources.coins || 0) < getEffectiveBuildingCoinCost(def.coinCost, id)) return false;
+    }
     return true;
 }
 
@@ -1486,13 +1587,31 @@ function build(id) {
         }
         const def = ROOMS[id];
         if (def.coinCost) {
-            gameState.resources.coins = Math.max(0, (gameState.resources.coins || 0) - getEffectiveBuildingCoinCost(def.coinCost));
+            const bldCount = (gameState.buildings[id] || 0);
+            const coinFree = def.coinFreeBelow != null && bldCount < def.coinFreeBelow;
+            if (!coinFree) {
+                gameState.resources.coins = Math.max(0, (gameState.resources.coins || 0) - getEffectiveBuildingCoinCost(def.coinCost, id));
+            }
         }
         gameState.buildings[id] = (gameState.buildings[id] || 0) + 1;
         bought++;
     }
     if (bought === 0) return;
     gameState.stats.buildingsConstructed = (gameState.stats.buildingsConstructed || 0) + bought;
+    updateUI();
+    saveGame();
+}
+
+// Adjusts how many units of a building are paused (production+consumption skipped),
+// one at a time. Lets players dial down an overbuilt converter without losing units.
+function adjustBuildingPaused(id, delta, event) {
+    if (event) event.stopPropagation();
+    if (!gameState.buildingDisabled) gameState.buildingDisabled = {};
+    const count   = gameState.buildings[id] || 0;
+    const current = gameState.buildingDisabled[id] || 0;
+    const next    = Math.max(0, Math.min(count, current + delta));
+    if (next === 0) delete gameState.buildingDisabled[id];
+    else gameState.buildingDisabled[id] = next;
     updateUI();
     saveGame();
 }
@@ -1504,33 +1623,66 @@ function getTradeCapacity() {
     return 5 + (gameState.buildings.tradeCart || 0) * 2;
 }
 
-function applyTradeRoute(slot, mode) {
-    const sel = document.getElementById('trade-sel-' + slot);
-    const resource = sel ? sel.value : '';
-    if (!resource || !TRADE_RATES[resource]) return;
-    if (!gameState.tradeRoutes) gameState.tradeRoutes = [];
-    while (gameState.tradeRoutes.length <= slot) gameState.tradeRoutes.push(null);
-    gameState.tradeRoutes[slot] = { resource, mode };
+// Total route-units committed across all resources (abs value of each signed count).
+function getUsedTradeCapacity() {
+    const routes = gameState.tradeRoutes || {};
+    let used = 0;
+    for (const res of Object.keys(routes)) used += Math.abs(routes[res] || 0);
+    return used;
+}
+
+// Sets a resource's signed route count directly (positive = sell N/day, negative = buy N/day),
+// clamped so total committed routes never exceed capacity.
+function setTradeRouteCount(resource, count) {
+    if (!TRADE_RATES[resource]) return;
+    if (!gameState.tradeRoutes) gameState.tradeRoutes = {};
+    const capacity   = getTradeCapacity();
+    const current    = gameState.tradeRoutes[resource] || 0;
+    const usedByRest = getUsedTradeCapacity() - Math.abs(current);
+    const maxAbs     = Math.max(0, capacity - usedByRest);
+    const clamped    = Math.max(-maxAbs, Math.min(maxAbs, count));
+    if (clamped === 0) delete gameState.tradeRoutes[resource];
+    else gameState.tradeRoutes[resource] = clamped;
     renderTradeTab();
     saveGame();
 }
 
-function clearTradeRoute(slot) {
-    if (gameState.tradeRoutes) gameState.tradeRoutes[slot] = null;
-    renderTradeTab();
-    saveGame();
+function adjustTradeRoute(resource, dir) {
+    const current = (gameState.tradeRoutes && gameState.tradeRoutes[resource]) || 0;
+    setTradeRouteCount(resource, current + dir);
+}
+
+function setTradeRouteInput(resource, rawValue) {
+    const n = parseInt(rawValue, 10);
+    setTradeRouteCount(resource, isNaN(n) ? 0 : n);
+}
+
+// Sells the maximum number of routes this resource's remaining capacity allows.
+function setTradeRouteSellMax(resource) {
+    const routes     = gameState.tradeRoutes || {};
+    const current    = routes[resource] || 0;
+    const usedByRest = getUsedTradeCapacity() - Math.abs(current);
+    const maxAbs     = Math.max(0, getTradeCapacity() - usedByRest);
+    setTradeRouteCount(resource, -maxAbs);
+}
+
+// Buys the maximum number of routes this resource's remaining capacity allows.
+function setTradeRouteBuyMax(resource) {
+    const routes     = gameState.tradeRoutes || {};
+    const current    = routes[resource] || 0;
+    const usedByRest = getUsedTradeCapacity() - Math.abs(current);
+    const maxAbs     = Math.max(0, getTradeCapacity() - usedByRest);
+    setTradeRouteCount(resource, maxAbs);
 }
 
 function renderTradeTab() {
     const container = document.getElementById('trade-routes');
     if (!container) return;
     const capacity = getTradeCapacity();
-    if (!gameState.tradeRoutes) gameState.tradeRoutes = [];
-    // Grow route array to match capacity; never shrink (preserves routes if capacity temporarily differs)
-    while (gameState.tradeRoutes.length < capacity) gameState.tradeRoutes.push(null);
+    if (!gameState.tradeRoutes) gameState.tradeRoutes = {};
     const routes = gameState.tradeRoutes;
     const fencedBonus = (gameState.research && gameState.research.fencedGoods) ? 1.5 : 1;
-    const activeCount = routes.slice(0, capacity).filter(r => r != null).length;
+    const activeCount = getUsedTradeCapacity();
 
     const hdr = document.getElementById('trade-capacity-display');
     if (hdr) hdr.textContent = `${activeCount} / ${capacity} routes active`;
@@ -1546,54 +1698,77 @@ function renderTradeTab() {
         return;
     }
 
-    const resOpts = Object.entries(TRADE_RATES)
-        .map(([key, rate]) => {
-            const name = (RESOURCES[key] && RESOURCES[key].name) || key;
-            return `<option value="${key}">${name} (${rate} cp/unit)</option>`;
-        }).join('');
+    const tradeableResources = Object.keys(TRADE_RATES).filter(shouldShowResource);
 
-    let html = '';
-    for (let i = 0; i < capacity; i++) {
-        const route = (i < routes.length) ? routes[i] : null;
-        if (route) {
-            const rate = TRADE_RATES[route.resource] || 0;
-            const resName = (RESOURCES[route.resource] && RESOURCES[route.resource].name) || route.resource;
-            if (route.mode === 'sell') {
-                const income = Math.floor(TRADE_AMOUNT * rate * fencedBonus);
-                html += `<div class="trade-slot trade-slot-active">
-                    <span class="trade-slot-num">#${i + 1}</span>
-                    <div class="trade-slot-info">
-                        <span class="trade-dir trade-sell">SELL</span>
-                        <span class="trade-slot-res">${resName}</span>
-                        <span class="trade-slot-rate">${TRADE_AMOUNT}/day &rarr; +${formatCoins(income)}/day</span>
-                    </div>
-                    <button class="trade-clear-btn" onclick="clearTradeRoute(${i})">&#x2715;</button>
-                </div>`;
-            } else {
-                const spend = TRADE_AMOUNT * rate * 2;
-                html += `<div class="trade-slot trade-slot-active">
-                    <span class="trade-slot-num">#${i + 1}</span>
-                    <div class="trade-slot-info">
-                        <span class="trade-dir trade-buy">BUY</span>
-                        <span class="trade-slot-res">${resName}</span>
-                        <span class="trade-slot-rate">${formatCoins(spend)}/day &larr; +${TRADE_AMOUNT}/day</span>
-                    </div>
-                    <button class="trade-clear-btn" onclick="clearTradeRoute(${i})">&#x2715;</button>
-                </div>`;
-            }
-        } else {
-            html += `<div class="trade-slot trade-slot-empty">
-                <span class="trade-slot-num">#${i + 1}</span>
-                <select id="trade-sel-${i}" class="trade-res-sel">
-                    <option value="">— select resource —</option>
-                    ${resOpts}
-                </select>
-                <button class="trade-mode-btn trade-sell-btn" onclick="applyTradeRoute(${i}, 'sell')">Sell</button>
-                <button class="trade-mode-btn trade-buy-btn"  onclick="applyTradeRoute(${i}, 'buy')">Buy</button>
+    if (!tradeableResources.length) {
+        container.innerHTML = '<div class="trade-empty">No tradeable resources unlocked yet.</div>';
+        return;
+    }
+
+    // Rebuild the row list only if the set of resources shown has changed (e.g. a new
+    // resource unlocked); otherwise update existing rows in place so a focused input
+    // (mid-typing) isn't clobbered by an innerHTML rebuild.
+    const existingIds = Array.from(container.children).map(el => el.id);
+    const wantedIds   = tradeableResources.map(res => 'trow-' + res);
+    const structureChanged = existingIds.length !== wantedIds.length
+        || existingIds.some((id, i) => id !== wantedIds[i]);
+
+    if (structureChanged) {
+        let html = '';
+        for (const res of tradeableResources) {
+            html += `<div class="worker-row" id="trow-${res}">
+                <div class="worker-left">
+                    <span class="worker-name">${(RESOURCES[res] && RESOURCES[res].name) || res}</span>
+                    <span class="worker-sub" id="tsub-${res}"></span>
+                </div>
+                <div class="worker-controls">
+                    <span class="trade-dir-col" id="tdir-${res}"></span>
+                    <button class="wbtn wbtn-mm" onclick="setTradeRouteSellMax('${res}')" title="Sell max">&#9664;&#9664;</button>
+                    <button class="wbtn" onclick="adjustTradeRoute('${res}', -1)" title="Decrease (sell more)">&#9664;</button>
+                    <input  class="winput" type="number" id="tinput-${res}" oninput="setTradeRouteInput('${res}', this.value)">
+                    <button class="wbtn" onclick="adjustTradeRoute('${res}', 1)" title="Increase (buy more)">&#9654;</button>
+                    <button class="wbtn wbtn-mm" onclick="setTradeRouteBuyMax('${res}')" title="Buy max">&#9654;&#9654;</button>
+                </div>
             </div>`;
         }
+        container.innerHTML = html;
     }
-    container.innerHTML = html;
+
+    for (const res of tradeableResources) {
+        const rate  = TRADE_RATES[res] || 0;
+        const count = routes[res] || 0;
+        const usedByRest = activeCount - Math.abs(count);
+        const maxAbs = Math.max(0, capacity - usedByRest);
+
+        let sub, dir;
+        if (count < 0) {
+            const amount = -count * TRADE_AMOUNT;
+            const income = Math.floor(amount * rate * fencedBonus);
+            sub = `${amount}/day &rarr; +${formatCoins(income)}/day`;
+            dir = `<span class="trade-dir trade-sell">SELL</span>`;
+        } else if (count > 0) {
+            const amount = count * TRADE_AMOUNT;
+            const spend  = amount * rate * 2;
+            sub = `${formatCoins(spend)}/day &larr; +${amount}/day`;
+            dir = `<span class="trade-dir trade-buy">BUY</span>`;
+        } else {
+            sub = `Inactive (${rate} cp/unit)`;
+            dir = '';
+        }
+
+        const subEl = document.getElementById('tsub-' + res);
+        if (subEl) subEl.innerHTML = sub;
+
+        const dirEl = document.getElementById('tdir-' + res);
+        if (dirEl) dirEl.innerHTML = dir;
+
+        const inputEl = document.getElementById('tinput-' + res);
+        if (inputEl) {
+            inputEl.min = -maxAbs;
+            inputEl.max = maxAbs;
+            if (document.activeElement !== inputEl) inputEl.value = count;
+        }
+    }
 }
 
 function gather(key) {
@@ -1712,8 +1887,10 @@ function runOneTick() {
         if (!def.converts) continue;
         const count = gameState.buildings[id] || 0;
         if (count === 0) continue;
+        const activeFrac = getActiveBuildingFraction(id);
+        if (activeFrac === 0) continue;
         // Worker buildings need assigned workers; others run automatically per building
-        const w = def.jobs ? (workers2[id] || 0) : count;
+        const w = (def.jobs ? (workers2[id] || 0) : count) * activeFrac;
         if (w === 0) continue;
         const conv = def.converts;
         let ratio = 1;
@@ -1797,23 +1974,25 @@ function runOneTick() {
         if (stallWorkers > 0) {
             gameState.resources.coins = (gameState.resources.coins || 0) + stallWorkers * 5;
         }
-        // Trade routes: each configured route executes once per day
-        if (gameState.tradeRoutes && gameState.tradeRoutes.length > 0) {
+        // Trade routes: each resource's signed route count executes once per day
+        if (gameState.tradeRoutes) {
             const fencedBonus = (gameState.research && gameState.research.fencedGoods) ? 1.5 : 1;
-            for (const route of gameState.tradeRoutes) {
-                if (!route || !TRADE_RATES[route.resource]) continue;
-                const rate = TRADE_RATES[route.resource];
-                if (route.mode === 'sell') {
-                    const toSell = Math.min(TRADE_AMOUNT, gameState.resources[route.resource] || 0);
+            for (const res of Object.keys(gameState.tradeRoutes)) {
+                const count = gameState.tradeRoutes[res] || 0;
+                if (count === 0 || !TRADE_RATES[res]) continue;
+                const rate = TRADE_RATES[res];
+                if (count < 0) {
+                    const toSell = Math.min(TRADE_AMOUNT * -count, gameState.resources[res] || 0);
                     if (toSell > 0) {
-                        gameState.resources[route.resource] -= toSell;
+                        gameState.resources[res] -= toSell;
                         gameState.resources.coins = (gameState.resources.coins || 0) + Math.floor(toSell * rate * fencedBonus);
                     }
                 } else {
-                    const coinCost = TRADE_AMOUNT * rate * 2;
+                    const amount   = TRADE_AMOUNT * count;
+                    const coinCost = amount * rate * 2;
                     if ((gameState.resources.coins || 0) >= coinCost) {
                         gameState.resources.coins -= coinCost;
-                        gameState.resources[route.resource] = (gameState.resources[route.resource] || 0) + TRADE_AMOUNT;
+                        gameState.resources[res] = (gameState.resources[res] || 0) + amount;
                     }
                 }
             }
@@ -1827,6 +2006,7 @@ function runOneTick() {
         }
         gameState.time.seasonIndex = Math.floor((gameState.time.day - 1) / DAYS_PER_SEASON) % 4;
         flashEl('day');
+        maybeFireRandomEvent();
         if (gameState.time.day % DAYS_PER_SEASON === 1 && gameState.time.day !== 1) {
             flashEl('season');
         }
@@ -1909,15 +2089,16 @@ function getCoinsDailyRate() {
     }
     const stallWorkers = (gameState.workerAssignments && gameState.workerAssignments.marketStall) || 0;
     if (stallWorkers > 0) net += stallWorkers * 5;
-    if (gameState.tradeRoutes && gameState.tradeRoutes.length > 0) {
+    if (gameState.tradeRoutes) {
         const fencedBonus = (gameState.research && gameState.research.fencedGoods) ? 1.5 : 1;
-        for (const route of gameState.tradeRoutes) {
-            if (!route || !TRADE_RATES[route.resource]) continue;
-            const rate = TRADE_RATES[route.resource];
-            if (route.mode === 'sell') {
-                net += Math.floor(TRADE_AMOUNT * rate * fencedBonus);
+        for (const res of Object.keys(gameState.tradeRoutes)) {
+            const count = gameState.tradeRoutes[res] || 0;
+            if (count === 0 || !TRADE_RATES[res]) continue;
+            const rate = TRADE_RATES[res];
+            if (count < 0) {
+                net += Math.floor(TRADE_AMOUNT * -count * rate * fencedBonus);
             } else {
-                net -= TRADE_AMOUNT * rate * 2;
+                net -= TRADE_AMOUNT * count * rate * 2;
             }
         }
     }
@@ -1983,8 +2164,13 @@ function updateUI() {
     if (popRow) popRow.classList.toggle("starving", isStarving);
 
     // Coins (now in Population section)
-    setText("coinsDisplay", formatCoins(gameState.resources.coins || 0));
-    setText("coinsCap",     formatCoins(caps.coins));
+    const coinsNow = gameState.resources.coins || 0;
+    setText("coinsDisplay", formatCoinsCompact(coinsNow));
+    setText("coinsCap",     formatCoinsCompact(caps.coins));
+    const coinsDisplayEl = document.getElementById("coinsDisplay");
+    if (coinsDisplayEl) coinsDisplayEl.title = formatCoins(coinsNow);
+    const coinsCapEl = document.getElementById("coinsCap");
+    if (coinsCapEl) coinsCapEl.title = formatCoins(caps.coins);
     const coinsRateEl = document.getElementById("coinsRate");
     if (coinsRateEl) {
         const dailyNet = getCoinsDailyRate();
@@ -1992,7 +2178,8 @@ function updateUI() {
             coinsRateEl.style.display = "none";
         } else {
             const sign = dailyNet > 0 ? "+" : "-";
-            coinsRateEl.textContent = sign + formatCoins(Math.abs(dailyNet)) + "/day";
+            coinsRateEl.title = sign + formatCoins(Math.abs(dailyNet)) + "/day";
+            coinsRateEl.textContent = sign + formatCoinsCompact(Math.abs(dailyNet)) + "/day";
             coinsRateEl.style.display = "";
             coinsRateEl.style.color = dailyNet < 0 ? "var(--disabled)" : "var(--enabled)";
         }
@@ -2040,6 +2227,32 @@ function updateUI() {
             btn.style.display = checkUnlock(id) ? "" : "none";
             btn.classList.toggle("disabled", !canAfford(id));
         }
+        // Pause stepper for production/converter buildings — lets players idle some
+        // units of an overbuilt building without demolishing them. Hidden until hover.
+        if (btn && (def.production || def.converts) && count > 0) {
+            let stepperEl = btn.querySelector(".btn-pause-stepper");
+            if (!stepperEl) {
+                stepperEl = document.createElement("div");
+                stepperEl.className = "btn-pause-stepper";
+                stepperEl.innerHTML =
+                    '<span class="pause-step pause-step-minus">−</span>' +
+                    '<span class="pause-count"></span>' +
+                    '<span class="pause-step pause-step-plus">+</span>';
+                stepperEl.querySelector(".pause-step-minus").onclick = (e) => adjustBuildingPaused(id, -1, e);
+                stepperEl.querySelector(".pause-step-plus").onclick  = (e) => adjustBuildingPaused(id, 1, e);
+                btn.appendChild(stepperEl);
+            }
+            const paused = (gameState.buildingDisabled && gameState.buildingDisabled[id]) || 0;
+            stepperEl.querySelector(".pause-count").textContent = paused + " / " + count + " idle";
+            stepperEl.title = "Idle units skip production and consumption";
+            stepperEl.querySelector(".pause-step-minus").classList.toggle("at-limit", paused <= 0);
+            stepperEl.querySelector(".pause-step-plus").classList.toggle("at-limit", paused >= count);
+            btn.classList.toggle("building-paused", paused > 0);
+        } else if (btn) {
+            const stepperEl = btn.querySelector(".btn-pause-stepper");
+            if (stepperEl) stepperEl.remove();
+            btn.classList.remove("building-paused");
+        }
         const countEl = document.getElementById(id + "Count");
         if (countEl) {
             countEl.textContent = count;
@@ -2050,7 +2263,11 @@ function updateUI() {
             let costStr = Object.entries(cost)
                 .map(([res, n]) => `${fmt(n)} ${RESOURCES[res]?.name || res}`)
                 .join(", ");
-            if (def.coinCost) costStr += (costStr ? ", " : "") + formatCoins(getEffectiveBuildingCoinCost(def.coinCost));
+            if (def.coinCost) {
+                const bldCount = gameState.buildings[id] || 0;
+                const coinFree = def.coinFreeBelow != null && bldCount < def.coinFreeBelow;
+                if (!coinFree) costStr += (costStr ? ", " : "") + formatCoins(getEffectiveBuildingCoinCost(def.coinCost, id));
+            }
             costEl.textContent = costStr;
         }
     }
@@ -2087,12 +2304,33 @@ function updateUI() {
         if (upgradesLabel) upgradesLabel.style.display = upgradesVisible ? '' : 'none';
     }
 
+    // Era 2 building section labels — hide header if no buttons in that category are visible
+    {
+        const era2Sections = {
+            'era2-label-countryside': ['farm', 'lumber', 'quarry'],
+            'era2-label-warren':      ['lair', 'house', 'apartment'],
+            'era2-label-craftsmen':   ['smelter', 'kiln', 'loom', 'alchemyLab', 'forge', 'arcaneGrinder', 'arcaneBench'],
+            'era2-label-merchant':    ['storage', 'marketStall', 'tradeCart'],
+            'era2-label-arcane':      ['mageTower', 'scriptorium'],
+            'era2-label-war':         ['armory'],
+            'era2-label-extraction':  ['mine', 'coalSeam', 'crystalSeam', 'sulphurVent', 'herbalistDen', 'huntingLodge', 'clayPit', 'ritualCircle', 'spiderNest', 'arcaneCrucible', 'darkAltar', 'mithrilForge'],
+        };
+        for (const [labelId, ids] of Object.entries(era2Sections)) {
+            const label = document.getElementById(labelId);
+            if (!label) continue;
+            const anyVisible = ids.some(id => { const b = document.getElementById('btn-' + id); return b && b.style.display !== 'none'; });
+            label.style.display = anyVisible ? '' : 'none';
+        }
+    }
+
     // Research tab
     for (const [key, def] of Object.entries(RESEARCH)) {
         const card = document.getElementById("research-" + key);
         if (!card) continue;
         const done       = !!(gameState.research && gameState.research[key]);
-        const prereqsMet = !def.requiresResearch || def.requiresResearch.every(k => gameState.research && gameState.research[k]);
+        const researchMet  = !def.requiresResearch  || def.requiresResearch.every(k => gameState.research && gameState.research[k]);
+        const buildingsMet = !def.requiresBuildings || Object.entries(def.requiresBuildings).every(([b, n]) => (gameState.buildings[b] || 0) >= n);
+        const prereqsMet = researchMet && buildingsMet;
         const eraOk      = (RESEARCH_ERA[key] || 2) <= (gameState.run.era || 1);
         card.style.display = (!done && prereqsMet && eraOk) ? "" : "none";
         if (done) continue;
@@ -2100,6 +2338,8 @@ function updateUI() {
         if (!btn) continue;
         btn.textContent = "Research";
         btn.disabled    = !canAffordResearch(key);
+        const costEl = card.querySelector(".research-cost");
+        if (costEl) costEl.innerHTML = _researchCostLine(key, def);
     }
     // Sort visible research cards: resource-only costs first (sort value 0), then by lore amount ascending
     const resList = document.querySelector('.research-list');
@@ -2268,6 +2508,38 @@ function formatCoinCost(n) {
     return formatCoins(effectiveCoinCost(n));
 }
 
+// Compact single-denomination display for the main resource bar: shows only
+// the highest unlocked unit, with a decimal remainder instead of stacking
+// gp/sp/cp chunks. Full breakdown is still available via formatCoins() in tooltips.
+function formatCoinsCompact(n) {
+    n = Math.floor(n);
+    if (n <= 0) return gameState.research && gameState.research.goldOnly ? "0 gp"
+        : (gameState.research && gameState.research.silverCurrency ? "0 sp" : "0 cp");
+    const r = gameState.research || {};
+    const oneDecimal = (whole, sub) => {
+        const d = Math.floor(sub / 10);
+        return d ? `${whole}.${d}` : `${whole}`;
+    };
+    if (r.goldOnly || r.goldStandard) {
+        const gp = Math.floor(n / 1000);
+        if (gp > 0) return oneDecimal(gp, n % 1000) + " gp";
+        const sp = Math.floor(n / 100);
+        if (sp > 0) return oneDecimal(sp, n % 100) + " sp";
+        return n + " cp";
+    }
+    if (r.mintStandard) {
+        const gp = Math.floor(n / 1000);
+        if (gp > 0) return oneDecimal(gp, n % 1000) + " gp";
+        return Math.floor(n / 100) + " sp";
+    }
+    if (r.silverCurrency) {
+        const sp = Math.floor(n / 100);
+        if (sp > 0) return oneDecimal(sp, n % 100) + " sp";
+        return n + " cp";
+    }
+    return n + " cp";
+}
+
 // ── Era system ────────────────────────────────────────────────────────────────
 // Era-gated buildings: Era 1 = everything NOT listed here (default).
 const BUILDING_ERA = {
@@ -2277,9 +2549,9 @@ const BUILDING_ERA = {
     armory:        2, sulphurVent:   2, arcaneGrinder: 2,
     forge:         2, arcaneBench:   2,
     marketStall:   2, tradeCart:     2, house:        2, apartment:    2,
-    // Era 3 — Endgame / dark
-    ritualCircle:  3, spiderNest:    3, arcaneCrucible: 3,
-    darkAltar:     3, mithrilForge:  3,
+    // Era 2 late — Endgame / dark
+    ritualCircle:  2, arcaneCrucible: 2,
+    darkAltar:     2, mithrilForge:  2,
 };
 
 // Era-gated research: defaults to Era 1 if not listed.
@@ -2428,6 +2700,11 @@ function canAffordResearch(key) {
     if (def.requiresResearch) {
         for (const reqKey of def.requiresResearch) {
             if (!gameState.research || !gameState.research[reqKey]) return false;
+        }
+    }
+    if (def.requiresBuildings) {
+        for (const [b, n] of Object.entries(def.requiresBuildings)) {
+            if ((gameState.buildings[b] || 0) < n) return false;
         }
     }
     for (const [res, amount] of Object.entries(def.cost)) {
@@ -2586,6 +2863,25 @@ function devWipeResources() {
     saveGame();
 }
 
+function devFireRandomEvent() {
+    const era = (gameState.run && gameState.run.era) || 1;
+    let pool = [];
+    if (era === 1) {
+        pool = RANDOM_EVENTS.era1 || [];
+    } else {
+        const general = RANDOM_EVENTS.era2General || [];
+        const raceName = gameState.run && gameState.run.race;
+        const raceType = raceName && RACE_DATA[raceName] && RACE_DATA[raceName].tagLabel;
+        const byType   = raceType && RANDOM_EVENTS.era2ByType && RANDOM_EVENTS.era2ByType[raceType] || [];
+        pool = [...general, ...byType];
+    }
+    if (!pool.length) return;
+    const event = _weightedPick(pool);
+    const effectSummary = _applyEventEffects(event.effects || []);
+    addLogEntry(event.text, effectSummary);
+    updateUI();
+}
+
 function devAddQuintessence(n) {
     gameState.meta.quintessence = (gameState.meta.quintessence || 0) + n;
     saveGame();
@@ -2705,27 +3001,32 @@ function era1FlashTree(domainId) {
     flash.addEventListener('animationend', () => flash.remove(), { once: true });
 }
 
-// Injects dynamic race nodes into ERA1_TREE from gameState.era1.raceOptions.
-// Called on L4 unlock and on load so the tree always has the saved options.
-function era1EnsureDynRaceNodes() {
+// Returns the set of race names that are revealed to the player:
+// - All races they have ever prestiged with (meta.racesPlayed)
+// - The 2 randomly offered races for this run (era1.raceOptions.names)
+function era1GetRevealedRaces() {
+    const revealed = new Set(Object.keys(gameState.meta.racesPlayed || {}));
     const opts = gameState.era1 && gameState.era1.raceOptions;
-    if (!opts || !opts.names || opts.names.length < 2) return;
-    const ids = ['dyn-race-0', 'dyn-race-1'];
-    ids.forEach((id, i) => {
-        const raceName = opts.names[i];
-        // Reuse flavor from existing L5 node if one exists for this race, else generic
-        const existing = Object.values(ERA1_TREE).find(n => n.layer === 5 && n.race === raceName);
-        const flavor = existing ? existing.flavor : `${raceName} — a creature of the ${opts.type} type. Their strengths will shape your dungeon's future.`;
-        ERA1_TREE[id] = {
-            id, name: raceName, layer: 5, parent: opts.parentId,
-            flavor, cost: { influence: 200, mana: 150 }, children: [],
-            type: opts.type, race: raceName,
-        };
-    });
-    // Patch the L4 parent's children to point to the dynamic nodes
-    if (ERA1_TREE[opts.parentId]) {
-        ERA1_TREE[opts.parentId].children = ids;
+    if (opts && opts.names) opts.names.forEach(n => revealed.add(n));
+    return revealed;
+}
+
+// When an L4 type node is chosen, pick 2 random race offers from its static L5
+// children, excluding races already prestiged with. Stores names in era1.raceOptions.
+function era1PickRaceOffers(l4Node) {
+    const prestiged = new Set(Object.keys(gameState.meta.racesPlayed || {}));
+    const legendaryNames = new Set(Object.values(LEGENDARY_ROSTER).flat());
+    const children = l4Node.children || [];
+    const unplayed = children
+        .map(id => ERA1_TREE[id])
+        .filter(n => n && !prestiged.has(n.race) && !legendaryNames.has(n.race));
+    // Fisher-Yates shuffle unplayed pool, pick up to 2
+    for (let i = unplayed.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [unplayed[i], unplayed[j]] = [unplayed[j], unplayed[i]];
     }
+    const offered = unplayed.slice(0, 2).map(n => n.race);
+    gameState.era1.raceOptions = { type: l4Node.type, parentId: l4Node.id, names: offered };
 }
 
 function unlockEra1Node(nodeId) {
@@ -2753,19 +3054,9 @@ function unlockEra1Node(nodeId) {
     if (!gameState.era1) gameState.era1 = { unlocked: [], chosen: null };
     gameState.era1.unlocked.push(nodeId);
 
-    // L4 chosen — pick 2 random races from the full roster for this type
+    // L4 chosen — pick 2 random race offers from this type's static L5 children
     if (node.layer === 4 && node.type) {
-        const legendaryNames = new Set(
-            Object.values(LEGENDARY_ROSTER).flat()
-        );
-        const pool = (CREATURE_ROSTER[node.type] || []).filter(n => !legendaryNames.has(n));
-        // Fisher-Yates shuffle, then take first 2
-        for (let i = pool.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [pool[i], pool[j]] = [pool[j], pool[i]];
-        }
-        gameState.era1.raceOptions = { type: node.type, parentId: nodeId, names: pool.slice(0, 2) };
-        era1EnsureDynRaceNodes();
+        era1PickRaceOffers(node);
     }
 
     // Era transition: L5 race node chosen
@@ -2776,6 +3067,9 @@ function unlockEra1Node(nodeId) {
         setTimeout(() => {
             showEraTransition(node.race, () => {
                 playRace(node.race);
+                gameState.resources.essence   = 0;
+                gameState.resources.influence = 0;
+                gameState.resources.mana      = 0;
                 gameState.run.era = 2;
                 saveGame();
                 snapshotBackup("Era 2 (" + (node.race || "transition") + ")");
@@ -2786,6 +3080,7 @@ function unlockEra1Node(nodeId) {
         return;
     }
     updateUI();
+    era1PanToMostRecent();
     saveGame();
 }
 
@@ -3894,10 +4189,16 @@ const ERA1_LORE = [
     },
 ];
 
+let _era1LoreLayer = -1;
 function renderEra1Lore(frontierLayer) {
     const el = document.getElementById('era1-lore');
     if (!el) return;
-    if (frontierLayer < 1 || frontierLayer > 5) { el.innerHTML = ''; return; }
+    if (frontierLayer < 1 || frontierLayer > 5) {
+        if (_era1LoreLayer !== 0) { el.innerHTML = ''; _era1LoreLayer = 0; }
+        return;
+    }
+    if (frontierLayer === _era1LoreLayer) return;
+    _era1LoreLayer = frontierLayer;
     const lore = ERA1_LORE[frontierLayer - 1];
     el.innerHTML =
         `<div class="era1-lore">` +
@@ -3907,117 +4208,765 @@ function renderEra1Lore(frontierLayer) {
         `</div>`;
 }
 
-let _era1TreeState = '';
+// ── Era 1 Full Tree Canvas ────────────────────────────────────────────────────
+// Zoomable/pannable canvas showing the entire awakening tree.
+// Deep → left, Wild → down, Beyond → right from the root.
 
-function renderEra1Tree() {
+let _era1TreeState = '';
+let _era1Canvas = null; // Legacy global canvas state; local discovery view does not pan/zoom.
+let _era1FocusedNodeId = null;
+let _era1DiscoveryResizeBound = false;
+
+// Node dimensions and spacing
+const ERA1_NODE_W  = 130;
+const ERA1_NODE_H  = 54;
+const ERA1_LEAF_W  = 110;  // L5 leaf node width
+const ERA1_LEAF_H  = 44;   // L5 leaf node height
+
+// Radial layout parameters (L0–L4 only; L5 clusters around L4 parent)
+const ERA1_RADII = [0, 260, 500, 740, 1000]; // radius per layer (L0–L4)
+// Angular step between adjacent leaves in a cluster, in radians.
+// At R=1000, step=0.14 rad → ~140px chord, comfortably larger than LEAF_W.
+const ERA1_LEAF_STEP = 0.245;
+
+// Compute layout positions for all nodes in the full tree.
+// Returns Map<nodeId, {x, y}> in canvas coordinates.
+// Root is at (0,0). Three domain branches at 120° increments (270°, 30°, 150°).
+// L0–L4 nodes sit on concentric rings; L5 leaves cluster in a tight arc around
+// their L4 parent at a short fixed offset beyond R4.
+function era1ComputeLayout() {
+    const pos = new Map();
+
+    // Domain base angles: Deep=270° (up), Wild=30° (lower-right), Beyond=150° (lower-left)
+    const DOMAIN_BASE_DEG = { deep: 270, wild: 30, beyond: 150 };
+    const SECTOR   = (2 * Math.PI) / 3;  // 120° per domain
+    const EDGE_GAP = 0.08;               // radians kept from each sector edge
+
+    // ── Leaf count: how many L5 descendants does a node have? ──────────────────
+    function leafCount(nodeId) {
+        const node = ERA1_TREE[nodeId];
+        if (!node) return 0;
+        if (node.children.length === 0) return 1;
+        return node.children.reduce((s, cid) => s + leafCount(cid), 0);
+    }
+
+    // ── Recursive weighted placement (L0–L4) ───────────────────────────────────
+    // arcStart/arcEnd: the angular slice this node owns.
+    // The node is placed at the center of its slice; children divide the slice
+    // proportionally by their leaf counts.
+    function placeNode(nodeId, arcStart, arcEnd) {
+        const node   = ERA1_TREE[nodeId];
+        if (!node) return;
+        const midAng = (arcStart + arcEnd) / 2;
+        const r      = ERA1_RADII[node.layer] || 0;
+        pos.set(nodeId, { x: Math.cos(midAng) * r, y: Math.sin(midAng) * r });
+
+        if (node.layer === 4 || node.children.length === 0) return;
+
+        const total  = node.children.reduce((s, cid) => s + leafCount(cid), 0);
+        const usable = arcEnd - arcStart;
+        let cursor   = arcStart;
+        for (const cid of node.children) {
+            const share = (leafCount(cid) / total) * usable;
+            placeNode(cid, cursor, cursor + share);
+            cursor += share;
+        }
+    }
+
+    // Root at center
+    pos.set('root', { x: 0, y: 0 });
+
+    // Each domain gets exactly 120°; within that, weighted by leaf count
+    for (const domainId of ERA1_DOMAINS) {
+        const baseRad  = DOMAIN_BASE_DEG[domainId] * Math.PI / 180;
+        const arcStart = baseRad - SECTOR / 2 + EDGE_GAP;
+        const arcEnd   = baseRad + SECTOR / 2 - EDGE_GAP;
+        placeNode(domainId, arcStart, arcEnd);
+    }
+
+    // ── L5 leaves: orbit their L4 parent in a local circle ─────────────────────
+    // Distributed evenly around the L4 node, orbit starts outward (away from root).
+    const LEAF_ORBIT_R = 185;
+
+    for (const [nodeId, node] of Object.entries(ERA1_TREE)) {
+        if (node.layer !== 4 || node.children.length === 0) continue;
+        const leaves  = node.children;
+        const n       = leaves.length;
+        const l4pos   = pos.get(nodeId);
+        const l4ang   = Math.atan2(l4pos.y, l4pos.x); // outward radial direction
+        const startAng = l4ang - Math.PI * (n - 1) / n;
+        for (let i = 0; i < n; i++) {
+            const a = startAng + i * (2 * Math.PI / n);
+            pos.set(leaves[i], {
+                x: l4pos.x + Math.cos(a) * LEAF_ORBIT_R,
+                y: l4pos.y + Math.sin(a) * LEAF_ORBIT_R,
+            });
+        }
+    }
+
+    return pos;
+}
+
+function renderEra1TreeLegacy() {
     const container = document.getElementById('era1-tree');
     if (!container) return;
     if ((gameState.run.era || 1) !== 1) { container.innerHTML = ''; renderEra1Lore(0); return; }
 
-    const era1 = gameState.era1 || { unlocked: [], chosen: null };
-    const unlocked = era1.unlocked || [];
-    const stateKey = unlocked.join(',') + '|' + getCaps().essence;
-    if (stateKey === _era1TreeState) return;
-    _era1TreeState = stateKey;
-    era1HidePanel();
+    const era1    = gameState.era1 || { unlocked: [], chosen: null };
+    const unlocked = new Set(era1.unlocked || []);
+    const revealed = era1GetRevealedRaces();
+    const offeredNames = new Set((era1.raceOptions && era1.raceOptions.names) || []);
+    const prestiged    = new Set(Object.keys(gameState.meta.racesPlayed || {}));
 
-    // Build the visible node sequence: root, then each chosen child down the path,
-    // plus the current frontier (children of the deepest chosen node).
-    // At each layer, show all siblings — chosen one highlighted, unchosen ones ghosted.
-
-    let html = '';
-
-    // Helper: render one layer row
-    // animate=true adds entrance animation classes (only for the frontier layer)
-    function renderLayer(nodeIds, chosenId, animate) {
-        if (!nodeIds || nodeIds.length === 0) return '';
-        // Get domain of the first node for branch coloring
-        const domainId = era1GetDomain(nodeIds[0]);
-        const branchClass = (ERA1_BRANCH_CLASS && ERA1_BRANCH_CLASS[domainId]) || '';
-        let rowHtml = '<div class="era1-layer">';
-        for (let i = 0; i < nodeIds.length; i++) {
-            const nid  = nodeIds[i];
-            const node = ERA1_TREE[nid];
-            if (!node) continue;
-            const isChosen = nid === chosenId;
-            const isGhosted = chosenId && !isChosen; // a sibling was chosen instead
-            const isActive  = !chosenId && !isGhosted; // no sibling chosen yet — this is the frontier
-            const affordable = isActive && canAffordEra1(nid);
-            const stateClass = isChosen  ? 'era1-node-done'
-                             : isGhosted ? 'era1-node-locked'
-                             : affordable ? 'era1-node-active'
-                             : 'era1-node-waiting';
-            const enterClass = animate ? 'era1-node-enter' : '';
-            const enterDelay = animate ? `animation-delay:${i * 60}ms;` : '';
-            rowHtml += `<div class="era1-node ${stateClass} ${branchClass} ${enterClass}" id="era1-node-${nid}"
-                            style="${enterDelay}"
-                            onclick="unlockEra1Node('${nid}')"
-                            onmouseenter="era1ShowPanel('${nid}', event)"
-                            onmousemove="_era1MoveTooltip(event)"
-                            onmouseleave="era1HidePanel()">
-                <div class="era1-node-name">${node.name}</div>
-                ${node.type ? `<div class="era1-node-type">${node.type}</div>` : ''}
-            </div>`;
-        }
-        rowHtml += '</div>';
-        return rowHtml;
-    }
-
-    // Helper: connector — animated only when it's newly appearing
-    function renderConnector(animate) {
-        return `<div class="era1-connector${animate ? ' era1-connector-new' : ''}"></div>`;
-    }
-
-    // Determine how deep the chosen path goes so we know which layer is the frontier
+    // Determine frontier layer for lore
     const chosenL1 = era1GetChosenChild('root');
     const chosenL2 = chosenL1 ? era1GetChosenChild(chosenL1) : null;
     const chosenL3 = chosenL2 ? era1GetChosenChild(chosenL2) : null;
     const chosenL4 = chosenL3 ? era1GetChosenChild(chosenL3) : null;
     const frontierLayer = !chosenL1 ? 1 : !chosenL2 ? 2 : !chosenL3 ? 3 : !chosenL4 ? 4 : 5;
+    renderEra1Lore(frontierLayer);
 
-    // L0: root (always shown as done)
-    const rootNode = ERA1_TREE['root'];
-    html += `<div class="era1-layer era1-layer-root">
-        <div class="era1-node era1-node-done era1-root-node" onmouseenter="era1ShowPanel('root', event)" onmousemove="_era1MoveTooltip(event)" onmouseleave="era1HidePanel()">
-            <div class="era1-node-name">${rootNode.name}</div>
-        </div>
-    </div>`;
-    html += renderConnector(false);
+    // State key — rebuild only when something meaningful changes
+    const stateKey = [...unlocked].join(',') + '|' + [...revealed].join(',') + '|' + getCaps().essence;
+    if (stateKey === _era1TreeState && _era1Canvas) {
+        era1UpdateNodeStyles(unlocked, revealed, offeredNames, prestiged);
+        era1RenderLegendary(prestiged);
+        return;
+    }
+    _era1TreeState = stateKey;
+    era1HidePanel();
 
-    // L1: Domain
-    html += renderLayer(ERA1_TREE['root'].children, chosenL1, frontierLayer === 1);
+    // ── Build canvas wrapper ──────────────────────────────────────────────────
+    container.innerHTML = `
+        <div class="era1-canvas-wrap" id="era1-canvas-wrap">
+            <svg class="era1-canvas-svg" id="era1-canvas-svg" style="position:absolute;top:0;left:0;width:100%;height:100%;overflow:visible;pointer-events:none;"></svg>
+            <div class="era1-canvas-nodes" id="era1-canvas-nodes"></div>
+            <div class="era1-legend" id="era1-legend">
+                <span class="era1-leg era1-leg-chosen">Chosen path</span>
+                <span class="era1-leg era1-leg-prestiged">Unlocked</span>
+                <span class="era1-leg era1-leg-offered">Offered this run</span>
+                <span class="era1-leg era1-leg-fogged">Undiscovered</span>
+            </div>
+        </div>`;
 
-    if (chosenL1) {
-        html += renderConnector(frontierLayer === 2);
-        // L2: Drive
-        html += renderLayer(ERA1_TREE[chosenL1].children, chosenL2, frontierLayer === 2);
+    const wrap      = document.getElementById('era1-canvas-wrap');
+    const svgEl     = document.getElementById('era1-canvas-svg');
+    const nodeLayer = document.getElementById('era1-canvas-nodes');
 
-        if (chosenL2) {
-            html += renderConnector(frontierLayer === 3);
-            // L3: Form
-            html += renderLayer(ERA1_TREE[chosenL2].children, chosenL3, frontierLayer === 3);
+    // ── Compute layout ────────────────────────────────────────────────────────
+    const positions = era1ComputeLayout();
 
-            if (chosenL3) {
-                html += renderConnector(frontierLayer === 4);
-                // L4: Type
-                html += renderLayer(ERA1_TREE[chosenL3].children, chosenL4, frontierLayer === 4);
+    // Find bounding box to size the canvas
+    let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+    for (const [nodeId, p] of positions) {
+        const node = ERA1_TREE[nodeId];
+        const hw = (node && node.layer === 5 ? ERA1_LEAF_W : ERA1_NODE_W) / 2;
+        const hh = (node && node.layer === 5 ? ERA1_LEAF_H : ERA1_NODE_H) / 2;
+        minX = Math.min(minX, p.x - hw);
+        maxX = Math.max(maxX, p.x + hw);
+        minY = Math.min(minY, p.y - hh);
+        maxY = Math.max(maxY, p.y + hh);
+    }
+    const PADDING = 60;
+    const canvasW = maxX - minX + PADDING * 2;
+    const canvasH = maxY - minY + PADDING * 2;
+    const ox = -minX + PADDING; // origin offset so (0,0) maps correctly
 
-                if (chosenL4) {
-                    html += renderConnector(frontierLayer === 5);
-                    // L5: Race — ensure dynamic nodes are injected before rendering
-                    era1EnsureDynRaceNodes();
-                    const chosenL5 = era1GetChosenChild(chosenL4);
-                    html += renderLayer(ERA1_TREE[chosenL4].children, chosenL5, frontierLayer === 5);
-                }
+    nodeLayer.style.width  = canvasW + 'px';
+    nodeLayer.style.height = canvasH + 'px';
+
+    // ── Draw SVG connector lines ──────────────────────────────────────────────
+    const DOMAIN_COLORS = { deep: '#8899aa', wild: '#5a9e60', beyond: '#8866bb' };
+    let svgContent = '';
+    for (const [nodeId, node] of Object.entries(ERA1_TREE)) {
+        if (!node.parent) continue;
+        const ppos = positions.get(node.parent);
+        const cpos = positions.get(nodeId);
+        if (!ppos || !cpos) continue;
+        const color  = era1GetColor(nodeId, DOMAIN_COLORS);
+        const px = ppos.x + ox;
+        const py = ppos.y + ox; // note: using separate axes below
+        const cx = cpos.x + ox;
+        const cy = cpos.y + ox;
+        // Correct y: uses oy not ox
+        const pY = ppos.y + (PADDING - minY);
+        const cY = cpos.y + (PADDING - minY);
+        const pX = ppos.x + (PADDING - minX);
+        const cX = cpos.x + (PADDING - minX);
+
+        // Determine if this node is on the chosen path
+        const onPath = unlocked.has(nodeId) || unlocked.has(node.parent) || nodeId === 'root' || node.parent === 'root';
+        const opacity = onPath ? 0.7 : 0.2;
+        // Bezier curve for smooth look
+        const midX = (pX + cX) / 2;
+        const midY = (pY + cY) / 2;
+        svgContent += `<path d="M${pX},${pY} C${midX},${pY} ${midX},${cY} ${cX},${cY}"
+            stroke="${color}" stroke-width="${onPath ? 2 : 1}" fill="none" opacity="${opacity}"/>`;
+    }
+    svgEl.innerHTML = svgContent;
+    svgEl.style.width  = canvasW + 'px';
+    svgEl.style.height = canvasH + 'px';
+
+    // ── Place node elements ───────────────────────────────────────────────────
+    for (const [nodeId, node] of Object.entries(ERA1_TREE)) {
+        const p = positions.get(nodeId);
+        if (!p) continue;
+        const nw = node.layer === 5 ? ERA1_LEAF_W : ERA1_NODE_W;
+        const nh = node.layer === 5 ? ERA1_LEAF_H : ERA1_NODE_H;
+        const x = p.x + (PADDING - minX) - nw / 2;
+        const y = p.y + (PADDING - minY) - nh / 2;
+
+        const el = document.createElement('div');
+        el.className = 'era1-cn'; // canvas node
+        el.id = 'era1-node-' + nodeId;
+        el.style.left   = x + 'px';
+        el.style.top    = y + 'px';
+        el.style.width  = nw + 'px';
+        el.style.height = nh + 'px';
+        el.setAttribute('data-nid', nodeId);
+
+        if (node.layer === 5) {
+            // Race leaf — may be fogged
+            const isRevealed = revealed.has(node.race);
+            const isOffered  = offeredNames.has(node.race);
+            const isPrestiged = prestiged.has(node.race);
+            const isChosen   = unlocked.has(nodeId) || (era1.chosen === nodeId);
+            if (isChosen) {
+                el.innerHTML = `<div class="era1-cn-name">${node.name}</div><div class="era1-cn-sub">${node.type}</div>`;
+            } else if (isPrestiged) {
+                el.innerHTML = `<div class="era1-cn-name">${node.name}</div><div class="era1-cn-sub">${node.type}</div>`;
+            } else if (isOffered) {
+                el.innerHTML = `<div class="era1-cn-name">${node.name}</div><div class="era1-cn-sub">offered</div>`;
+            } else {
+                el.innerHTML = `<div class="era1-cn-fog">?</div>`;
+            }
+        } else {
+            el.innerHTML = `<div class="era1-cn-name">${node.name}</div>`;
+        }
+
+        el.addEventListener('mouseenter', e => era1ShowPanel(nodeId, e));
+        el.addEventListener('mousemove',  e => _era1MoveTooltip(e));
+        el.addEventListener('mouseleave', () => era1HidePanel());
+        el.addEventListener('click',      () => unlockEra1Node(nodeId));
+        nodeLayer.appendChild(el);
+    }
+
+    // Apply visual state classes
+    era1UpdateNodeStyles(unlocked, revealed, offeredNames, prestiged);
+
+    // Render legendary sidebar below canvas
+    era1RenderLegendary(prestiged);
+
+    // ── Pan & zoom ────────────────────────────────────────────────────────────
+    let zoom = 0.52, panX = 0, panY = 0;
+    let dragging = false, lastMX = 0, lastMY = 0;
+
+    function applyTransform() {
+        nodeLayer.style.transform = `translate(${panX}px,${panY}px) scale(${zoom})`;
+        nodeLayer.style.transformOrigin = '0 0';
+        svgEl.style.transform = `translate(${panX}px,${panY}px) scale(${zoom})`;
+        svgEl.style.transformOrigin = '0 0';
+    }
+
+    // Initial center: root node
+    function centerOnNode(nodeId) {
+        const p = positions.get(nodeId);
+        if (!p) return;
+        const wRect = wrap.getBoundingClientRect();
+        const nx = p.x + (PADDING - minX);
+        const ny = p.y + (PADDING - minY);
+        panX = wRect.width  / 2 - nx * zoom;
+        panY = wRect.height / 2 - ny * zoom;
+        applyTransform();
+    }
+
+    _era1Canvas = { wrap, svgEl, nodeLayer, positions, minX, minY, PADDING,
+                    get zoom() { return zoom; }, set zoom(v) { zoom = v; },
+                    get panX() { return panX; }, set panX(v) { panX = v; },
+                    get panY() { return panY; }, set panY(v) { panY = v; },
+                    applyTransform, centerOnNode };
+
+    centerOnNode('root');
+
+    wrap.addEventListener('wheel', e => {
+        e.preventDefault();
+        const delta = e.deltaY > 0 ? 0.9 : 1.1;
+        const rect  = wrap.getBoundingClientRect();
+        const mx = e.clientX - rect.left;
+        const my = e.clientY - rect.top;
+        panX = mx - (mx - panX) * delta;
+        panY = my - (my - panY) * delta;
+        zoom = Math.max(0.25, Math.min(2.5, zoom * delta));
+        applyTransform();
+    }, { passive: false });
+
+    wrap.addEventListener('mousedown', e => {
+        if (e.button !== 0) return;
+        dragging = true;
+        lastMX = e.clientX;
+        lastMY = e.clientY;
+        wrap.style.cursor = 'grabbing';
+    });
+
+    // ── Auto-recenter after 3s of no mouse movement over the wrap ────────────
+    let _idleTimer = null;
+    function resetIdleTimer() {
+        clearTimeout(_idleTimer);
+        _idleTimer = setTimeout(() => era1PanToMostRecent(), 3000);
+    }
+    wrap.addEventListener('mousemove', resetIdleTimer);
+    wrap.addEventListener('mouseleave', () => clearTimeout(_idleTimer));
+
+    window.addEventListener('mousemove', e => {
+        if (!dragging) return;
+        panX += e.clientX - lastMX;
+        panY += e.clientY - lastMY;
+        lastMX = e.clientX;
+        lastMY = e.clientY;
+        applyTransform();
+        resetIdleTimer();
+    });
+    window.addEventListener('mouseup', () => {
+        dragging = false;
+        if (wrap) wrap.style.cursor = 'grab';
+    });
+    wrap.style.cursor = 'grab';
+}
+
+// Render the Legendary Races box below the canvas.
+let _era1LegendaryKey = null;
+function era1RenderLegendary(prestiged) {
+    const container = document.getElementById('era1-tree');
+    if (!container) return;
+
+    const allLegendary = Object.values(LEGENDARY_ROSTER).flat();
+    const stateKey = allLegendary.map(n => prestiged.has(n) ? '1' : '0').join('');
+    if (stateKey === _era1LegendaryKey && document.getElementById('era1-legendary-box')) return;
+    _era1LegendaryKey = stateKey;
+
+    let box = document.getElementById('era1-legendary-box');
+    if (!box) {
+        box = document.createElement('div');
+        box.id = 'era1-legendary-box';
+        box.className = 'era1-legendary-box';
+        container.appendChild(box);
+    }
+
+    let html = `<div class="era1-legendary-title">✦ Legendary Races ✦</div><div class="era1-legendary-grid">`;
+    for (const name of allLegendary) {
+        const seen = prestiged.has(name);
+        if (seen) {
+            html += `<div class="era1-legendary-card era1-lc-revealed"
+                onmouseenter="era1ShowLegendaryPanel('${name}', event)"
+                onmousemove="_era1MoveTooltip(event)"
+                onmouseleave="era1HidePanel()">
+                <div class="era1-lc-name">${name}</div>
+            </div>`;
+        } else {
+            html += `<div class="era1-legendary-card era1-lc-fogged"><div class="era1-lc-fog">?</div></div>`;
+        }
+    }
+    html += '</div>';
+    box.innerHTML = html;
+}
+
+function era1ShowLegendaryPanel(name, e) {
+    // Reuse the existing tooltip panel to show legendary flavor
+    const node = Object.values(ERA1_TREE).find(n => n.race === name);
+    if (node) era1ShowPanel(node.id, e);
+}
+
+// Apply the most-specific color for a node as an inline --dn-clr CSS variable.
+const _ERA1_DOMAIN_COLORS_STATIC = { deep: '#8899aa', wild: '#5a9e60', beyond: '#8866bb' };
+function era1ApplyColorClass(el, nodeId) {
+    const color = era1GetColor(nodeId, _ERA1_DOMAIN_COLORS_STATIC);
+    if (color) el.style.setProperty('--dn-clr', color);
+}
+
+// Classify and apply CSS state classes to all nodes without full rebuild.
+function era1UpdateNodeStyles(unlocked, revealed, offeredNames, prestiged) {
+    const era1    = gameState.era1 || {};
+    const chosenL5 = era1.chosen;
+
+    for (const [nodeId, node] of Object.entries(ERA1_TREE)) {
+        const el = document.getElementById('era1-node-' + nodeId);
+        if (!el) continue;
+
+        // Remove all state classes
+        el.classList.remove(
+            'era1-cn-root', 'era1-cn-chosen', 'era1-cn-unlocked-path',
+            'era1-cn-sibling', 'era1-cn-active', 'era1-cn-waiting',
+            'era1-cn-prestiged', 'era1-cn-offered', 'era1-cn-fogged',
+            'era1-cn-deep', 'era1-cn-wild', 'era1-cn-beyond',
+            'era1-cn-dominance', 'era1-cn-wisdom', 'era1-cn-growth',
+            'era1-cn-hunt', 'era1-cn-undying', 'era1-cn-bargain'
+        );
+
+        era1ApplyColorClass(el, nodeId);
+
+        if (node.layer === 0) {
+            el.classList.add('era1-cn-root');
+            continue;
+        }
+
+        const isUnlocked = unlocked.has(nodeId);
+        const parentUnlocked = node.parent && unlocked.has(node.parent);
+        const isChosen = nodeId === chosenL5;
+
+        if (node.layer === 5) {
+            const race = node.race || '';
+            const isRaceChosen  = isChosen || (isUnlocked);
+            const isPrestiged   = prestiged.has(race);
+            const isOffered     = offeredNames.has(race);
+
+            if (isRaceChosen) {
+                el.classList.add('era1-cn-chosen');
+            } else if (isPrestiged) {
+                el.classList.add('era1-cn-prestiged');
+                el.style.pointerEvents = '';
+            } else if (isOffered && parentUnlocked) {
+                el.classList.add('era1-cn-offered');
+                const affordable = canAffordEra1(nodeId);
+                if (!affordable) el.classList.add('era1-cn-waiting');
+                el.style.pointerEvents = '';
+            } else {
+                el.classList.add('era1-cn-fogged');
+                el.style.pointerEvents = 'none';
+            }
+        } else {
+            if (isUnlocked) {
+                el.classList.add('era1-cn-chosen');
+            } else if (parentUnlocked) {
+                const affordable = canAffordEra1(nodeId);
+                el.classList.add(affordable ? 'era1-cn-active' : 'era1-cn-waiting');
+            } else {
+                el.classList.add('era1-cn-sibling');
             }
         }
     }
+}
 
-    renderEra1Lore(frontierLayer);
-    container.innerHTML = html;
+// After a node is unlocked, smoothly pan to the most recently unlocked node.
+function era1PanToMostRecent() {
+    if (!_era1Canvas) return;
+    const era1 = gameState.era1 || {};
+    const unlocked = era1.unlocked || [];
+    const lastId = unlocked[unlocked.length - 1];
+    if (!lastId) return;
+    const c = _era1Canvas;
+    const p = c.positions.get(lastId);
+    if (!p) return;
+    const wRect = c.wrap.getBoundingClientRect();
+    const nx = p.x + (c.PADDING - c.minX || 0);
+    const ny = p.y + (c.PADDING - c.minY || 0);
+    const targetPanX = wRect.width  / 2 - nx * c.zoom;
+    const targetPanY = wRect.height / 2 - ny * c.zoom;
+    const startX = c.panX, startY = c.panY;
+    const dx = targetPanX - startX, dy = targetPanY - startY;
+    let start = null;
+    function step(ts) {
+        if (!start) start = ts;
+        const t = Math.min((ts - start) / 400, 1);
+        const ease = t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+        c.panX = startX + dx * ease;
+        c.panY = startY + dy * ease;
+        c.applyTransform();
+        if (t < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
 }
 
 // ── Tab visibility gating (Era 1 vs Era 2) ───────────────────────────────────
+
+function renderEra1Tree() {
+    const container = document.getElementById('era1-tree');
+    if (!container) return;
+    if ((gameState.run.era || 1) !== 1) {
+        container.innerHTML = '';
+        renderEra1Lore(0);
+        return;
+    }
+
+    const era1 = gameState.era1 || { unlocked: [], chosen: null };
+    const unlocked = new Set(era1.unlocked || []);
+    const revealed = era1GetRevealedRaces();
+    const offeredNames = new Set((era1.raceOptions && era1.raceOptions.names) || []);
+    const prestiged = new Set(Object.keys(gameState.meta.racesPlayed || {}));
+
+    const chosenL1 = era1GetChosenChild('root');
+    const chosenL2 = chosenL1 ? era1GetChosenChild(chosenL1) : null;
+    const chosenL3 = chosenL2 ? era1GetChosenChild(chosenL2) : null;
+    const chosenL4 = chosenL3 ? era1GetChosenChild(chosenL3) : null;
+    const frontierLayer = !chosenL1 ? 1 : !chosenL2 ? 2 : !chosenL3 ? 3 : !chosenL4 ? 4 : 5;
+    renderEra1Lore(frontierLayer);
+
+    const centerId = era1GetDiscoveryFocusId();
+    _era1FocusedNodeId = centerId;
+    // Only re-render when affordability changes, not on every resource tick.
+    const affordableKey = Object.keys(ERA1_TREE)
+        .filter(id => era1NodeCanUnlock(ERA1_TREE[id], unlocked, offeredNames))
+        .sort().join(',');
+    const stateKey = [
+        centerId,
+        [...unlocked].join(','),
+        [...revealed].join(','),
+        [...offeredNames].join(','),
+        [...prestiged].join(','),
+        affordableKey,
+    ].join('|');
+    if (stateKey === _era1TreeState && document.getElementById('era1-discovery-wrap')) return;
+
+    _era1TreeState = stateKey;
+    _era1Canvas = null;
+    era1HidePanel();
+    container.innerHTML = `
+        <div class="era1-breadcrumbs" id="era1-breadcrumbs"></div>
+        <div class="era1-discovery-wrap" id="era1-discovery-wrap">
+            <svg class="era1-discovery-svg" id="era1-discovery-svg" viewBox="0 0 900 480" preserveAspectRatio="xMidYMid meet" aria-hidden="true"></svg>
+            <div class="era1-discovery-nodes" id="era1-discovery-nodes"></div>
+            <div class="era1-legend" id="era1-legend">
+                <span class="era1-leg era1-leg-chosen">Center</span>
+                <span class="era1-leg era1-leg-offered">Seen</span>
+                <span class="era1-leg era1-leg-fogged">Unknown</span>
+            </div>
+        </div>`;
+
+    era1RenderBreadcrumbs(centerId);
+    era1RenderDiscoveryScene(centerId, unlocked, revealed, offeredNames, prestiged);
+    era1FitDiscoveryScene();
+    if (!_era1DiscoveryResizeBound) {
+        window.addEventListener('resize', era1FitDiscoveryScene);
+        _era1DiscoveryResizeBound = true;
+    }
+    era1RenderLegendary(prestiged);
+}
+
+function era1GetDiscoveryFocusId() {
+    const era1 = gameState.era1 || {};
+    if (_era1FocusedNodeId && ERA1_TREE[_era1FocusedNodeId]) return _era1FocusedNodeId;
+    if (era1.chosen && ERA1_TREE[era1.chosen]) return era1.chosen;
+    const unlocked = era1.unlocked || [];
+    for (let i = unlocked.length - 1; i >= 0; i--) {
+        if (ERA1_TREE[unlocked[i]]) return unlocked[i];
+    }
+    return 'root';
+}
+
+function era1FocusNode(nodeId) {
+    if (!ERA1_TREE[nodeId]) return;
+    // Once a L1 domain is chosen, root is no longer navigable
+    if (nodeId === 'root') {
+        const era1 = gameState.era1 || {};
+        const unlocked = new Set(era1.unlocked || []);
+        const hasChosenDomain = ['deep', 'wild', 'beyond'].some(id => unlocked.has(id));
+        if (hasChosenDomain) return;
+    }
+    _era1FocusedNodeId = nodeId;
+    _era1TreeState = '';
+    renderEra1Tree();
+}
+
+function era1PathToRoot(nodeId) {
+    const path = [];
+    let node = ERA1_TREE[nodeId];
+    while (node) {
+        path.unshift(node.id);
+        node = node.parent ? ERA1_TREE[node.parent] : null;
+    }
+    return path;
+}
+
+function era1RenderBreadcrumbs(centerId) {
+    const el = document.getElementById('era1-breadcrumbs');
+    if (!el) return;
+    el.innerHTML = '';
+    const era1 = gameState.era1 || {};
+    const unlocked = new Set(era1.unlocked || []);
+    const hasChosenDomain = ['deep', 'wild', 'beyond'].some(id => unlocked.has(id));
+    // Hide when root is centered (nothing to navigate to) or after domain is committed
+    const centerIsRoot = centerId === 'root';
+    el.style.display = (hasChosenDomain || centerIsRoot) ? 'none' : '';
+    if (hasChosenDomain || centerIsRoot) return;
+    era1PathToRoot(centerId).forEach((nodeId, idx, path) => {
+        const node = ERA1_TREE[nodeId];
+        if (!node) return;
+        const btn = document.createElement('button');
+        btn.className = 'era1-crumb' + (nodeId === centerId ? ' era1-crumb-current' : '');
+        btn.textContent = node.name;
+        btn.addEventListener('click', () => era1FocusNode(nodeId));
+        el.appendChild(btn);
+        if (idx < path.length - 1) {
+            const sep = document.createElement('span');
+            sep.className = 'era1-crumb-sep';
+            sep.textContent = '>';
+            el.appendChild(sep);
+        }
+    });
+}
+
+function era1LayerLabel(layer) {
+    return ['', 'domain', 'drive', 'form', 'type', 'race'][layer] || '';
+}
+
+function era1NodeKnowledge(node, unlocked, revealed, offeredNames, prestiged) {
+    if (!node) return 'unknown';
+    if (node.layer < 5) {
+        if (node.id === 'root' || unlocked.has(node.id)) return 'discovered';
+        if (node.parent && unlocked.has(node.parent)) return 'seen';
+        return 'seen';
+    }
+    if (unlocked.has(node.id) || prestiged.has(node.race)) return 'discovered';
+    if (offeredNames.has(node.race) || revealed.has(node.race)) return 'seen';
+    return 'unknown';
+}
+
+function era1NodeCanUnlock(node, unlocked, offeredNames) {
+    if (!node || node.id === 'root' || unlocked.has(node.id)) return false;
+    if (!node.parent || (node.parent !== 'root' && !unlocked.has(node.parent))) return false;
+    if (node.layer === 5 && !offeredNames.has(node.race)) return false;
+    return canAffordEra1(node.id);
+}
+
+function era1RenderDiscoveryScene(centerId, unlocked, revealed, offeredNames, prestiged) {
+    const nodeLayer = document.getElementById('era1-discovery-nodes');
+    const svgEl = document.getElementById('era1-discovery-svg');
+    if (!nodeLayer || !svgEl) return;
+
+    const center = ERA1_TREE[centerId] || ERA1_TREE.root;
+    const parentIds = center.parent ? [center.parent] : [];
+    const childIds = (center.children || []).slice().sort((a, b) => {
+        const ak = era1NodeKnowledge(ERA1_TREE[a], unlocked, revealed, offeredNames, prestiged);
+        const bk = era1NodeKnowledge(ERA1_TREE[b], unlocked, revealed, offeredNames, prestiged);
+        const rank = { discovered: 0, seen: 1, unknown: 2 };
+        return (rank[ak] || 9) - (rank[bk] || 9);
+    });
+    const siblingIds = center.parent
+        ? (ERA1_TREE[center.parent].children || []).filter(id => id !== center.id)
+        : [];
+    const slots = [{ id: center.id, role: 'center', x: 370, y: 196, w: 160, h: 88 }];
+
+    function spread(ids, role, x, w, h, limit) {
+        const visible = ids.slice(0, limit);
+        if (!visible.length) return;
+        const gap = visible.length === 1 ? 0 : Math.min(82, 284 / (visible.length - 1));
+        const start = 240 - ((visible.length - 1) * gap) / 2 - h / 2;
+        visible.forEach((id, i) => slots.push({ id, role, x, y: start + i * gap, w, h }));
+        if (ids.length > limit) {
+            slots.push({ id: visible[visible.length - 1], role: role + '-more', forceUnknown: true, x, y: start + visible.length * gap, w, h });
+        }
+    }
+
+    spread(parentIds, 'parent', 84, 132, 58, 3);
+    spread(childIds, 'child', 684, 132, center.layer === 4 ? 48 : 58, 8);
+
+    // Only show siblings when the center node itself has not been committed yet —
+    // once unlocked, the player has chosen past them so they shouldn't appear connected.
+    const centerIsUnlocked = unlocked.has(center.id) || center.id === 'root';
+    if (!centerIsUnlocked) {
+        const sibs = siblingIds.slice(0, 6);
+        sibs.filter((_, i) => i % 2 === 0).forEach((id, i) => {
+            slots.push({ id, role: 'sibling', x: 278 + i * 118, y: 58, w: 112, h: 46 });
+        });
+        sibs.filter((_, i) => i % 2 === 1).forEach((id, i) => {
+            slots.push({ id, role: 'sibling', x: 278 + i * 118, y: 376, w: 112, h: 46 });
+        });
+        if (siblingIds.length > 6 && sibs.length) {
+            slots.push({ id: sibs[sibs.length - 1], role: 'sibling-more', forceUnknown: true, x: 632, y: 376, w: 112, h: 46 });
+        }
+    }
+
+    const colors = { deep: '#8899aa', wild: '#5a9e60', beyond: '#8866bb' };
+    const centerSlot = slots[0];
+    const centerMid = { x: centerSlot.x + centerSlot.w / 2, y: centerSlot.y + centerSlot.h / 2 };
+    svgEl.innerHTML = slots.slice(1).map(slot => {
+        const node = ERA1_TREE[slot.id];
+        if (!node) return '';
+        const mid = { x: slot.x + slot.w / 2, y: slot.y + slot.h / 2 };
+        const color = era1GetColor(node.id, colors) || era1GetColor(center.id, colors) || '#6b706f';
+        const opacity = slot.forceUnknown ? 0.28 : 0.58;
+        if (slot.role.indexOf('sibling') === 0) {
+            return `<path d="M${centerMid.x},${centerMid.y} C${centerMid.x},${mid.y} ${mid.x},${centerMid.y} ${mid.x},${mid.y}" stroke="${color}" stroke-width="1.5" fill="none" opacity="${opacity}"/>`;
+        }
+        const bendX = (centerMid.x + mid.x) / 2;
+        return `<path d="M${centerMid.x},${centerMid.y} C${bendX},${centerMid.y} ${bendX},${mid.y} ${mid.x},${mid.y}" stroke="${color}" stroke-width="2" fill="none" opacity="${opacity}"/>`;
+    }).join('');
+
+    nodeLayer.innerHTML = '';
+    const isRootCentered = center.id === 'root';
+    slots.forEach((slot, i) => {
+        const el = era1CreateDiscoveryNode(slot, unlocked, revealed, offeredNames, prestiged);
+        if (!el) return;
+        el.style.animationDelay = Math.min(i * 35, 260) + 'ms';
+        el.classList.add('era1-node-enter');
+        if (isRootCentered && slot.role === 'child') el.classList.add('era1-root-children');
+        nodeLayer.appendChild(el);
+    });
+}
+
+function era1FitDiscoveryScene() {
+    const wrap = document.getElementById('era1-discovery-wrap');
+    if (!wrap) return;
+    const scale = Math.min(1, wrap.clientWidth / 900, wrap.clientHeight / 480);
+    wrap.style.setProperty('--era1-disc-scale', String(Math.max(0.58, scale)));
+}
+
+function era1CreateDiscoveryNode(slot, unlocked, revealed, offeredNames, prestiged) {
+    const node = ERA1_TREE[slot.id];
+    if (!node) return null;
+    const knowledge = slot.forceUnknown ? 'unknown' : era1NodeKnowledge(node, unlocked, revealed, offeredNames, prestiged);
+    const el = document.createElement('div');
+    const isCenter = slot.role === 'center';
+    const isUnlocked = unlocked.has(node.id) || node.id === 'root';
+    const isOffered = node.layer === 5 && offeredNames.has(node.race);
+    const isPrestiged = node.layer === 5 && prestiged.has(node.race);
+    const canUnlock = era1NodeCanUnlock(node, unlocked, offeredNames);
+
+    el.className = 'era1-cn era1-dnode era1-dnode-' + slot.role;
+    era1ApplyColorClass(el, node.id);
+    if (node.id === 'root') el.classList.add('era1-cn-root');
+    if (isCenter) el.classList.add('era1-cn-chosen', 'era1-dnode-center');
+    else if (knowledge === 'unknown') el.classList.add('era1-cn-fogged', 'era1-dnode-unknown');
+    else if (isPrestiged) el.classList.add('era1-cn-prestiged');
+    else if (isOffered) el.classList.add('era1-cn-offered');
+    else if (isUnlocked) el.classList.add('era1-cn-chosen');
+    else el.classList.add(canUnlock ? 'era1-cn-active' : 'era1-cn-waiting');
+
+    el.id = slot.forceUnknown ? 'era1-node-more-' + slot.role : 'era1-node-' + node.id;
+    el.style.left = slot.x + 'px';
+    el.style.top = slot.y + 'px';
+    el.style.width = slot.w + 'px';
+    el.style.height = slot.h + 'px';
+    el.setAttribute('data-nid', node.id);
+
+    if (knowledge === 'unknown') {
+        el.innerHTML = `<div class="era1-cn-fog">???</div>`;
+        el.style.pointerEvents = 'none';
+        return el;
+    }
+
+    const sub = node.layer === 5 ? (isOffered ? 'seen' : node.type) : era1LayerLabel(node.layer);
+    const rootPrompt = (node.id === 'root' && isCenter)
+        ? `<div class="era1-cn-prompt">Choose your domain →</div>` : '';
+    el.innerHTML = `<div class="era1-cn-name">${node.name}</div>${sub ? `<div class="era1-cn-sub">${sub}</div>` : ''}${rootPrompt}`;
+    el.addEventListener('mouseenter', e => era1ShowPanel(node.id, e));
+    el.addEventListener('mousemove', e => _era1MoveTooltip(e));
+    el.addEventListener('mouseleave', () => era1HidePanel());
+    el.addEventListener('click', () => {
+        if (isUnlocked && slot.role !== 'parent') {
+            era1FocusNode(node.id);
+            return;
+        }
+        if (isUnlocked) return;
+        if (!canUnlock) {
+            el.classList.add('era1-flash-deny');
+            setTimeout(() => el.classList.remove('era1-flash-deny'), 600);
+            return;
+        }
+        _era1FocusedNodeId = node.id;
+        unlockEra1Node(node.id);
+    });
+    return el;
+}
 
 function updateEraTabVisibility() {
     const era = gameState.run.era || 1;
@@ -4069,25 +5018,33 @@ function updateEraTabVisibility() {
     }
 }
 
-// Creature roster, grouped by type. Used as the source for the Dev tab race
-// dropdown. The full bestiary now lives in the standalone wiki (wiki.html);
-// this constant keeps the Dev tools self-contained inside the game page.
+// Creature roster, grouped by type. Kept in sync with RACE_LEAF_DEFS in era1tree.js.
+// Used for the Dev tab race dropdown and race-data population.
 const CREATURE_ROSTER = {
-    "Draconic":    ["Metallic Dragon", "Lizardfolk", "Kobold", "Yuan-ti", "Wyvern", "Dragonborn"],
-    "Undead":      ["Skeleton", "Zombie", "Vampire", "Wight", "Ghoul", "Revenant", "Banshee", "Wraith", "Mummy", "Demilich", "Shadow"],
     "Goblinoid":   ["Goblin", "Hobgoblin", "Bugbear", "Orc", "Gnoll", "Barghest"],
-    "Fey":         ["Pixie", "Dryad", "Satyr", "Quickling", "Green Hag", "Homunculus"],
-    "Aberration":  ["Mind Flayer", "Beholder", "Aboleth", "Gibbering Mouther", "Nothic", "Chuul", "Grell", "Flumph"],
-    "Ooze":        ["Gelatinous Cube", "Black Pudding", "Gray Ooze", "Ochre Jelly", "Void Ooze", "Oblex"],
-    "Elemental":   ["Fire Elemental", "Earth Elemental", "Water Elemental", "Air Elemental", "Magmin", "Galeb Duhr"],
-    "Monstrous":   ["Harpy", "Medusa", "Minotaur", "Troll", "Werewolf", "Naga", "Basilisk", "Chimera", "Manticore", "Griffon", "Hydra", "Ettin"],
-    "Fiend":       ["Imp", "Cambion", "Barbed Devil", "Night Hag", "Succubus/Incubus", "Pit Fiend", "Balor", "Rakshasa", "Quasit", "Shadow Demon"],
     "Giant":       ["Hill Giant", "Stone Giant", "Frost Giant", "Fire Giant", "Cloud Giant", "Storm Giant"],
+    "Swarm":       ["Stirge", "Cranium Rat", "Rot Grub", "Shadow Swarm", "Spore Cloud", "Plague Locust"],
+    "Aberration":  ["Mind Flayer", "Beholder", "Aboleth", "Gibbering Mouther", "Nothic", "Chuul", "Grell", "Flumph"],
     "Construct":   ["Stone Golem", "Iron Golem", "Animated Armor", "Clay Golem", "Flesh Golem", "Clockwork Horror"],
-    "Lycanthrope": ["Werebear", "Wererat", "Wereboar", "Owlbear", "Displacer Beast", "Weretiger"],
+    "Draconic":    ["Metallic Dragon", "Lizardfolk", "Kobold", "Yuan-ti", "Wyvern", "Dragonborn"],
     "Flora":       ["Treant", "Myconid", "Vegepygmy", "Shambling Mound", "Vine Blight", "Wood Woad"],
+    "Ooze":        ["Gelatinous Cube", "Black Pudding", "Gray Ooze", "Ochre Jelly", "Void Ooze", "Oblex"],
+    "Lycanthrope": ["Werebear", "Wererat", "Wereboar", "Owlbear", "Displacer Beast", "Weretiger"],
     "Aquatic":     ["Merfolk", "Sahuagin", "Kuo-toa", "Triton", "Sea Hag", "Locathah"],
+    "Monstrous":   ["Harpy", "Medusa", "Minotaur", "Troll", "Naga", "Basilisk", "Chimera", "Manticore", "Griffon", "Hydra", "Ettin", "Worg"],
+    "Beast":       ["Dire Wolf", "Cave Bear", "Giant Eagle", "Sabre Cat", "Giant Ape", "Bulette"],
+    "Undead":      ["Skeleton", "Zombie", "Vampire", "Wight", "Ghoul", "Revenant", "Banshee", "Wraith", "Mummy", "Demilich", "Shadow"],
+    "Elemental":   ["Fire Elemental", "Earth Elemental", "Water Elemental", "Air Elemental", "Magmin", "Galeb Duhr"],
+    "Specter":     ["Ghost", "Specter", "Poltergeist", "Will-o'-Wisp", "Nighthaunt", "Allip"],
+    "Fiend":       ["Imp", "Cambion", "Barbed Devil", "Night Hag", "Succubus/Incubus", "Pit Fiend", "Balor", "Rakshasa", "Quasit", "Shadow Demon"],
     "Humanoid":    ["Kenku", "Tabaxi", "Aarakocra", "Tortle", "Centaur", "Human", "Elf", "Dwarf", "Half-Orc", "Gnome"],
+    "Planar":      ["Githzerai", "Githyanki", "Modron", "Slaad", "Xorn", "Inevitables"],
+    "Celestial":   ["Planetar", "Deva", "Couatl", "Pegasus", "Unicorn", "Hollyphant"],
+    "Titan":       ["Empyrean", "Behemoth", "Astral Dreadnought", "Leviathan", "War Colossus", "Elder Titan"],
+    "Cursed":      ["Death Knight", "Petrified Medusa", "Werewolf", "Serpent Abomination", "Cursed Knight", "Wereraven"],
+    "Fey":         ["Pixie", "Satyr", "Dryad", "Redcap", "Quickling", "Green Hag"],
+    "Sovereign":   ["Wyrm", "Umbral Hunter", "Storm Roc", "Ironback", "Rift Drake", "Ashborn"],
+    "Primordial":  ["Elder Tempest", "Zaratan", "Abyssal Tide", "Elder Fire", "Obyrith", "Void Shard"],
 };
 
 // Races hidden from the player — earned through special conditions.
@@ -4277,15 +5234,96 @@ const LEGENDARY_ROSTER = {
                 { name: "Quick to Multiply",   pos: true, desc: "Growth timer 10% shorter." },
             ],
         },
+        "Swarm": {
+            tag: "tag-swarm",
+            effects: { foodConsumption: 0.20, growthBonus: 0.50, allGatherBonus: 1 },
+            mods: [
+                { name: "Countless",       pos: true,  desc: "+1 to all manual gather yields — there are simply too many of them." },
+                { name: "Minimal Upkeep", pos: true,  desc: "80% reduced food consumption — individually, each needs almost nothing." },
+                { name: "Rapid Swarm",    pos: true,  desc: "Growth timer halved — swarms replenish themselves faster than anything else." },
+            ],
+        },
+        "Beast": {
+            tag: "tag-beast",
+            effects: { foodConsumption: 1.20, growthBonus: 0.80, productionBonus: { huntingLodge: 1.15 }, allGatherBonus: 1 },
+            mods: [
+                { name: "Predator Instincts", pos: true,  desc: "Hunting Lodges produce 15% more; +1 to all manual gather yields." },
+                { name: "Swift Pack",          pos: true,  desc: "Growth timer 20% shorter — beasts multiply quickly." },
+                { name: "Voracious",           pos: false, desc: "Population eats 20% more food — apex predators require substantial feeding." },
+            ],
+        },
+        "Specter": {
+            tag: "tag-specter",
+            effects: { foodConsumption: 0.05, growthBonus: 2.0, capBonus: { arcaneEssence: 50 } },
+            mods: [
+                { name: "Incorporeal",     pos: true,  desc: "95% reduced food consumption — specters sustain on ambient life energy." },
+                { name: "Essence Bleed",   pos: true,  desc: "Arcane Essence cap +50 — their presence draws essence from the living." },
+                { name: "Slow to Manifest",pos: false, desc: "Growth timer ×2 — specters must coalesce from grief and residual will." },
+            ],
+        },
+        "Planar": {
+            tag: "tag-planar",
+            effects: { foodConsumption: 0.60, growthBonus: 1.50, allProductionBonus: 0.02, converterBonus: { arcaneGrinder: 1.10 } },
+            mods: [
+                { name: "Planar Logic",    pos: true,  desc: "+2% all production — planar beings optimize processes through alien efficiency." },
+                { name: "Arcane Resonance",pos: true,  desc: "Arcane Grinders 10% more efficient — their inter-planar nature enhances arcane conversion." },
+                { name: "Planar Appetite", pos: true,  desc: "40% reduced food consumption — sustained by planar energy." },
+                { name: "Slow Crossing",   pos: false, desc: "Growth timer 1.5× longer — planar beings are difficult to summon or bind." },
+            ],
+        },
+        "Celestial": {
+            tag: "tag-celestial",
+            effects: { foodConsumption: 0.40, growthBonus: 1.80, allProductionBonus: 0.02, taxBonus: 1 },
+            mods: [
+                { name: "Divine Presence", pos: true,  desc: "+2% all production and +1 cp/creature/day — their grace inspires workers." },
+                { name: "Celestial Diet",  pos: true,  desc: "60% reduced food consumption — celestials sustain from divine energy." },
+                { name: "Rare Grace",      pos: false, desc: "Growth timer 1.8× longer — celestials are difficult to call to dark service." },
+            ],
+        },
+        "Titan": {
+            tag: "tag-titan",
+            effects: { foodConsumption: 3.0, growthBonus: 4.0, allProductionBonus: 0.03, lairHousing: 1 },
+            mods: [
+                { name: "Mythic Scale",     pos: true,  desc: "+3% all production — titans amplify everything around them by sheer presence." },
+                { name: "Immense Hunger",   pos: false, desc: "Population eats ×3 food per tick — titans require colossal sustenance." },
+                { name: "Singular Form",    pos: false, desc: "Only 1 fits per Hovel — titans cannot share space." },
+                { name: "Age of Formation", pos: false, desc: "Growth timer ×4 — titans do not arise, they coalesce over ages." },
+            ],
+        },
+        "Cursed": {
+            tag: "tag-cursed",
+            effects: { foodConsumption: 0.80, growthBonus: 1.20, allProductionBonus: 0.02, capBonus: { bones: 75 } },
+            mods: [
+                { name: "Cursed Drive",    pos: true,  desc: "+2% all production — the curse that unmade them now fuels their labor." },
+                { name: "Bone Hunger",     pos: true,  desc: "Bone cap +75 — cursed beings leave a trail of the dead." },
+                { name: "Dark Resilience", pos: true,  desc: "20% reduced food consumption — curses sustain what hunger cannot." },
+                { name: "Slow Corruption", pos: false, desc: "Growth timer 1.2× longer — curses spread at their own pace." },
+            ],
+        },
+        "Sovereign": {
+            tag: "tag-sovereign",
+            effects: { foodConsumption: 2.0, growthBonus: 3.0, allProductionBonus: 0.03, coinCapBonus: { flat: 2000, pct: 0.15 }, lairHousing: 1 },
+            mods: [
+                { name: "Singular Power",  pos: true,  desc: "+3% all production and Coin cap +2,000 + 15% of tier base — legends reshape the dungeon." },
+                { name: "Ravenous Legend", pos: false, desc: "Population eats ×2 food per tick." },
+                { name: "Singular Form",   pos: false, desc: "Only 1 fits per Hovel — legends occupy a category of one." },
+                { name: "Epoch Growth",    pos: false, desc: "Growth timer ×3 — legendary creatures are measured in eras, not seasons." },
+            ],
+        },
+        "Primordial": {
+            tag: "tag-primordial",
+            effects: { foodConsumption: 0.10, growthBonus: 3.50, allProductionBonus: 0.03, storageBonus: 20 },
+            mods: [
+                { name: "Pre-Cosmic",      pos: true,  desc: "+3% all production; Storage buildings hold 20 more — primordials predate the rules." },
+                { name: "Ancient Hunger",  pos: true,  desc: "90% reduced food consumption — primordials sustain from ambient void energy." },
+                { name: "Epoch Scale",     pos: false, desc: "Growth timer 3.5× longer — primordials do not arrive; they drift into being." },
+            ],
+        },
     };
 
     // ── Creature-specific descriptions and optional extra effects / mods ──────
     const CREATURES = {
         // ── Draconic ─────────────────────────────────────────────────────────
-        "Chromatic Dragon": { // legendary — earned, not chosen
-            desc: "Ancient and terrifying, chromatic dragons are primal forces of destruction. Their very presence supercharges all magical production.",
-            extraEffects: { allProductionBonus: 0.02 },
-        },
         "Metallic Dragon": {
             desc: "Noble and wise, metallic dragons accumulate vast treasures and forge alliances that yield enormous wealth.",
             extraEffects: { coinCapBonus: { flat: 1000, pct: 0.10 } },
@@ -4330,11 +5368,6 @@ const LEGENDARY_ROSTER = {
             desc: "Seductive lords of the night who command loyalty through fear and coin. Their undead nature is masked behind aristocratic glamour.",
             extraEffects: { taxBonus: 1 },
             extraMods: [{ name: "Lord of the Night", pos: true, desc: "+1 extra cp/creature/day — vampires demand tribute." }],
-        },
-        "Lich": { // legendary — earned, not chosen
-            desc: "Undead archmages of terrifying power. A lich's phylactery acts as a nexus, amplifying all arcane production.",
-            extraEffects: { productionBonus: { crystalSeam: 1.15, mageTower: 1.15 }, converterBonus: { arcaneGrinder: 1.15 } },
-            extraMods: [{ name: "Phylactery Nexus", pos: true, desc: "Crystal Seams and Mage Towers +15%; Arcane Grinders +15% efficiency." }],
         },
         "Wight": {
             desc: "Fallen warriors animated by hate. They dominate lesser undead and push work quotas higher through sheer menace.",
@@ -4861,7 +5894,300 @@ const LEGENDARY_ROSTER = {
             extraMods: [{ name: "Tinker's Touch", pos: true, desc: "Alchemy Labs and Arcane Grinders extra +10%; extra +1 to all gather yields." }],
         },
 
-        // ── Legendary ─────────────────────────────────────────────────────────
+        // ── Swarm ─────────────────────────────────────────────────────────────
+        "Stirge": {
+            desc: "Blood-drinking, bat-winged horrors that strike in clouds and drain prey dry. Individually trivial, collectively catastrophic — and they breed faster than any swarm.",
+            extraEffects: { growthBonus: 0.75, productionBonus: { huntingLodge: 1.10 } },
+            extraMods: [{ name: "Bloodcloud", pos: true, desc: "Hunting Lodges extra +10%; fastest growth of any Swarm." }],
+        },
+        "Cranium Rat": {
+            desc: "Mind Flayer-bred vermin with collective psychic intelligence. A swarm becomes a single, distributed telepathic mind hungry for secrets and arcane knowledge.",
+            extraEffects: { productionBonus: { crystalSeam: 1.10 }, capBonus: { arcaneEssence: 25 } },
+            extraMods: [{ name: "Hive-Mind", pos: true, desc: "Crystal Seams extra +10%; Arcane Essence cap +25." }],
+        },
+        "Rot Grub": {
+            desc: "Tiny burrowing parasites that infest corpses and the living alike. Exceptional bone processors whose infestation leaves a trail of remains.",
+            extraEffects: { productionBonus: { huntingLodge: 1.10 }, capBonus: { bones: 75 } },
+            extraMods: [{ name: "Infestation", pos: true, desc: "Hunting Lodges extra +10%; Bone cap +75." }],
+        },
+        "Shadow Swarm": {
+            desc: "Fragments of darkness given appetite. Ten thousand shadow-motes moving as one hungry mass — need almost no food and gather with eerie efficiency.",
+            extraEffects: { foodConsumption: 0.70, allGatherBonus: 1 },
+            extraMods: [{ name: "Living Dark", pos: true, desc: "Further 30% food reduction; extra +1 to all manual gather yields." }],
+        },
+        "Spore Cloud": {
+            desc: "A fungal colony with collective direction and terrible patience. Drifts until it finds warmth, then spreads — Herbalist Dens thrive in their presence.",
+            extraEffects: { productionBonus: { herbalistDen: 1.15 }, capBonus: { herbs: 50 } },
+            extraMods: [{ name: "Spore Infestation", pos: true, desc: "Herbalist Dens extra +15%; Herb cap +50." }],
+        },
+        "Plague Locust": {
+            desc: "Individually nothing. Collectively, a verdict. Appetite elevated to a geological force — fills storage but reduces farming efficiency.",
+            extraEffects: { storageBonus: 15, capBonus: { food: 100 }, productionBonus: { farm: 0.90 } },
+            extraMods: [
+                { name: "Devouring Wave", pos: true,  desc: "Storage buildings hold 15 more; Food cap +100." },
+                { name: "Locust Logic",   pos: false, desc: "Farms produce 10% less — the locusts consume a portion of what they generate." },
+            ],
+        },
+
+        // ── Beast ─────────────────────────────────────────────────────────────
+        "Dire Wolf": {
+            desc: "The wolf taken to its logical extreme — larger, stronger, faster, and possessed of an intelligence that stops just short of language.",
+            extraEffects: { productionBonus: { huntingLodge: 1.15 }, allGatherBonus: 1 },
+            extraMods: [{ name: "Pack General", pos: true, desc: "Hunting Lodges extra +15%; extra +1 to all manual gather yields." }],
+        },
+        "Cave Bear": {
+            desc: "The apex of the underground wilderness. Cave Bears are territorial, enormously powerful, and utterly without interest in negotiation.",
+            extraEffects: { productionBonus: { quarry: 1.10, mine: 1.10 }, capBonus: { bones: 50 } },
+            extraMods: [{ name: "Apex Predator", pos: true, desc: "Quarries and Mines extra +10%; Bone cap +50." }],
+        },
+        "Giant Eagle": {
+            desc: "Proud, ancient, and capable of genuine speech — though they rarely bother. Giant Eagles see everything from above.",
+            extraEffects: { allGatherBonus: 1, growthBonus: 0.85 },
+            extraMods: [{ name: "Aerial Sight", pos: true, desc: "Extra +1 to all manual gather yields; slightly faster growth." }],
+        },
+        "Sabre Cat": {
+            desc: "A predator from the age before civilization. Sabre Cats hunt the largest prey they can find as a matter of principle.",
+            extraEffects: { productionBonus: { huntingLodge: 1.15 }, foodConsumption: 0.90 },
+            extraMods: [{ name: "Ancient Fang", pos: true, desc: "Hunting Lodges extra +15%; slight food reduction." }],
+        },
+        "Giant Ape": {
+            desc: "Immense, intelligent, and deeply territorial. Giant Apes understand tool use, social hierarchy, and the concept of ownership.",
+            extraEffects: { productionBonus: { quarry: 1.15 }, gatherBonus: { stone: 1 } },
+            extraMods: [{ name: "Tool-User", pos: true, desc: "Quarries extra +15%; +1 stone per manual gather." }],
+        },
+        "Bulette": {
+            desc: "The landshark — an armored predator that swims through earth the way a fish moves through water. Loosens ore as it passes.",
+            extraEffects: { productionBonus: { mine: 1.20 }, gatherBonus: { stone: 1 } },
+            extraMods: [{ name: "Earthshark", pos: true, desc: "Mines extra +20%; +1 stone per manual gather." }],
+        },
+
+        // ── Specter ───────────────────────────────────────────────────────────
+        "Ghost": {
+            desc: "The unfinished dead, haunting the place of their greatest regret. Ghosts are powerful and unpredictable.",
+            extraEffects: { taxBonus: 1, capBonus: { arcaneEssence: 25 } },
+            extraMods: [{ name: "Lingering Presence", pos: true, desc: "+1 cp/creature/day; Arcane Essence cap +25." }],
+        },
+        "Poltergeist": {
+            desc: "A ghost too angry to manifest fully, expressing its rage through hurled objects. Its chaos paradoxically accelerates production.",
+            extraEffects: { allProductionBonus: 0.02, storageBonus: 10 },
+            extraMods: [{ name: "Kinetic Fury", pos: true, desc: "Extra +2% all production; Storage buildings hold 10 more per building." }],
+        },
+        "Will-o'-Wisp": {
+            desc: "A malevolent light that leads travelers to their doom. Will-o'-Wisps sustain themselves on the life force of the lost, eating almost nothing and amplifying arcane output with eerie efficiency.",
+            extraEffects: { foodConsumption: 0.25, capBonus: { arcaneEssence: 50 }, converterBonus: { ritualCircle: 1.10 } },
+            extraMods: [{ name: "Luring Light", pos: true, desc: "75% food reduction; Arcane Essence cap +50; Ritual Circles extra +10%." }],
+        },
+        "Nighthaunt": {
+            desc: "Spectral warriors bound to a cause that ended centuries ago. Their dread manifests as tax compliance.",
+            extraEffects: { taxBonus: 1, allProductionBonus: 0.02 },
+            extraMods: [{ name: "Grievous Dread", pos: true, desc: "+1 cp/creature/day; extra +2% all production." }],
+        },
+        "Allip": {
+            desc: "The mad remnant of someone driven to self-destruction by forbidden knowledge. Its babbling accelerates arcane processes nearby.",
+            extraEffects: { converterBonus: { arcaneGrinder: 1.15, arcaneBench: 1.15 } },
+            extraMods: [{ name: "Mad Babbling", pos: true, desc: "Arcane Grinders and Arcane Benches extra +15%." }],
+        },
+
+        // ── Planar ────────────────────────────────────────────────────────────
+        "Githzerai": {
+            desc: "Ascetics of Limbo who impose order on chaos through sheer will. Their mental discipline amplifies all production.",
+            extraEffects: { allProductionBonus: 0.02, growthBonus: 0.85 },
+            extraMods: [{ name: "Zerth Discipline", pos: true, desc: "Extra +2% all production; slightly faster growth." }],
+        },
+        "Githyanki": {
+            desc: "Astral conquerors with silver swords. Their aggressive efficiency translates to exceptional gathering.",
+            extraEffects: { allGatherBonus: 1, taxBonus: 1 },
+            extraMods: [{ name: "Astral Raid", pos: true, desc: "Extra +1 to all manual gather yields; +1 cp/creature/day." }],
+        },
+        "Modron": {
+            desc: "Living mathematics from Mechanus. Their mechanical efficiency makes every production process optimal.",
+            extraEffects: { allProductionBonus: 0.03, converterBonus: { smelter: 1.10, alchemyLab: 1.10 } },
+            extraMods: [{ name: "Hierarchical Processing", pos: true, desc: "Extra +3% all production; Smelters and Alchemy Labs extra +10%." }],
+        },
+        "Slaad": {
+            desc: "Living chaos from Limbo. Entropy breeds fast — Slaadi have the fastest growth of any Planar creature.",
+            extraEffects: { growthBonus: 0.70, capBonus: { food: 75 } },
+            extraMods: [{ name: "Entropic Reproduction", pos: true, desc: "Growth timer 30% shorter than base Planar; Food cap +75." }],
+        },
+        "Xorn": {
+            desc: "Three-armed beings from the elemental plane of earth who move through stone like water and hunger for precious metals.",
+            extraEffects: { productionBonus: { mine: 1.15, quarry: 1.15 }, capBonus: { stone: 50 } },
+            extraMods: [{ name: "Stone Swimmer", pos: true, desc: "Mines and Quarries extra +15%; Stone cap +50." }],
+        },
+        "Inevitables": {
+            desc: "Constructs of absolute law. They continue moving toward their target until one of them stops existing — relentless and foodless.",
+            extraEffects: { foodConsumption: 0.05, allProductionBonus: 0.02, taxBonus: 1 },
+            extraMods: [{ name: "Inevitable Purpose", pos: true, desc: "Extra +2% all production; +1 cp/creature/day; nearly foodless as construct-like entities." }],
+        },
+
+        // ── Celestial ─────────────────────────────────────────────────────────
+        "Planetar": {
+            desc: "A great angel of war and justice, bound now to a different cause. Their divine power drives extraordinary output.",
+            extraEffects: { allProductionBonus: 0.03, taxBonus: 1 },
+            extraMods: [{ name: "War Angel", pos: true, desc: "Extra +3% all production; +1 cp/creature/day." }],
+        },
+        "Deva": {
+            desc: "Celestial messengers who carry divine will. The grace, the power, and the efficiency of divine purpose remain.",
+            extraEffects: { allProductionBonus: 0.02, capBonus: { arcaneEssence: 50 } },
+            extraMods: [{ name: "Divine Messenger", pos: true, desc: "Extra +2% all production; Arcane Essence cap +50." }],
+        },
+        "Couatl": {
+            desc: "Feathered serpents of divine mandate. Their arcane attunement amplifies magic production.",
+            extraEffects: { productionBonus: { crystalSeam: 1.10, ritualCircle: 1.15 }, capBonus: { herbs: 50 } },
+            extraMods: [{ name: "Feathered Wisdom", pos: true, desc: "Crystal Seams extra +10%; Ritual Circles extra +15%; Herb cap +50." }],
+        },
+        "Pegasus": {
+            desc: "A winged horse of pure celestial lineage whose aerial agility enhances all gathering.",
+            extraEffects: { allGatherBonus: 1, growthBonus: 0.85 },
+            extraMods: [{ name: "Celestial Wings", pos: true, desc: "Extra +1 to all manual gather yields; growth timer slightly faster." }],
+        },
+        "Unicorn": {
+            desc: "A guardian of sacred places. Their presence reduces food needs dramatically and amplifies herb production.",
+            extraEffects: { foodConsumption: 0.70, productionBonus: { herbalistDen: 1.10 }, capBonus: { herbs: 75 } },
+            extraMods: [{ name: "Sacred Presence", pos: true, desc: "Further 30% food reduction; Herbalist Dens extra +10%; Herb cap +75." }],
+        },
+        "Hollyphant": {
+            desc: "A tiny celestial elephant of improbable power. Their divine energy boosts morale enormously.",
+            extraEffects: { allProductionBonus: 0.02, taxBonus: 1, growthBonus: 0.75 },
+            extraMods: [{ name: "Divine Trumpet", pos: true, desc: "Extra +2% all production; +1 cp/creature/day; fastest growth of any Celestial." }],
+        },
+
+        // ── Titan ─────────────────────────────────────────────────────────────
+        "Empyrean": {
+            desc: "The divine offspring of gods, carrying that inheritance in every action. Empyreans reshape everything around them.",
+            extraEffects: { allProductionBonus: 0.03, coinCapBonus: { flat: 1000, pct: 0.10 } },
+            extraMods: [{ name: "Divine Radiance", pos: true, desc: "Extra +3% all production; Coin cap +1,000 + 10% of tier base." }],
+        },
+        "Behemoth": {
+            desc: "The land-bound counterpart to the Leviathan — a creature of such mass that the earth reshapes itself around its passage. Its presence supercharges quarrying and mining.",
+            extraEffects: { productionBonus: { quarry: 1.20, mine: 1.20 }, capBonus: { stone: 100 } },
+            extraMods: [{ name: "Earth Shaker", pos: true, desc: "Quarries and Mines extra +20%; Stone cap +100." }],
+        },
+        "Astral Dreadnought": {
+            desc: "A predator native to the Astral Plane that has drifted through the void since before the gods named it. Amplifies all arcane processes.",
+            extraEffects: { productionBonus: { crystalSeam: 1.15 }, converterBonus: { arcaneGrinder: 1.15 } },
+            extraMods: [{ name: "Void Resonance", pos: true, desc: "Crystal Seams extra +15%; Arcane Grinders extra +15%." }],
+        },
+        "Leviathan": {
+            desc: "The sea given agency and appetite. Their presence dramatically amplifies aquatic and storage operations.",
+            extraEffects: { productionBonus: { clayPit: 1.15 }, storageBonus: 25, capBonus: { food: 150 } },
+            extraMods: [{ name: "Tidal Authority", pos: true, desc: "Clay Pits extra +15%; Storage buildings hold 25 more; Food cap +150." }],
+        },
+        "War Colossus": {
+            desc: "An animated statue built by civilizations that no longer exist to serve purposes no one fully remembers. They continue anyway — and mine magnificently.",
+            extraEffects: { productionBonus: { quarry: 1.20, mine: 1.20 }, capBonus: { stone: 100 } },
+            extraMods: [{ name: "Inexorable Labor", pos: true, desc: "Quarries and Mines extra +20%; Stone cap +100." }],
+        },
+        "Elder Titan": {
+            desc: "A being from the age before the current cosmic order — older than the gods who replaced them. Its presence amplifies everything.",
+            extraEffects: { allGatherBonus: 1 },
+            extraMods: [{ name: "Primordial Authority", pos: true, desc: "+1 to all manual gather yields — the elder titan's reach extends everywhere." }],
+        },
+
+        // ── Cursed ────────────────────────────────────────────────────────────
+        "Death Knight": {
+            desc: "A paladin who broke their sacred oath and was denied the mercy of death as punishment. They serve with the same discipline they once gave to the light.",
+            extraEffects: { allProductionBonus: 0.02, taxBonus: 1, growthBonus: 0.90 },
+            extraMods: [{ name: "Unyielding Oath", pos: true, desc: "Extra +2% all production; +1 cp/creature/day; slightly faster growth than typical Cursed." }],
+        },
+        "Petrified Medusa": {
+            desc: "The curse is older than the Medusa herself. The endless petrification creates a perpetual surplus of worked stone.",
+            extraEffects: { productionBonus: { quarry: 1.20 }, gatherBonus: { stone: 1 }, capBonus: { stone: 100 } },
+            extraMods: [{ name: "Stone Gaze", pos: true, desc: "Quarries extra +20%; Stone cap +100; +1 stone per manual gather." }],
+        },
+        "Werewolf": {
+            desc: "The oldest lycanthropic curse, spreading fastest of all. In a dungeon, that nature becomes a resource — the pack grows quickly and hunts ferociously.",
+            extraEffects: { productionBonus: { huntingLodge: 1.15 }, allGatherBonus: 1, growthBonus: 0.85 },
+            extraMods: [{ name: "The Curse Spreads", pos: true, desc: "Hunting Lodges extra +15%; extra +1 to all gather yields; growth timer faster than other Cursed." }],
+        },
+        "Serpent Abomination": {
+            desc: "More serpent than humanoid, having sacrificed humanity so completely that what remains is something the serpent gods want to talk to. Alchemy flows from that relationship.",
+            extraEffects: { converterBonus: { alchemyLab: 1.20, arcaneGrinder: 1.10 } },
+            extraMods: [{ name: "Serpent Ascension", pos: true, desc: "Alchemy Labs extra +20%; Arcane Grinders extra +10%." }],
+        },
+        "Cursed Knight": {
+            desc: "A warrior bound to an oath they broke. The Cursed Knight fights on because stopping is no longer available as an option — and that drives output.",
+            extraEffects: { allProductionBonus: 0.02, taxBonus: 1, growthBonus: 0.90 },
+            extraMods: [{ name: "Unbreakable Will", pos: true, desc: "Extra +2% all production; +1 cp/creature/day; slightly faster growth." }],
+        },
+        "Wereraven": {
+            desc: "Cursed watchers who carry the affliction lightly — or so they claim. Wereravens observe, remember, and report.",
+            extraEffects: { allGatherBonus: 1, productionBonus: { huntingLodge: 1.10 } },
+            extraMods: [{ name: "Dark Wing Network", pos: true, desc: "Extra +1 to all manual gather yields; Hunting Lodges extra +10%." }],
+        },
+
+        // ── Fey ───────────────────────────────────────────────────────────────
+        "Redcap": {
+            desc: "A murderous faerie that keeps its cap red by soaking it in the blood of its kills. Their violent labor drives exceptional bone yields.",
+            extraEffects: { productionBonus: { huntingLodge: 1.10 }, allGatherBonus: 1, capBonus: { bones: 50 } },
+            extraMods: [{ name: "Blood-Soaked Cap", pos: true, desc: "Hunting Lodges extra +10%; Bone cap +50; +1 to all manual gather yields." }],
+        },
+
+        // ── Sovereign (selectable) ────────────────────────────────────────────
+        "Wyrm": {
+            desc: "Older than most kingdoms and larger than some. A Wyrm is what a dragon becomes when it has outlived every reason to be reasonable.",
+            extraEffects: { allGatherBonus: 1 },
+            extraMods: [{ name: "Ancient Dominance", pos: true, desc: "+1 to all manual gather yields — a Wyrm has learned where everything worth taking is buried." }],
+        },
+        "Umbral Hunter": {
+            desc: "A predator that has made shadow into a hunting ground. Arcane and ritual processes warp around its presence.",
+            extraEffects: { converterBonus: { ritualCircle: 1.20, arcaneGrinder: 1.15 }, capBonus: { arcaneEssence: 75 } },
+            extraMods: [{ name: "Living Dark", pos: true, desc: "Ritual Circles extra +20%; Arcane Grinders extra +15%; Arcane Essence cap +75." }],
+        },
+        "Storm Roc": {
+            desc: "A bird large enough that its wingspan generates its own weather. Their aerial dominance gathers resources at mythic scale.",
+            extraEffects: { allGatherBonus: 1, productionBonus: { huntingLodge: 1.20 } },
+            extraMods: [{ name: "Sky Sovereign", pos: true, desc: "Extra +1 to all manual gather yields; Hunting Lodges extra +20%." }],
+        },
+        "Ironback": {
+            desc: "So heavily armored by centuries of growth it has become a landscape feature. Vast storage and aquatic amplification.",
+            extraEffects: { storageBonus: 30, productionBonus: { clayPit: 1.20 }, capBonus: { food: 200 } },
+            extraMods: [{ name: "Ancient Shell", pos: true, desc: "Storage buildings hold 30 more; Clay Pits extra +20%; Food cap +200." }],
+        },
+        "Rift Drake": {
+            desc: "A drake that has fed on planar energy long enough that it no longer fully exists in one place. Its arcane output reflects something that has stopped finding reality binding.",
+            extraEffects: { allGatherBonus: 1, converterBonus: { arcaneGrinder: 1.20 }, foodConsumption: 0.50 },
+            extraMods: [{ name: "Void-Touched", pos: true, desc: "+1 to all manual gather yields; Arcane Grinders extra +20%; further 50% food reduction." }],
+        },
+        "Ashborn": {
+            desc: "Not a phoenix — something that has burned so many times it has stopped bothering to fully come back. Supercharges all fire and metal operations.",
+            extraEffects: { converterBonus: { smelter: 1.25, forge: 1.25 }, productionBonus: { coalSeam: 1.15 }, foodConsumption: 0.05 },
+            extraMods: [{ name: "Eternal Flame", pos: true, desc: "Smelters and Forges extra +25%; Coal Seams extra +15%; nearly foodless — the flame sustains it." }],
+        },
+
+        // ── Primordial ────────────────────────────────────────────────────────
+        "Elder Tempest": {
+            desc: "A storm that predates weather. The Elder Tempest does not rage. It simply is rage, expressed meteorologically.",
+            extraEffects: { allGatherBonus: 1 },
+            extraMods: [{ name: "Primordial Storm", pos: true, desc: "+1 to all manual gather yields — the storm finds what it wants." }],
+        },
+        "Zaratan": {
+            desc: "An island-sized turtle from before the elemental planes had edges. Its waking amplifies stone and storage.",
+            extraEffects: { productionBonus: { quarry: 1.20 }, storageBonus: 30, capBonus: { stone: 150 } },
+            extraMods: [{ name: "Living Island", pos: true, desc: "Quarries extra +20%; Storage buildings hold 30 more; Stone cap +150." }],
+        },
+        "Abyssal Tide": {
+            desc: "The water itself, given ancient hunger. Food consumption is almost nil — the tide sustains itself from ambient moisture.",
+            extraEffects: { productionBonus: { clayPit: 1.20 }, capBonus: { food: 150 } },
+            extraMods: [{ name: "Primordial Water", pos: true, desc: "Clay Pits extra +20%; Food cap +150 stacking with Primordial base." }],
+        },
+        "Elder Fire": {
+            desc: "Fire from before fire had rules. Not an elemental but a primordial burning. Supercharges all smelting and forging.",
+            extraEffects: { converterBonus: { smelter: 1.20, forge: 1.20 }, productionBonus: { coalSeam: 1.15 } },
+            extraMods: [{ name: "Primordial Flame", pos: true, desc: "Smelters and Forges extra +20%; Coal Seams extra +15%." }],
+        },
+        "Obyrith": {
+            desc: "Demons older than the Abyss itself. Their chaos generates extraordinary arcane output.",
+            extraEffects: { productionBonus: { darkAltar: 1.20, ritualCircle: 1.20 }, capBonus: { arcaneEssence: 100 } },
+            extraMods: [{ name: "Maddening Form", pos: true, desc: "Dark Altars and Ritual Circles extra +20%; Arcane Essence cap +100." }],
+        },
+        "Void Shard": {
+            desc: "A fragment of the nothing that existed before existence. Preserves resources through null-containment with extraordinary efficiency.",
+            extraEffects: { storageBonus: 40 },
+            extraMods: [{ name: "Null Containment", pos: true, desc: "Storage buildings hold 40 more per building, stacking with Primordial base." }],
+        },
+
+        // ── Legendary (earned, not chosen) ────────────────────────────────────
         "Chromatic Dragon": { // legendary — earned, not chosen
             desc: "An ancient chromatic dragon whose very presence warps the dungeon around it. Their dominance over lesser races increases all production dramatically.",
             extraEffects: { allProductionBonus: 0.02, foodConsumption: 3.0, lairHousing: 1 },
@@ -5096,8 +6422,9 @@ function doPrestige() {
     gameState.population = { count: 0, growthTimer: 0, starveTick: 0 };
     gameState.time       = { tick: 0, day: 1, year: 1, seasonIndex: 0 };
     for (const k of Object.keys(gameState.stats)) gameState.stats[k] = 0;
-    gameState.run  = { biome: null, race: null, mods: [], era: 1 };
-    gameState.era1 = { unlocked: [], chosen: null, raceOptions: null };
+    gameState.run         = { biome: null, race: null, mods: [], era: 1 };
+    gameState.era1        = { unlocked: [], chosen: null, raceOptions: null };
+    gameState.tradeRoutes = {};
     _era1TreeState = '';
     gameState.meta = savedMeta;
 
@@ -5263,23 +6590,183 @@ if (!gameState.meta.seenBiomes)              gameState.meta.seenBiomes = [];
 if (gameState.meta.totalPrestiges == null)   gameState.meta.totalPrestiges = 0;
 if (!gameState.meta.racesPlayed)             gameState.meta.racesPlayed = {};
 if (gameState.meta.quintessence == null) gameState.meta.quintessence = 0;
+if (!gameState.stats)                        gameState.stats = {};
+if (gameState.stats.peakPopulation       == null) gameState.stats.peakPopulation       = 0;
+if (gameState.stats.buildingsConstructed == null) gameState.stats.buildingsConstructed = 0;
+if (gameState.stats.manualGathers        == null) gameState.stats.manualGathers        = 0;
+if (gameState.stats.starvationDeaths     == null) gameState.stats.starvationDeaths     = 0;
+if (gameState.stats.foodProduced         == null) gameState.stats.foodProduced         = 0;
+if (gameState.stats.woodProduced         == null) gameState.stats.woodProduced         = 0;
+if (gameState.stats.stoneProduced        == null) gameState.stats.stoneProduced        = 0;
 if (!gameState.workerAssignments)            gameState.workerAssignments = {};
 if (!gameState.research)                     gameState.research = {};
-if (!Array.isArray(gameState.tradeRoutes))   gameState.tradeRoutes = [];
+if (Array.isArray(gameState.tradeRoutes)) {
+    // Migrate old slot-array format ([{resource, mode}, ...]) to signed-count-per-resource object
+    const migrated = {};
+    for (const route of gameState.tradeRoutes) {
+        if (!route || !route.resource) continue;
+        const delta = route.mode === 'buy' ? 1 : -1;
+        migrated[route.resource] = (migrated[route.resource] || 0) + delta;
+    }
+    gameState.tradeRoutes = migrated;
+} else if (!gameState.tradeRoutes || typeof gameState.tradeRoutes !== 'object') {
+    gameState.tradeRoutes = {};
+}
 if (!gameState.run.era)                      gameState.run.era = 1;
 if (gameState.pauseBank == null || isNaN(gameState.pauseBank)) gameState.pauseBank = 0;
+gameState.pauseBank = Math.min(gameState.pauseBank, 28800);
+if (gameState.run.race && !RACE_DATA[gameState.run.race]) gameState.run.race = RACE_DATA_FALLBACK;
 if (!gameState.era1) gameState.era1 = { unlocked: [], chosen: null };
 if (!Array.isArray(gameState.era1.unlocked)) gameState.era1.unlocked = [];
-// Heal saves corrupted by the pre-v0.55.1 prestige bug: if we're in Era 1 with no race
-// chosen, era1 should be blank — stale unlocked nodes would cause mana to tick passively.
-if ((gameState.run.era || 1) === 1 && !gameState.run.race) {
-    gameState.era1 = { unlocked: [], chosen: null, raceOptions: null };
-    _era1TreeState = '';
-}
-era1EnsureDynRaceNodes(); // restore dynamic race nodes from saved raceOptions
+// Race nodes are now static L5 leaves in ERA1_TREE — no dynamic injection needed.
 if (gameState.resources.influence == null) gameState.resources.influence = 0;
 if (gameState.resources.mana == null) gameState.resources.mana = 0;
 if (gameState.resources.arcaneEssence == null) gameState.resources.arcaneEssence = 0;
+// ── Random Event System ───────────────────────────────────────────────────────
+
+let _logActiveTab = 'all';
+
+function _renderLogEntry(el, record) {
+    const season = ['Spring', 'Summer', 'Autumn', 'Winter'][record.seasonIndex];
+    const entry = document.createElement('div');
+    entry.className = 'log-entry';
+    entry.dataset.category = record.category || 'events';
+    if (_logActiveTab !== 'all' && entry.dataset.category !== _logActiveTab) {
+        entry.style.display = 'none';
+    }
+    entry.innerHTML =
+        `<div class="log-meta">Day ${record.day}, ${season} — Year ${record.year}</div>` +
+        `<div class="log-text">${record.text}</div>` +
+        (record.effectSummary ? `<div class="log-effect">${record.effectSummary}</div>` : '');
+    el.insertBefore(entry, el.firstChild);
+}
+
+function addLogEntry(text, effectSummary, category) {
+    const el = document.getElementById('event-log');
+    if (!el) return;
+    const empty = el.querySelector('.log-empty');
+    if (empty) empty.remove();
+
+    const record = {
+        text,
+        effectSummary: effectSummary || '',
+        category:    category || 'events',
+        day:         gameState.time.day,
+        year:        gameState.time.year,
+        seasonIndex: gameState.time.seasonIndex,
+    };
+
+    if (!gameState.randomEventLog) gameState.randomEventLog = [];
+    gameState.randomEventLog.unshift(record);
+    if (gameState.randomEventLog.length > 40) gameState.randomEventLog.length = 40;
+
+    _renderLogEntry(el, record);
+    while (el.children.length > 40) el.removeChild(el.lastChild);
+    _checkLogEmpty(el);
+}
+
+function _checkLogEmpty(el) {
+    const hasVisible = [...el.querySelectorAll('.log-entry')].some(e => e.style.display !== 'none');
+    let empty = el.querySelector('.log-empty');
+    if (!hasVisible) {
+        if (!empty) {
+            empty = document.createElement('p');
+            empty.className = 'log-empty';
+            empty.textContent = 'Nothing yet.';
+            el.appendChild(empty);
+        }
+    } else if (empty) {
+        empty.remove();
+    }
+}
+
+function restoreEventLog() {
+    const el = document.getElementById('event-log');
+    if (!el) return;
+    const records = gameState.randomEventLog;
+    if (!records || !records.length) return;
+    const empty = el.querySelector('.log-empty');
+    if (empty) empty.remove();
+    for (const record of records) {
+        _renderLogEntry(el, record);
+    }
+    _checkLogEmpty(el);
+}
+
+function setLogTab(tab) {
+    _logActiveTab = tab;
+    document.querySelectorAll('.log-tab').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.tab === tab);
+    });
+    const el = document.getElementById('event-log');
+    if (!el) return;
+    el.querySelectorAll('.log-entry').forEach(entry => {
+        entry.style.display = (tab === 'all' || entry.dataset.category === tab) ? '' : 'none';
+    });
+    _checkLogEmpty(el);
+}
+
+function clearEventLog() {
+    gameState.randomEventLog = [];
+    const el = document.getElementById('event-log');
+    if (!el) return;
+    el.innerHTML = '<p class="log-empty">Nothing yet.</p>';
+}
+
+function _weightedPick(pool) {
+    const totalWeight = pool.reduce((s, e) => s + (e.weight || 1), 0);
+    let roll = Math.random() * totalWeight;
+    for (const e of pool) {
+        roll -= (e.weight || 1);
+        if (roll <= 0) return e;
+    }
+    return pool[pool.length - 1];
+}
+
+function _applyEventEffects(effects) {
+    const parts = [];
+    for (const fx of effects) {
+        if (fx.type === 'resource') {
+            gameState.resources[fx.resource] = Math.max(0, (gameState.resources[fx.resource] || 0) + fx.amount);
+            if (fx.amount === 0) continue;
+            const rdef = RESOURCES && RESOURCES[fx.resource];
+            const rname = (rdef && rdef.name) || (fx.resource.charAt(0).toUpperCase() + fx.resource.slice(1));
+            parts.push(fx.amount > 0 ? `+${fx.amount} ${rname}` : `${fx.amount} ${rname}`);
+        }
+    }
+    return parts.join(', ');
+}
+
+function maybeFireRandomEvent() {
+    if (typeof RANDOM_EVENTS === 'undefined') return;
+    const era = (gameState.run && gameState.run.era) || 1;
+    const currentDay = gameState.time.day + (gameState.time.year - 1) * DAYS_PER_SEASON * 4;
+    const cooldowns = gameState.randomEventCooldowns || (gameState.randomEventCooldowns = {});
+
+    // Roll once per day with a ~1.5% chance to fire any event
+    if (Math.random() > 0.015) return;
+
+    let pool = [];
+    if (era === 1) {
+        pool = (RANDOM_EVENTS.era1 || []).filter(e => (cooldowns[e.id] || 0) <= currentDay);
+    } else {
+        const general = (RANDOM_EVENTS.era2General || []).filter(e => (cooldowns[e.id] || 0) <= currentDay);
+        const raceName = gameState.run && gameState.run.race;
+        const raceType = raceName && RACE_DATA[raceName] && RACE_DATA[raceName].tagLabel;
+        const byType   = raceType && RANDOM_EVENTS.era2ByType && RANDOM_EVENTS.era2ByType[raceType]
+            ? RANDOM_EVENTS.era2ByType[raceType].filter(e => (cooldowns[e.id] || 0) <= currentDay)
+            : [];
+        pool = [...general, ...byType];
+    }
+
+    if (!pool.length) return;
+
+    const event = _weightedPick(pool);
+    const effectSummary = _applyEventEffects(event.effects || []);
+    addLogEntry(event.text, effectSummary);
+    cooldowns[event.id] = currentDay + (event.cooldownDays || 20);
+}
+
 // Assign biome on first load (fresh game or old save with no mods yet)
 if (!gameState.run || !gameState.run.mods || gameState.run.mods.length === 0) {
     if (!gameState.run) gameState.run = { biome: null, race: null, mods: [] };
@@ -5295,6 +6782,7 @@ initBldTooltips();
 initResearchTooltips();
 initIdentityTooltips();
 initSettingsTooltips();
+restoreEventLog();
 setInterval(tick, 1000);
 
 // Stamp lastSeen when the player closes or navigates away.
