@@ -2232,78 +2232,18 @@
                 </div>
             </div>
 
-            <div class="worker-row" id="wrow-shrine" style="display:none">
+            <div class="worker-row" id="wrow-priest" style="display:none">
                 <div class="worker-left">
-                    <span class="worker-name">Shrine</span>
-                    <span class="worker-sub">Priest</span>
-                    <span class="worker-slots" id="wslots-shrine">0 / 0</span>
+                    <span class="worker-name">Priest</span>
+                    <span class="worker-sub" id="wsub-priest"></span>
+                    <span class="worker-slots" id="wslots-priest">0 / 0</span>
                 </div>
                 <div class="worker-controls">
-                    <button class="wbtn wbtn-mm" onclick="setWorkersMin(this)" title="Unassign all">&#9664;&#9664;</button>
-                    <button class="wbtn" onclick="adjustWorkers('shrine', -1)">&#9664;</button>
-                    <input  class="winput" type="number" id="winput-shrine" value="0" min="0" oninput="setWorkers('shrine', this.value)">
-                    <button class="wbtn" onclick="adjustWorkers('shrine', 1)">&#9654;</button>
-                    <button class="wbtn wbtn-mm" onclick="setWorkersMax(this)" title="Assign max">&#9654;&#9654;</button>
-                </div>
-            </div>
-
-            <div class="worker-row" id="wrow-temple" style="display:none">
-                <div class="worker-left">
-                    <span class="worker-name">Temple</span>
-                    <span class="worker-sub">Priest</span>
-                    <span class="worker-slots" id="wslots-temple">0 / 0</span>
-                </div>
-                <div class="worker-controls">
-                    <button class="wbtn wbtn-mm" onclick="setWorkersMin(this)" title="Unassign all">&#9664;&#9664;</button>
-                    <button class="wbtn" onclick="adjustWorkers('temple', -1)">&#9664;</button>
-                    <input  class="winput" type="number" id="winput-temple" value="0" min="0" oninput="setWorkers('temple', this.value)">
-                    <button class="wbtn" onclick="adjustWorkers('temple', 1)">&#9654;</button>
-                    <button class="wbtn wbtn-mm" onclick="setWorkersMax(this)" title="Assign max">&#9654;&#9654;</button>
-                </div>
-            </div>
-
-            <div class="worker-row" id="wrow-pelorSanctuary" style="display:none">
-                <div class="worker-left">
-                    <span class="worker-name">Pelor's Sanctuary</span>
-                    <span class="worker-sub">Priest</span>
-                    <span class="worker-slots" id="wslots-pelorSanctuary">0 / 0</span>
-                </div>
-                <div class="worker-controls">
-                    <button class="wbtn wbtn-mm" onclick="setWorkersMin(this)" title="Unassign all">&#9664;&#9664;</button>
-                    <button class="wbtn" onclick="adjustWorkers('pelorSanctuary', -1)">&#9664;</button>
-                    <input  class="winput" type="number" id="winput-pelorSanctuary" value="0" min="0" oninput="setWorkers('pelorSanctuary', this.value)">
-                    <button class="wbtn" onclick="adjustWorkers('pelorSanctuary', 1)">&#9654;</button>
-                    <button class="wbtn wbtn-mm" onclick="setWorkersMax(this)" title="Assign max">&#9654;&#9654;</button>
-                </div>
-            </div>
-
-            <div class="worker-row" id="wrow-gruumshWarPit" style="display:none">
-                <div class="worker-left">
-                    <span class="worker-name">Gruumsh's War Pit</span>
-                    <span class="worker-sub">Priest</span>
-                    <span class="worker-slots" id="wslots-gruumshWarPit">0 / 0</span>
-                </div>
-                <div class="worker-controls">
-                    <button class="wbtn wbtn-mm" onclick="setWorkersMin(this)" title="Unassign all">&#9664;&#9664;</button>
-                    <button class="wbtn" onclick="adjustWorkers('gruumshWarPit', -1)">&#9664;</button>
-                    <input  class="winput" type="number" id="winput-gruumshWarPit" value="0" min="0" oninput="setWorkers('gruumshWarPit', this.value)">
-                    <button class="wbtn" onclick="adjustWorkers('gruumshWarPit', 1)">&#9654;</button>
-                    <button class="wbtn wbtn-mm" onclick="setWorkersMax(this)" title="Assign max">&#9654;&#9654;</button>
-                </div>
-            </div>
-
-            <div class="worker-row" id="wrow-sylvanGrove" style="display:none">
-                <div class="worker-left">
-                    <span class="worker-name">Sylvan Grove</span>
-                    <span class="worker-sub">Priest</span>
-                    <span class="worker-slots" id="wslots-sylvanGrove">0 / 0</span>
-                </div>
-                <div class="worker-controls">
-                    <button class="wbtn wbtn-mm" onclick="setWorkersMin(this)" title="Unassign all">&#9664;&#9664;</button>
-                    <button class="wbtn" onclick="adjustWorkers('sylvanGrove', -1)">&#9664;</button>
-                    <input  class="winput" type="number" id="winput-sylvanGrove" value="0" min="0" oninput="setWorkers('sylvanGrove', this.value)">
-                    <button class="wbtn" onclick="adjustWorkers('sylvanGrove', 1)">&#9654;</button>
-                    <button class="wbtn wbtn-mm" onclick="setWorkersMax(this)" title="Assign max">&#9654;&#9654;</button>
+                    <button class="wbtn wbtn-mm" onclick="setPriestWorkers(0)" title="Unassign all">&#9664;&#9664;</button>
+                    <button class="wbtn" onclick="adjustPriestWorkers(-1)">&#9664;</button>
+                    <input  class="winput" type="number" id="winput-priest" value="0" min="0" oninput="setPriestWorkers(+this.value)">
+                    <button class="wbtn" onclick="adjustPriestWorkers(1)">&#9654;</button>
+                    <button class="wbtn wbtn-mm" onclick="setPriestWorkers(99999)" title="Assign max">&#9654;&#9654;</button>
                 </div>
             </div>
 

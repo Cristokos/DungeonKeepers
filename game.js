@@ -831,6 +831,45 @@ function setWorkersMax(btn) {
     setWorkers(id, 99999);
 }
 
+const PRIEST_BUILDINGS = ['shrine', 'temple', 'pelorSanctuary', 'gruumshWarPit', 'sylvanGrove'];
+
+function _getPriestTotal() {
+    const a = gameState.workerAssignments || {};
+    return PRIEST_BUILDINGS.reduce((s, id) => s + (a[id] || 0), 0);
+}
+
+function _getPriestSlots() {
+    return PRIEST_BUILDINGS.reduce((s, id) => {
+        const def = ROOMS[id];
+        if (!def) return s;
+        return s + (gameState.buildings[id] || 0) * def.jobs;
+    }, 0);
+}
+
+function setPriestWorkers(rawTotal) {
+    if (!gameState.workerAssignments) gameState.workerAssignments = {};
+    const totalSlots = _getPriestSlots();
+    const nonPriest = Object.entries(gameState.workerAssignments)
+        .filter(([k]) => !PRIEST_BUILDINGS.includes(k))
+        .reduce((s, [, v]) => s + v, 0);
+    const maxPriest = Math.max(0, Math.min(totalSlots, gameState.population.count - nonPriest));
+    let remaining = Math.max(0, Math.min(Math.floor(+rawTotal || 0), maxPriest));
+    for (const id of PRIEST_BUILDINGS) {
+        const def = ROOMS[id];
+        if (!def) continue;
+        const slots = (gameState.buildings[id] || 0) * def.jobs;
+        const take = Math.min(remaining, slots);
+        gameState.workerAssignments[id] = take;
+        remaining -= take;
+    }
+    updateUI();
+    saveGame();
+}
+
+function adjustPriestWorkers(delta) {
+    setPriestWorkers(_getPriestTotal() + delta * _clickMult);
+}
+
 // Returns the stacked multiplicative bonus from buildings that carry a
 // productionBonus field (e.g. runeObelisk gives +5% per count to essenceWell).
 function getBuildingProductionBonus(targetId) {
@@ -2903,6 +2942,7 @@ function updateUI() {
     let   totalAssigned = 0;
     for (const [id, def] of Object.entries(ROOMS)) {
         if (!def.jobs) continue;
+        if (PRIEST_BUILDINGS.includes(id)) continue; // handled by combined priest row
         const rowEl = document.getElementById("wrow-" + id);
         const built = (gameState.buildings[id] || 0) > 0;
         if (rowEl) rowEl.style.display = built ? "" : "none";
@@ -2917,6 +2957,28 @@ function updateUI() {
             inputEl.value = assignments[id] || 0;
             inputEl.max   = slots;
         }
+    }
+    // Combined Priest row
+    const priestBuilt = PRIEST_BUILDINGS.some(id => (gameState.buildings[id] || 0) > 0);
+    const priestRowEl = document.getElementById("wrow-priest");
+    if (priestRowEl) priestRowEl.style.display = priestBuilt ? "" : "none";
+    if (priestBuilt) {
+        const priestActual = _getPriestTotal();
+        const priestSlots  = _getPriestSlots();
+        totalAssigned += priestActual;
+        const priestSlotsEl = document.getElementById("wslots-priest");
+        if (priestSlotsEl) priestSlotsEl.textContent = `${priestActual} / ${priestSlots}`;
+        const priestInputEl = document.getElementById("winput-priest");
+        if (priestInputEl && document.activeElement !== priestInputEl) {
+            priestInputEl.value = priestActual;
+            priestInputEl.max   = priestSlots;
+        }
+        // Show which buildings are active in the sub label
+        const activeNames = PRIEST_BUILDINGS
+            .filter(id => (gameState.buildings[id] || 0) > 0)
+            .map(id => ROOMS[id].name || id);
+        const subEl = document.getElementById("wsub-priest");
+        if (subEl) subEl.textContent = activeNames.join(", ");
     }
     setText("wpeasants", workersPop - totalAssigned);
     setText("wtotal",    `${totalAssigned} / ${workersPop}`);
