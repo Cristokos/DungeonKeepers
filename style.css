@@ -373,7 +373,11 @@ html, body {
 
 /* TOP STATUS BAR */
 .statusbar {
-    position: relative;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 500;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -449,6 +453,7 @@ html, body {
 .layout {
     display: flex;
     height: calc(100vh - 34px);
+    margin-top: 34px;
 }
 
 .panel {
