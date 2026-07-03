@@ -13,7 +13,7 @@ const DEITIES = {
             arcaneDustPassive: 0.3,  // arcane dust per day from Sanctuaries (flat, no workers)
         },
         templeBonus: {
-            moraleBonus: 3,
+            moraleBonus: 1,
             growthMult: 0.02,  // subtracted per temple (stacks)
         },
         uniqueBuilding: "pelorSanctuary",
@@ -31,16 +31,16 @@ const DEITIES = {
             minFaith: 10,           // faith score required to trigger
             popCost: 1,             // population lost
             surgeDays: 10,          // days of production surge after sacrifice
-            surgeBonus: 0.20,       // +20% all production during surge
+            surgeBonus: 0.10,       // +10% all production during surge
         },
         bonuses: {
             allProductionBonus: 0.15,
             moralePenalty: -5,
-            lairHousingBonus: 1,    // +1 housing per Lair when Gruumsh is active patron
+            hovelHousingBonus: 1,    // +1 housing per Hovel when Gruumsh is active patron
             bonesPassive: 0.5,      // bones per day per War Pit (no workers needed)
         },
         templeBonus: {
-            allProductionBonus: 0.03,  // per temple
+            allProductionBonus: 0.01,  // per temple
         },
         uniqueBuilding: "gruumshWarPit",
         flavorQuote: "\"Pain is the first teacher. Conquest is the final exam.\"",
@@ -63,7 +63,7 @@ const DEITIES = {
             farmFoodProductionBonus: 0.10, // +10% total food production (flat unlock)
         },
         templeBonus: {
-            productionBonus: { farm: 1.05, herbalistDen: 1.05 },
+            productionBonus: { farm: 1.01, herbalistDen: 1.01 },
             loreCapBonus: 25,
         },
         uniqueBuilding: "sylvanGrove",

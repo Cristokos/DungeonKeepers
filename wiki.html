@@ -2026,7 +2026,7 @@
         <section id="wiki-religion" class="wiki-section" style="display:none">
             <h2>Religion &amp; Patron Gods</h2>
             <p class="wiki-lead">
-                Choosing a patron god is one of the most impactful decisions you can make each run. Each god reshapes how your dungeon grows, what resources flow naturally, and what strategies are available to you. Favor is earned through daily tithes and spent as a resource — reaching the Blessed threshold fires a powerful event and resets your standing, encouraging continuous devotion rather than a one-time pledge.
+                Choosing a patron god is one of the most impactful decisions you can make each run. Each god reshapes how your fledgling civilization grows, what resources flow naturally, and what strategies are available to you. Favor is earned through daily tithes and spent as a resource — reaching the Blessed threshold fires a powerful event and resets your standing, encouraging continuous devotion rather than a one-time pledge.
             </p>
 
             <h3 class="creature-category">The Favor System</h3>
@@ -2078,12 +2078,12 @@
                 <thead><tr><th>Source</th><th>Effect</th></tr></thead>
                 <tbody>
                     <tr><td>Base deity bonus</td><td>+5 morale target (scales with faith)</td></tr>
-                    <tr><td>Per Temple</td><td>+3 morale target per Temple (scales with faith)</td></tr>
+                    <tr><td>Per Temple</td><td>+1 morale target per Temple (scales with faith)</td></tr>
                     <tr><td>Patron growth</td><td>Population grows ~10% faster (threshold reduced)</td></tr>
                     <tr><td>Per Temple (growth)</td><td>Growth speed increases further per Temple (stacks, floored at 50%)</td></tr>
                     <tr><td>Pelor's Sanctuary (passive)</td><td>Generates Arcane Dust per day, per Sanctuary — no workers required</td></tr>
                     <tr><td>Pelor's Sanctuary</td><td>+3 morale passive per building, +5 morale cap per building</td></tr>
-                    <tr><td>Prestige (Quintessence)</td><td>Standard: +1 Quintessence per 50 peak population</td></tr>
+                    <tr><td>Prestige (Quintessence)</td><td>Standard: +1 Quintessence per 50 current population when you prestige</td></tr>
                 </tbody>
             </table>
             <h4 style="color:var(--label);margin:14px 0 6px">God-Locked Research</h4>
@@ -2101,7 +2101,7 @@
                 <i>"Pain is the first teacher. Conquest is the final exam."</i>
             </p>
             <p class="wiki-lead">
-                Gruumsh is the god of war, domination, and sacrifice. He makes your dungeon more powerful through sheer brutality — boosting all production, expanding your population capacity through force, and periodically sacrificing a worker in exchange for a production surge. He is high-risk, high-reward: morale suffers under his watch, but your output can far exceed what the other gods allow.
+                Gruumsh is the god of war, domination, and sacrifice. He makes your settlement more powerful through sheer brutality — boosting all production, expanding your population capacity through force, and periodically sacrificing a worker in exchange for a production surge. He is high-risk, high-reward: morale suffers under his watch, but your output can far exceed what the other gods allow.
             </p>
             <p class="wiki-lead"><b>Tithe:</b> Ore + Food</p>
             <h4 style="color:var(--label);margin:14px 0 6px">Bonuses</h4>
@@ -2109,14 +2109,14 @@
                 <thead><tr><th>Source</th><th>Effect</th></tr></thead>
                 <tbody>
                     <tr><td>Base deity bonus</td><td>All production +15% (scales with faith)</td></tr>
-                    <tr><td>Per Temple</td><td>All production +3% per Temple (scales with faith)</td></tr>
+                    <tr><td>Per Temple</td><td>All production +1% per Temple (scales with faith)</td></tr>
                     <tr><td>Morale penalty</td><td>−5 to morale target (scales with faith)</td></tr>
-                    <tr><td>Lairs (patron bonus)</td><td>Each Lair provides +1 extra housing while Gruumsh is active</td></tr>
+                    <tr><td>Hovels (patron bonus)</td><td>Each Hovel provides +1 extra housing while Gruumsh is active</td></tr>
                     <tr><td>Gruumsh's War Pit (passive)</td><td>Generates 0.5 bones/day per War Pit — no workers required</td></tr>
                     <tr><td>War Pit</td><td>−1 morale passive per building (costs morale to operate)</td></tr>
-                    <tr><td>Periodic Sacrifice</td><td>Every 30 days (if faith ≥ 10 and pop ≥ 50% of housing), sacrifices 1 population for a 10-day +20% all-production surge</td></tr>
+                    <tr><td>Periodic Sacrifice</td><td>Every 30 days (if faith ≥ 10 and pop ≥ 50% of housing), sacrifices 1 population for a 10-day +10% all-production surge</td></tr>
                     <tr><td>Low-population protection</td><td>If population falls below 50% of housing capacity, sacrifice is withheld and growth speed increases +50% instead</td></tr>
-                    <tr><td>Prestige (Quintessence)</td><td>+1 Quintessence per 40 peak population (instead of the standard 50)</td></tr>
+                    <tr><td>Prestige (Quintessence)</td><td>+1 Quintessence per 40 current population when you prestige (instead of the standard 50)</td></tr>
                 </tbody>
             </table>
             <h4 style="color:var(--label);margin:14px 0 6px">God-Locked Research</h4>
@@ -2127,14 +2127,14 @@
                 </tbody>
             </table>
             <h4 style="color:var(--label);margin:14px 0 6px">Blessing Events (sample)</h4>
-            <p class="wiki-lead">Gruumsh's blessings are brutal and generous in equal measure. They include large ore and bone drops, war-spoil coin caches, multiple temporary all-production surges, refugee population bursts, and rarely — a permanent +1 housing carved into the dungeon walls (up to +5 total).</p>
+            <p class="wiki-lead">Gruumsh's blessings are brutal and generous in equal measure. They include large ore and bone drops, war-spoil coin caches, multiple temporary all-production surges, refugee population bursts, and rarely — a permanent +1 housing carved out by conquest (up to +5 total).</p>
 
             <h3 class="creature-category" style="color:#27ae60">🌿 Silvanus — The Provider</h3>
             <p class="wiki-lead">
                 <i>"The forest remembers what cities forget."</i>
             </p>
             <p class="wiki-lead">
-                Silvanus is the god of nature, balance, and patient abundance. He rewards those who tend their dungeon sustainably — boosting food, wood, herb, and potion economies, softening harsh winters, and growing population steadily without the volatility of the other gods. His bonuses compound over time and his resource cap expansions make late runs significantly more comfortable.
+                Silvanus is the god of nature, balance, and patient abundance. He rewards those who tend their lands sustainably — boosting food, wood, herb, and potion economies, softening harsh winters, and growing population steadily without the volatility of the other gods. His bonuses compound over time and his resource cap expansions make late runs significantly more comfortable.
             </p>
             <p class="wiki-lead"><b>Tithe:</b> Wood + Herbs</p>
             <h4 style="color:var(--label);margin:14px 0 6px">Bonuses</h4>
@@ -2142,7 +2142,7 @@
                 <thead><tr><th>Source</th><th>Effect</th></tr></thead>
                 <tbody>
                     <tr><td>Base deity bonus</td><td>Farm and Herbalist's Den production +15% (scales with faith)</td></tr>
-                    <tr><td>Per Temple</td><td>Farm and Herbalist's Den +5% per Temple (scales with faith)</td></tr>
+                    <tr><td>Per Temple</td><td>Farm and Herbalist's Den +1% per Temple (scales with faith)</td></tr>
                     <tr><td>Flat resource bonus</td><td>Food, Herbs, Wood, and Potions production all +10% (total, not per building)</td></tr>
                     <tr><td>Passive production</td><td>+0.5 Food, +0.3 Herbs, +0.3 Wood, +0.05 Potions per day — no buildings or workers needed</td></tr>
                     <tr><td>Population growth</td><td>Population grows ~20% faster always</td></tr>
@@ -2266,6 +2266,16 @@
         <!-- CHANGELOG -->
         <section id="wiki-changelog" class="wiki-section wiki-changelog" style="display:none">
             <h2>Changelog</h2>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.91.6</span><span class="cl-date">2026-07-03</span></div>
+                <p class="biome-desc">Internal refactor: the Hovel's legacy code identifier "lair" was renamed to "hovel" everywhere (building key, race hovelHousing effects, Gruumsh's housing bonus, research prereqs, and HTML element IDs). No gameplay changes, but saves from earlier versions will not carry over Hovel counts.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.91.5</span><span class="cl-date">2026-07-03</span></div>
+                <p class="biome-desc">Religion balance and bug-fix pass: fixed Pelor's per-temple growth bonus slowing growth instead of speeding it; per-temple deity bonuses reduced to +1 (morale/production %); Gruumsh's sacrifice surge reduced to +10%; quintessence now counts current population at prestige (not peak); faith displays corrected to the 0–100 scale; tithe display now shows the real max(50, 10% of production) amount; religion wording updated to fit a fledgling village (Hovel, not Lair).</p>
+            </div>
 
             <div class="biome-card">
                 <div><span class="cl-ver">v0.91.4</span><span class="cl-date">2026-07-03</span></div>

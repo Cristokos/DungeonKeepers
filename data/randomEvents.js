@@ -918,7 +918,7 @@ const BLESSING_EVENTS = {
         },
         {
             id: "pelor_b10",
-            text: "A traveling healer, guided by Pelor's light, settles in your dungeon.",
+            text: "A traveling healer, guided by Pelor's light, settles in your village.",
             weight: 8,
             effects: [{ type: "population", amount: 2 }, { type: "resource", resource: "herbs", amount: 20 }]
         },
@@ -1035,7 +1035,7 @@ const BLESSING_EVENTS = {
         },
         {
             id: "gruumsh_b09",
-            text: "Gruumsh sends a warrior-prophet to your dungeon.",
+            text: "Gruumsh sends a warrior-prophet to your settlement.",
             weight: 7,
             effects: [{ type: "population", amount: 2 }, { type: "resource", resource: "bones", amount: 30 }]
         },
@@ -1101,7 +1101,7 @@ const BLESSING_EVENTS = {
         },
         {
             id: "gruumsh_b20",
-            text: "The One-Eye's mark is burned into your dungeon's stone. Conquered lands feed your ranks.",
+            text: "The One-Eye's mark is burned into your village's stone. Conquered lands feed your ranks.",
             weight: 6,
             effects: [{ type: "resource", resource: "ore", amount: 40 }, { type: "resource", resource: "bones", amount: 40 }, { type: "resource", resource: "coins", amount: 40 }]
         },
@@ -1134,7 +1134,7 @@ const BLESSING_EVENTS = {
         },
         {
             id: "silvanus_b05",
-            text: "Wild creatures drawn by Silvanus's call settle in your dungeon.",
+            text: "Wild creatures drawn by Silvanus's call settle in your village.",
             weight: 7,
             effects: [{ type: "population", amount: 3 }]
         },
@@ -1182,7 +1182,7 @@ const BLESSING_EVENTS = {
         },
         {
             id: "silvanus_b13",
-            text: "Silvanus grows the dungeon inward — a new chamber forms from living root and stone.",
+            text: "Silvanus grows the village outward — a new dwelling forms from living root and stone.",
             weight: 3,
             effects: [{ type: "permanentHousing", amount: 1, cap: 5, key: "blessingHousing" }]
         },

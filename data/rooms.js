@@ -4,7 +4,7 @@ const ROOMS = {
 
     // ── Stage 1 — Foundation ────────────────────────────────────────────────────
 
-    lair: {
+    hovel: {
         name: "Hovel",
         cost: { wood: 25 },
         costScale: 1.15,
@@ -73,7 +73,7 @@ const ROOMS = {
         jobs: 1,
         workerName: "Hunter",
         production: { food: 0.5, bones: 0.4 },
-        unlock: { lair: 3 },
+        unlock: { hovel: 3 },
     },
     clayPit: {
         name: "Clay Pit",
@@ -353,7 +353,7 @@ const ROOMS = {
         jobs: 1,
         workerName: "Bard",
         moralePerWorker: 3,
-        unlock: { lair: 10 },
+        unlock: { hovel: 10 },
         requiresResearch: ["shrineUnlock"],
         desc: "A stage for performers, jesters, and storytellers. Keeps your workers' spirits up.",
         flavor: "A good joke costs nothing. A miserable dungeon costs everything.",
@@ -427,7 +427,7 @@ const ROOMS = {
         faithPerPriest: 3,
         requiresResearch: ["godUniqueUnlock"],
         unlock: { temple: 1 },
-        desc: "A sacred grove where Druids commune with Silvanus, drawing nature's bounty into your dungeon.",
+        desc: "A sacred grove where Druids commune with Silvanus, drawing nature's bounty into your village.",
         flavor: "The roots run deep where the old god walks.",
     },
 };

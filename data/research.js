@@ -27,7 +27,7 @@ RESEARCH.taxes = {
     name: "Taxation",
     desc: "Levy a tax on your population. Each creature contributes 1 cp per in-game day.",
     cost: { ore: 120, wood: 80 },
-    requiresBuildings: { lair: 20 },
+    requiresBuildings: { hovel: 20 },
     effects: { taxBonus: 1, flag: "taxesEnabled" },
 };
 
@@ -172,7 +172,7 @@ RESEARCH.communalLiving = {
     desc: "Pack the burrows tighter and share the straw. Each Hovel provides +0.1 additional housing capacity.",
     cost: { wood: 240, stone: 160 },
     requiresResearch: ["cropRotation"],
-    effects: { housingBonus: { lair: 0.1 } },
+    effects: { housingBonus: { hovel: 0.1 } },
 };
 
 RESEARCH.taxCollector = {
@@ -239,7 +239,7 @@ RESEARCH.logDrying = {
 RESEARCH.shrineUnlock = {
     tier: "2.2",
     name: "Spiritual Foundations",
-    desc: "Erect a shrine and hire an Entertainer to keep your dungeon's spirit alive. Unlocks the Religion tab, the Shrine building, and the Entertainer's Stage.",
+    desc: "Erect a shrine and hire an Entertainer to keep your people's spirit alive. Unlocks the Religion tab, the Shrine building, and the Entertainer's Stage.",
     cost: { stone: 80, wood: 60, lore: 10 },
     effects: { flag: "shrineUnlock" },
 };
@@ -776,7 +776,7 @@ RESEARCH.warchantersRite = {
 RESEARCH.oldGrowth = {
     tier: "2.5",
     name: "Old Growth",
-    desc: "Silvanus deepens the roots beneath your dungeon, vastly expanding your capacity for food, herbs, wood, and potions. Requires Silvanus as active patron with Devoted favor (60+).",
+    desc: "Silvanus deepens the roots beneath your village, vastly expanding your capacity for food, herbs, wood, and potions. Requires Silvanus as active patron with Devoted favor (60+).",
     cost: { lore: 90, herbs: 120, wood: 100 },
     requiresResearch: ["godUniqueUnlock"],
     requiresBuildings: { sylvanGrove: 1 },

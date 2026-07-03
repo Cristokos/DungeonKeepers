@@ -206,7 +206,7 @@ const MOD_DESCRIPTIONS = {
 // gatherBonus, allGatherBonus, allProductionBonus, taxBonus, housingBonus, foodConsumption,
 // storageBonus) PLUS race-exclusive keys:
 //   growthBonus  — multiplier on GROWTH_TICKS (< 1 faster, > 1 slower)
-//   lairHousing  — override base lair housing per building (replaces ROOMS.lair.housingBonus)
+//   hovelHousing  — override base hovel housing per building (replaces ROOMS.hovel.housingBonus)
 const RACE_DATA = {};
 const RACE_DATA_FALLBACK = 'Wyrm';
 
@@ -221,7 +221,7 @@ const gameState = {
         coins: 0,
     },
     buildings: {
-        lair: 0, farm: 0, lumber: 0, quarry: 0, storage: 0,
+        hovel: 0, farm: 0, lumber: 0, quarry: 0, storage: 0,
         mine: 0, coalSeam: 0, herbalistDen: 0, huntingLodge: 0, clayPit: 0, crystalSeam: 0,
         marketStall: 0, tradeCart: 0, house: 0, apartment: 0,
         smelter: 0, alchemyLab: 0, kiln: 0, loom: 0,
@@ -814,10 +814,10 @@ function abandonDeity() {
 
 function getHousing() {
     const raceData    = RACE_DATA[gameState.run && gameState.run.race];
-    const lairOverride = raceData && raceData.effects && raceData.effects.lairHousing;
-    // Gruumsh patron bonus: +1 housing per Lair
-    const gruumshLairBonus = (isDeityFavorActive && isDeityFavorActive() && gameState.religion && gameState.religion.deity === 'gruumsh')
-        ? (DEITIES.gruumsh.bonuses.lairHousingBonus || 0)
+    const hovelOverride = raceData && raceData.effects && raceData.effects.hovelHousing;
+    // Gruumsh patron bonus: +1 housing per Hovel
+    const gruumshHovelBonus = (isDeityFavorActive && isDeityFavorActive() && gameState.religion && gameState.religion.deity === 'gruumsh')
+        ? (DEITIES.gruumsh.bonuses.hovelHousingBonus || 0)
         : 0;
     // Permanent housing from blessings (Gruumsh #19, Silvanus #13), capped at +5 each
     const blessingHousing = Math.min(5, (gameState.religion && gameState.religion.blessingHousing) || 0);
@@ -826,8 +826,8 @@ function getHousing() {
         const count = gameState.buildings[id] || 0;
         if (count === 0) continue;
         if (def.housingBonus) {
-            let base = (id === 'lair' && lairOverride != null) ? lairOverride : def.housingBonus;
-            if (id === 'lair') base += gruumshLairBonus;
+            let base = (id === 'hovel' && hovelOverride != null) ? hovelOverride : def.housingBonus;
+            if (id === 'hovel') base += gruumshHovelBonus;
             total += count * base;
         }
         const researchExtra = getResearchBonus('housingBonus', id);
@@ -1245,7 +1245,7 @@ function _buildMoraleTooltipHTML() {
 
     if (isDeityFavorActive()) {
         const dd = DEITIES[gameState.religion.deity];
-        const ff = getFaithScore() / 30;
+        const ff = getFaithScore() / 100;
         rows.push({ label: 'Patron god', sub: 'active', value: 3, drain: false });
         if (dd.bonuses.moraleBonus)   rows.push({ label: `${dd.name} blessing`,  sub: `faith ${Math.round(ff*100)}%`, value: dd.bonuses.moraleBonus * ff,   drain: false });
         if (dd.bonuses.moralePenalty) rows.push({ label: `${dd.name} harshness`, sub: `faith ${Math.round(ff*100)}%`, value: dd.bonuses.moralePenalty * ff, drain: true  });
@@ -2053,7 +2053,7 @@ function getBuildCost(id) {
     const r   = gameState.research || {};
     const out = {};
     let scale = def.costScale || 1.2;
-    if (r.communalArchitecture && id === 'lair') scale = Math.max(1.01, scale - 0.02);
+    if (r.communalArchitecture && id === 'hovel') scale = Math.max(1.01, scale - 0.02);
     const guildDiscount = r.guildCharter && GUILD_DISCOUNT_BUILDINGS.has(id);
     let matReduction = 0;
     if (r.prototypeTools)   matReduction += 0.05;
@@ -2490,7 +2490,7 @@ function runOneTick() {
     if (typeof DEITIES !== 'undefined' && isDeityFavorActive() && gameState.religion.deity === 'pelor') {
         const _pd = DEITIES.pelor;
         const _ff = getFaithScore() / 100;
-        pelorGrowthMult = _pd.bonuses.growthMult + (_pd.templeBonus.growthMult * (gameState.buildings.temple || 0) * _ff);
+        pelorGrowthMult = _pd.bonuses.growthMult - (_pd.templeBonus.growthMult * (gameState.buildings.temple || 0) * _ff);
         pelorGrowthMult = Math.max(0.5, pelorGrowthMult); // floor at 50% of base threshold
     }
     // Silvanus deity bonus: +20% faster growth always
@@ -3031,7 +3031,7 @@ function updateUI() {
     {
         const era2Sections = {
             'era2-label-countryside': ['farm', 'lumber', 'quarry'],
-            'era2-label-warren':      ['lair', 'house', 'apartment', 'entertainersStage'],
+            'era2-label-warren':      ['hovel', 'house', 'apartment', 'entertainersStage'],
             'era2-label-craftsmen':   ['smelter', 'kiln', 'loom', 'alchemyLab', 'forge', 'arcaneGrinder', 'arcaneBench'],
             'era2-label-merchant':    ['storage', 'marketStall', 'tradeCart'],
             'era2-label-arcane':      ['mageTower', 'scriptorium'],
@@ -3374,7 +3374,7 @@ const ERA_LOADOUTS = {
     2: {
         population: 20,
         buildings: {
-            lair: 6, farm: 5, lumber: 4, quarry: 4, storage: 4,
+            hovel: 6, farm: 5, lumber: 4, quarry: 4, storage: 4,
             mine: 4, coalSeam: 3, huntingLodge: 3, herbalistDen: 2, clayPit: 2, crystalSeam: 2,
             smelter: 2, alchemyLab: 1, kiln: 1, loom: 1,
             mageTower: 1, armory: 2, sulphurVent: 1, arcaneGrinder: 1, forge: 1, arcaneBench: 1,
@@ -3393,7 +3393,7 @@ const ERA_LOADOUTS = {
     3: {
         population: 40,
         buildings: {
-            lair: 8, farm: 8, lumber: 6, quarry: 6, storage: 6,
+            hovel: 8, farm: 8, lumber: 6, quarry: 6, storage: 6,
             mine: 6, coalSeam: 4, huntingLodge: 4, herbalistDen: 3, clayPit: 3, crystalSeam: 3,
             smelter: 3, alchemyLab: 2, kiln: 2, loom: 2,
             mageTower: 2, armory: 3, sulphurVent: 2, arcaneGrinder: 2, forge: 2, arcaneBench: 2,
@@ -5709,7 +5709,7 @@ const LEGENDARY_ROSTER = {
 // ── Populate RACE_DATA from type and creature definitions ─────────────────────
 (function populateRaceData() {
     // Keys where creature value REPLACES the type value instead of stacking
-    const REPLACE_KEYS = new Set(['lairHousing']);
+    const REPLACE_KEYS = new Set(['hovelHousing']);
     // Keys that stack multiplicatively; all others stack additively
     const MULT_KEYS    = new Set(['foodConsumption', 'growthBonus']);
 
@@ -5740,7 +5740,7 @@ const LEGENDARY_ROSTER = {
     const TYPES = {
         "Goblinoid": {
             tag: "tag-goblinoid",
-            effects: { foodConsumption: 1.20, growthBonus: 0.65, allGatherBonus: 1, lairHousing: 8 },
+            effects: { foodConsumption: 1.20, growthBonus: 0.65, allGatherBonus: 1, hovelHousing: 8 },
             mods: [
                 { name: "Fast Breeders",    pos: true,  desc: "Growth timer 35% shorter — the horde expands quickly." },
                 { name: "Mob Scavenging",   pos: true,  desc: "+1 to all manual gather yields." },
@@ -5826,7 +5826,7 @@ const LEGENDARY_ROSTER = {
         },
         "Giant": {
             tag: "tag-giant",
-            effects: { foodConsumption: 2.0, growthBonus: 3.0, allProductionBonus: 0.02, lairHousing: 2, capBonus: { food: 200, wood: 100, stone: 200 } },
+            effects: { foodConsumption: 2.0, growthBonus: 3.0, allProductionBonus: 0.02, hovelHousing: 2, capBonus: { food: 200, wood: 100, stone: 200 } },
             mods: [
                 { name: "Vast Stores",      pos: true,  desc: "Food cap +200, Stone cap +200, Wood cap +100." },
                 { name: "Titan's Hunger",   pos: false, desc: "Population eats ×2 food per tick." },
@@ -5932,7 +5932,7 @@ const LEGENDARY_ROSTER = {
         },
         "Titan": {
             tag: "tag-titan",
-            effects: { foodConsumption: 3.0, growthBonus: 4.0, allProductionBonus: 0.03, lairHousing: 1 },
+            effects: { foodConsumption: 3.0, growthBonus: 4.0, allProductionBonus: 0.03, hovelHousing: 1 },
             mods: [
                 { name: "Mythic Scale",     pos: true,  desc: "+3% all production — titans amplify everything around them by sheer presence." },
                 { name: "Immense Hunger",   pos: false, desc: "Population eats ×3 food per tick — titans require colossal sustenance." },
@@ -5952,7 +5952,7 @@ const LEGENDARY_ROSTER = {
         },
         "Sovereign": {
             tag: "tag-sovereign",
-            effects: { foodConsumption: 2.0, growthBonus: 3.0, allProductionBonus: 0.03, coinCapBonus: { flat: 2000, pct: 0.15 }, lairHousing: 1 },
+            effects: { foodConsumption: 2.0, growthBonus: 3.0, allProductionBonus: 0.03, coinCapBonus: { flat: 2000, pct: 0.15 }, hovelHousing: 1 },
             mods: [
                 { name: "Singular Power",  pos: true,  desc: "+3% all production and Coin cap +2,000 + 15% of tier base — legends reshape the dungeon." },
                 { name: "Ravenous Legend", pos: false, desc: "Population eats ×2 food per tick." },
@@ -6069,7 +6069,7 @@ const LEGENDARY_ROSTER = {
         },
         "Bugbear": {
             desc: "Massive goblinoids who excel at brute labor. Their size makes them less efficient in standard lairs.",
-            extraEffects: { productionBonus: { quarry: 1.10, mine: 1.10 }, lairHousing: 6 },
+            extraEffects: { productionBonus: { quarry: 1.10, mine: 1.10 }, hovelHousing: 6 },
             extraMods: [{ name: "Bugbear Brawn", pos: true, desc: "Quarries and Mines extra +10%. Hovels house 6 Bugbears." }],
         },
         "Orc": {
@@ -6840,14 +6840,14 @@ const LEGENDARY_ROSTER = {
         // ── Legendary (earned, not chosen) ────────────────────────────────────
         "Chromatic Dragon": { // legendary — earned, not chosen
             desc: "An ancient chromatic dragon whose very presence warps the dungeon around it. Their dominance over lesser races increases all production dramatically.",
-            extraEffects: { allProductionBonus: 0.02, foodConsumption: 3.0, lairHousing: 1 },
+            extraEffects: { allProductionBonus: 0.02, foodConsumption: 3.0, hovelHousing: 1 },
             extraMods: [
                 { name: "Dragon's Appetite",   pos: false, desc: "Consumes 3× the food of a normal Draconic creature; only 1 fits per Hovel." },
             ],
         },
         "Lich": { // legendary — earned, not chosen
             desc: "A powerful undead archmage who transcended death to pursue magical mastery. Liches push arcane infrastructure to impossible heights.",
-            extraEffects: { converterBonus: { crystalSeam: 1.15, mageTower: 1.15, arcaneGrinder: 1.15 }, foodConsumption: 0, lairHousing: 1 },
+            extraEffects: { converterBonus: { crystalSeam: 1.15, mageTower: 1.15, arcaneGrinder: 1.15 }, foodConsumption: 0, hovelHousing: 1 },
             extraMods: [
                 { name: "Phylactery Focus",  pos: true,  desc: "Crystal Seams, Mage Towers, and Arcane Grinders extra +15%." },
                 { name: "Undying Hunger",    pos: true,  desc: "Liches do not eat — they subsist on soul energy alone; only 1 fits per Hovel." },
@@ -6860,7 +6860,7 @@ const LEGENDARY_ROSTER = {
         },
         "Dracolich": { // legendary — earned, not chosen
             desc: "A dragon who refused death and bound its soul to a phylactery. The dracolich fuses draconic production might with undead arcane mastery in one terrible form.",
-            extraEffects: { allProductionBonus: 0.02, converterBonus: { arcaneGrinder: 1.15, ritualCircle: 1.15 }, foodConsumption: 0, lairHousing: 1 },
+            extraEffects: { allProductionBonus: 0.02, converterBonus: { arcaneGrinder: 1.15, ritualCircle: 1.15 }, foodConsumption: 0, hovelHousing: 1 },
             extraMods: [
                 { name: "Undying Dominance", pos: true,  desc: "Extra +2% all production; Arcane Grinders and Ritual Circles +15%." },
                 { name: "Phylactery Bound",  pos: true,  desc: "Requires no food — the dracolich's phylactery sustains it; only 1 fits per Hovel." },
@@ -6868,7 +6868,7 @@ const LEGENDARY_ROSTER = {
         },
         "Tarrasque": { // legendary — earned, not chosen
             desc: "The most feared creature in existence — an engine of annihilation that cannot be permanently slain. Its very presence drives all lesser creatures to work harder out of pure survival instinct.",
-            extraEffects: { allProductionBonus: 0.02, allGatherBonus: 2, foodConsumption: 5.0, lairHousing: 1 },
+            extraEffects: { allProductionBonus: 0.02, allGatherBonus: 2, foodConsumption: 5.0, hovelHousing: 1 },
             extraMods: [
                 { name: "Primal Terror",    pos: true,  desc: "Extra +2% all production and +2 to all gather yields — pure survival instinct." },
                 { name: "World-Eater",      pos: false, desc: "Consumes 5× the food of a normal Monstrous creature; only 1 fits per Hovel." },
@@ -6876,7 +6876,7 @@ const LEGENDARY_ROSTER = {
         },
         "Kraken": { // legendary — earned, not chosen
             desc: "The ancient terror of the deep ocean. A kraken's immense intelligence and dominion over water amplifies all aquatic and storage operations to impossible scales.",
-            extraEffects: { allProductionBonus: 0.02, storageBonus: 30, capBonus: { food: 200 }, coinCapBonus: { flat: 1000, pct: 0.10 }, foodConsumption: 2.5, lairHousing: 1 },
+            extraEffects: { allProductionBonus: 0.02, storageBonus: 30, capBonus: { food: 200 }, coinCapBonus: { flat: 1000, pct: 0.10 }, foodConsumption: 2.5, hovelHousing: 1 },
             extraMods: [
                 { name: "Deep Dominion",    pos: true,  desc: "Extra +2% all production; Storage buildings hold 30 more; Food cap +200; Coin cap +1,000 coins + 10% of tier base." },
                 { name: "Titanic Appetite", pos: false, desc: "Consumes 2.5× the food of a normal Aquatic creature; only 1 fits per Hovel." },
@@ -7049,8 +7049,9 @@ function calcQuintessenceEarned() {
     let earned = 3;
     earned += Math.max(0, (gameState.run.era || 1) - 1);
     // Gruumsh patron: population counts at +1 per 40 instead of +1 per 50
+    // Uses CURRENT population at the moment of prestige, not peak
     const popDivisor = (isDeityFavorActive && isDeityFavorActive() && gameState.religion && gameState.religion.deity === 'gruumsh') ? 40 : 50;
-    earned += Math.floor((gameState.stats.peakPopulation || 0) / popDivisor);
+    earned += Math.floor((gameState.population.count || 0) / popDivisor);
     earned += Math.floor(Object.keys(gameState.research || {}).length / 10);
     const race = gameState.run.race;
     if (race && (gameState.meta.racesPlayed[race] || 0) <= 1) earned += 1;
@@ -7282,7 +7283,7 @@ function renderReligionTab() {
 
         if (isDeityFavorActive()) {
             const dd  = DEITIES[rel.deity];
-            const ff  = faithScore / 30;
+            const ff  = faithScore / 100;
             lines.push(`<div class="morale-line boost"><span>Patron god bonus</span><span>+3</span></div>`);
             if (dd.bonuses.moraleBonus) lines.push(`<div class="morale-line boost"><span>${dd.name} blessing</span><span>+${(dd.bonuses.moraleBonus * ff).toFixed(1)}</span></div>`);
             if (dd.bonuses.moralePenalty) lines.push(`<div class="morale-line drain"><span>${dd.name} harshness</span><span>${(dd.bonuses.moralePenalty * ff).toFixed(1)}</span></div>`);
@@ -7315,13 +7316,17 @@ function renderReligionTab() {
         const favorGone  = isActive && (rel.titheFailed || 0) > 3;
         const surgeDays  = isActive && (rel.productionSurgeDays || 0);
 
-        const titheLines = Object.entries(dd.tithe).map(([r, a]) => {
+        // Actual tithe charged per day: max(50, 10% of daily production) per resource
+        const titheProd = getProduction();
+        const titheLines = Object.entries(dd.tithe).map(([r]) => {
             const titheReduce = research.titheReduction ? 0.5 : 1;
-            return `${a * titheReduce} ${(RESOURCES[r] && RESOURCES[r].name) || r}`;
+            const dailyProd = (titheProd[r] || 0) * TICKS_PER_DAY;
+            const amt = Math.max(50, dailyProd * 0.10) * titheReduce;
+            return `${Math.round(amt)} ${(RESOURCES[r] && RESOURCES[r].name) || r}`;
         }).join(', ');
 
         const faithBar = isActive
-            ? `<div class="faith-bar-wrap"><div class="faith-bar" style="width:${Math.round(faithScore/30*100)}%"></div></div><span class="faith-label">Faith: ${faithScore} / 30</span>`
+            ? `<div class="faith-bar-wrap"><div class="faith-bar" style="width:${Math.min(100, faithScore)}%"></div></div><span class="faith-label">Faith: ${faithScore} / 100</span>`
             : '';
 
         const surgeNotice = surgeDays > 0
