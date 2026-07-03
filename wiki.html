@@ -20,6 +20,7 @@
         <a class="wiki-nav-link"        data-section="creatures" onclick="showWiki('creatures')">Creatures</a>
         <a class="wiki-nav-link wiki-nav-sub" data-section="racetree" onclick="showWiki('racetree')">&#8627; Creature Tree</a>
         <a class="wiki-nav-link"        data-section="research"  onclick="showWiki('research')">Research</a>
+        <a class="wiki-nav-link"        data-section="religion"  onclick="showWiki('religion')">Religion</a>
         <a class="wiki-nav-link"        data-section="extension" onclick="showWiki('extension')">Extension</a>
         <a class="wiki-nav-link"        data-section="changelog" onclick="showWiki('changelog')">Changelog</a>
     </nav>
@@ -2021,6 +2022,161 @@
             </div>
         </section>
 
+        <!-- RELIGION -->
+        <section id="wiki-religion" class="wiki-section" style="display:none">
+            <h2>Religion &amp; Patron Gods</h2>
+            <p class="wiki-lead">
+                Choosing a patron god is one of the most impactful decisions you can make each run. Each god reshapes how your dungeon grows, what resources flow naturally, and what strategies are available to you. Favor is earned through daily tithes and spent as a resource — reaching the Blessed threshold fires a powerful event and resets your standing, encouraging continuous devotion rather than a one-time pledge.
+            </p>
+
+            <h3 class="creature-category">The Favor System</h3>
+            <p class="wiki-lead">
+                Favor is tracked on a scale of 0–100 for each god, stored independently so past devotion is remembered even if you switch patrons. Each successful tithe grants +1 favor with your active deity. Missing a tithe costs −5 favor. Switching gods or abandoning your patron applies an immediate −10 hit to the old deity's favor, then drains it at −1 per 3 days until you return.
+            </p>
+            <table class="wiki-table">
+                <thead><tr><th>Tier</th><th>Favor Range</th><th>Effect</th></tr></thead>
+                <tbody>
+                    <tr><td><b>Acknowledged</b></td><td>0 – 24</td><td>No bonuses active.</td></tr>
+                    <tr><td><b>Favored</b></td><td>25 – 49</td><td>Deity bonuses apply at reduced scale (faith fraction).</td></tr>
+                    <tr><td><b>Devoted</b></td><td>50 – 74</td><td>Full bonuses active. God-locked research becomes available.</td></tr>
+                    <tr><td><b>Exalted</b></td><td>75 – 99</td><td>Full bonuses. Blessing event approaching.</td></tr>
+                    <tr><td><b>Blessed</b></td><td>100</td><td>A god-specific blessing event fires immediately, then favor resets to 60.</td></tr>
+                </tbody>
+            </table>
+            <p class="wiki-lead">
+                Blessing events are drawn from a pool of 20 themed outcomes per god. They can grant resources, population, morale, temporary production bonuses, or rare permanent upgrades (each capped to prevent runaway stacking). The Blessed threshold can be reached repeatedly — rewarding players who sustain high devotion over a long run.
+            </p>
+
+            <h3 class="creature-category">Tithes</h3>
+            <p class="wiki-lead">
+                Each god requires a daily tithe of specific resources. The amount scales with your economy: <b>max(50, 10% of your daily production)</b> of each required resource. Early on tithes are a fixed floor; as your production grows, so does the offering. The <b>Efficient Devotion</b> research reduces tithe costs by 50%. Failing to pay more than three tithes in a row deactivates your deity's bonuses until the next successful payment.
+            </p>
+
+            <h3 class="creature-category">Morale Cap</h3>
+            <p class="wiki-lead">
+                By default morale is capped at 100. Certain religious buildings raise this cap by +5 each:
+            </p>
+            <table class="wiki-table">
+                <thead><tr><th>Building</th><th>Cap Bonus</th></tr></thead>
+                <tbody>
+                    <tr><td>Temple</td><td>+5 per Temple</td></tr>
+                    <tr><td>Pelor's Sanctuary</td><td>+5 per Sanctuary</td></tr>
+                    <tr><td>Sylvan Grove</td><td>+5 per Grove</td></tr>
+                </tbody>
+            </table>
+
+            <h3 class="creature-category" style="color:var(--res-gold)">☀ Pelor — The Sustainer</h3>
+            <p class="wiki-lead">
+                <i>"Light is life. Tend it well."</i>
+            </p>
+            <p class="wiki-lead">
+                Pelor is the god of community, warmth, and endurance. His strength lies in keeping your population healthy, your morale high, and your people growing quickly. He is the easiest god to sustain and the most forgiving in difficult seasons, but he does not amplify raw production the way the others do.
+            </p>
+            <p class="wiki-lead"><b>Tithe:</b> Food</p>
+            <h4 style="color:var(--label);margin:14px 0 6px">Bonuses</h4>
+            <table class="wiki-table">
+                <thead><tr><th>Source</th><th>Effect</th></tr></thead>
+                <tbody>
+                    <tr><td>Base deity bonus</td><td>+5 morale target (scales with faith)</td></tr>
+                    <tr><td>Per Temple</td><td>+3 morale target per Temple (scales with faith)</td></tr>
+                    <tr><td>Patron growth</td><td>Population grows ~10% faster (threshold reduced)</td></tr>
+                    <tr><td>Per Temple (growth)</td><td>Growth speed increases further per Temple (stacks, floored at 50%)</td></tr>
+                    <tr><td>Pelor's Sanctuary (passive)</td><td>Generates Arcane Dust per day, per Sanctuary — no workers required</td></tr>
+                    <tr><td>Pelor's Sanctuary</td><td>+3 morale passive per building, +5 morale cap per building</td></tr>
+                    <tr><td>Prestige (Quintessence)</td><td>Standard: +1 Quintessence per 50 peak population</td></tr>
+                </tbody>
+            </table>
+            <h4 style="color:var(--label);margin:14px 0 6px">God-Locked Research</h4>
+            <table class="wiki-table">
+                <thead><tr><th>Research</th><th>Requirement</th><th>Effect</th></tr></thead>
+                <tbody>
+                    <tr><td><b>Solar Blessing</b></td><td>Devoted favor (60+), 1 Sanctuary</td><td>Arcane Dust and Runes production +10%</td></tr>
+                </tbody>
+            </table>
+            <h4 style="color:var(--label);margin:14px 0 6px">Blessing Events (sample)</h4>
+            <p class="wiki-lead">Pelor's blessings focus on population, food, morale, and light. Notable outcomes include bursts of population growth, massive food grants, temporary production bonuses, morale spikes, and rarely — a holy relic that permanently raises your morale cap by +1 (up to +5 total across all relics found).</p>
+
+            <h3 class="creature-category" style="color:#c0392b">⚔ Gruumsh — The Conqueror</h3>
+            <p class="wiki-lead">
+                <i>"Pain is the first teacher. Conquest is the final exam."</i>
+            </p>
+            <p class="wiki-lead">
+                Gruumsh is the god of war, domination, and sacrifice. He makes your dungeon more powerful through sheer brutality — boosting all production, expanding your population capacity through force, and periodically sacrificing a worker in exchange for a production surge. He is high-risk, high-reward: morale suffers under his watch, but your output can far exceed what the other gods allow.
+            </p>
+            <p class="wiki-lead"><b>Tithe:</b> Ore + Food</p>
+            <h4 style="color:var(--label);margin:14px 0 6px">Bonuses</h4>
+            <table class="wiki-table">
+                <thead><tr><th>Source</th><th>Effect</th></tr></thead>
+                <tbody>
+                    <tr><td>Base deity bonus</td><td>All production +15% (scales with faith)</td></tr>
+                    <tr><td>Per Temple</td><td>All production +3% per Temple (scales with faith)</td></tr>
+                    <tr><td>Morale penalty</td><td>−5 to morale target (scales with faith)</td></tr>
+                    <tr><td>Lairs (patron bonus)</td><td>Each Lair provides +1 extra housing while Gruumsh is active</td></tr>
+                    <tr><td>Gruumsh's War Pit (passive)</td><td>Generates 0.5 bones/day per War Pit — no workers required</td></tr>
+                    <tr><td>War Pit</td><td>−1 morale passive per building (costs morale to operate)</td></tr>
+                    <tr><td>Periodic Sacrifice</td><td>Every 30 days (if faith ≥ 10 and pop ≥ 50% of housing), sacrifices 1 population for a 10-day +20% all-production surge</td></tr>
+                    <tr><td>Low-population protection</td><td>If population falls below 50% of housing capacity, sacrifice is withheld and growth speed increases +50% instead</td></tr>
+                    <tr><td>Prestige (Quintessence)</td><td>+1 Quintessence per 40 peak population (instead of the standard 50)</td></tr>
+                </tbody>
+            </table>
+            <h4 style="color:var(--label);margin:14px 0 6px">God-Locked Research</h4>
+            <table class="wiki-table">
+                <thead><tr><th>Research</th><th>Requirement</th><th>Effect</th></tr></thead>
+                <tbody>
+                    <tr><td><b>Warchanter's Rite</b></td><td>Devoted favor (60+), 1 War Pit</td><td>All production permanently +5% (stacks with base Gruumsh bonus)</td></tr>
+                </tbody>
+            </table>
+            <h4 style="color:var(--label);margin:14px 0 6px">Blessing Events (sample)</h4>
+            <p class="wiki-lead">Gruumsh's blessings are brutal and generous in equal measure. They include large ore and bone drops, war-spoil coin caches, multiple temporary all-production surges, refugee population bursts, and rarely — a permanent +1 housing carved into the dungeon walls (up to +5 total).</p>
+
+            <h3 class="creature-category" style="color:#27ae60">🌿 Silvanus — The Provider</h3>
+            <p class="wiki-lead">
+                <i>"The forest remembers what cities forget."</i>
+            </p>
+            <p class="wiki-lead">
+                Silvanus is the god of nature, balance, and patient abundance. He rewards those who tend their dungeon sustainably — boosting food, wood, herb, and potion economies, softening harsh winters, and growing population steadily without the volatility of the other gods. His bonuses compound over time and his resource cap expansions make late runs significantly more comfortable.
+            </p>
+            <p class="wiki-lead"><b>Tithe:</b> Wood + Herbs</p>
+            <h4 style="color:var(--label);margin:14px 0 6px">Bonuses</h4>
+            <table class="wiki-table">
+                <thead><tr><th>Source</th><th>Effect</th></tr></thead>
+                <tbody>
+                    <tr><td>Base deity bonus</td><td>Farm and Herbalist's Den production +15% (scales with faith)</td></tr>
+                    <tr><td>Per Temple</td><td>Farm and Herbalist's Den +5% per Temple (scales with faith)</td></tr>
+                    <tr><td>Flat resource bonus</td><td>Food, Herbs, Wood, and Potions production all +10% (total, not per building)</td></tr>
+                    <tr><td>Passive production</td><td>+0.5 Food, +0.3 Herbs, +0.3 Wood, +0.05 Potions per day — no buildings or workers needed</td></tr>
+                    <tr><td>Population growth</td><td>Population grows ~20% faster always</td></tr>
+                    <tr><td>Farm food cap</td><td>Each Farm raises the food storage cap by +100</td></tr>
+                    <tr><td>Farm food production</td><td>+10% total food production (flat unlock when any farm exists)</td></tr>
+                    <tr><td>Winter morale</td><td>Winter morale penalty halved</td></tr>
+                    <tr><td>Lore cap</td><td>+50 lore cap base + 25 per Temple (scales with faith)</td></tr>
+                    <tr><td>Sylvan Grove</td><td>+2 morale passive per building, +5 morale cap per building</td></tr>
+                </tbody>
+            </table>
+            <h4 style="color:var(--label);margin:14px 0 6px">God-Locked Research</h4>
+            <table class="wiki-table">
+                <thead><tr><th>Research</th><th>Requirement</th><th>Effect</th></tr></thead>
+                <tbody>
+                    <tr><td><b>Old Growth</b></td><td>Devoted favor (60+), 1 Sylvan Grove</td><td>+200 to Food, Herbs, Wood, and Potions storage caps</td></tr>
+                </tbody>
+            </table>
+            <h4 style="color:var(--label);margin:14px 0 6px">Blessing Events (sample)</h4>
+            <p class="wiki-lead">Silvanus's blessings are generous and sustaining. They include large food and herb surpluses, wood caches, potion drops, morale bonuses, temporary production boosts, population from wandering wildlife, and rarely — a permanent +1 housing grown from root and stone (up to +5 total) or a permanent +50 increase to food/herb/wood caps (up to 5 stacks, for +250 max).</p>
+
+            <h3 class="creature-category">Choosing Your God</h3>
+            <table class="wiki-table">
+                <thead><tr><th>If you want to…</th><th>Choose</th></tr></thead>
+                <tbody>
+                    <tr><td>Maximize population and morale stability</td><td>Pelor</td></tr>
+                    <tr><td>Push raw production and prestige gains</td><td>Gruumsh</td></tr>
+                    <tr><td>Grow a self-sustaining, high-cap resource economy</td><td>Silvanus</td></tr>
+                    <tr><td>Survive long winters comfortably</td><td>Silvanus</td></tr>
+                    <tr><td>Earn more Quintessence per run</td><td>Gruumsh</td></tr>
+                    <tr><td>Reach Blessed-tier blessings quickly</td><td>Any — but Pelor's morale bonuses help keep tithe compliance high</td></tr>
+                </tbody>
+            </table>
+        </section>
+
         <!-- EXTENSION -->
         <section id="wiki-extension" class="wiki-section" style="display:none">
             <h2>Idle Save Manager — Companion Extension</h2>
@@ -2110,6 +2266,11 @@
         <!-- CHANGELOG -->
         <section id="wiki-changelog" class="wiki-section wiki-changelog" style="display:none">
             <h2>Changelog</h2>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.91.1</span><span class="cl-date">2026-07-03</span></div>
+                <p class="biome-desc">Added Religion wiki section covering the favor system, tithe mechanics, morale cap, and all three patron gods (Pelor, Gruumsh, Silvanus) with their bonuses, unique buildings, and god-locked researches.</p>
+            </div>
 
             <div class="biome-card">
                 <div><span class="cl-ver">v0.91.0</span><span class="cl-date">2026-07-03</span></div>
