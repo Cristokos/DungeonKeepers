@@ -119,8 +119,8 @@ const ROOMS = {
     },
     apartment: {
         name: "Apartment",
-        housingBonus: 15,
-        cost: { stone: 80, wood: 50, bricks: 40 },
+        housingBonus: 7,
+        cost: { stone: 1500, wood: 950, bricks: 750 },
         costScale: 1.22,
         requiresResearch: ["apartmentDesign"],
     },

@@ -333,6 +333,49 @@
 </div>
 
 <!-- ═══════════════════════════════════════════════════════════════
+     DEVIL'S CONTRACT — full-screen prestige overlay
+═══════════════════════════════════════════════════════════════ -->
+<div id="devil-contract-overlay">
+    <div class="devil-contract-layout">
+
+        <div class="devil-contract-scroll-wrap">
+            <div class="devil-contract-scroll" id="devil-contract-scroll">
+                <div class="devil-scroll-edge devil-scroll-edge-top"></div>
+                <div class="devil-scroll-body">
+                    <h2 class="devil-contract-title">Contract of Cession &amp; Continuance</h2>
+                    <p class="devil-contract-subtitle">Executed between THE UNDERSIGNED KEEPER and the Amnizu ZAGRIVETH, Clerk-Tyrant of the Fifth Ledger, hereafter "the Bank."</p>
+
+                    <div class="devil-contract-clauses" id="devil-contract-clauses">
+                        <p class="devil-clause">§1. The Keeper cedes to the Bank the whole of the demesne: every stone laid, every larder filled, every soul housed therein. The Bank's claim is total, immediate, and without appeal.</p>
+                        <div class="devil-ledger" id="devil-ledger-forfeit"></div>
+                        <p class="devil-clause">§2. In consideration, the Bank shall remit to the Keeper such Quintessence as the demesne has distilled — the only currency that survives the ending of things.</p>
+                        <div class="devil-ledger devil-ledger-gain" id="devil-ledger-gain"></div>
+                        <p class="devil-clause">§3. The Keeper shall wake again upon unfamiliar ground, remembering everything and owning nothing. The Bank considers this a kindness. The Bank is not required to explain why.</p>
+                    </div>
+
+                    <div class="devil-contract-sig-row">
+                        <div class="devil-sig-line"><span class="devil-sig-label">The Keeper</span></div>
+                        <div class="devil-sig-line"><span class="devil-sig-sealed">Zagriveth ✕</span><span class="devil-sig-label">For the Bank</span></div>
+                    </div>
+
+                    <div class="devil-contract-actions">
+                        <button class="devil-btn-sign" onclick="devilContractSign()">Sign in Blood</button>
+                        <button class="devil-btn-refuse" onclick="devilContractRefuse()">Refuse</button>
+                    </div>
+                </div>
+                <div class="devil-scroll-edge devil-scroll-edge-bottom"></div>
+            </div>
+        </div>
+
+        <div class="devil-contract-portrait">
+            <img id="devil-contract-img" alt="The Amnizu, contract in hand" />
+            <div class="devil-portrait-vignette"></div>
+        </div>
+
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════
      SPLASH SCREEN — shown on first run, accessible via Dev panel
 ═══════════════════════════════════════════════════════════════ -->
 <div id="splash-overlay">
@@ -2069,7 +2112,7 @@
                 <div class="research-card" id="research-apartmentDesign" style="display:none">
                     <div class="research-info">
                         <div class="research-name">Apartment Design</div>
-                        <div class="research-desc">Stack multiple family quarters vertically with shared stairwells and common areas. Unlocks the Apartment building, which houses 15 creatures.</div>
+                        <div class="research-desc">Stack multiple family quarters vertically with shared stairwells and common areas. Unlocks the Apartment building, which houses 7 creatures.</div>
                         <div class="research-cost"></div>
                     </div>
                     <button class="research-btn" id="btn-research-apartmentDesign" onclick="doResearch('apartmentDesign')">Research</button>
@@ -2581,15 +2624,32 @@
                 </div>
             </div>
 
-            <div id="religion-morale-section" class="religion-section">
-                <h3 class="religion-section-title">Morale</h3>
-                <div id="religion-morale-detail"></div>
-            </div>
+            <div class="religion-columns">
 
-            <div id="religion-deity-section" class="religion-section">
-                <h3 class="religion-section-title">Patron God</h3>
-                <div id="religion-deity-cards"></div>
-            </div>
+                <div class="religion-col">
+                    <div id="religion-morale-section" class="religion-section">
+                        <h3 class="religion-section-title">Morale</h3>
+                        <div id="religion-morale-detail"></div>
+                    </div>
+                </div>
+
+                <div class="religion-col">
+                    <div id="religion-deity-section" class="religion-section">
+                        <h3 class="religion-section-title">Patron God</h3>
+                        <div id="religion-deity-cards"></div>
+                    </div>
+
+                    <div id="religion-devil-section" class="religion-section" style="display:none">
+                        <h3 class="religion-section-title">The Infernal Compact</h3>
+                        <div class="devil-deal-card">
+                            <p class="devil-deal-desc">The Amnizu waits within the ritual circle, contract in hand. It will take everything you have built — and pay you in what survives the ending of things.</p>
+                            <div class="devil-deal-preview" id="devil-deal-preview">+0 Quintessence offered</div>
+                            <button class="devil-deal-btn" onclick="openDevilContract()">Negotiate the Contract</button>
+                        </div>
+                    </div>
+                </div>
+
+            </div><!-- /religion-columns -->
 
         </div><!-- /tab-religion -->
 

@@ -7045,29 +7045,48 @@ function selectStartBiome(isFirstRun) {
     gameState.run.mods = mods;
 }
 
-function calcQuintessenceEarned() {
-    let earned = 3;
-    earned += Math.max(0, (gameState.run.era || 1) - 1);
+// Itemized quintessence sources for the current run. Each entry is
+// { label, amount }; calcQuintessenceEarned() sums them, and the Devil's
+// Contract ledger renders them, so the two can never disagree.
+function calcQuintessenceBreakdown() {
+    const lines = [{ label: "Base distillation", amount: 3 }];
+    const eraBonus = Math.max(0, (gameState.run.era || 1) - 1);
+    if (eraBonus > 0) lines.push({ label: `Era ${gameState.run.era} reached`, amount: eraBonus });
     // Gruumsh patron: population counts at +1 per 40 instead of +1 per 50
     // Uses CURRENT population at the moment of prestige, not peak
-    const popDivisor = (isDeityFavorActive && isDeityFavorActive() && gameState.religion && gameState.religion.deity === 'gruumsh') ? 40 : 50;
-    earned += Math.floor((gameState.population.count || 0) / popDivisor);
-    earned += Math.floor(Object.keys(gameState.research || {}).length / 10);
+    const gruumshActive = isDeityFavorActive && isDeityFavorActive() && gameState.religion && gameState.religion.deity === 'gruumsh';
+    const popDivisor = gruumshActive ? 40 : 50;
+    const popBonus = Math.floor((gameState.population.count || 0) / popDivisor);
+    if (popBonus > 0) lines.push({ label: gruumshActive ? "Souls ceded (Gruumsh's tally)" : "Souls ceded", amount: popBonus });
+    const researchBonus = Math.floor(Object.keys(gameState.research || {}).length / 10);
+    if (researchBonus > 0) lines.push({ label: "Knowledge surrendered", amount: researchBonus });
     const race = gameState.run.race;
-    if (race && (gameState.meta.racesPlayed[race] || 0) <= 1) earned += 1;
-    return earned;
+    if (race && (gameState.meta.racesPlayed[race] || 0) <= 1) lines.push({ label: "First covenant of this race", amount: 1 });
+    return lines;
 }
 
-// Called when player prestiges — resets run state, keeps meta progression
+function calcQuintessenceEarned() {
+    return calcQuintessenceBreakdown().reduce((sum, l) => sum + l.amount, 0);
+}
+
+// Dev-tab entry point — plain confirm, then the shared reset.
 function doPrestige() {
     const quintessencePreview = calcQuintessenceEarned();
     if (!confirm(`Simulate a Prestige reset?\n\nAll run progress (resources, buildings, population) will be wiped and a new biome assigned. Meta-stats (prestiges, seen biomes, Quintessence) are preserved.\n\nYou will earn ${quintessencePreview} Quintessence from this run.`)) return;
+    performPrestige('dev');
+}
+
+// Shared prestige reset — wipes run state, keeps meta progression.
+// `method` tags the analytics event with how the prestige was triggered.
+function performPrestige(method) {
+    const quintessencePreview = calcQuintessenceEarned();
 
     // Capture run stats before reset for analytics
     if (typeof posthog !== 'undefined') {
         const runTicks = gameState.time.tick;
         const runDays  = gameState.time.day + (gameState.time.year - 1) * 365;
         posthog.capture('prestige', {
+            method:               method || 'unknown',
             race:                 gameState.run.race,
             biome:                gameState.run.biome,
             era:                  gameState.run.era,
@@ -7088,7 +7107,7 @@ function doPrestige() {
 
     const savedMeta = JSON.parse(JSON.stringify(gameState.meta));
     savedMeta.totalPrestiges = (savedMeta.totalPrestiges || 0) + 1;
-    savedMeta.quintessence = (savedMeta.quintessence || 0) + calcQuintessenceEarned();
+    savedMeta.quintessence = (savedMeta.quintessence || 0) + quintessencePreview;
 
     gameState.resources  = {};
     for (const res of Object.keys(BASE_CAPS)) gameState.resources[res] = 0;
@@ -7123,6 +7142,62 @@ function renderQuintessencePanel() {
     setText('quintessence-res-count', quintessence);
     const metaSection = document.getElementById('meta-currency-section');
     if (metaSection) metaSection.style.display = quintessence > 0 ? '' : 'none';
+}
+
+// ── Devil's Contract overlay ──────────────────────────────────────────────────
+
+function openDevilContract() {
+    const overlay = document.getElementById('devil-contract-overlay');
+    if (!overlay) return;
+
+    // Portrait — set once, cache-busted like other assets
+    const img = document.getElementById('devil-contract-img');
+    if (img && !img.getAttribute('src')) img.src = 'Amnizus.jpg?v=' + (window.GAME_VERSION || '0');
+
+    // §1 ledger — what the Bank claims
+    const totalBuildings = Object.values(gameState.buildings || {}).reduce((a, b) => a + b, 0);
+    const resLines = Object.entries(gameState.resources || {})
+        .filter(([, amt]) => amt >= 1)
+        .map(([r, amt]) => `<div class="devil-ledger-line"><span>${(RESOURCES[r] && RESOURCES[r].name) || r}</span><b>${Math.floor(amt)}</b></div>`)
+        .join('');
+    const forfeit = document.getElementById('devil-ledger-forfeit');
+    if (forfeit) forfeit.innerHTML = `
+        <div class="devil-ledger-line"><span>Souls in residence</span><b>${gameState.population.count || 0}</b></div>
+        <div class="devil-ledger-line"><span>Structures raised</span><b>${totalBuildings}</b></div>
+        ${resLines}`;
+
+    // §2 ledger — what the Bank remits
+    const breakdown = calcQuintessenceBreakdown();
+    const total = breakdown.reduce((s, l) => s + l.amount, 0);
+    const gain = document.getElementById('devil-ledger-gain');
+    if (gain) gain.innerHTML =
+        breakdown.map(l => `<div class="devil-ledger-line"><span>${l.label}</span><b>+${l.amount}</b></div>`).join('') +
+        `<div class="devil-ledger-line devil-ledger-total"><span>Quintessence remitted</span><b>+${total}</b></div>`;
+
+    overlay.classList.remove('devil-hiding');
+    overlay.classList.add('devil-active');
+
+    // Staggered clause reveal after the scroll unrolls (0.35s delay + 1.1s animation)
+    const items = overlay.querySelectorAll('.devil-clause, .devil-ledger');
+    items.forEach(el => el.classList.remove('devil-clause-in'));
+    items.forEach((el, i) => setTimeout(() => el.classList.add('devil-clause-in'), 1200 + i * 200));
+}
+
+function closeDevilContract() {
+    const overlay = document.getElementById('devil-contract-overlay');
+    if (!overlay) return;
+    overlay.classList.remove('devil-active');
+    overlay.classList.add('devil-hiding');
+    setTimeout(() => overlay.classList.remove('devil-hiding'), 520);
+}
+
+function devilContractRefuse() {
+    closeDevilContract();
+}
+
+function devilContractSign() {
+    closeDevilContract();
+    performPrestige('devilsContract');
 }
 
 // ── Dungeon Identity Panel ────────────────────────────────────────────────────
@@ -7298,6 +7373,14 @@ function renderReligionTab() {
             </div>
             <div class="morale-breakdown">${lines.join('')}</div>
         `;
+    }
+
+    // ── Devil's Contract section (shown once The Amnizu Summons completes) ───
+    const devilSection = document.getElementById('religion-devil-section');
+    if (devilSection) {
+        const amnizuUnlocked = !!research.amnizuSummons;
+        devilSection.style.display = amnizuUnlocked ? '' : 'none';
+        if (amnizuUnlocked) setText('devil-deal-preview', `+${calcQuintessenceEarned()} Quintessence offered`);
     }
 
     // ── Deity cards ───────────────────────────────────────────────────────────
