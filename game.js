@@ -773,9 +773,9 @@ function getMoraleTarget() {
     return Math.max(0, Math.min(getMoraleCap(), target));
 }
 
-// Returns the morale value as a 0–1 multiplier (relative to the current cap)
+// Returns the morale value as a multiplier (100 morale = 1.0; above 100 is a bonus, below is a penalty)
 function getMoraleMult() {
-    return ((gameState.morale && gameState.morale.value) || MORALE_BASE) / getMoraleCap();
+    return ((gameState.morale && gameState.morale.value) || MORALE_BASE) / 100;
 }
 
 function pledgeDeity(deityKey) {
