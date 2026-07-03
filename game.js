@@ -1167,7 +1167,7 @@ function getResourceBreakdown(res) {
     if (res === 'coins') {
         const taxRate = getResearchBonus('taxBonus');
         if (taxRate > 0) {
-            const perDay = gameState.population.count * taxRate;
+            const perDay = gameState.population.count * taxRate * getMoraleMult();
             lines.push({ label: 'Taxation', sub: '', value: perDay, drain: false, perDay: true });
         }
         if (gameState.research && gameState.research.tradeGoods) {
@@ -1176,6 +1176,48 @@ function getResourceBreakdown(res) {
             const potionsOk = (gameState.resources.potions || 0) >= (caps.potions || 0) * 0.75;
             const perDay = (clothOk && potionsOk) ? 10 : 0;
             lines.push({ label: 'Trade Caravans', sub: '', value: perDay, drain: false, perDay: true });
+        }
+        const stallWorkers = (gameState.workerAssignments && gameState.workerAssignments.marketStall) || 0;
+        if (stallWorkers > 0) {
+            lines.push({ label: 'Market Stall', sub: `${stallWorkers}w`, value: stallWorkers * 5, drain: false, perDay: true });
+        }
+        // Coin side of active trade routes
+        if (gameState.tradeRoutes) {
+            const fencedBonus = (gameState.research && gameState.research.fencedGoods) ? 1.5 : 1;
+            let sellIncome = 0, buyCost = 0;
+            for (const tr of Object.keys(gameState.tradeRoutes)) {
+                const count = gameState.tradeRoutes[tr] || 0;
+                if (count === 0 || !TRADE_RATES[tr]) continue;
+                if (count < 0) sellIncome += Math.floor(TRADE_AMOUNT * -count * TRADE_RATES[tr] * fencedBonus);
+                else           buyCost    += TRADE_AMOUNT * count * TRADE_RATES[tr] * 2;
+            }
+            if (sellIncome > 0) lines.push({ label: 'Trade sales',     sub: '', value: sellIncome, drain: false, perDay: true });
+            if (buyCost > 0)    lines.push({ label: 'Trade purchases', sub: '', value: -buyCost,   drain: true,  perDay: true });
+        }
+    }
+
+    // Deity tithe demand (once per day)
+    const titheAmts = getTitheDailyAmounts();
+    if (titheAmts[res]) {
+        const deityName = (DEITIES[gameState.religion.deity] && DEITIES[gameState.religion.deity].name) || 'Patron';
+        lines.push({ label: 'Tithe', sub: deityName, value: -titheAmts[res], drain: true, perDay: true });
+    }
+
+    // Deity daily passives
+    if (typeof DEITIES !== 'undefined' && isDeityFavorActive()) {
+        const dk = gameState.religion.deity;
+        const dd = DEITIES[dk];
+        if (dk === 'pelor' && res === 'arcaneDust') {
+            const n = gameState.buildings.pelorSanctuary || 0;
+            const amt = (dd.bonuses.arcaneDustPassive || 0) * n;
+            if (amt > 0) lines.push({ label: 'Pelor Sanctuaries', sub: `×${n}`, value: amt, drain: false, perDay: true });
+        } else if (dk === 'gruumsh' && res === 'bones') {
+            const n = gameState.buildings.gruumshWarPit || 0;
+            const amt = (dd.bonuses.bonesPassive || 0) * n;
+            if (amt > 0) lines.push({ label: 'War Pits', sub: `×${n}`, value: amt, drain: false, perDay: true });
+        } else if (dk === 'silvanus') {
+            const amt = ((dd.bonuses.flatProduction || {})[res]) || 0;
+            if (amt > 0) lines.push({ label: "Silvanus' bounty", sub: '', value: amt, drain: false, perDay: true });
         }
     }
 
@@ -2517,7 +2559,13 @@ function runOneTick() {
 
     // 4. Advance time
     gameState.time.tick++;
+    // Resource deltas from once-per-day events are recorded separately so the
+    // rate display can amortize them across the whole day instead of showing a
+    // one-tick spike on the day boundary.
+    const _dailyDeltas = {};
     if (gameState.time.tick % TICKS_PER_DAY === 0) {
+        const _preDaily = {};
+        for (const k of Object.keys(gameState.resources)) _preDaily[k] = gameState.resources[k] || 0;
         // Taxation: base 1 cp/creature/day + taxBonus from research (taxCollector adds 1 more)
         // Morale multiplier: high morale = more willing workers and better tax compliance
         const taxRate = getResearchBonus('taxBonus');
@@ -2567,6 +2615,7 @@ function runOneTick() {
             gameState.time.day = 1;
             gameState.time.year++;
             flashEl('year');
+            captureYearlySnapshot();
         }
         gameState.time.seasonIndex = Math.floor((gameState.time.day - 1) / DAYS_PER_SEASON) % 4;
         flashEl('day');
@@ -2601,14 +2650,10 @@ function runOneTick() {
                 const _deityDef = DEITIES[_rel.deity];
                 if (_deityDef) {
                     // ── Tithe: amount = max(50, 10% of daily production) per resource ──
-                    const _titheReduced = (gameState.research && gameState.research.titheReduction) ? 0.5 : 1;
-                    const _prod = getProduction();
+                    const _titheAmounts = getTitheDailyAmounts();
                     let _canPay = true;
-                    const _titheAmounts = {};
-                    for (const [_res] of Object.entries(_deityDef.tithe)) {
-                        const _dailyProd = (_prod[_res] || 0) * TICKS_PER_DAY;
-                        _titheAmounts[_res] = Math.max(50, _dailyProd * 0.10) * _titheReduced;
-                        if ((gameState.resources[_res] || 0) < _titheAmounts[_res]) { _canPay = false; break; }
+                    for (const [_res, _amt] of Object.entries(_titheAmounts)) {
+                        if ((gameState.resources[_res] || 0) < _amt) { _canPay = false; break; }
                     }
                     if (_canPay) {
                         for (const [_res, _amt] of Object.entries(_titheAmounts)) {
@@ -2704,6 +2749,11 @@ function runOneTick() {
             const _step = Math.min(Math.abs(_diff), MORALE_DRIFT_RATE) * Math.sign(_diff);
             gameState.morale.value = Math.max(0, Math.min(getMoraleCap(), gameState.morale.value + _step));
         }
+
+        for (const k of Object.keys(gameState.resources)) {
+            const d = (gameState.resources[k] || 0) - (_preDaily[k] || 0);
+            if (d !== 0) _dailyDeltas[k] = d;
+        }
     }
 
     // Snapshot unclamped values before clamping so the rate display shows the true
@@ -2725,7 +2775,9 @@ function runOneTick() {
     // nothing is being stored anymore even though gross production is non-zero.
     const deltas = {};
     for (const k of Object.keys(gameState.resources)) {
-        let d = (_preClamp[k] || 0) - (_preSnap[k] || 0);
+        // Daily-event deltas are excluded here; the display folds them back in
+        // as amortized per-day adjustments (getDailyAdjustments).
+        let d = (_preClamp[k] || 0) - (_preSnap[k] || 0) - (_dailyDeltas[k] || 0);
         const cap = caps[k];
         if (d > 0 && cap !== undefined && gameState.resources[k] >= cap) d = 0;
         if (d !== 0) deltas[k] = d;
@@ -2775,18 +2827,48 @@ function fmtRate(r) {
     return (perDay > 0 ? "+" : "") + perDay.toFixed(1);
 }
 
-function getCoinsDailyRate() {
-    let net = 0;
+// Daily tithe demand per resource: max(50, 10% of daily production), halved by
+// Tithe Reduction research. Single source of truth shared by the tick, the rate
+// display, and tooltips.
+function getTitheDailyAmounts() {
+    const rel = gameState.religion;
+    if (typeof DEITIES === 'undefined' || !rel || !rel.deity || !rel.active) return {};
+    const deityDef = DEITIES[rel.deity];
+    if (!deityDef || !deityDef.tithe) return {};
+    const titheReduced = (gameState.research && gameState.research.titheReduction) ? 0.5 : 1;
+    const prod = getProduction();
+    const amounts = {};
+    for (const res of Object.keys(deityDef.tithe)) {
+        const dailyProd = (prod[res] || 0) * TICKS_PER_DAY;
+        amounts[res] = Math.max(50, dailyProd * 0.10) * titheReduced;
+    }
+    return amounts;
+}
+
+// Net per-day resource deltas from once-per-day events (taxes, trade, tithes,
+// deity passives). Folded into the smooth rate display so daily flows read as a
+// steady drain/income instead of a one-tick spike.
+function getDailyAdjustments() {
+    const adj = {};
+    const add = (res, amt) => { if (amt) adj[res] = (adj[res] || 0) + amt; };
+
+    // Taxation
     const taxRate = getResearchBonus('taxBonus');
-    if (taxRate > 0) net += gameState.population.count * taxRate * getMoraleMult();
+    if (taxRate > 0) add('coins', gameState.population.count * taxRate * getMoraleMult());
+
+    // Trade Caravans
     if (gameState.research && gameState.research.tradeGoods) {
         const caps = getCaps();
         const clothOk   = (gameState.resources.cloth   || 0) >= (caps.cloth   || 0) * 0.75;
         const potionsOk = (gameState.resources.potions || 0) >= (caps.potions || 0) * 0.75;
-        if (clothOk && potionsOk) net += 10;
+        if (clothOk && potionsOk) add('coins', 10);
     }
+
+    // Market Stall merchants
     const stallWorkers = (gameState.workerAssignments && gameState.workerAssignments.marketStall) || 0;
-    if (stallWorkers > 0) net += stallWorkers * 5;
+    if (stallWorkers > 0) add('coins', stallWorkers * 5);
+
+    // Trade routes: resource in/out plus the coin side of each route
     if (gameState.tradeRoutes) {
         const fencedBonus = (gameState.research && gameState.research.fencedGoods) ? 1.5 : 1;
         for (const res of Object.keys(gameState.tradeRoutes)) {
@@ -2794,13 +2876,38 @@ function getCoinsDailyRate() {
             if (count === 0 || !TRADE_RATES[res]) continue;
             const rate = TRADE_RATES[res];
             if (count < 0) {
-                net += Math.floor(TRADE_AMOUNT * -count * rate * fencedBonus);
+                const amount = TRADE_AMOUNT * -count;
+                add(res, -amount);
+                add('coins', Math.floor(amount * rate * fencedBonus));
             } else {
-                net -= TRADE_AMOUNT * count * rate * 2;
+                const amount = TRADE_AMOUNT * count;
+                add(res, amount);
+                add('coins', -(amount * rate * 2));
             }
         }
     }
-    return net;
+
+    // Tithe demand
+    for (const [res, amt] of Object.entries(getTitheDailyAmounts())) add(res, -amt);
+
+    // Deity daily passives
+    if (typeof DEITIES !== 'undefined' && isDeityFavorActive()) {
+        const dk = gameState.religion.deity;
+        const dd = DEITIES[dk];
+        if (dk === 'pelor') {
+            add('arcaneDust', (dd.bonuses.arcaneDustPassive || 0) * (gameState.buildings.pelorSanctuary || 0));
+        } else if (dk === 'gruumsh') {
+            add('bones', (dd.bonuses.bonesPassive || 0) * (gameState.buildings.gruumshWarPit || 0));
+        } else if (dk === 'silvanus') {
+            for (const [fr, famt] of Object.entries(dd.bonuses.flatProduction || {})) add(fr, famt);
+        }
+    }
+
+    return adj;
+}
+
+function getCoinsDailyRate() {
+    return getDailyAdjustments().coins || 0;
 }
 
 function getNetRates(prod, caps) {
@@ -2831,6 +2938,12 @@ function getNetRates(prod, caps) {
     if (gameState.population.count > 0) {
         const mult = getResearchBonus('foodConsumption');
         rates.food = (rates.food || 0) - Math.ceil(gameState.population.count * mult);
+    }
+
+    // Herbalist's Den potion upkeep (Herbal Husbandry research)
+    if (gameState.research && gameState.research.herbalHusbandry) {
+        const denCount = gameState.buildings.herbalistDen || 0;
+        if (denCount > 0) rates.potions = (rates.potions || 0) - denCount * 0.05;
     }
 
     return rates;
@@ -2912,7 +3025,16 @@ function updateUI() {
     // Use actual deltas from the last tick when available; fall back to static estimate
     // on first load (before any tick has run) so the display isn't blank.
     const lastDeltas = gameState.lastTickDeltas;
-    const netRates   = lastDeltas || getNetRates(prod, caps);
+    const netRates   = Object.assign({}, lastDeltas || getNetRates(prod, caps));
+    // Fold once-per-day flows (tithes, trade routes, deity passives) into the
+    // per-tick rate so they show as a steady daily drain/income. Coins are
+    // handled separately by getCoinsDailyRate. Capped resources keep their
+    // zeroed rate — production refills whatever the daily event takes.
+    for (const [adjRes, adjAmt] of Object.entries(getDailyAdjustments())) {
+        if (adjRes === 'coins') continue;
+        if (caps[adjRes] !== undefined && (gameState.resources[adjRes] || 0) >= caps[adjRes]) continue;
+        netRates[adjRes] = (netRates[adjRes] || 0) + adjAmt / TICKS_PER_DAY;
+    }
     for (const res of Object.keys(RESOURCES)) {
         const rowEl = document.getElementById("res-row-" + res);
         if (rowEl) {
@@ -7074,6 +7196,32 @@ function doPrestige() {
     const quintessencePreview = calcQuintessenceEarned();
     if (!confirm(`Simulate a Prestige reset?\n\nAll run progress (resources, buildings, population) will be wiped and a new biome assigned. Meta-stats (prestiges, seen biomes, Quintessence) are preserved.\n\nYou will earn ${quintessencePreview} Quintessence from this run.`)) return;
     performPrestige('dev');
+}
+
+// Fired once per in-game year (at the year rollover) so analytics get regular
+// progress snapshots instead of only hearing from players who prestige.
+function captureYearlySnapshot() {
+    if (typeof posthog === 'undefined') return;
+    const runDays = gameState.time.day + (gameState.time.year - 1) * 365;
+    posthog.capture('yearly_snapshot', {
+        year:               gameState.time.year,
+        race:               gameState.run.race,
+        biome:              gameState.run.biome,
+        era:                gameState.run.era,
+        mods:               (gameState.run.mods || []).join(','),
+        run_days:           runDays,
+        population:         gameState.population.count || 0,
+        peak_population:    gameState.stats.peakPopulation || 0,
+        buildings_built:    gameState.stats.buildingsConstructed || 0,
+        starvation_deaths:  gameState.stats.starvationDeaths || 0,
+        research_unlocks:   Object.keys(gameState.research || {}).filter(k => gameState.research[k]).length,
+        manual_gathers:     gameState.stats.manualGathers || 0,
+        trade_route_count:  Object.keys(gameState.tradeRoutes || {}).length,
+        deity:              gameState.religion.deity || 'none',
+        quintessence:       gameState.meta.quintessence || 0,
+        total_prestiges:    gameState.meta.totalPrestiges || 0,
+        theme:              (typeof gameSettings !== 'undefined' ? gameSettings.colorTheme : null) || 'default',
+    });
 }
 
 // Shared prestige reset — wipes run state, keeps meta progression.
