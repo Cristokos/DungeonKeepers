@@ -749,6 +749,41 @@ RESEARCH.titheReduction = {
     effects: { flag: "titheReduction" },
 };
 
+// ── God-Locked Researches (require active patron + favor ≥ 60) ───────────────
+
+RESEARCH.solarBlessing = {
+    tier: "2.5",
+    name: "Solar Blessing",
+    desc: "Pelor's radiance infuses your arcane workshops. Arcane Dust and Runes production +10%. Requires Pelor as active patron with Devoted favor (60+).",
+    cost: { lore: 100, arcaneDust: 60, coins: 500 },
+    requiresResearch: ["godUniqueUnlock"],
+    requiresBuildings: { pelorSanctuary: 1 },
+    requiresGodFavor: true,
+    effects: { flag: "solarBlessing" },
+};
+
+RESEARCH.warchantersRite = {
+    tier: "2.5",
+    name: "Warchanter's Rite",
+    desc: "Gruumsh's warchanters push your people beyond mortal limits. All production +5% permanently. Requires Gruumsh as active patron with Devoted favor (60+).",
+    cost: { lore: 80, ore: 100, bones: 80 },
+    requiresResearch: ["godUniqueUnlock"],
+    requiresBuildings: { gruumshWarPit: 1 },
+    requiresGodFavor: true,
+    effects: { flag: "warchantersRite" },
+};
+
+RESEARCH.oldGrowth = {
+    tier: "2.5",
+    name: "Old Growth",
+    desc: "Silvanus deepens the roots beneath your dungeon, vastly expanding your capacity for food, herbs, wood, and potions. Requires Silvanus as active patron with Devoted favor (60+).",
+    cost: { lore: 90, herbs: 120, wood: 100 },
+    requiresResearch: ["godUniqueUnlock"],
+    requiresBuildings: { sylvanGrove: 1 },
+    requiresGodFavor: true,
+    effects: { capBonus: { food: 200, herbs: 200, wood: 200, potions: 200 } },
+};
+
 RESEARCH.essenceHarvest = {
     tier: "2.5",
     name: "Essence Harvesting",

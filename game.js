@@ -666,12 +666,49 @@ function getFaithScore() {
         score += (workers[id] || 0) * def.faithPerPriest;
     }
     const amplify = (gameState.research && gameState.research.priestAmplify) ? 1.30 : 1;
-    return Math.min(Math.floor(score * amplify), 30);
+    return Math.min(Math.floor(score * amplify), 100);
+}
+
+// Returns current favor for the given deity key (stored in gameState.religion.favor[deityKey])
+function getDeityFavor(deityKey) {
+    if (!gameState.religion || !gameState.religion.favor) return 0;
+    return gameState.religion.favor[deityKey] || 0;
+}
+
+function setDeityFavor(deityKey, value) {
+    if (!gameState.religion.favor) gameState.religion.favor = {};
+    gameState.religion.favor[deityKey] = Math.max(0, Math.min(100, value));
 }
 
 function isDeityFavorActive() {
     const rel = gameState.religion;
     return rel && rel.deity && rel.active && (rel.titheFailed || 0) <= 3;
+}
+
+// Returns the favor tier name for display
+function getFavorTierName(deityKey) {
+    const favor = getDeityFavor(deityKey || (gameState.religion && gameState.religion.deity));
+    if (typeof getFavorTier === 'undefined') return '';
+    return getFavorTier(favor).name;
+}
+
+// God-locked research is available when active deity favor >= 60
+function isGodResearchUnlocked() {
+    if (!isDeityFavorActive()) return false;
+    return getDeityFavor(gameState.religion.deity) >= 60;
+}
+
+function getMoraleCap() {
+    let cap = 100;
+    for (const id of ['temple', 'pelorSanctuary', 'sylvanGrove']) {
+        const def = ROOMS[id];
+        if (def && def.moraleCapBonus) {
+            cap += (gameState.buildings[id] || 0) * def.moraleCapBonus;
+        }
+    }
+    // Pelor blessing relic permanent bonus (capped at +5)
+    cap += Math.min(5, (gameState.religion && gameState.religion.pelorRelicMorale) || 0);
+    return cap;
 }
 
 function getMoraleTarget() {
@@ -695,8 +732,8 @@ function getMoraleTarget() {
         target += (workers.entertainersStage || 0) * basePerWorker * bardMult;
     }
 
-    // Shrine/Temple passive morale
-    for (const id of ['shrine', 'temple', 'pelorSanctuary', 'sylvanGrove']) {
+    // Religion building passive morale (includes War Pit's -1)
+    for (const id of ['shrine', 'temple', 'pelorSanctuary', 'gruumshWarPit', 'sylvanGrove']) {
         const def = ROOMS[id];
         if (def && def.moralePassive) {
             target += (gameState.buildings[id] || 0) * def.moralePassive;
@@ -716,10 +753,10 @@ function getMoraleTarget() {
         target += winterPenalty * sylvReduce * researchReduce;
     }
 
-    // Deity bonuses / penalties
+    // Deity bonuses / penalties — favor fraction now uses /100 scale
     if (isDeityFavorActive()) {
         const deityDef  = DEITIES[rel.deity];
-        const faithFrac = getFaithScore() / 30;
+        const faithFrac = getFaithScore() / 100;
         target += 3; // small bonus just for having an active patron
         if (deityDef.bonuses.moraleBonus) {
             target += deityDef.bonuses.moraleBonus * faithFrac;
@@ -733,24 +770,41 @@ function getMoraleTarget() {
         }
     }
 
-    return Math.max(0, Math.min(100, target));
+    return Math.max(0, Math.min(getMoraleCap(), target));
 }
 
-// Returns the morale value as a 0–1 multiplier
+// Returns the morale value as a 0–1 multiplier (relative to the current cap)
 function getMoraleMult() {
-    return ((gameState.morale && gameState.morale.value) || MORALE_BASE) / 100;
+    return ((gameState.morale && gameState.morale.value) || MORALE_BASE) / getMoraleCap();
 }
 
 function pledgeDeity(deityKey) {
     if (!DEITIES[deityKey]) return;
+    // If switching from another deity, apply immediate favor hit to old deity
+    const prevDeity = gameState.religion.deity;
+    if (prevDeity && prevDeity !== deityKey) {
+        const prevFavor = getDeityFavor(prevDeity);
+        setDeityFavor(prevDeity, prevFavor - 10);
+        if (!gameState.religion.favorDecay) gameState.religion.favorDecay = {};
+        gameState.religion.favorDecay[prevDeity] = gameState.time.day + (gameState.time.year - 1) * DAYS_PER_SEASON * 4;
+    }
     gameState.religion.deity  = deityKey;
     gameState.religion.active = true;
     gameState.religion.titheFailed = 0;
     gameState.religion.lastSacrificeDay = gameState.time.day + (gameState.time.year - 1) * DAYS_PER_SEASON * 4;
+    // Stop decaying this deity now that we follow it
+    if (gameState.religion.favorDecay) delete gameState.religion.favorDecay[deityKey];
     renderReligionTab();
 }
 
 function abandonDeity() {
+    const prevDeity = gameState.religion.deity;
+    if (prevDeity) {
+        const prevFavor = getDeityFavor(prevDeity);
+        setDeityFavor(prevDeity, prevFavor - 10);
+        if (!gameState.religion.favorDecay) gameState.religion.favorDecay = {};
+        gameState.religion.favorDecay[prevDeity] = gameState.time.day + (gameState.time.year - 1) * DAYS_PER_SEASON * 4;
+    }
     gameState.religion.deity  = null;
     gameState.religion.active = false;
     gameState.religion.titheFailed = 0;
@@ -761,12 +815,19 @@ function abandonDeity() {
 function getHousing() {
     const raceData    = RACE_DATA[gameState.run && gameState.run.race];
     const lairOverride = raceData && raceData.effects && raceData.effects.lairHousing;
-    let total = 0;
+    // Gruumsh patron bonus: +1 housing per Lair
+    const gruumshLairBonus = (isDeityFavorActive && isDeityFavorActive() && gameState.religion && gameState.religion.deity === 'gruumsh')
+        ? (DEITIES.gruumsh.bonuses.lairHousingBonus || 0)
+        : 0;
+    // Permanent housing from blessings (Gruumsh #19, Silvanus #13), capped at +5 each
+    const blessingHousing = Math.min(5, (gameState.religion && gameState.religion.blessingHousing) || 0);
+    let total = blessingHousing;
     for (const [id, def] of Object.entries(ROOMS)) {
         const count = gameState.buildings[id] || 0;
         if (count === 0) continue;
         if (def.housingBonus) {
-            const base = (id === 'lair' && lairOverride != null) ? lairOverride : def.housingBonus;
+            let base = (id === 'lair' && lairOverride != null) ? lairOverride : def.housingBonus;
+            if (id === 'lair') base += gruumshLairBonus;
             total += count * base;
         }
         const researchExtra = getResearchBonus('housingBonus', id);
@@ -917,7 +978,7 @@ function getProduction() {
     if (typeof DEITIES !== 'undefined' && isDeityFavorActive && isDeityFavorActive()) {
         const _rel2 = gameState.religion;
         const _dd2  = DEITIES[_rel2.deity];
-        const _ff   = getFaithScore() / 30;
+        const _ff   = getFaithScore() / 100;
         if (_dd2 && _dd2.bonuses && _dd2.bonuses.productionBonus) {
             for (const [_bid, _mult] of Object.entries(_dd2.bonuses.productionBonus)) {
                 if (prod[_bid] !== undefined) continue; // not a resource key
@@ -960,20 +1021,52 @@ function getProduction() {
                 }
             }
         }
-        // Gruumsh allProductionBonus + production surge
+        // Gruumsh allProductionBonus + Warchanter's Rite research + production surge
         if (_dd2 && _dd2.bonuses && _dd2.bonuses.allProductionBonus) {
             const _gruumshBonus = _dd2.bonuses.allProductionBonus * _ff;
             const _templeExtra  = (_dd2.templeBonus && _dd2.templeBonus.allProductionBonus)
                 ? _dd2.templeBonus.allProductionBonus * (gameState.buildings.temple || 0) * _ff
                 : 0;
+            const _warchanterBonus = (gameState.research && gameState.research.warchantersRite) ? 0.05 : 0;
             const _surgeBonus   = (_rel2.productionSurgeDays > 0)
                 ? DEITIES.gruumsh.periodicSacrifice.surgeBonus
                 : 0;
-            const _gruumshTotal = _gruumshBonus + _templeExtra + _surgeBonus;
+            const _gruumshTotal = _gruumshBonus + _templeExtra + _warchanterBonus + _surgeBonus;
             if (_gruumshTotal > 0) {
                 for (const _rk of Object.keys(prod)) {
                     prod[_rk] = (prod[_rk] || 0) * (1 + _gruumshTotal);
                 }
+            }
+        }
+
+        // Silvanus: +10% flat bonus to food, herbs, wood, potions production
+        if (_rel2.deity === 'silvanus' && _dd2 && _dd2.bonuses && _dd2.bonuses.resourceBonus) {
+            for (const [_sbres, _sbmult] of Object.entries(_dd2.bonuses.resourceBonus)) {
+                if (prod[_sbres] !== undefined) {
+                    prod[_sbres] = (prod[_sbres] || 0) * (1 + _sbmult);
+                }
+            }
+            // Farm food production +10% (flat total unlock from farmFoodProductionBonus)
+            if (_dd2.bonuses.farmFoodProductionBonus && (gameState.buildings.farm || 0) > 0) {
+                prod.food = (prod.food || 0) * (1 + _dd2.bonuses.farmFoodProductionBonus);
+            }
+        }
+
+        // Pelor Solar Blessing research: +10% arcane dust and runes production
+        if (_rel2.deity === 'pelor' && gameState.research && gameState.research.solarBlessing) {
+            prod.arcaneDust = (prod.arcaneDust || 0) * 1.10;
+            prod.runes      = (prod.runes      || 0) * 1.10;
+        }
+    }
+
+    // Temporary production bonuses from blessing events
+    if (gameState.tempBonuses && gameState.tempBonuses.length > 0) {
+        for (const _tb of gameState.tempBonuses) {
+            if (_tb.daysLeft <= 0) continue;
+            if (_tb.resource === 'all') {
+                for (const _rk of Object.keys(prod)) prod[_rk] = (prod[_rk] || 0) * (1 + _tb.bonus);
+            } else if (prod[_tb.resource] !== undefined) {
+                prod[_tb.resource] = (prod[_tb.resource] || 0) * (1 + _tb.bonus);
             }
         }
     }
@@ -1915,12 +2008,24 @@ function getCaps() {
     let _sylvanusLoreBonus = 0;
     if (typeof DEITIES !== 'undefined' && isDeityFavorActive && isDeityFavorActive() && gameState.religion.deity === 'silvanus') {
         const _svd = DEITIES.silvanus;
-        const _svff = getFaithScore() / 30;
+        const _svff = getFaithScore() / 100;
         _sylvanusLoreBonus = (_svd.bonuses.loreCapBonus || 0) * _svff
             + (_svd.templeBonus.loreCapBonus || 0) * (gameState.buildings.temple || 0) * _svff;
     }
     caps.lore = 500 + (gameState.buildings.scriptorium || 0) * 50
               + getResearchBonus('capBonus', 'lore') + Math.floor(_sylvanusLoreBonus);
+    // Silvanus: each Farm adds +100 to food cap
+    if (typeof DEITIES !== 'undefined' && isDeityFavorActive && isDeityFavorActive() && gameState.religion.deity === 'silvanus') {
+        caps.food = (caps.food || 0) + (gameState.buildings.farm || 0) * (DEITIES.silvanus.bonuses.farmFoodCapBonus || 0);
+    }
+    // Silvanus Old Growth research: +200 to food/herbs/wood/potions caps (handled via capBonus in research effects)
+    // Silvanus blessing permanent storage cap bonus (up to 5 triggers × +50 each)
+    const _silvBlessCap = Math.min(5, (gameState.religion && gameState.religion.silvanusBlessingCaps) || 0);
+    if (_silvBlessCap > 0) {
+        caps.food  = (caps.food  || 0) + _silvBlessCap * 50;
+        caps.herbs = (caps.herbs || 0) + _silvBlessCap * 50;
+        caps.wood  = (caps.wood  || 0) + _silvBlessCap * 50;
+    }
     // Coin cap scales with currency tier; ironLockbox adds 50,000 cp; thievesGuild adds 25,000 cp; racial coinCapBonus applies
     const baseCoinCap = r2.goldStandard ? COIN_CAP_GP : r2.silverCurrency ? COIN_CAP_SP : COIN_CAP_CP;
     const raceEffects = (RACE_DATA[gameState.run && gameState.run.race] || {}).effects || {};
@@ -2384,11 +2489,21 @@ function runOneTick() {
     let pelorGrowthMult = 1;
     if (typeof DEITIES !== 'undefined' && isDeityFavorActive() && gameState.religion.deity === 'pelor') {
         const _pd = DEITIES.pelor;
-        const _ff = getFaithScore() / 30;
+        const _ff = getFaithScore() / 100;
         pelorGrowthMult = _pd.bonuses.growthMult + (_pd.templeBonus.growthMult * (gameState.buildings.temple || 0) * _ff);
         pelorGrowthMult = Math.max(0.5, pelorGrowthMult); // floor at 50% of base threshold
     }
-    const growthThreshold = Math.max(3, Math.round(GROWTH_TICKS * raceGrowthMult * researchGrowthMult * moraleGrowthMult * pelorGrowthMult));
+    // Silvanus deity bonus: +20% faster growth always
+    let silvanusGrowthMult = 1;
+    if (typeof DEITIES !== 'undefined' && isDeityFavorActive() && gameState.religion.deity === 'silvanus') {
+        silvanusGrowthMult = DEITIES.silvanus.bonuses.growthMult || 1;
+    }
+    // Gruumsh low-pop boon: if pop < 50% of housing, growth is +50% faster (threshold * 0.667)
+    let gruumshLowPopMult = 1;
+    if (typeof DEITIES !== 'undefined' && isDeityFavorActive() && gameState.religion.deity === 'gruumsh') {
+        if (pop.count < housing * 0.5) gruumshLowPopMult = 0.667;
+    }
+    const growthThreshold = Math.max(3, Math.round(GROWTH_TICKS * raceGrowthMult * researchGrowthMult * moraleGrowthMult * pelorGrowthMult * silvanusGrowthMult * gruumshLowPopMult));
     if (pop.count < housing && gameState.resources.food >= foodBuffer) {
         pop.growthTimer = (pop.growthTimer || 0) + 1;
         if (pop.growthTimer >= growthThreshold) {
@@ -2460,45 +2575,125 @@ function runOneTick() {
             flashEl('season');
         }
 
-        // ── Religion: daily tithe ────────────────────────────────────────────
+        // ── Religion: daily tithe & favor ───────────────────────────────────
         const _rel = gameState.religion;
-        if (_rel && _rel.deity && _rel.active && typeof DEITIES !== 'undefined') {
-            const _deityDef = DEITIES[_rel.deity];
-            if (_deityDef) {
-                const _titheReduced = (gameState.research && gameState.research.titheReduction) ? 0.5 : 1;
-                let _canPay = true;
-                for (const [_res, _amt] of Object.entries(_deityDef.tithe)) {
-                    if ((gameState.resources[_res] || 0) < _amt * _titheReduced) { _canPay = false; break; }
-                }
-                if (_canPay) {
-                    for (const [_res, _amt] of Object.entries(_deityDef.tithe)) {
-                        gameState.resources[_res] = (gameState.resources[_res] || 0) - _amt * _titheReduced;
-                    }
-                    _rel.titheFailed = 0;
-                } else {
-                    _rel.titheFailed = (_rel.titheFailed || 0) + 1;
-                }
-
-                // Gruumsh periodic sacrifice
-                if (_rel.deity === 'gruumsh' && isDeityFavorActive()) {
-                    const _sacrifice = _deityDef.periodicSacrifice;
-                    if (_sacrifice) {
-                        const _absDay = gameState.time.day + (gameState.time.year - 1) * DAYS_PER_SEASON * 4;
-                        const _daysSince = _absDay - (_rel.lastSacrificeDay || 0);
-                        if (_daysSince >= _sacrifice.every && getFaithScore() >= _sacrifice.minFaith && gameState.population.count > 1) {
-                            gameState.population.count = Math.max(1, gameState.population.count - _sacrifice.popCost);
-                            _rel.productionSurgeDays = _sacrifice.surgeDays;
-                            _rel.lastSacrificeDay = _absDay;
-                            addLogEntry("Gruumsh demands a life. One of your people is taken. Production surges for " + _sacrifice.surgeDays + " days.", "", "events");
-                        }
-                    }
-                }
-
-                // Countdown production surge
-                if ((_rel.productionSurgeDays || 0) > 0) {
-                    _rel.productionSurgeDays--;
+        if (typeof DEITIES !== 'undefined') {
+            // Decay favor for gods we no longer follow
+            if (!_rel.favorDecay) _rel.favorDecay = {};
+            for (const _dk of Object.keys(DEITIES)) {
+                if (_dk === _rel.deity) continue; // currently followed, skip
+                const _lastDecayStart = _rel.favorDecay[_dk];
+                if (_lastDecayStart == null) continue;
+                const _absDay = gameState.time.day + (gameState.time.year - 1) * DAYS_PER_SEASON * 4;
+                // Decay 1 point every 3 days since abandonment
+                const _daysSince = _absDay - _lastDecayStart;
+                const _expectedDecay = Math.floor(_daysSince / 3);
+                const _applied = _rel.favorDecayApplied && _rel.favorDecayApplied[_dk] || 0;
+                if (_expectedDecay > _applied) {
+                    const _toDrain = _expectedDecay - _applied;
+                    if (!_rel.favorDecayApplied) _rel.favorDecayApplied = {};
+                    _rel.favorDecayApplied[_dk] = _expectedDecay;
+                    setDeityFavor(_dk, getDeityFavor(_dk) - _toDrain);
                 }
             }
+
+            if (_rel && _rel.deity && _rel.active) {
+                const _deityDef = DEITIES[_rel.deity];
+                if (_deityDef) {
+                    // ── Tithe: amount = max(50, 10% of daily production) per resource ──
+                    const _titheReduced = (gameState.research && gameState.research.titheReduction) ? 0.5 : 1;
+                    const _prod = getProduction();
+                    let _canPay = true;
+                    const _titheAmounts = {};
+                    for (const [_res] of Object.entries(_deityDef.tithe)) {
+                        const _dailyProd = (_prod[_res] || 0) * TICKS_PER_DAY;
+                        _titheAmounts[_res] = Math.max(50, _dailyProd * 0.10) * _titheReduced;
+                        if ((gameState.resources[_res] || 0) < _titheAmounts[_res]) { _canPay = false; break; }
+                    }
+                    if (_canPay) {
+                        for (const [_res, _amt] of Object.entries(_titheAmounts)) {
+                            gameState.resources[_res] = (gameState.resources[_res] || 0) - _amt;
+                        }
+                        _rel.titheFailed = 0;
+                        // Gain 1 favor per successful tithe
+                        const _curFavor = getDeityFavor(_rel.deity);
+                        if (_curFavor < 100) setDeityFavor(_rel.deity, _curFavor + 1);
+                        // Reached Blessed tier — fire blessing and reset to 60
+                        if (getDeityFavor(_rel.deity) >= 100) {
+                            _fireBlessingEvent(_rel.deity);
+                            setDeityFavor(_rel.deity, 60);
+                        }
+                    } else {
+                        _rel.titheFailed = (_rel.titheFailed || 0) + 1;
+                        // Failed tithe drops favor by 5
+                        setDeityFavor(_rel.deity, getDeityFavor(_rel.deity) - 5);
+                        addLogEntry("Your people failed to meet the tithe. " + (_deityDef.name || 'Your patron') + "'s favor wanes.", "", "religion");
+                    }
+
+                    // ── Pelor: passive arcane dust from Sanctuaries ──────────────────
+                    if (_rel.deity === 'pelor' && isDeityFavorActive()) {
+                        const _sanctuaryCount = gameState.buildings.pelorSanctuary || 0;
+                        if (_sanctuaryCount > 0) {
+                            const _dustAmt = (_deityDef.bonuses.arcaneDustPassive || 0) * _sanctuaryCount;
+                            if (_dustAmt > 0) {
+                                gameState.resources.arcaneDust = (gameState.resources.arcaneDust || 0) + _dustAmt;
+                            }
+                        }
+                    }
+
+                    // ── Gruumsh: passive bones from War Pits ─────────────────────────
+                    if (_rel.deity === 'gruumsh' && isDeityFavorActive()) {
+                        const _warPitCount = gameState.buildings.gruumshWarPit || 0;
+                        if (_warPitCount > 0) {
+                            const _boneAmt = (_deityDef.bonuses.bonesPassive || 0) * _warPitCount;
+                            if (_boneAmt > 0) {
+                                gameState.resources.bones = (gameState.resources.bones || 0) + _boneAmt;
+                            }
+                        }
+                    }
+
+                    // ── Silvanus: flat passive production (no buildings needed) ───────
+                    if (_rel.deity === 'silvanus' && isDeityFavorActive()) {
+                        const _silvFlat = _deityDef.bonuses.flatProduction || {};
+                        for (const [_fr, _famt] of Object.entries(_silvFlat)) {
+                            gameState.resources[_fr] = (gameState.resources[_fr] || 0) + _famt;
+                        }
+                    }
+
+                    // ── Gruumsh periodic sacrifice ───────────────────────────────────
+                    if (_rel.deity === 'gruumsh' && isDeityFavorActive()) {
+                        const _sacrifice = _deityDef.periodicSacrifice;
+                        if (_sacrifice) {
+                            const _absDay2 = gameState.time.day + (gameState.time.year - 1) * DAYS_PER_SEASON * 4;
+                            const _daysSince2 = _absDay2 - (_rel.lastSacrificeDay || 0);
+                            const _housing2 = getHousing();
+                            const _popBelowHalf = gameState.population.count < _housing2 * 0.5;
+                            if (_daysSince2 >= _sacrifice.every && getFaithScore() >= _sacrifice.minFaith && gameState.population.count > 1) {
+                                if (_popBelowHalf) {
+                                    // Population too low — Gruumsh withholds sacrifice, grants growth boon instead
+                                    addLogEntry("Gruumsh sees your people are too few. The sacrifice is stayed — your survivors grow harder.", "", "religion");
+                                } else {
+                                    gameState.population.count = Math.max(1, gameState.population.count - _sacrifice.popCost);
+                                    _rel.productionSurgeDays = _sacrifice.surgeDays;
+                                    addLogEntry("Gruumsh demands a life. One of your people is taken. Production surges for " + _sacrifice.surgeDays + " days.", "", "religion");
+                                }
+                                _rel.lastSacrificeDay = _absDay2;
+                            }
+                        }
+                    }
+
+                    // Countdown production surge
+                    if ((_rel.productionSurgeDays || 0) > 0) {
+                        _rel.productionSurgeDays--;
+                    }
+                }
+            }
+        }
+
+        // Tick down temporary blessing bonuses
+        if (gameState.tempBonuses && gameState.tempBonuses.length > 0) {
+            for (const _tb of gameState.tempBonuses) { _tb.daysLeft--; }
+            gameState.tempBonuses = gameState.tempBonuses.filter(_tb => _tb.daysLeft > 0);
         }
 
         // ── Morale: drift toward target ──────────────────────────────────────
@@ -2507,7 +2702,7 @@ function runOneTick() {
             gameState.morale.target = _moraleTarget;
             const _diff = _moraleTarget - gameState.morale.value;
             const _step = Math.min(Math.abs(_diff), MORALE_DRIFT_RATE) * Math.sign(_diff);
-            gameState.morale.value = Math.max(0, Math.min(100, gameState.morale.value + _step));
+            gameState.morale.value = Math.max(0, Math.min(getMoraleCap(), gameState.morale.value + _step));
         }
     }
 
@@ -2859,7 +3054,8 @@ function updateUI() {
         const done       = !!(gameState.research && gameState.research[key]);
         const researchMet  = !def.requiresResearch  || def.requiresResearch.every(k => gameState.research && gameState.research[k]);
         const buildingsMet = !def.requiresBuildings || Object.entries(def.requiresBuildings).every(([b, n]) => (gameState.buildings[b] || 0) >= n);
-        const prereqsMet = researchMet && buildingsMet;
+        const godFavorMet  = !def.requiresGodFavor  || isGodResearchUnlocked();
+        const prereqsMet = researchMet && buildingsMet && godFavorMet;
         const eraOk      = (RESEARCH_ERA[key] || 2) <= (gameState.run.era || 1);
         card.style.display = (!done && prereqsMet && eraOk) ? "" : "none";
         if (done) continue;
@@ -6852,7 +7048,9 @@ function selectStartBiome(isFirstRun) {
 function calcQuintessenceEarned() {
     let earned = 3;
     earned += Math.max(0, (gameState.run.era || 1) - 1);
-    earned += Math.floor((gameState.stats.peakPopulation || 0) / 50);
+    // Gruumsh patron: population counts at +1 per 40 instead of +1 per 50
+    const popDivisor = (isDeityFavorActive && isDeityFavorActive() && gameState.religion && gameState.religion.deity === 'gruumsh') ? 40 : 50;
+    earned += Math.floor((gameState.stats.peakPopulation || 0) / popDivisor);
     earned += Math.floor(Object.keys(gameState.research || {}).length / 10);
     const race = gameState.run.race;
     if (race && (gameState.meta.racesPlayed[race] || 0) <= 1) earned += 1;
@@ -7394,9 +7592,72 @@ function _applyEventEffects(effects) {
             const rdef = RESOURCES && RESOURCES[fx.resource];
             const rname = (rdef && rdef.name) || (fx.resource.charAt(0).toUpperCase() + fx.resource.slice(1));
             parts.push(fx.amount > 0 ? `+${fx.amount} ${rname}` : `${fx.amount} ${rname}`);
+        } else if (fx.type === 'population') {
+            gameState.population.count = Math.max(1, (gameState.population.count || 1) + fx.amount);
+            parts.push(fx.amount > 0 ? `+${fx.amount} Population` : `${fx.amount} Population`);
+        } else if (fx.type === 'morale') {
+            if (gameState.morale) {
+                gameState.morale.value = Math.min(getMoraleCap(), (gameState.morale.value || 0) + fx.amount);
+            }
+            parts.push(fx.amount > 0 ? `+${fx.amount} Morale` : `${fx.amount} Morale`);
+        } else if (fx.type === 'lowestResource') {
+            // Find the resource with the lowest current value (excluding lore, essence, influence, mana, coins)
+            const _skip = new Set(['lore', 'essence', 'influence', 'mana', 'coins', 'arcaneDust', 'runes', 'arcaneEssence', 'silk', 'manaGold', 'ichor', 'mithril']);
+            let _lowestRes = null, _lowestAmt = Infinity;
+            for (const [_r, _v] of Object.entries(gameState.resources)) {
+                if (_skip.has(_r)) continue;
+                if ((_v || 0) < _lowestAmt) { _lowestAmt = _v || 0; _lowestRes = _r; }
+            }
+            if (_lowestRes) {
+                gameState.resources[_lowestRes] = (gameState.resources[_lowestRes] || 0) + fx.amount;
+                const _rdef = RESOURCES && RESOURCES[_lowestRes];
+                const _rname = (_rdef && _rdef.name) || _lowestRes;
+                parts.push(`+${fx.amount} ${_rname}`);
+            }
+        } else if (fx.type === 'tempProductionBonus') {
+            // Store temporary production bonus in gameState
+            if (!gameState.tempBonuses) gameState.tempBonuses = [];
+            gameState.tempBonuses.push({ resource: fx.resource, bonus: fx.bonus, daysLeft: fx.days });
+            parts.push(`+${Math.round(fx.bonus * 100)}% ${fx.resource === 'all' ? 'All Production' : fx.resource} for ${fx.days} days`);
+        } else if (fx.type === 'permanentMoraleBase') {
+            if (!gameState.religion) gameState.religion = {};
+            const _cur = gameState.religion[fx.key] || 0;
+            if (_cur < fx.cap) {
+                gameState.religion[fx.key] = _cur + fx.amount;
+                parts.push(`+${fx.amount} permanent morale capacity`);
+            } else {
+                parts.push('(morale relic already at its limit)');
+            }
+        } else if (fx.type === 'permanentHousing') {
+            if (!gameState.religion) gameState.religion = {};
+            const _curH = gameState.religion[fx.key] || 0;
+            if (_curH < fx.cap) {
+                gameState.religion[fx.key] = _curH + fx.amount;
+                parts.push(`+${fx.amount} permanent housing`);
+            } else {
+                parts.push('(housing blessing already at its limit)');
+            }
+        } else if (fx.type === 'permanentCapBonus') {
+            if (!gameState.religion) gameState.religion = {};
+            const _curC = gameState.religion[fx.key] || 0;
+            if (_curC < fx.maxTriggers) {
+                gameState.religion[fx.key] = _curC + 1;
+                parts.push(`+${fx.amount} storage cap (${fx.resources.join('/')})`);
+            } else {
+                parts.push('(storage blessing already at its limit)');
+            }
         }
     }
     return parts.join(', ');
+}
+
+function _fireBlessingEvent(deityKey) {
+    if (typeof BLESSING_EVENTS === 'undefined' || !BLESSING_EVENTS[deityKey]) return;
+    const pool = BLESSING_EVENTS[deityKey];
+    const event = _weightedPick(pool);
+    const effectSummary = _applyEventEffects(event.effects || []);
+    const deityName = (typeof DEITIES !== 'undefined' && DEITIES[deityKey] && DEITIES[deityKey].name) || deityKey;
+    addLogEntry(`${deityName}'s Blessing: ${event.text}`, effectSummary, 'religion');
 }
 
 function maybeFireRandomEvent() {

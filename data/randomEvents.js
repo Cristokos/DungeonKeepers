@@ -858,3 +858,375 @@ const RANDOM_EVENTS = {
         ]
     }
 };
+
+// ── Deity Blessing Events (fired when favor reaches 100, then reset to 60) ───
+const BLESSING_EVENTS = {
+    pelor: [
+        {
+            id: "pelor_b01",
+            text: "Pelor's dawn breaks golden — your people feast.",
+            weight: 10,
+            effects: [{ type: "resource", resource: "food", amount: 80 }]
+        },
+        {
+            id: "pelor_b02",
+            text: "A ray of holy light fills the granary.",
+            weight: 9,
+            effects: [{ type: "resource", resource: "food", amount: 50 }, { type: "resource", resource: "herbs", amount: 20 }]
+        },
+        {
+            id: "pelor_b03",
+            text: "Sun Priests heal the sick through the night.",
+            weight: 7,
+            effects: [{ type: "population", amount: 5 }]
+        },
+        {
+            id: "pelor_b04",
+            text: "Pelor's warmth drives away the season's chill. Morale soars.",
+            weight: 9,
+            effects: [{ type: "morale", amount: 15 }]
+        },
+        {
+            id: "pelor_b05",
+            text: "Golden light floods the harvest fields. Crops grow twice as fast for a month.",
+            weight: 7,
+            effects: [{ type: "tempProductionBonus", resource: "food", bonus: 0.15, days: 30 }]
+        },
+        {
+            id: "pelor_b06",
+            text: "A wandering pilgrim brings seeds blessed by Pelor.",
+            weight: 9,
+            effects: [{ type: "resource", resource: "herbs", amount: 30 }, { type: "resource", resource: "food", amount: 20 }]
+        },
+        {
+            id: "pelor_b07",
+            text: "The Sun Father smiles — a child is born with his eyes.",
+            weight: 8,
+            effects: [{ type: "population", amount: 3 }]
+        },
+        {
+            id: "pelor_b08",
+            text: "Pelor sends a vision of unity. Workers toil with renewed purpose.",
+            weight: 8,
+            effects: [{ type: "tempProductionBonus", resource: "all", bonus: 0.10, days: 20 }]
+        },
+        {
+            id: "pelor_b09",
+            text: "Holy warmth seeps into the stone walls. Morale surges.",
+            weight: 10,
+            effects: [{ type: "morale", amount: 8 }]
+        },
+        {
+            id: "pelor_b10",
+            text: "A traveling healer, guided by Pelor's light, settles in your dungeon.",
+            weight: 8,
+            effects: [{ type: "population", amount: 2 }, { type: "resource", resource: "herbs", amount: 20 }]
+        },
+        {
+            id: "pelor_b11",
+            text: "The harvest is blessed — storerooms overflow.",
+            weight: 9,
+            effects: [{ type: "resource", resource: "food", amount: 60 }, { type: "resource", resource: "wood", amount: 30 }]
+        },
+        {
+            id: "pelor_b12",
+            text: "Pelor's priests organize a festival. Every soul feels the warmth.",
+            weight: 8,
+            effects: [{ type: "morale", amount: 10 }]
+        },
+        {
+            id: "pelor_b13",
+            text: "A shaft of light reveals a hidden vein of crystal in the walls.",
+            weight: 6,
+            effects: [{ type: "resource", resource: "crystals", amount: 40 }]
+        },
+        {
+            id: "pelor_b14",
+            text: "Sun-touched arcane dust settles across your workshops.",
+            weight: 7,
+            effects: [{ type: "resource", resource: "arcaneDust", amount: 30 }]
+        },
+        {
+            id: "pelor_b15",
+            text: "The population swells under Pelor's blessing.",
+            weight: 7,
+            effects: [{ type: "population", amount: 4 }]
+        },
+        {
+            id: "pelor_b16",
+            text: "Pelor grants clarity — researchers work with divine focus.",
+            weight: 8,
+            effects: [{ type: "resource", resource: "lore", amount: 25 }]
+        },
+        {
+            id: "pelor_b17",
+            text: "A blessed rain falls, feeding crops and lifting hearts.",
+            weight: 9,
+            effects: [{ type: "resource", resource: "food", amount: 40 }, { type: "morale", amount: 5 }]
+        },
+        {
+            id: "pelor_b18",
+            text: "Pelor's grace touches your lowest stores.",
+            weight: 8,
+            effects: [{ type: "lowestResource", amount: 50 }]
+        },
+        {
+            id: "pelor_b19",
+            text: "The Sun Father sends an omen of plenty. Confidence spreads.",
+            weight: 7,
+            effects: [{ type: "tempProductionBonus", resource: "food", bonus: 0.20, days: 10 }]
+        },
+        {
+            id: "pelor_b20",
+            text: "A holy relic of Pelor is unearthed. The light it carries lingers in these walls forever.",
+            weight: 3,
+            effects: [{ type: "permanentMoraleBase", amount: 1, cap: 5, key: "pelorRelicMorale" }]
+        },
+    ],
+
+    gruumsh: [
+        {
+            id: "gruumsh_b01",
+            text: "Gruumsh roars from the void — your warriors bring back spoils.",
+            weight: 10,
+            effects: [{ type: "resource", resource: "ore", amount: 60 }, { type: "resource", resource: "bones", amount: 40 }]
+        },
+        {
+            id: "gruumsh_b02",
+            text: "A blood moon rises. Workers labor without rest.",
+            weight: 8,
+            effects: [{ type: "tempProductionBonus", resource: "all", bonus: 0.20, days: 15 }]
+        },
+        {
+            id: "gruumsh_b03",
+            text: "Gruumsh's eye opens. A rival clan surrenders their hoard.",
+            weight: 9,
+            effects: [{ type: "resource", resource: "coins", amount: 50 }, { type: "resource", resource: "ore", amount: 30 }]
+        },
+        {
+            id: "gruumsh_b04",
+            text: "The One-Eye marks your strongest warrior. They inspire dread in all who work beside them.",
+            weight: 8,
+            effects: [{ type: "tempProductionBonus", resource: "all", bonus: 0.15, days: 20 }]
+        },
+        {
+            id: "gruumsh_b05",
+            text: "A tribute caravan arrives, broken and thoroughly looted.",
+            weight: 9,
+            effects: [{ type: "resource", resource: "coins", amount: 80 }]
+        },
+        {
+            id: "gruumsh_b06",
+            text: "Gruumsh is already satisfied by the blood already spilled. A surge of violence fills the air.",
+            weight: 8,
+            effects: [{ type: "tempProductionBonus", resource: "all", bonus: 0.20, days: 10 }]
+        },
+        {
+            id: "gruumsh_b07",
+            text: "Your people's suffering has pleased the warchanter. The survivors grow harder.",
+            weight: 7,
+            effects: [{ type: "population", amount: 3 }]
+        },
+        {
+            id: "gruumsh_b08",
+            text: "Iron rains from the sky in a dream. Your smiths wake inspired.",
+            weight: 8,
+            effects: [{ type: "resource", resource: "ore", amount: 50 }, { type: "resource", resource: "iron", amount: 20 }]
+        },
+        {
+            id: "gruumsh_b09",
+            text: "Gruumsh sends a warrior-prophet to your dungeon.",
+            weight: 7,
+            effects: [{ type: "population", amount: 2 }, { type: "resource", resource: "bones", amount: 30 }]
+        },
+        {
+            id: "gruumsh_b10",
+            text: "The war drums never stop. Workers push past their limits.",
+            weight: 8,
+            effects: [{ type: "tempProductionBonus", resource: "all", bonus: 0.10, days: 25 }]
+        },
+        {
+            id: "gruumsh_b11",
+            text: "A cache of enemy bones is discovered sealed in the walls.",
+            weight: 9,
+            effects: [{ type: "resource", resource: "bones", amount: 60 }]
+        },
+        {
+            id: "gruumsh_b12",
+            text: "Gruumsh's rage spills into your mines. The rock splits open.",
+            weight: 9,
+            effects: [{ type: "resource", resource: "ore", amount: 50 }, { type: "resource", resource: "coal", amount: 30 }]
+        },
+        {
+            id: "gruumsh_b13",
+            text: "The weak are culled in the night — but the strong grow stronger.",
+            weight: 6,
+            effects: [{ type: "population", amount: -1 }, { type: "tempProductionBonus", resource: "all", bonus: 0.10, days: 20 }]
+        },
+        {
+            id: "gruumsh_b14",
+            text: "A war trophy is mounted in the pit. Gruumsh is pleased.",
+            weight: 9,
+            effects: [{ type: "resource", resource: "bones", amount: 40 }, { type: "resource", resource: "iron", amount: 30 }]
+        },
+        {
+            id: "gruumsh_b15",
+            text: "Blood price paid in full — Gruumsh fills your coffers.",
+            weight: 8,
+            effects: [{ type: "resource", resource: "coins", amount: 100 }]
+        },
+        {
+            id: "gruumsh_b16",
+            text: "Your conquest draws refugees who fear your power and seek its shadow.",
+            weight: 7,
+            effects: [{ type: "population", amount: 4 }]
+        },
+        {
+            id: "gruumsh_b17",
+            text: "Gruumsh's eye burns with approval. Even your worst workers push harder.",
+            weight: 8,
+            effects: [{ type: "tempProductionBonus", resource: "all", bonus: 0.10, days: 15 }]
+        },
+        {
+            id: "gruumsh_b18",
+            text: "The One-Eye sends a vision of your lowest resource — and fills it with war spoils.",
+            weight: 8,
+            effects: [{ type: "lowestResource", amount: 60 }]
+        },
+        {
+            id: "gruumsh_b19",
+            text: "Gruumsh blesses your hovels — one finds a hidden chamber within its walls.",
+            weight: 3,
+            effects: [{ type: "permanentHousing", amount: 1, cap: 5, key: "blessingHousing" }]
+        },
+        {
+            id: "gruumsh_b20",
+            text: "The One-Eye's mark is burned into your dungeon's stone. Conquered lands feed your ranks.",
+            weight: 6,
+            effects: [{ type: "resource", resource: "ore", amount: 40 }, { type: "resource", resource: "bones", amount: 40 }, { type: "resource", resource: "coins", amount: 40 }]
+        },
+    ],
+
+    silvanus: [
+        {
+            id: "silvanus_b01",
+            text: "The Oak Father breathes life into your grove. Herbs grow overnight.",
+            weight: 10,
+            effects: [{ type: "resource", resource: "herbs", amount: 50 }]
+        },
+        {
+            id: "silvanus_b02",
+            text: "A spring rain blessed by Silvanus fills every barrel and barrel-ring.",
+            weight: 9,
+            effects: [{ type: "resource", resource: "food", amount: 60 }, { type: "resource", resource: "wood", amount: 30 }]
+        },
+        {
+            id: "silvanus_b03",
+            text: "The forest sends its bounty unbidden.",
+            weight: 9,
+            effects: [{ type: "resource", resource: "wood", amount: 40 }, { type: "resource", resource: "herbs", amount: 30 }]
+        },
+        {
+            id: "silvanus_b04",
+            text: "Silvanus stirs the soil — crops double for a fortnight.",
+            weight: 7,
+            effects: [{ type: "tempProductionBonus", resource: "food", bonus: 0.20, days: 14 }]
+        },
+        {
+            id: "silvanus_b05",
+            text: "Wild creatures drawn by Silvanus's call settle in your dungeon.",
+            weight: 7,
+            effects: [{ type: "population", amount: 3 }]
+        },
+        {
+            id: "silvanus_b06",
+            text: "The grove blooms out of season. Potions brew themselves.",
+            weight: 8,
+            effects: [{ type: "resource", resource: "potions", amount: 15 }]
+        },
+        {
+            id: "silvanus_b07",
+            text: "Silvanus sends a druid to tend your grove.",
+            weight: 8,
+            effects: [{ type: "population", amount: 2 }, { type: "resource", resource: "herbs", amount: 20 }]
+        },
+        {
+            id: "silvanus_b08",
+            text: "The Oak Father fills your lowest stores from the forest's abundance.",
+            weight: 9,
+            effects: [{ type: "lowestResource", amount: 50 }]
+        },
+        {
+            id: "silvanus_b09",
+            text: "Ancient roots crack open a hidden cache beneath the grove.",
+            weight: 9,
+            effects: [{ type: "resource", resource: "wood", amount: 30 }, { type: "resource", resource: "stone", amount: 20 }]
+        },
+        {
+            id: "silvanus_b10",
+            text: "Silvanus blesses the harvest season early.",
+            weight: 9,
+            effects: [{ type: "resource", resource: "food", amount: 80 }]
+        },
+        {
+            id: "silvanus_b11",
+            text: "Nature's balance tips in your favor — workers feel at ease.",
+            weight: 9,
+            effects: [{ type: "morale", amount: 6 }]
+        },
+        {
+            id: "silvanus_b12",
+            text: "A rare herb blooms only in Silvanus's light.",
+            weight: 8,
+            effects: [{ type: "resource", resource: "herbs", amount: 25 }, { type: "resource", resource: "potions", amount: 10 }]
+        },
+        {
+            id: "silvanus_b13",
+            text: "Silvanus grows the dungeon inward — a new chamber forms from living root and stone.",
+            weight: 3,
+            effects: [{ type: "permanentHousing", amount: 1, cap: 5, key: "blessingHousing" }]
+        },
+        {
+            id: "silvanus_b14",
+            text: "Silvanus sends a warm wind to banish winter's grip. The cold retreats.",
+            weight: 7,
+            effects: [{ type: "morale", amount: 8 }, { type: "resource", resource: "food", amount: 20 }]
+        },
+        {
+            id: "silvanus_b15",
+            text: "Dew blessed by the Oak Father condenses on every surface.",
+            weight: 9,
+            effects: [{ type: "resource", resource: "food", amount: 40 }, { type: "resource", resource: "herbs", amount: 30 }]
+        },
+        {
+            id: "silvanus_b16",
+            text: "The grove hums with wild magic. Potions are especially potent.",
+            weight: 7,
+            effects: [{ type: "tempProductionBonus", resource: "potions", bonus: 0.15, days: 20 }]
+        },
+        {
+            id: "silvanus_b17",
+            text: "A spirit of nature takes up residence. Workers feel watched over.",
+            weight: 8,
+            effects: [{ type: "morale", amount: 8 }]
+        },
+        {
+            id: "silvanus_b18",
+            text: "Silvanus rewards patience — your longest-standing buildings overflow.",
+            weight: 8,
+            effects: [{ type: "resource", resource: "wood", amount: 30 }, { type: "resource", resource: "food", amount: 30 }, { type: "resource", resource: "herbs", amount: 20 }]
+        },
+        {
+            id: "silvanus_b19",
+            text: "The Oak Father whispers knowledge of the deep roots.",
+            weight: 8,
+            effects: [{ type: "resource", resource: "lore", amount: 30 }]
+        },
+        {
+            id: "silvanus_b20",
+            text: "Silvanus's blessing seeps into the very stone. Your stores hold more than they should.",
+            weight: 3,
+            effects: [{ type: "permanentCapBonus", resources: ["food", "herbs", "wood"], amount: 50, maxTriggers: 5, key: "silvanusBlessingCaps" }]
+        },
+    ],
+};
