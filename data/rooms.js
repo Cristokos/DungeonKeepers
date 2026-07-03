@@ -349,7 +349,7 @@ const ROOMS = {
     entertainersStage: {
         name: "Entertainer's Stage",
         cost: { wood: 30, stone: 15 },
-        costScale: 1.18,
+        costScale: 1.23,
         jobs: 1,
         workerName: "Bard",
         moralePerWorker: 3,
@@ -375,7 +375,7 @@ const ROOMS = {
     temple: {
         name: "Temple",
         cost: { stone: 120, wood: 60, iron: 30 },
-        costScale: 1.20,
+        costScale: 1.25,
         jobs: 2,
         workerName: "Priest",
         moralePassive: 2,
@@ -389,7 +389,7 @@ const ROOMS = {
 
     pelorSanctuary: {
         name: "Pelor's Sanctuary",
-        cost: { stone: 80, food: 60, coins: 500 },
+        cost: { stone: 480, food: 360, coins: 3000 },
         costScale: 1.25,
         jobs: 1,
         workerName: "Priest",
@@ -404,7 +404,7 @@ const ROOMS = {
 
     gruumshWarPit: {
         name: "Gruumsh's War Pit",
-        cost: { stone: 100, ore: 80, bones: 40 },
+        cost: { stone: 600, ore: 480, bones: 240 },
         costScale: 1.25,
         jobs: 1,
         workerName: "Priest",
@@ -418,7 +418,7 @@ const ROOMS = {
 
     sylvanGrove: {
         name: "Sylvan Grove",
-        cost: { wood: 100, herbs: 60, stone: 40 },
+        cost: { wood: 600, herbs: 360, stone: 240 },
         costScale: 1.25,
         jobs: 1,
         workerName: "Priest",
