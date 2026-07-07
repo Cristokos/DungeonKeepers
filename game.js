@@ -8223,6 +8223,24 @@ const _religionBlds = ['entertainersStage','shrine','temple','pelorSanctuary','g
 for (const _rb of _religionBlds) {
     if (gameState.buildings[_rb] == null) gameState.buildings[_rb] = 0;
 }
+
+// Analytics heartbeat — fired once per load after state is fully hydrated so
+// we get a clean daily-active signal instead of relying on season snapshots.
+if (typeof posthog !== 'undefined') {
+    const _runDays = gameState.time.day + (gameState.time.year - 1) * DAYS_PER_SEASON * 4;
+    posthog.capture('game_loaded', {
+        version:          window.GAME_VERSION,
+        total_prestiges:  gameState.meta.totalPrestiges || 0,
+        quintessence:     gameState.meta.quintessence || 0,
+        run_in_progress:  !!gameState.run.race,
+        race:             gameState.run.race || 'none',
+        biome:            gameState.run.biome || 'none',
+        era:              gameState.run.era || 1,
+        run_days:         _runDays,
+        theme:            (typeof gameSettings !== 'undefined' ? gameSettings.colorTheme : null) || 'default',
+    });
+}
+
 // ── Random Event System ───────────────────────────────────────────────────────
 
 let _logActiveTab = 'all';
