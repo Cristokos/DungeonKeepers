@@ -681,6 +681,7 @@ function setDeityFavor(deityKey, value) {
 }
 
 function isDeityFavorActive() {
+    if ((gameState.run && gameState.run.era || 1) < 2) return false; // religion unlocks in Era 2
     const rel = gameState.religion;
     return rel && rel.deity && rel.active && (rel.titheFailed || 0) <= 3;
 }
@@ -2624,9 +2625,9 @@ function runOneTick() {
             flashEl('season');
         }
 
-        // ── Religion: daily tithe & favor ───────────────────────────────────
+        // ── Religion: daily tithe & favor (Era 2+ only) ─────────────────────
         const _rel = gameState.religion;
-        if (typeof DEITIES !== 'undefined') {
+        if (typeof DEITIES !== 'undefined' && (gameState.run.era || 1) >= 2) {
             // Decay favor for gods we no longer follow
             if (!_rel.favorDecay) _rel.favorDecay = {};
             for (const _dk of Object.keys(DEITIES)) {
@@ -2831,6 +2832,7 @@ function fmtRate(r) {
 // Tithe Reduction research. Single source of truth shared by the tick, the rate
 // display, and tooltips.
 function getTitheDailyAmounts() {
+    if ((gameState.run && gameState.run.era || 1) < 2) return {}; // religion unlocks in Era 2
     const rel = gameState.religion;
     if (typeof DEITIES === 'undefined' || !rel || !rel.deity || !rel.active) return {};
     const deityDef = DEITIES[rel.deity];
@@ -7268,6 +7270,7 @@ function performPrestige(method) {
     for (const k of Object.keys(gameState.stats)) gameState.stats[k] = 0;
     gameState.run         = { biome: null, race: null, mods: [], era: 1 };
     gameState.era1        = { unlocked: [], chosen: null, raceOptions: null };
+    gameState.religion    = { deity: null, active: false, titheFailed: 0, productionSurgeDays: 0, lastSacrificeDay: 0 };
     gameState.tradeRoutes = {};
     _era1TreeState = '';
     gameState.meta = savedMeta;
