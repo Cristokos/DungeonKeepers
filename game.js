@@ -273,6 +273,7 @@ const gameState = {
 // ── Settings ──────────────────────────────────────────────────────────────────
 
 const SETTINGS_KEY = "dungeonKeeperSettings";
+const INSTALL_ID_KEY = "dungeonKeeperInstallId";
 
 const gameSettings = {
     autosaveInterval:   1,        // ticks between saves; 0 = disabled
@@ -8224,9 +8225,33 @@ for (const _rb of _religionBlds) {
     if (gameState.buildings[_rb] == null) gameState.buildings[_rb] = 0;
 }
 
+// Stable per-install ID so PostHog (which runs person_profiles: 'identified_only')
+// can de-dupe a player across sessions for unique-user and retention metrics.
+// Persists in localStorage; regenerates only if storage is cleared/unavailable.
+function getInstallId() {
+    try {
+        let id = localStorage.getItem(INSTALL_ID_KEY);
+        if (!id) {
+            id = (crypto && crypto.randomUUID)
+                ? crypto.randomUUID()
+                : 'dk-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2);
+            localStorage.setItem(INSTALL_ID_KEY, id);
+        }
+        return id;
+    } catch (e) {
+        return null;
+    }
+}
+
 // Analytics heartbeat — fired once per load after state is fully hydrated so
 // we get a clean daily-active signal instead of relying on season snapshots.
 if (typeof posthog !== 'undefined') {
+    const _installId = getInstallId();
+    if (_installId) {
+        posthog.identify(_installId, {
+            first_seen_version: window.GAME_VERSION,
+        });
+    }
     const _runDays = gameState.time.day + (gameState.time.year - 1) * DAYS_PER_SEASON * 4;
     posthog.capture('game_loaded', {
         version:          window.GAME_VERSION,
