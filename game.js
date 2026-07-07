@@ -2681,12 +2681,10 @@ function runOneTick() {
     if ((gameState.run.era || 1) === 1) {
         const r = gameState.resources;
         const era1 = gameState.era1 || {};
-        const l1Nodes = ['deep', 'wild', 'beyond'];
-        const hasL1 = (era1.unlocked || []).some(id => l1Nodes.includes(id));
-        if (hasL1) {
-            const essenceAbove10 = Math.max(0, (r.essence || 0) - 10);
-            r.influence = (r.influence || 0) + 0.1 * essenceAbove10;
-        }
+        // Influence is generated solely by Influence Conduits and the manual
+        // "Exert Will" action. (A legacy passive trickle that scaled with the
+        // stored Anima stockpile was removed — it predated conduits and caused
+        // runaway influence income.)
         // Mana only after at least one L3 Form node is unlocked
         const formNodes = ['horde','champion','bloodline','anomaly','root-node','cycle','pack','apex','kept','consumed','pact','vessel'];
         const hasForm = (era1.unlocked || []).some(id => formNodes.includes(id));
