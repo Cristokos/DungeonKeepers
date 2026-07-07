@@ -25,6 +25,7 @@
      INTRO TRANSITION — comic-panel overlay shown on New Game only
 ═══════════════════════════════════════════════════════════════ -->
 <div id="intro-transition-overlay">
+<div id="intro-scale-wrap">
     <div id="intro-kicker">The Age Begins</div>
     <div id="intro-comic-panels">
 
@@ -146,6 +147,7 @@
     <button id="intro-transition-continue" onclick="introTransitionContinue()">
         <span id="intro-continue-label">Awaken</span>
     </button>
+</div>
 </div>
 
 <!-- ═══════════════════════════════════════════════════════════════
@@ -2152,7 +2154,98 @@
                     <button class="research-btn" id="btn-research-grandLibrary" onclick="doResearch('grandLibrary')">Research</button>
                 </div>
 
+                <!-- Mastery research — hidden until the gating achievement is earned -->
+                <div class="research-card research-mastery" id="research-ergonomicTools" style="display:none">
+                    <div class="research-info">
+                        <div class="research-name"></div>
+                        <div class="research-desc"></div>
+                        <div class="research-cost"></div>
+                    </div>
+                    <button class="research-btn" id="btn-research-ergonomicTools" onclick="doResearch('ergonomicTools')">Research</button>
+                </div>
+                <div class="research-card research-mastery" id="research-veinSense" style="display:none">
+                    <div class="research-info">
+                        <div class="research-name"></div>
+                        <div class="research-desc"></div>
+                        <div class="research-cost"></div>
+                    </div>
+                    <button class="research-btn" id="btn-research-veinSense" onclick="doResearch('veinSense')">Research</button>
+                </div>
+                <div class="research-card research-mastery" id="research-almanacOfFrost" style="display:none">
+                    <div class="research-info">
+                        <div class="research-name"></div>
+                        <div class="research-desc"></div>
+                        <div class="research-cost"></div>
+                    </div>
+                    <button class="research-btn" id="btn-research-almanacOfFrost" onclick="doResearch('almanacOfFrost')">Research</button>
+                </div>
+                <div class="research-card research-mastery" id="research-modularFoundations" style="display:none">
+                    <div class="research-info">
+                        <div class="research-name"></div>
+                        <div class="research-desc"></div>
+                        <div class="research-cost"></div>
+                    </div>
+                    <button class="research-btn" id="btn-research-modularFoundations" onclick="doResearch('modularFoundations')">Research</button>
+                </div>
+                <div class="research-card research-mastery" id="research-ecumenicalRites" style="display:none">
+                    <div class="research-info">
+                        <div class="research-name"></div>
+                        <div class="research-desc"></div>
+                        <div class="research-cost"></div>
+                    </div>
+                    <button class="research-btn" id="btn-research-ecumenicalRites" onclick="doResearch('ecumenicalRites')">Research</button>
+                </div>
+                <div class="research-card research-mastery" id="research-wardingScript" style="display:none">
+                    <div class="research-info">
+                        <div class="research-name"></div>
+                        <div class="research-desc"></div>
+                        <div class="research-cost"></div>
+                    </div>
+                    <button class="research-btn" id="btn-research-wardingScript" onclick="doResearch('wardingScript')">Research</button>
+                </div>
+                <div class="research-card research-mastery" id="research-songsOfTheDeep" style="display:none">
+                    <div class="research-info">
+                        <div class="research-name"></div>
+                        <div class="research-desc"></div>
+                        <div class="research-cost"></div>
+                    </div>
+                    <button class="research-btn" id="btn-research-songsOfTheDeep" onclick="doResearch('songsOfTheDeep')">Research</button>
+                </div>
+                <div class="research-card research-mastery" id="research-vileDistillation" style="display:none">
+                    <div class="research-info">
+                        <div class="research-name"></div>
+                        <div class="research-desc"></div>
+                        <div class="research-cost"></div>
+                    </div>
+                    <button class="research-btn" id="btn-research-vileDistillation" onclick="doResearch('vileDistillation')">Research</button>
+                </div>
+                <div class="research-card research-mastery" id="research-gossamerLedgers" style="display:none">
+                    <div class="research-info">
+                        <div class="research-name"></div>
+                        <div class="research-desc"></div>
+                        <div class="research-cost"></div>
+                    </div>
+                    <button class="research-btn" id="btn-research-gossamerLedgers" onclick="doResearch('gossamerLedgers')">Research</button>
+                </div>
+                <div class="research-card research-mastery" id="research-compoundInterest" style="display:none">
+                    <div class="research-info">
+                        <div class="research-name"></div>
+                        <div class="research-desc"></div>
+                        <div class="research-cost"></div>
+                    </div>
+                    <button class="research-btn" id="btn-research-compoundInterest" onclick="doResearch('compoundInterest')">Research</button>
+                </div>
+                <div class="research-card research-mastery" id="research-gleamingTools" style="display:none">
+                    <div class="research-info">
+                        <div class="research-name"></div>
+                        <div class="research-desc"></div>
+                        <div class="research-cost"></div>
+                    </div>
+                    <button class="research-btn" id="btn-research-gleamingTools" onclick="doResearch('gleamingTools')">Research</button>
+                </div>
+
             </div>
+            <p class="research-hidden-hint" id="research-hidden-hint" style="display:none"></p>
             </div><!-- /research-panel-available -->
 
             <div id="research-panel-completed" style="display:none">
@@ -2693,21 +2786,18 @@
                 <div class="info-stat"><span>Next Prestige</span>    <span id="quintessence-preview">+3 on next prestige</span></div>
             </div>
 
-            <h2 class="section-gap">Achievements</h2>
-            <div class="ach-card locked">
-                <div class="ach-icon">&#9760;</div>
-                <div class="ach-info">
-                    <div class="ach-name">Ancient Stonework</div>
-                    <div class="ach-flavor">Each awakening carves the dungeon's purpose deeper into the rock.</div>
-                </div>
-            </div>
-            <div class="ach-card locked">
-                <div class="ach-icon">&#9670;</div>
-                <div class="ach-info">
-                    <div class="ach-name">Veteran's Intuition</div>
-                    <div class="ach-flavor">The dungeon has dreamed this dream before.</div>
-                </div>
-            </div>
+            <h2 class="section-gap">Lifetime Construction</h2>
+            <details class="lifetime-buildings" id="lifetime-buildings-details">
+                <summary>Buildings raised across all runs</summary>
+                <div class="info-stat-block" id="lifetime-buildings-grid"></div>
+            </details>
+
+            <h2 class="section-gap">Achievements <span class="ach-count" id="ach-count"></span></h2>
+            <p class="ach-hidden-hint" id="ach-hidden-hint"></p>
+            <h3 class="ach-section-title">Major — each grants a small boon</h3>
+            <div class="ach-grid" id="ach-grid-major"></div>
+            <h3 class="ach-section-title">Minor — marks of a storied keeper</h3>
+            <div class="ach-grid" id="ach-grid-minor"></div>
 
         </div><!-- /tab-info -->
 
@@ -2930,6 +3020,17 @@
             </div>
 
             <div class="dev-section">
+                <h3>Achievements</h3>
+                <div class="dev-grid">
+                    <select id="dev-ach-select" class="dev-select">
+                        <option value="">— Select an achievement —</option>
+                    </select>
+                    <button class="dev-btn" onclick="devGrantAchievement()">Grant</button>
+                    <button class="dev-btn danger" onclick="devRevokeAchievement()">Revoke</button>
+                </div>
+            </div>
+
+            <div class="dev-section">
                 <h3>Danger Zone</h3>
                 <div class="dev-grid">
                     <button class="dev-btn danger" onclick="devResetSave()">Reset Save</button>
@@ -2963,7 +3064,7 @@
 <script>
     // Load local game scripts in dependency order, cache-busted by GAME_VERSION (see version.js).
     // lz-string must precede save.js (save/load uses LZString for (de)compression).
-    ["lib/lz-string.min.js", "data/resources.js", "data/rooms.js", "data/research.js", "data/religion.js", "data/era1tree.js", "data/randomEvents.js", "save.js", "game.js"].forEach(function (src) {
+    ["lib/lz-string.min.js", "data/resources.js", "data/rooms.js", "data/research.js", "data/religion.js", "data/era1tree.js", "data/randomEvents.js", "data/achievements.js", "save.js", "game.js"].forEach(function (src) {
         document.write('<scr' + 'ipt src="' + src + '?v=' + window.GAME_VERSION + '"></scr' + 'ipt>');
     });
 </script>
@@ -3132,21 +3233,31 @@
         };
         window.splashContinue = function () { splashHide(); };
 
-        var _chronicleAchHtml =
-            '<div class="ach-card locked">' +
-                '<div class="ach-icon">&#9760;</div>' +
-                '<div class="ach-info">' +
-                    '<div class="ach-name">Ancient Stonework</div>' +
-                    '<div class="ach-flavor">Each awakening carves the dungeon\'s purpose deeper into the rock.</div>' +
-                '</div>' +
-            '</div>' +
-            '<div class="ach-card locked">' +
-                '<div class="ach-icon">&#9670;</div>' +
-                '<div class="ach-info">' +
-                    '<div class="ach-name">Veteran\'s Intuition</div>' +
-                    '<div class="ach-flavor">The dungeon has dreamed this dream before.</div>' +
-                '</div>' +
-            '</div>';
+        // Builds the Chronicle achievements tab from the real definitions
+        // (data/achievements.js) and whatever has been earned account-wide.
+        function buildChronicleAchHtml() {
+            if (typeof ACHIEVEMENTS === 'undefined' || typeof ACH_ORDER === 'undefined') {
+                return '<p class="chronicle-empty">The achievement ledger cannot be read.</p>';
+            }
+            var earned = (typeof gameState !== 'undefined' && gameState.meta && gameState.meta.achievements) || {};
+            var ids = ACH_ORDER.major.concat(ACH_ORDER.minor);
+            var got = ids.filter(function (id) { return !!earned[id]; }).length;
+            var html = '<div class="chronicle-section">Earned ' + got + ' of ' + ids.length + '</div>';
+            ids.forEach(function (id) {
+                var def = ACHIEVEMENTS[id];
+                if (!def) return;
+                var isEarned = !!earned[id];
+                html +=
+                    '<div class="ach-card' + (isEarned ? '' : ' locked') + '">' +
+                        '<div class="ach-icon">' + (def.icon || '&#127942;') + '</div>' +
+                        '<div class="ach-info">' +
+                            '<div class="ach-name">' + def.name + (def.tier === 'major' ? ' &#9733;' : '') + '</div>' +
+                            '<div class="ach-flavor">' + def.how + '</div>' +
+                        '</div>' +
+                    '</div>';
+            });
+            return html;
+        }
 
         window.switchChronicleTab = function(tab) {
             document.querySelectorAll('.chronicle-tab-btn').forEach(function(b) {
@@ -3198,7 +3309,7 @@
                     '<button class="chronicle-tab-btn" data-tab="achievements" onclick="switchChronicleTab(\'achievements\')">Achievements</button>' +
                 '</div>' +
                 '<div id="chronicle-panel-history">' + histHtml + '</div>' +
-                '<div id="chronicle-panel-achievements" style="display:none">' + _chronicleAchHtml + '</div>';
+                '<div id="chronicle-panel-achievements" style="display:none">' + buildChronicleAchHtml() + '</div>';
 
             panel.classList.add('splash-chronicle-open');
         };

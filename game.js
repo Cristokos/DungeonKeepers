@@ -239,7 +239,7 @@ const gameState = {
     morale:   { value: MORALE_BASE, target: MORALE_BASE },
     religion: { deity: null, active: false, titheFailed: 0, productionSurgeDays: 0, lastSacrificeDay: 0 },
     run:        { biome: null, race: null, mods: [], era: 1 },
-    meta:       { seenBiomes: [], totalPrestiges: 0, racesPlayed: {} },
+    meta:       { seenBiomes: [], totalPrestiges: 0, racesPlayed: {}, lifetime: {}, achievements: {} },
     time:       { tick: 0, day: 1, year: 1, seasonIndex: 0 },
     pauseBank:  0,   // seconds of Accelerated Time banked from pausing
     randomEventCooldowns: {}, // eventId → absolute day the cooldown expires
@@ -256,6 +256,17 @@ const gameState = {
         foodProduced:         0,
         woodProduced:         0,
         stoneProduced:        0,
+        // Per-run achievement counters (consecutive-day streaks reset when broken)
+        logEntries:           0,
+        daysAtMoraleCap:      0,
+        daysMorale90:         0,
+        daysFoodAbove50:      0,
+        daysFullEmployment:   0,
+        daysAtLoreCap:        0,
+        seasonsFoodCapStreak: 0,
+        titheStreak:          0,
+        winterStarveBase:     0,
+        reservoirWasFull:     0,
     },
 };
 
@@ -631,6 +642,200 @@ function getQuintessenceProductionMult() {
     return 1 + ((gameState.meta && gameState.meta.quintessence) || 0) * 0.005;
 }
 
+// ── Achievements ──────────────────────────────────────────────────────────────
+// Definitions live in data/achievements.js (ACHIEVEMENTS / ACH_ORDER).
+let _achPanelDirty = true; // forces the Info-tab achievements panel to re-render
+// Earned achievements and lifetime counters are account-wide: they live in
+// gameState.meta, which performPrestige() preserves.
+
+function getLifetime() {
+    if (!gameState.meta.lifetime) gameState.meta.lifetime = {};
+    return gameState.meta.lifetime;
+}
+
+function bumpLifetime(key, amt) {
+    const lt = getLifetime();
+    lt[key] = (lt[key] || 0) + (amt === undefined ? 1 : amt);
+}
+
+function bumpLifetimeBuilding(id, n) {
+    const lt = getLifetime();
+    if (!lt.builtBy) lt.builtBy = {};
+    lt.builtBy[id] = (lt.builtBy[id] || 0) + n;
+}
+
+// Adds a value to a lifetime array-set (deduplicated) — for tracked name lists.
+function addLifetimeSet(key, value) {
+    const lt = getLifetime();
+    if (!lt[key]) lt[key] = [];
+    if (!lt[key].includes(value)) lt[key].push(value);
+}
+
+function hasAch(id) {
+    return !!(gameState.meta && gameState.meta.achievements && gameState.meta.achievements[id]);
+}
+
+function achMajorCount() {
+    if (typeof ACHIEVEMENTS === 'undefined') return 0;
+    const earned = (gameState.meta && gameState.meta.achievements) || {};
+    let n = 0;
+    for (const id of Object.keys(earned)) {
+        if (ACHIEVEMENTS[id] && ACHIEVEMENTS[id].tier === 'major') n++;
+    }
+    return n;
+}
+
+function earnAchievement(id) {
+    if (typeof ACHIEVEMENTS === 'undefined' || !ACHIEVEMENTS[id] || hasAch(id)) return;
+    if (!gameState.meta.achievements) gameState.meta.achievements = {};
+    const def = ACHIEVEMENTS[id];
+    gameState.meta.achievements[id] = {
+        at:   Date.now(),
+        day:  gameState.time.day,
+        year: gameState.time.year,
+    };
+    const tierLabel = def.tier === 'major' ? 'Major Achievement' : 'Achievement';
+    addLogEntry(`${tierLabel} earned: ${def.name}`, def.research ? 'A forgotten technique is revealed…' : '', 'progress');
+    showAchievementToast(def);
+    if (typeof posthog !== 'undefined') {
+        posthog.capture('achievement_earned', { id, tier: def.tier, prestiges: gameState.meta.totalPrestiges || 0 });
+    }
+    _achPanelDirty = true;
+    saveGame();
+}
+
+// Polled once per game day from runOneTick's daily block. ctx carries values
+// the tick already computed so checks don't recompute them.
+function checkAchievements(ctx) {
+    if (typeof ACHIEVEMENTS === 'undefined') return;
+    const earned = (gameState.meta && gameState.meta.achievements) || {};
+    for (const [id, def] of Object.entries(ACHIEVEMENTS)) {
+        if (earned[id] || !def.check) continue;
+        try {
+            if (def.check(ctx)) earnAchievement(id);
+        } catch (e) { /* a broken check must never kill the tick */ }
+    }
+}
+
+// Production multiplier granted by earned achievements for a given building.
+function getAchBuildingMult(id) {
+    let mult = 1;
+    if (id === 'scriptorium'  && hasAch('lorekeeper'))    mult *= 1.05;
+    if (id === 'huntingLodge' && hasAch('boneCollector')) mult *= 1.05;
+    return mult;
+}
+
+// ── Achievement toast ────────────────────────────────────────────────────────
+
+function showAchievementToast(def) {
+    let container = document.getElementById('ach-toast-container');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'ach-toast-container';
+        document.body.appendChild(container);
+    }
+    const toast = document.createElement('div');
+    toast.className = 'ach-toast' + (def.tier === 'major' ? ' ach-toast-major' : '');
+    toast.innerHTML =
+        `<div class="ach-toast-icon">${def.icon || '&#127942;'}</div>` +
+        `<div class="ach-toast-body">` +
+            `<div class="ach-toast-label">${def.tier === 'major' ? 'Major Achievement' : 'Achievement'} Earned</div>` +
+            `<div class="ach-toast-name">${def.name}</div>` +
+            (def.research ? `<div class="ach-toast-sub">A forgotten technique is revealed…</div>` :
+             def.reward   ? `<div class="ach-toast-sub">${def.reward}</div>` : '') +
+        `</div>`;
+    container.appendChild(toast);
+    requestAnimationFrame(() => toast.classList.add('ach-toast-in'));
+    setTimeout(() => {
+        toast.classList.remove('ach-toast-in');
+        setTimeout(() => toast.remove(), 500);
+    }, 6000);
+}
+
+// ── Achievements panel (Info tab) ────────────────────────────────────────────
+
+function renderAchievementsPanel() {
+    const majorGrid = document.getElementById('ach-grid-major');
+    const minorGrid = document.getElementById('ach-grid-minor');
+    if (!majorGrid || !minorGrid || typeof ACHIEVEMENTS === 'undefined') return;
+    const earned = (gameState.meta && gameState.meta.achievements) || {};
+
+    const buildCards = (ids) => ids.map(id => {
+        const def = ACHIEVEMENTS[id];
+        if (!def) return '';
+        const got = !!earned[id];
+        // Majors keep their reward vague until earned
+        let rewardLine = '';
+        if (def.tier === 'major') {
+            if (got) {
+                rewardLine = def.research
+                    ? `Revealed: ${(typeof RESEARCH !== 'undefined' && RESEARCH[def.research] && RESEARCH[def.research].name) || 'a hidden research'} (see Research tab)`
+                    : (def.reward || '');
+            } else {
+                rewardLine = def.research
+                    ? '&#128274; Unlocks a forgotten technique&hellip;'
+                    : '&#128274; Grants an unknown boon&hellip;';
+            }
+        }
+        let progLine = '';
+        if (!got && def.progress) {
+            try {
+                const p = def.progress();
+                if (p && p.goal) progLine = `<div class="ach-progress">${fmt(Math.min(p.cur || 0, p.goal))} / ${fmt(p.goal)}</div>`;
+            } catch (e) { /* progress display must never break the panel */ }
+        }
+        return `<div class="ach-card${got ? ' earned' : ' locked'}${def.tier === 'major' ? ' ach-major' : ''}">` +
+            `<div class="ach-icon">${def.icon || '&#127942;'}</div>` +
+            `<div class="ach-info">` +
+                `<div class="ach-name">${def.name}</div>` +
+                `<div class="ach-flavor">${def.how}</div>` +
+                (rewardLine ? `<div class="ach-reward${got ? '' : ' ach-reward-hidden'}">${rewardLine}</div>` : '') +
+                progLine +
+            `</div>` +
+        `</div>`;
+    }).join('');
+
+    majorGrid.innerHTML = buildCards(ACH_ORDER.major);
+    minorGrid.innerHTML = buildCards(ACH_ORDER.minor);
+
+    const total = ACH_ORDER.major.length + ACH_ORDER.minor.length;
+    const got = Object.keys(earned).filter(id => ACHIEVEMENTS[id]).length;
+    setText('ach-count', `${got} / ${total}`);
+
+    const gated    = Object.values(ACHIEVEMENTS).filter(d => d.research).length;
+    const revealed = Object.keys(earned).filter(id => ACHIEVEMENTS[id] && ACHIEVEMENTS[id].research).length;
+    const hint = document.getElementById('ach-hidden-hint');
+    if (hint) hint.textContent =
+        `Major achievements grant small permanent boons — some reveal hidden Mastery research. ` +
+        `Techniques whispered of: ${revealed} of ${gated} revealed.`;
+}
+
+function renderLifetimeBuildings() {
+    const grid = document.getElementById('lifetime-buildings-grid');
+    if (!grid) return;
+    const builtBy = getLifetime().builtBy || {};
+    const rows = [];
+    for (const [id, def] of Object.entries(ROOMS)) {
+        if (id === 'essenceReservoir' || id === 'influenceShrine' || id === 'manaFont') continue;
+        rows.push(`<div class="info-stat"><span>${def.name || id}</span><span>${fmt(builtBy[id] || 0)}</span></div>`);
+    }
+    grid.innerHTML = rows.join('');
+}
+
+// Footer hint on the Research tab: how many hidden Mastery techniques exist
+// and how many the player has revealed. Vague by design.
+function updateResearchHiddenHint() {
+    const el = document.getElementById('research-hidden-hint');
+    if (!el || typeof ACHIEVEMENTS === 'undefined') return;
+    if ((gameState.run.era || 1) < 2) { el.style.display = 'none'; return; }
+    const earned = (gameState.meta && gameState.meta.achievements) || {};
+    const gated    = Object.values(ACHIEVEMENTS).filter(d => d.research).length;
+    const revealed = Object.keys(earned).filter(id => ACHIEVEMENTS[id] && ACHIEVEMENTS[id].research).length;
+    el.style.display = '';
+    el.innerHTML = `Techniques whispered of but not yet proven: <b>${revealed} of ${gated}</b> revealed. ` +
+        `The rest await deeds worthy of them — see the Achievements section of the Info tab.`;
+}
+
 // Returns the actual amount gained by a manual gather action, after all research bonuses.
 const GATHER_MOD_BONUSES = {
     food:  "Abundant Wildlife",
@@ -650,6 +855,7 @@ function getGatherAmount(resourceKey) {
     amount += getResearchBonus('gatherBonus', resourceKey);
     const modName = GATHER_MOD_BONUSES[resourceKey];
     if (modName && hasActiveMod(modName)) amount += 1;
+    if (resourceKey === 'stone' && hasAch('stonecuttersEye')) amount += 2;
     return Math.max(1, Math.floor(amount));
 }
 
@@ -709,6 +915,8 @@ function getMoraleCap() {
     }
     // Pelor blessing relic permanent bonus (capped at +5)
     cap += Math.min(5, (gameState.religion && gameState.religion.pelorRelicMorale) || 0);
+    // Morale Officer achievement: +5 permanent morale cap
+    if (hasAch('moraleOfficer')) cap += 5;
     return cap;
 }
 
@@ -751,7 +959,8 @@ function getMoraleTarget() {
         const winterPenalty = -10;
         const sylvReduce = (isDeityFavorActive() && rel.deity === 'silvanus' && DEITIES.silvanus.bonuses.winterPenaltyMult) || 1;
         const researchReduce = research.sylvanFavor ? 0.5 : 1;
-        target += winterPenalty * sylvReduce * researchReduce;
+        const almanacReduce = research.almanacOfFrost ? 0.9 : 1;
+        target += winterPenalty * sylvReduce * researchReduce * almanacReduce;
     }
 
     // Deity bonuses / penalties — favor fraction now uses /100 scale
@@ -792,6 +1001,8 @@ function pledgeDeity(deityKey) {
     gameState.religion.deity  = deityKey;
     gameState.religion.active = true;
     gameState.religion.titheFailed = 0;
+    addLifetimeSet('deitiesPledged', deityKey);
+    if (gameState.stats) gameState.stats.titheStreak = 0; // a new pledge starts a new streak
     gameState.religion.lastSacrificeDay = gameState.time.day + (gameState.time.year - 1) * DAYS_PER_SEASON * 4;
     // Stop decaying this deity now that we follow it
     if (gameState.religion.favorDecay) delete gameState.religion.favorDecay[deityKey];
@@ -800,6 +1011,10 @@ function pledgeDeity(deityKey) {
 
 function abandonDeity() {
     const prevDeity = gameState.religion.deity;
+    // Apostate achievement: walking away from a god you fully devoted yourself to
+    if (prevDeity && (getLifetime().deitiesMaxFavor || []).includes(prevDeity)) {
+        earnAchievement('apostate');
+    }
     if (prevDeity) {
         const prevFavor = getDeityFavor(prevDeity);
         setDeityFavor(prevDeity, prevFavor - 10);
@@ -968,7 +1183,8 @@ function getProduction() {
         const n = (def.jobs ? (workers[id] || 0) : count) * activeFrac;
         if (n === 0) continue;
         const bldgMult = getResearchBonus('productionBonus', id)
-                       * getBuildingProductionBonus(id);
+                       * getBuildingProductionBonus(id)
+                       * getAchBuildingMult(id);
         for (const [res, rate] of Object.entries(def.production)) {
             const moraleMod = (res === 'lore') ? getMoraleMult() : 1;
             prod[res] = (prod[res] || 0) + rate * n * bldgMult * allBonus * moraleMod;
@@ -1282,7 +1498,8 @@ function _buildMoraleTooltipHTML() {
         const sylvReduce = (isDeityFavorActive() && gameState.religion.deity === 'silvanus'
             && DEITIES.silvanus.bonuses.winterPenaltyMult) || 1;
         const researchReduce = research.sylvanFavor ? 0.5 : 1;
-        seasonVal = -10 * sylvReduce * researchReduce;
+        const almanacReduce = research.almanacOfFrost ? 0.9 : 1;
+        seasonVal = -10 * sylvReduce * researchReduce * almanacReduce;
     }
     if (seasonVal !== 0) rows.push({ label: `Season: ${season}`, value: seasonVal, drain: seasonVal < 0 });
 
@@ -2078,6 +2295,17 @@ function getCaps() {
         + (r2.ironLockbox   ? 50000 : 0)
         + (r2.thievesGuild  ? 25000 : 0)
         + raceCoinBonus;
+    // ── Achievement bonuses ──
+    // Packrat: all Tier 1 storage caps +5%
+    if (hasAch('packrat')) {
+        for (const res of ['food','wood','stone','ore','herbs','crystals','coal','clay','bones','sulphur']) {
+            caps[res] = Math.floor((caps[res] || 0) * 1.05);
+        }
+    }
+    // Bone Collector: bones cap +100
+    if (hasAch('boneCollector')) caps.bones = (caps.bones || 0) + 100;
+    // Fat Purse: +5 cp coin cap per major achievement earned
+    if (hasAch('fatPurse')) caps.coins += achMajorCount() * 5;
     // Era 1: base caps of 100 for Era 1 resources, raised by storage buildings
     if ((gameState.run.era || 1) === 1) {
         const reservoirBonus = getReservoirBonus();
@@ -2092,9 +2320,18 @@ const GUILD_DISCOUNT_BUILDINGS = new Set(["smelter", "forge", "loom", "kiln"]);
 
 function getBuildCost(id) {
     const def = ROOMS[id];
-    const n   = gameState.buildings[id] || 0;
+    let   n   = gameState.buildings[id] || 0;
     const r   = gameState.research || {};
     const out = {};
+    // Landlord achievement: first 2 Hovels are free, and only paid Hovels
+    // count toward cost scaling — the creep curve starts 2 purchases later.
+    if (id === 'hovel' && hasAch('landlord')) {
+        if (n < 2) {
+            for (const res of Object.keys(def.cost)) out[res] = 0;
+            return out;
+        }
+        n -= 2;
+    }
     let scale = def.costScale || 1.2;
     if (r.communalArchitecture && id === 'hovel') scale = Math.max(1.01, scale - 0.02);
     const guildDiscount = r.guildCharter && GUILD_DISCOUNT_BUILDINGS.has(id);
@@ -2102,6 +2339,7 @@ function getBuildCost(id) {
     if (r.prototypeTools)   matReduction += 0.05;
     if (r.blueprintLibrary) matReduction += 0.07;
     if (r.masterCraft)      matReduction += 0.08;
+    if (r.modularFoundations) matReduction += 0.02;
     for (const [res, base] of Object.entries(def.cost)) {
         let cost = Math.floor(base * Math.pow(scale, n));
         if (guildDiscount) cost = Math.floor(cost * 0.85);
@@ -2174,6 +2412,8 @@ function build(id) {
     }
     if (bought === 0) return;
     gameState.stats.buildingsConstructed = (gameState.stats.buildingsConstructed || 0) + bought;
+    bumpLifetime('buildingsConstructed', bought);
+    bumpLifetimeBuilding(id, bought);
     updateUI();
     saveGame();
 }
@@ -2196,7 +2436,8 @@ function adjustBuildingPaused(id, delta, event) {
 
 function getTradeCapacity() {
     if (!(gameState.buildings.marketStall > 0)) return 0;
-    return 5 + (gameState.buildings.tradeCart || 0) * 2;
+    const gossamer = (gameState.research && gameState.research.gossamerLedgers) ? 1 : 0;
+    return 5 + (gameState.buildings.tradeCart || 0) * 2 + gossamer;
 }
 
 // Total route-units committed across all resources (abs value of each signed count).
@@ -2324,7 +2565,7 @@ function renderTradeTab() {
             dir = `<span class="trade-dir trade-sell">SELL</span>`;
         } else if (count > 0) {
             const amount = count * TRADE_AMOUNT;
-            const spend  = amount * rate * 2;
+            const spend  = amount * rate * (hasAch('haggler') ? 1.9 : 2);
             sub = `${formatCoins(spend)}/day &larr; +${amount}/day`;
             dir = `<span class="trade-dir trade-buy">BUY</span>`;
         } else {
@@ -2353,9 +2594,17 @@ function gather(key) {
     const cur    = gameState.resources[action.resource] || 0;
     const cap    = caps[action.resource] !== undefined ? caps[action.resource] : 0;
     if (cur >= cap) return;
-    const amount = getGatherAmount(key);
+    let amount = getGatherAmount(key);
+    // Gleaming Tools research: 1% chance a gather yields double
+    if (gameState.research && gameState.research.gleamingTools && Math.random() < 0.01) amount *= 2;
     gameState.resources[action.resource] = Math.min(cur + amount, cap);
     gameState.stats.manualGathers = (gameState.stats.manualGathers || 0) + 1;
+    bumpLifetime('manualGathers');
+    // Green Thumb achievement: food gathers may also turn up a herb once herbs are unlocked
+    if (key === 'food' && hasAch('greenThumb') && shouldShowResource('herbs') && Math.random() < 0.02) {
+        const herbCap = caps.herbs !== undefined ? caps.herbs : 0;
+        gameState.resources.herbs = Math.min((gameState.resources.herbs || 0) + 1, herbCap);
+    }
     updateUI();
 }
 
@@ -2442,10 +2691,29 @@ function runOneTick() {
         const formNodes = ['horde','champion','bloodline','anomaly','root-node','cycle','pack','apex','kept','consumed','pact','vessel'];
         const hasForm = (era1.unlocked || []).some(id => formNodes.includes(id));
         if (hasForm) r.mana = (r.mana || 0) + 0.2;
+        // Essence Sommelier: overflow spills 1% into the lowest Era 1 resource
+        const _essOverflow = (r.essence || 0) - caps.essence;
+        if (_essOverflow > 0 && hasAch('essenceSommelier')) {
+            if ((r.influence || 0) <= (r.mana || 0)) {
+                r.influence = Math.min((r.influence || 0) + _essOverflow * 0.01, caps.influence);
+            } else {
+                r.mana = Math.min((r.mana || 0) + _essOverflow * 0.01, caps.mana);
+            }
+        }
         // Clamp to dynamic caps
         r.essence   = Math.min(r.essence,   caps.essence);
         r.influence = Math.min(r.influence, caps.influence);
         r.mana      = Math.min(r.mana,      caps.mana);
+        // Reservoir fill tracking (500+ capacity): counts once per fill, and
+        // re-arms only after the reservoir drains below half.
+        if (caps.essence >= 500 && r.essence >= caps.essence) {
+            if (!st.reservoirWasFull) {
+                bumpLifetime('reservoirFills');
+                st.reservoirWasFull = 1;
+            }
+        } else if (r.essence < caps.essence * 0.5) {
+            st.reservoirWasFull = 0;
+        }
     }
 
     // 1. Building production (passive buildings only)
@@ -2456,6 +2724,10 @@ function runOneTick() {
     st.foodProduced  = (st.foodProduced  || 0) + (prod.food  || 0);
     st.woodProduced  = (st.woodProduced  || 0) + (prod.wood  || 0);
     st.stoneProduced = (st.stoneProduced || 0) + (prod.stone || 0);
+    if (prod.food)  bumpLifetime('foodProduced',  prod.food);
+    if (prod.wood)  bumpLifetime('woodProduced',  prod.wood);
+    if (prod.stone) bumpLifetime('stoneProduced', prod.stone);
+    if (prod.bones) bumpLifetime('bonesProduced', prod.bones);
 
     // 1b. Converter buildings
     const workers2 = getWorkersPerBuilding();
@@ -2491,6 +2763,11 @@ function runOneTick() {
         }
         const outAmt = maxOut * ratio;
         gameState.resources[outRes] = (gameState.resources[outRes] || 0) + outAmt;
+        // Lifetime crafting counters for achievement tracking
+        if (outRes === 'ichor')   bumpLifetime('ichorProduced',   outAmt);
+        if (outRes === 'runes')   bumpLifetime('runesProduced',   outAmt);
+        if (outRes === 'mithril') bumpLifetime('mithrilProduced', outAmt);
+        if (outRes === 'bones')   bumpLifetime('bonesProduced',   outAmt);
     }
 
     // 1c. Herbalist's Den potion upkeep (Herbal Husbandry research)
@@ -2503,7 +2780,8 @@ function runOneTick() {
     }
 
     // 2. Food consumption (rationing research reduces consumption by 20%)
-    const foodConsumptionMult = getResearchBonus('foodConsumption'); // 1.0 normally, 0.80 with rationing
+    let foodConsumptionMult = getResearchBonus('foodConsumption'); // 1.0 normally, 0.80 with rationing
+    if (hasAch('perfectHarvest')) foodConsumptionMult *= 0.98;
     const foodNeeded = Math.ceil(pop.count * foodConsumptionMult);
     if (gameState.resources.food >= foodNeeded) {
         gameState.resources.food -= foodNeeded;
@@ -2552,6 +2830,7 @@ function runOneTick() {
         if (pop.growthTimer >= growthThreshold) {
             pop.count++;
             pop.growthTimer = 0;
+            bumpLifetime('creaturesHoused');
         }
     } else {
         pop.growthTimer = 0;
@@ -2587,28 +2866,47 @@ function runOneTick() {
         if (stallWorkers > 0) {
             gameState.resources.coins = (gameState.resources.coins || 0) + stallWorkers * 5;
         }
+        // Night Shift achievement: idle creatures pick up odd jobs for 0.1 cp/day
+        if (hasAch('nightShift')) {
+            const _idleNow = Math.max(0, gameState.population.count - getEmployed());
+            if (_idleNow > 0) gameState.resources.coins = (gameState.resources.coins || 0) + _idleNow * 0.1;
+        }
+        // Compound Interest research: coins below cap earn 0.1% daily interest
+        if (gameState.research && gameState.research.compoundInterest) {
+            const _coinCap = getCaps().coins || 0;
+            const _coinBal = gameState.resources.coins || 0;
+            if (_coinBal > 0 && _coinBal < _coinCap) {
+                gameState.resources.coins = Math.min(_coinCap, _coinBal + _coinBal * 0.001);
+            }
+        }
         // Trade routes: each resource's signed route count executes once per day
         if (gameState.tradeRoutes) {
             const fencedBonus = (gameState.research && gameState.research.fencedGoods) ? 1.5 : 1;
+            // Haggler achievement: buy price drops from 2× to 1.9× the sell rate
+            const buyMult = hasAch('haggler') ? 1.9 : 2;
+            let _routeDays = 0;
             for (const res of Object.keys(gameState.tradeRoutes)) {
                 const count = gameState.tradeRoutes[res] || 0;
                 if (count === 0 || !TRADE_RATES[res]) continue;
+                _routeDays += Math.abs(count);
                 const rate = TRADE_RATES[res];
                 if (count < 0) {
                     const toSell = Math.min(TRADE_AMOUNT * -count, gameState.resources[res] || 0);
                     if (toSell > 0) {
                         gameState.resources[res] -= toSell;
                         gameState.resources.coins = (gameState.resources.coins || 0) + Math.floor(toSell * rate * fencedBonus);
+                        if (res === 'silk') bumpLifetime('silkSold', toSell);
                     }
                 } else {
                     const amount   = TRADE_AMOUNT * count;
-                    const coinCost = amount * rate * 2;
+                    const coinCost = amount * rate * buyMult;
                     if ((gameState.resources.coins || 0) >= coinCost) {
                         gameState.resources.coins -= coinCost;
                         gameState.resources[res] = (gameState.resources[res] || 0) + amount;
                     }
                 }
             }
+            if (_routeDays > 0) bumpLifetime('tradeRouteDays', _routeDays);
         }
         gameState.time.day++;
         const totalDays = DAYS_PER_SEASON * 4;
@@ -2616,11 +2914,36 @@ function runOneTick() {
             gameState.time.day = 1;
             gameState.time.year++;
             flashEl('year');
+            // Cartographer tracking: this biome has now hosted a completed year
+            if (gameState.run.biome) addLifetimeSet('biomeYears', gameState.run.biome);
         }
         const prevSeasonIndex = gameState.time.seasonIndex;
         gameState.time.seasonIndex = Math.floor((gameState.time.day - 1) / DAYS_PER_SEASON) % 4;
         if (gameState.time.seasonIndex !== prevSeasonIndex) {
             captureSeasonSnapshot();
+            // Festival of Plenty tracking: did the season end with food at cap?
+            if ((gameState.resources.food || 0) >= (caps.food || Infinity)) {
+                st.seasonsFoodCapStreak = (st.seasonsFoodCapStreak || 0) + 1;
+            } else {
+                st.seasonsFoodCapStreak = 0;
+            }
+            // Leaving Winter: the settlement made it through
+            if (prevSeasonIndex === 3) {
+                bumpLifetime('wintersSurvived');
+                if ((st.starvationDeaths || 0) === (st.winterStarveBase || 0) && gameState.population.count > 0) {
+                    earnAchievement('theLongWinter');
+                }
+            }
+            // Entering Winter: baseline the starvation count for The Long Winter
+            if (gameState.time.seasonIndex === 3) {
+                st.winterStarveBase = st.starvationDeaths || 0;
+            }
+            // Festival of Plenty: Spring opens with a +10% all-production festival day
+            if (gameState.time.seasonIndex === 0 && hasAch('festivalOfPlenty')) {
+                if (!gameState.tempBonuses) gameState.tempBonuses = [];
+                gameState.tempBonuses.push({ resource: 'all', bonus: 0.10, daysLeft: 1 });
+                addLogEntry("Spring festival! The settlement celebrates the new year.", "+10% All Production for 1 day", "events");
+            }
         }
         flashEl('day');
         maybeFireRandomEvent();
@@ -2664,16 +2987,28 @@ function runOneTick() {
                             gameState.resources[_res] = (gameState.resources[_res] || 0) - _amt;
                         }
                         _rel.titheFailed = 0;
-                        // Gain 1 favor per successful tithe
+                        st.titheStreak = (st.titheStreak || 0) + 1;
+                        // Tithe and Taxes achievement: 1-in-20 chance the tithe is refunded
+                        if (hasAch('titheAndTaxes') && Math.random() < 0.05) {
+                            for (const [_res, _amt] of Object.entries(_titheAmounts)) {
+                                gameState.resources[_res] = (gameState.resources[_res] || 0) + _amt;
+                            }
+                            addLogEntry((_deityDef.name || 'Your patron') + " is pleased, and returns today's tithe.", "", "religion");
+                        }
+                        // Gain 1 favor per successful tithe (+5% with Ecumenical Rites)
+                        const _favorGain = (gameState.research && gameState.research.ecumenicalRites) ? 1.05 : 1;
                         const _curFavor = getDeityFavor(_rel.deity);
-                        if (_curFavor < 100) setDeityFavor(_rel.deity, _curFavor + 1);
-                        // Reached Blessed tier — fire blessing and reset to 60
+                        if (_curFavor < 100) setDeityFavor(_rel.deity, _curFavor + _favorGain);
+                        // Reached Blessed tier — fire blessing and reset
                         if (getDeityFavor(_rel.deity) >= 100) {
+                            addLifetimeSet('deitiesMaxFavor', _rel.deity);
                             _fireBlessingEvent(_rel.deity);
-                            setDeityFavor(_rel.deity, 60);
+                            // Chosen Vessel achievement: blessings recharge 10% faster
+                            setDeityFavor(_rel.deity, hasAch('chosenVessel') ? 64 : 60);
                         }
                     } else {
                         _rel.titheFailed = (_rel.titheFailed || 0) + 1;
+                        st.titheStreak = 0;
                         // Failed tithe drops favor by 5
                         setDeityFavor(_rel.deity, getDeityFavor(_rel.deity) - 5);
                         addLogEntry("Your people failed to meet the tithe. " + (_deityDef.name || 'Your patron') + "'s favor wanes.", "", "religion");
@@ -2749,9 +3084,47 @@ function runOneTick() {
         if (gameState.morale) {
             const _moraleTarget = getMoraleTarget();
             gameState.morale.target = _moraleTarget;
+            // Songs of the Deep research: morale recovers toward target 25% faster
+            const _driftRate = MORALE_DRIFT_RATE * ((gameState.research && gameState.research.songsOfTheDeep) ? 1.25 : 1);
             const _diff = _moraleTarget - gameState.morale.value;
-            const _step = Math.min(Math.abs(_diff), MORALE_DRIFT_RATE) * Math.sign(_diff);
-            gameState.morale.value = Math.max(0, Math.min(getMoraleCap(), gameState.morale.value + _step));
+            const _step = Math.min(Math.abs(_diff), _driftRate) * Math.sign(_diff);
+            const _mCap = getMoraleCap();
+            let _newMorale = Math.max(0, Math.min(_mCap, gameState.morale.value + _step));
+            // First Frost achievement: morale holds at 50 through Winter
+            if (gameState.time.seasonIndex === 3 && hasAch('firstFrost')) {
+                _newMorale = Math.max(_newMorale, Math.min(50, _mCap));
+            }
+            gameState.morale.value = _newMorale;
+        }
+
+        // ── Achievement streak counters & daily poll ─────────────────────────
+        {
+            const _mVal   = (gameState.morale && gameState.morale.value) || 0;
+            const _mCap2  = getMoraleCap();
+            st.daysAtMoraleCap = (_mVal >= _mCap2 - 0.001) ? (st.daysAtMoraleCap || 0) + 1 : 0;
+            st.daysMorale90    = (_mVal >= 90)             ? (st.daysMorale90    || 0) + 1 : 0;
+            st.daysFoodAbove50 = ((gameState.resources.food || 0) >= (caps.food || 0) * 0.5)
+                ? (st.daysFoodAbove50 || 0) + 1 : 0;
+            const _jobsNow     = getJobs();
+            const _employedNow = getEmployed();
+            const _idleNow2    = Math.max(0, gameState.population.count - _employedNow);
+            st.daysFullEmployment = (gameState.population.count >= 50 && _jobsNow > 0
+                && _employedNow >= _jobsNow && _idleNow2 === 0)
+                ? (st.daysFullEmployment || 0) + 1 : 0;
+            st.daysAtLoreCap = (caps.lore > 0 && (gameState.resources.lore || 0) >= caps.lore)
+                ? (st.daysAtLoreCap || 0) + 1 : 0;
+            // Streak only counts while a tithe is actively being paid
+            if (!(gameState.religion && gameState.religion.deity && gameState.religion.active)) {
+                st.titheStreak = 0;
+            }
+            // Packrat tracking: record every resource that has ever hit its cap
+            for (const _pr of Object.keys(caps)) {
+                if (_pr === 'essence' || _pr === 'influence' || _pr === 'mana' || _pr === 'coins') continue;
+                if ((caps[_pr] || 0) > 0 && (gameState.resources[_pr] || 0) >= caps[_pr]) {
+                    addLifetimeSet('cappedResources', _pr);
+                }
+            }
+            checkAchievements({ caps, housing: getHousing() });
         }
 
         for (const k of Object.keys(gameState.resources)) {
@@ -3182,7 +3555,8 @@ function updateUI() {
         const researchMet  = !def.requiresResearch  || def.requiresResearch.every(k => gameState.research && gameState.research[k]);
         const buildingsMet = !def.requiresBuildings || Object.entries(def.requiresBuildings).every(([b, n]) => (gameState.buildings[b] || 0) >= n);
         const godFavorMet  = !def.requiresGodFavor  || isGodResearchUnlocked();
-        const prereqsMet = researchMet && buildingsMet && godFavorMet;
+        const achievementMet = !def.requiresAchievement || hasAch(def.requiresAchievement);
+        const prereqsMet = researchMet && buildingsMet && godFavorMet && achievementMet;
         const eraOk      = (RESEARCH_ERA[key] || 2) <= (gameState.run.era || 1);
         card.style.display = (!done && prereqsMet && eraOk) ? "" : "none";
         if (done) continue;
@@ -3244,6 +3618,15 @@ function updateUI() {
     setText("info-wood-total",   fmt(st.woodProduced  || 0));
     setText("info-stone-total",  fmt(st.stoneProduced || 0));
     renderQuintessencePanel();
+
+    // Achievements panel + lifetime construction (re-rendered only while visible)
+    const _infoTab = document.getElementById('tab-info');
+    if ((_infoTab && _infoTab.style.display !== 'none') || _achPanelDirty) {
+        renderAchievementsPanel();
+        renderLifetimeBuildings();
+        _achPanelDirty = false;
+    }
+    updateResearchHiddenHint();
 
     // Gather action buttons
     for (const [key, action] of Object.entries(GATHER_ACTIONS)) {
@@ -3584,6 +3967,7 @@ function shouldShowResource(res) {
 function canAffordResearch(key) {
     const def = RESEARCH[key];
     if (!def) return false;
+    if (def.requiresAchievement && !hasAch(def.requiresAchievement)) return false;
     if (def.requiresResearch) {
         for (const reqKey of def.requiresResearch) {
             if (!gameState.research || !gameState.research[reqKey]) return false;
@@ -3610,6 +3994,8 @@ function doResearch(key) {
     }
     if (!gameState.research) gameState.research = {};
     gameState.research[key] = true;
+    // Lorekeeper achievement: researching anything resets the lore-hoarding streak
+    if (gameState.stats) gameState.stats.daysAtLoreCap = 0;
     updateUI();
     saveGame();
 }
@@ -3761,6 +4147,49 @@ function devFireRandomEvent() {
     const effectSummary = _applyEventEffects(event.effects || []);
     addLogEntry(event.text, effectSummary);
     updateUI();
+}
+
+// Fills the dev achievement dropdown, grouped by tier. Earned entries are
+// marked so it doubles as a quick status readout.
+function devPopulateAchSelect() {
+    const sel = document.getElementById('dev-ach-select');
+    if (!sel || typeof ACHIEVEMENTS === 'undefined') return;
+    const current = sel.value;
+    while (sel.options.length > 1) sel.remove(1);
+    for (const [tier, label] of [['major', 'Major'], ['minor', 'Minor']]) {
+        const group = document.createElement('optgroup');
+        group.label = label;
+        for (const id of ACH_ORDER[tier]) {
+            const def = ACHIEVEMENTS[id];
+            if (!def) continue;
+            const opt = document.createElement('option');
+            opt.value = id;
+            opt.textContent = (hasAch(id) ? '✓ ' : '') + def.name;
+            group.appendChild(opt);
+        }
+        sel.appendChild(group);
+    }
+    sel.value = current;
+}
+
+function devGrantAchievement() {
+    const sel = document.getElementById('dev-ach-select');
+    if (!sel || !sel.value) return;
+    if (hasAch(sel.value)) return;
+    earnAchievement(sel.value);
+    devPopulateAchSelect();
+    updateUI();
+}
+
+function devRevokeAchievement() {
+    const sel = document.getElementById('dev-ach-select');
+    if (!sel || !sel.value) return;
+    if (!hasAch(sel.value)) return;
+    delete gameState.meta.achievements[sel.value];
+    _achPanelDirty = true;
+    devPopulateAchSelect();
+    updateUI();
+    saveGame();
 }
 
 function devAddQuintessence(n) {
@@ -3956,6 +4385,7 @@ function unlockEra1Node(nodeId) {
                 gameState.resources.influence = 0;
                 gameState.resources.mana      = 0;
                 gameState.run.era = 2;
+                applyCartographerStartBonus();
                 saveGame();
                 snapshotBackup("Era 2 (" + (node.race || "transition") + ")");
                 updateUI();
@@ -3974,6 +4404,32 @@ function unlockEra1Node(nodeId) {
 let _introTransitionCallback = null;
 let _introTimerTimeout = null;
 
+// Scale the intro comic to fit the viewport height. Below MIN_SCALE the
+// content would get too small to read, so we stop shrinking and let the
+// overlay's overflow-y:auto take over (small screens can still scroll).
+function fitIntroTransition() {
+    const overlay = document.getElementById('intro-transition-overlay');
+    const wrap = document.getElementById('intro-scale-wrap');
+    if (!overlay || !wrap) return;
+
+    wrap.style.transform = '';
+    wrap.style.height = '';
+    const natural = wrap.offsetHeight;
+    const cs = getComputedStyle(overlay);
+    const avail = overlay.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
+    if (natural <= avail) return;
+
+    const MIN_SCALE = 0.68;
+    const scale = Math.max(MIN_SCALE, avail / natural);
+    wrap.style.transform = 'scale(' + scale + ')';
+    wrap.style.height = (natural * scale) + 'px';
+}
+
+window.addEventListener('resize', () => {
+    const overlay = document.getElementById('intro-transition-overlay');
+    if (overlay && overlay.classList.contains('intro-active')) fitIntroTransition();
+});
+
 function showIntroTransition(onComplete) {
     _introTransitionCallback = onComplete;
 
@@ -3990,6 +4446,7 @@ function showIntroTransition(onComplete) {
     btn.classList.remove('intro-btn-in', 'intro-btn-pulse');
     overlay.classList.remove('intro-hiding');
     overlay.classList.add('intro-active');
+    fitIntroTransition();
 
     // Stagger 4 panels in, then lore text 400ms after each panel
     const delays = [150, 750, 1350, 1950];
@@ -7172,6 +7629,32 @@ function selectStartBiome(isFirstRun) {
     gameState.run.mods = mods;
 }
 
+// Cartographer achievement: the biome's listed starting bonus — normally pure
+// flavor text — is actually delivered when the run reaches Era 2, plus 10%.
+// Parses strings like "+30 Wood · +20 Food" or "+40 Stone · 1 Free Hovel".
+function applyCartographerStartBonus() {
+    if (!hasAch('cartographer')) return;
+    const biome = BIOME_DATA[gameState.run.biome];
+    if (!biome || !biome.start) return;
+    const resNames = { food: 'food', wood: 'wood', stone: 'stone' };
+    const granted = [];
+    for (const m of biome.start.matchAll(/\+(\d+)\s+([A-Za-z]+)/g)) {
+        const key = resNames[m[2].toLowerCase()];
+        if (!key) continue;
+        const amt = Math.ceil(parseInt(m[1], 10) * 1.10);
+        gameState.resources[key] = (gameState.resources[key] || 0) + amt;
+        granted.push(`+${amt} ${m[2]}`);
+    }
+    for (const m of biome.start.matchAll(/(\d+)\s+Free\s+(Hovel|Storage)/gi)) {
+        const bld = m[2].toLowerCase() === 'hovel' ? 'hovel' : 'storage';
+        gameState.buildings[bld] = (gameState.buildings[bld] || 0) + parseInt(m[1], 10);
+        granted.push(`+${m[1]} ${m[2]}`);
+    }
+    if (granted.length) {
+        addLogEntry("Your maps of this land pay off — the biome's bounty is claimed.", granted.join(', '), 'progress');
+    }
+}
+
 // Itemized quintessence sources for the current run. Each entry is
 // { label, amount }; calcQuintessenceEarned() sums them, and the Devil's
 // Contract ledger renders them, so the two can never disagree.
@@ -7189,6 +7672,11 @@ function calcQuintessenceBreakdown() {
     if (researchBonus > 0) lines.push({ label: "Knowledge surrendered", amount: researchBonus });
     const race = gameState.run.race;
     if (race && (gameState.meta.racesPlayed[race] || 0) <= 1) lines.push({ label: "First covenant of this race", amount: 1 });
+    // Repeat Customer achievement: Amnizu's line of credit — +10% (minimum +1)
+    if (hasAch('repeatCustomer')) {
+        const subtotal = lines.reduce((s, l) => s + l.amount, 0);
+        lines.push({ label: "Amnizu's line of credit", amount: Math.max(1, Math.round(subtotal * 0.10)) });
+    }
     return lines;
 }
 
@@ -7352,6 +7840,7 @@ function devilContractRefuse() {
 
 function devilContractSign() {
     closeDevilContract();
+    bumpLifetime('contractsSigned');
     performPrestige('devilsContract');
 }
 
@@ -7760,6 +8249,7 @@ function addLogEntry(text, effectSummary, category) {
     };
 
     if (!gameState.randomEventLog) gameState.randomEventLog = [];
+    if (gameState.stats) gameState.stats.logEntries = (gameState.stats.logEntries || 0) + 1;
     gameState.randomEventLog.unshift(record);
     if (gameState.randomEventLog.length > 40) gameState.randomEventLog.length = 40;
 
@@ -7837,6 +8327,7 @@ function _applyEventEffects(effects) {
             parts.push(fx.amount > 0 ? `+${fx.amount} ${rname}` : `${fx.amount} ${rname}`);
         } else if (fx.type === 'population') {
             gameState.population.count = Math.max(1, (gameState.population.count || 1) + fx.amount);
+            if (fx.amount > 0) bumpLifetime('creaturesHoused', fx.amount);
             parts.push(fx.amount > 0 ? `+${fx.amount} Population` : `${fx.amount} Population`);
         } else if (fx.type === 'morale') {
             if (gameState.morale) {
@@ -7896,6 +8387,7 @@ function _applyEventEffects(effects) {
 
 function _fireBlessingEvent(deityKey) {
     if (typeof BLESSING_EVENTS === 'undefined' || !BLESSING_EVENTS[deityKey]) return;
+    bumpLifetime('blessings');
     const pool = BLESSING_EVENTS[deityKey];
     const event = _weightedPick(pool);
     const effectSummary = _applyEventEffects(event.effects || []);
@@ -7910,7 +8402,9 @@ function maybeFireRandomEvent() {
     const cooldowns = gameState.randomEventCooldowns || (gameState.randomEventCooldowns = {});
 
     // Roll once per day with a ~1.5% chance to fire any event
-    if (Math.random() > 0.015) return;
+    // (Chronicler achievement: events occur 5% more often)
+    const _eventChance = hasAch('chronicler') ? 0.015 * 1.05 : 0.015;
+    if (Math.random() > _eventChance) return;
 
     let pool = [];
     if (era === 1) {
@@ -7930,6 +8424,7 @@ function maybeFireRandomEvent() {
     const event = _weightedPick(pool);
     const effectSummary = _applyEventEffects(event.effects || []);
     addLogEntry(event.text, effectSummary);
+    bumpLifetime('eventsWitnessed');
     cooldowns[event.id] = currentDay + (event.cooldownDays || 20);
 }
 
@@ -7941,6 +8436,7 @@ if (!gameState.run || !gameState.run.mods || gameState.run.mods.length === 0) {
 updateUI();
 updateIdentityPanel();
 devPopulateRaceSelect();
+devPopulateAchSelect();
 _initDevTransitionSelect();
 initResTooltips();
 initGatherTooltips();

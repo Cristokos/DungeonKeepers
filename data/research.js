@@ -1171,3 +1171,119 @@ RESEARCH.dungeonBlueprint = {
     requiresResearch: ["ritualPrep", "darkTexts", "manaConduit", "mithrilTemper", "forgeMastery", "roadNetwork"],
     effects: { flag: "eraThreeUnlocked" },
 };
+
+// ── Mastery Research ──────────────────────────────────────────────────────────
+// Hidden techniques revealed only by earning their gating achievement.
+// `requiresAchievement` names the achievement id (see data/achievements.js);
+// the card is invisible and unbuyable until it is earned. `mastery: true`
+// gets the gilt card treatment.
+
+RESEARCH.ergonomicTools = {
+    tier: "2.3",
+    name: "Ergonomic Tools",
+    desc: "Ten thousand gathers have taught your hands what the tools should have been. All manual gathering yields +1 per action.",
+    cost: { wood: 200, steel: 40 },
+    requiresAchievement: "beastOfBurden",
+    mastery: true,
+    effects: { allGatherBonus: 1 },
+};
+
+RESEARCH.veinSense = {
+    tier: "2.3",
+    name: "Vein Sense",
+    desc: "After a hundred thousand stones, your quarriers read the rock like a ledger. Quarries produce 3% more stone.",
+    cost: { stone: 300, coal: 60 },
+    requiresAchievement: "deepMiner",
+    mastery: true,
+    effects: { productionBonus: { quarry: 1.03 } },
+};
+
+RESEARCH.almanacOfFrost = {
+    tier: "2.4",
+    name: "Almanac of Frost",
+    desc: "Twenty-five winters, bound in cloth and memory. The cold is no longer a surprise. Winter's morale penalty is reduced by 10%.",
+    cost: { cloth: 150, lore: 15 },
+    requiresAchievement: "weathered",
+    mastery: true,
+    effects: { flag: "almanacOfFrost" },
+};
+
+RESEARCH.modularFoundations = {
+    tier: "2.4",
+    name: "Modular Foundations",
+    desc: "A thousand buildings raised; the joints and joists are standard now. All building material costs reduced by 2%.",
+    cost: { bricks: 250, lore: 20 },
+    requiresAchievement: "masterMason",
+    mastery: true,
+    effects: { flag: "modularFoundations" },
+};
+
+RESEARCH.ecumenicalRites = {
+    tier: "2.5",
+    name: "Ecumenical Rites",
+    desc: "Having served three heavens, your priests know which prayers are load-bearing. Favor with your pledged deity accumulates 5% faster.",
+    cost: { lore: 400, manaGold: 10 },
+    requiresAchievement: "comparativeTheology",
+    mastery: true,
+    effects: { flag: "ecumenicalRites" },
+};
+
+RESEARCH.wardingScript = {
+    tier: "2.5",
+    name: "Warding Script",
+    desc: "Runes etched into the vault walls keep magical stores from seeping away. All Tier 3 storage caps +10%.",
+    cost: { lore: 450, runes: 30 },
+    requiresAchievement: "runesmith",
+    mastery: true,
+    effects: { capBonus: { arcaneEssence: 5, silk: 4, manaGold: 4, ichor: 3, mithril: 2 } },
+};
+
+RESEARCH.songsOfTheDeep = {
+    tier: "2.5",
+    name: "Songs of the Deep",
+    desc: "The old melodies your people hummed in their happiest year, written down at last. Morale drifts toward its target 25% faster.",
+    cost: { lore: 480, silk: 10 },
+    requiresAchievement: "belovedKeeper",
+    mastery: true,
+    effects: { flag: "songsOfTheDeep" },
+};
+
+RESEARCH.vileDistillation = {
+    tier: "2.6",
+    name: "Vile Distillation",
+    desc: "What the Dark Altar taught you about ichor applies, unsettlingly well, to potion work. Alchemy Labs produce 5% more potions.",
+    cost: { lore: 550, ichor: 20 },
+    requiresAchievement: "ichorAlchemist",
+    mastery: true,
+    effects: { converterBonus: { alchemyLab: 1.05 } },
+};
+
+RESEARCH.gossamerLedgers = {
+    tier: "2.6",
+    name: "Gossamer Ledgers",
+    desc: "Contracts written on spider silk — light enough to carry one more agreement per caravan. Trade route capacity +1.",
+    cost: { lore: 600, silk: 25 },
+    requiresAchievement: "silkRoad",
+    mastery: true,
+    effects: { flag: "gossamerLedgers" },
+};
+
+RESEARCH.compoundInterest = {
+    tier: "2.7",
+    name: "Compound Interest",
+    desc: "The Bank of Dis is not the only institution that understands money making money. Coins below their cap earn 0.1% interest per day.",
+    cost: { lore: 800, manaGold: 15 },
+    requiresAchievement: "goldenHoard",
+    mastery: true,
+    effects: { flag: "compoundInterest" },
+};
+
+RESEARCH.gleamingTools = {
+    tier: "2.7",
+    name: "Gleaming Tools",
+    desc: "Mithril-edged implements that sing when they bite. Every manual gather has a 1% chance to yield double.",
+    cost: { lore: 850, mithril: 1 },
+    requiresAchievement: "mithrilTouch",
+    mastery: true,
+    effects: { flag: "gleamingTools" },
+};
