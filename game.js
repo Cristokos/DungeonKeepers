@@ -856,6 +856,8 @@ function getGatherAmount(resourceKey) {
     const modName = GATHER_MOD_BONUSES[resourceKey];
     if (modName && hasActiveMod(modName)) amount += 1;
     if (resourceKey === 'stone' && hasAch('stonecuttersEye')) amount += 2;
+    if (resourceKey === 'wood'  && hasAch('woodcuttersEye'))  amount += 2;
+    if (resourceKey === 'food'  && hasAch('farmersEye'))      amount += 2;
     return Math.max(1, Math.floor(amount));
 }
 
@@ -1778,6 +1780,15 @@ function _buildGatherTooltipHTML(key) {
     const modName = GATHER_MOD_BONUSES[res];
     if (modName && hasActiveMod(modName)) {
         rows.push({ label: modName + ' (biome)', val: '+1', cls: 'pos', muted: true });
+    }
+
+    // Achievement bonuses (mirror getGatherAmount)
+    const gatherAchByRes = { stone: 'stonecuttersEye', wood: 'woodcuttersEye', food: 'farmersEye' };
+    const gatherAchId = gatherAchByRes[res];
+    if (gatherAchId && hasAch(gatherAchId)) {
+        const achDef = (typeof ACHIEVEMENTS !== 'undefined') ? ACHIEVEMENTS[gatherAchId] : null;
+        const achName = achDef ? achDef.name : gatherAchId;
+        rows.push({ label: achName + ' (achievement)', val: '+2', cls: 'pos', muted: true });
     }
 
     const total = getGatherAmount(key);

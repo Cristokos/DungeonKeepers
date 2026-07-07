@@ -174,6 +174,20 @@ const ACHIEVEMENTS = {
         check: () => ((_achLife().builtBy || {}).quarry || 0) >= 1000,
         progress: () => ({ cur: (_achLife().builtBy || {}).quarry || 0, goal: 1000 }),
     },
+    woodcuttersEye: {
+        name: "Woodcutter's Eye", icon: "&#129683;", tier: "major",
+        how: "Build 1,000 Lumber Camps across your account.",
+        reward: "+2 to every manual wood gather.",
+        check: () => ((_achLife().builtBy || {}).lumber || 0) >= 1000,
+        progress: () => ({ cur: (_achLife().builtBy || {}).lumber || 0, goal: 1000 }),
+    },
+    farmersEye: {
+        name: "Farmer's Eye", icon: "&#127806;", tier: "major",
+        how: "Build 1,000 Farms across your account.",
+        reward: "+2 to every manual food gather.",
+        check: () => ((_achLife().builtBy || {}).farm || 0) >= 1000,
+        progress: () => ({ cur: (_achLife().builtBy || {}).farm || 0, goal: 1000 }),
+    },
     packrat: {
         name: "Packrat", icon: "&#128230;", tier: "major",
         how: "Hit the storage cap on 10 different resources across your account.",
@@ -381,7 +395,7 @@ const ACH_ORDER = {
         'deepRoots', 'eyewitness', 'clickingIntensifies', 'quintessential', 'inkStillWet',
     ],
     major: [
-        'greenThumb', 'stonecuttersEye', 'packrat', 'firstFrost', 'festivalOfPlenty',
+        'greenThumb', 'stonecuttersEye', 'woodcuttersEye', 'farmersEye', 'packrat', 'firstFrost', 'festivalOfPlenty',
         'haggler', 'fatPurse', 'titheAndTaxes', 'chosenVessel', 'landlord',
         'moraleOfficer', 'nightShift', 'cartographer', 'perfectHarvest', 'essenceSommelier',
         'lorekeeper', 'chronicler', 'boneCollector', 'mithrilTouch', 'repeatCustomer',
