@@ -2616,9 +2616,12 @@ function runOneTick() {
             gameState.time.day = 1;
             gameState.time.year++;
             flashEl('year');
-            captureYearlySnapshot();
         }
+        const prevSeasonIndex = gameState.time.seasonIndex;
         gameState.time.seasonIndex = Math.floor((gameState.time.day - 1) / DAYS_PER_SEASON) % 4;
+        if (gameState.time.seasonIndex !== prevSeasonIndex) {
+            captureSeasonSnapshot();
+        }
         flashEl('day');
         maybeFireRandomEvent();
         if (gameState.time.day % DAYS_PER_SEASON === 1 && gameState.time.day !== 1) {
@@ -7200,13 +7203,14 @@ function doPrestige() {
     performPrestige('dev');
 }
 
-// Fired once per in-game year (at the year rollover) so analytics get regular
-// progress snapshots instead of only hearing from players who prestige.
-function captureYearlySnapshot() {
+// Fired on every in-game season change so analytics get regular progress
+// snapshots instead of only hearing from players who prestige.
+function captureSeasonSnapshot() {
     if (typeof posthog === 'undefined') return;
-    const runDays = gameState.time.day + (gameState.time.year - 1) * 365;
-    posthog.capture('yearly_snapshot', {
+    const runDays = gameState.time.day + (gameState.time.year - 1) * DAYS_PER_SEASON * 4;
+    posthog.capture('season_snapshot', {
         year:               gameState.time.year,
+        season:             SEASONS[gameState.time.seasonIndex],
         race:               gameState.run.race,
         biome:              gameState.run.biome,
         era:                gameState.run.era,
@@ -7234,7 +7238,7 @@ function performPrestige(method) {
     // Capture run stats before reset for analytics
     if (typeof posthog !== 'undefined') {
         const runTicks = gameState.time.tick;
-        const runDays  = gameState.time.day + (gameState.time.year - 1) * 365;
+        const runDays  = gameState.time.day + (gameState.time.year - 1) * DAYS_PER_SEASON * 4;
         posthog.capture('prestige', {
             method:               method || 'unknown',
             race:                 gameState.run.race,
