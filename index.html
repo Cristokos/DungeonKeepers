@@ -3031,6 +3031,21 @@
             </div>
 
             <div class="dev-section">
+                <h3>Research</h3>
+                <div class="dev-grid">
+                    <button class="dev-btn" onclick="devGrantAllResearch()">Grant All Research</button>
+                    <button class="dev-btn danger" onclick="devRevokeAllResearch()">Revoke All Research</button>
+                </div>
+                <div class="dev-grid" style="margin-top:6px">
+                    <select id="dev-research-select" class="dev-select">
+                        <option value="">— Select a research —</option>
+                    </select>
+                    <button class="dev-btn" onclick="devGrantResearch()">Grant Selected</button>
+                    <button class="dev-btn danger" onclick="devRevokeResearch()">Revoke Selected</button>
+                </div>
+            </div>
+
+            <div class="dev-section">
                 <h3>Danger Zone</h3>
                 <div class="dev-grid">
                     <button class="dev-btn danger" onclick="devResetSave()">Reset Save</button>

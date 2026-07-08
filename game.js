@@ -1085,6 +1085,23 @@ function getWorkersPerBuilding() {
     return out;
 }
 
+// When a creature dies of starvation, trim one worker from job assignments
+// only if population can no longer support them all (i.e. no idle slack).
+// Farmers are protected and only lose their job if no other assigned worker
+// is available; otherwise a random non-farm job is picked to absorb the loss.
+function cullWorkerOnStarvation() {
+    const assignments = gameState.workerAssignments || (gameState.workerAssignments = {});
+    const desiredTotal = Object.values(assignments).reduce((s, v) => s + (v || 0), 0);
+    if (desiredTotal <= gameState.population.count) return;
+    const nonFarmJobs = Object.keys(assignments).filter(id => id !== 'farm' && (assignments[id] || 0) > 0);
+    const pool = nonFarmJobs.length > 0
+        ? nonFarmJobs
+        : Object.keys(assignments).filter(id => (assignments[id] || 0) > 0);
+    if (pool.length === 0) return;
+    const pick = pool[Math.floor(Math.random() * pool.length)];
+    assignments[pick]--;
+}
+
 function setWorkers(id, rawCount) {
     if (!gameState.workerAssignments) gameState.workerAssignments = {};
     const def = ROOMS[id];
@@ -1550,6 +1567,7 @@ function _buildMoraleTooltipHTML() {
     html += `<div class="res-tt-divider"></div>`;
     html += `<div class="res-tt-row res-tt-total-row"><span class="res-tt-label">Current morale</span><span class="res-tt-val">${mv}%</span></div>`;
     html += `<div class="res-tt-row"><span class="res-tt-label">Target <span class="res-tt-sub">${MORALE_DRIFT_RATE}pts/day max drift</span></span><span class="res-tt-val ${driftCls}">${driftDir} ${mt}%</span></div>`;
+    html += `<div class="res-tt-row"><span class="res-tt-label">Max morale</span><span class="res-tt-val">${getMoraleCap().toFixed(0)}%</span></div>`;
 
     // Effect line
     const mult   = getMoraleMult();
@@ -2820,6 +2838,7 @@ function runOneTick() {
                 pop.count--;
                 pop.starveTick = 0;
                 st.starvationDeaths = (st.starvationDeaths || 0) + 1;
+                cullWorkerOnStarvation();
             }
         }
     }
@@ -4218,6 +4237,65 @@ function devRevokeAchievement() {
     delete gameState.meta.achievements[sel.value];
     _achPanelDirty = true;
     devPopulateAchSelect();
+    updateUI();
+    saveGame();
+}
+
+// Fills the dev research dropdown, grouped by tier. Completed entries are
+// marked so it doubles as a quick status readout.
+function devPopulateResearchSelect() {
+    const sel = document.getElementById('dev-research-select');
+    if (!sel || typeof RESEARCH === 'undefined') return;
+    const current = sel.value;
+    while (sel.options.length > 1) sel.remove(1);
+    const done = gameState.research || {};
+    const tiers = [...new Set(Object.values(RESEARCH).map(d => d.tier))]
+        .sort((a, b) => parseFloat(a) - parseFloat(b));
+    for (const tier of tiers) {
+        const group = document.createElement('optgroup');
+        group.label = 'Tier ' + tier;
+        for (const [key, def] of Object.entries(RESEARCH)) {
+            if (def.tier !== tier) continue;
+            const opt = document.createElement('option');
+            opt.value = key;
+            opt.textContent = (done[key] ? '✓ ' : '') + def.name;
+            group.appendChild(opt);
+        }
+        sel.appendChild(group);
+    }
+    sel.value = current;
+}
+
+function devGrantResearch() {
+    const sel = document.getElementById('dev-research-select');
+    if (!sel || !sel.value) return;
+    if (!gameState.research) gameState.research = {};
+    gameState.research[sel.value] = true;
+    devPopulateResearchSelect();
+    updateUI();
+    saveGame();
+}
+
+function devRevokeResearch() {
+    const sel = document.getElementById('dev-research-select');
+    if (!sel || !sel.value) return;
+    if (gameState.research) delete gameState.research[sel.value];
+    devPopulateResearchSelect();
+    updateUI();
+    saveGame();
+}
+
+function devGrantAllResearch() {
+    if (!gameState.research) gameState.research = {};
+    for (const key of Object.keys(RESEARCH)) gameState.research[key] = true;
+    devPopulateResearchSelect();
+    updateUI();
+    saveGame();
+}
+
+function devRevokeAllResearch() {
+    gameState.research = {};
+    devPopulateResearchSelect();
     updateUI();
     saveGame();
 }
@@ -8509,6 +8587,7 @@ updateUI();
 updateIdentityPanel();
 devPopulateRaceSelect();
 devPopulateAchSelect();
+devPopulateResearchSelect();
 _initDevTransitionSelect();
 initResTooltips();
 initGatherTooltips();
