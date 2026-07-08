@@ -2640,8 +2640,13 @@ function isSplashVisible() {
     return el && el.classList.contains('splash-visible');
 }
 
+function isEraTransitionActive() {
+    var el = document.getElementById('era-transition-overlay');
+    return el && el.classList.contains('era-active');
+}
+
 function isGamePaused() {
-    return _gamePaused || isSplashVisible();
+    return _gamePaused || isSplashVisible() || isEraTransitionActive();
 }
 
 function togglePause() {
@@ -3440,6 +3445,10 @@ function updateUI() {
             rowEl.style.display = shouldShowResource(res) ? "" : "none";
             const atCap = caps[res] !== undefined && (gameState.resources[res] || 0) >= caps[res];
             rowEl.classList.toggle("res-at-cap", atCap);
+            const fillPct = caps[res] > 0
+                ? Math.min(100, ((gameState.resources[res] || 0) / caps[res]) * 100)
+                : 0;
+            rowEl.style.setProperty('--fill-pct', fillPct.toFixed(1));
         }
 
         setText(res,         fmt(gameState.resources[res] || 0));
