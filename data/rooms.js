@@ -280,7 +280,7 @@ const ROOMS = {
     essenceWell: {
         name: "Anima Well",
         cost: { essence: 30 },
-        costScale: 1.05,
+        costScale: 1.12,
         production: { essence: 0.5 },
         desc: "Draws raw anima from the deep currents of your awakening mind.",
         effect: (r) => `Automatically generate ${r.out} Anima.`,
@@ -299,7 +299,7 @@ const ROOMS = {
     essenceConduit: {
         name: "Influence Conduit",
         cost: { essence: 35, influence: 20 },
-        costScale: 1.05,
+        costScale: 1.12,
         converts: { inputs: { essence: 1 }, output: "influence", outputRate: 0.5 },
         unlock: { essenceWell: 1 },
         desc: "Channels raw anima into directed influence over the waking world.",
@@ -309,7 +309,7 @@ const ROOMS = {
     manaCrucible: {
         name: "Mana Current",
         cost: { essence: 50, influence: 30 },
-        costScale: 1.05,
+        costScale: 1.12,
         converts: { inputs: { essence: 2.5 }, output: "mana", outputRate: 0.5 },
         unlock: { essenceConduit: 3 },
         desc: "Refines concentrated anima into potent arcane mana through sustained focus.",
