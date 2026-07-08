@@ -162,10 +162,16 @@ const ACHIEVEMENTS = {
 
     greenThumb: {
         name: "Green Thumb", icon: "&#127807;", tier: "major",
-        how: "Produce 500 food across all your runs.",
+        how: "Manually gather food 10,000 times across all your runs.",
         reward: "Manual food gathers have a 2% chance to also yield 1 herb (once herbs are unlocked).",
-        check: () => (_achLife().foodProduced || 0) >= 500,
-        progress: () => ({ cur: Math.floor(_achLife().foodProduced || 0), goal: 500 }),
+        check: () => (_achLife().manualFoodGathers || 0) >= 10000,
+        progress: () => ({ cur: _achLife().manualFoodGathers || 0, goal: 10000 }),
+    },
+    hoarder: {
+        name: "Hoarder", icon: "&#128181;", tier: "major", era1ok: true,
+        how: "Have Anima, Influence, and Mana all above 10,000 simultaneously.",
+        reward: "The first 5 Anima Wells of every run are free, and cost scaling only begins after them.",
+        check: () => ['essence','influence','mana'].every(r => (gameState.resources[r] || 0) > 10000),
     },
     stonecuttersEye: {
         name: "Stonecutter's Eye", icon: "&#9935;", tier: "major",
@@ -395,7 +401,7 @@ const ACH_ORDER = {
         'deepRoots', 'eyewitness', 'clickingIntensifies', 'quintessential', 'inkStillWet',
     ],
     major: [
-        'greenThumb', 'stonecuttersEye', 'woodcuttersEye', 'farmersEye', 'packrat', 'firstFrost', 'festivalOfPlenty',
+        'greenThumb', 'hoarder', 'stonecuttersEye', 'woodcuttersEye', 'farmersEye', 'packrat', 'firstFrost', 'festivalOfPlenty',
         'haggler', 'fatPurse', 'titheAndTaxes', 'chosenVessel', 'landlord',
         'moraleOfficer', 'nightShift', 'cartographer', 'perfectHarvest', 'essenceSommelier',
         'lorekeeper', 'chronicler', 'boneCollector', 'mithrilTouch', 'repeatCustomer',

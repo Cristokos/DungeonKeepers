@@ -710,8 +710,10 @@ function earnAchievement(id) {
 function checkAchievements(ctx) {
     if (typeof ACHIEVEMENTS === 'undefined') return;
     const earned = (gameState.meta && gameState.meta.achievements) || {};
+    const inEra1 = (gameState.run.era || 1) < 2;
     for (const [id, def] of Object.entries(ACHIEVEMENTS)) {
         if (earned[id] || !def.check) continue;
+        if (inEra1 && def.tier === 'major' && !def.era1ok) continue;
         try {
             if (def.check(ctx)) earnAchievement(id);
         } catch (e) { /* a broken check must never kill the tick */ }
@@ -2344,6 +2346,14 @@ function getBuildCost(id) {
         }
         n -= 2;
     }
+    // Hoarder achievement: first 5 Anima Wells are free, scaling begins after.
+    if (id === 'essenceWell' && hasAch('hoarder')) {
+        if (n < 5) {
+            for (const res of Object.keys(def.cost)) out[res] = 0;
+            return out;
+        }
+        n -= 5;
+    }
     let scale = def.costScale || 1.2;
     if (r.communalArchitecture && id === 'hovel') scale = Math.max(1.01, scale - 0.02);
     const guildDiscount = r.guildCharter && GUILD_DISCOUNT_BUILDINGS.has(id);
@@ -2612,6 +2622,7 @@ function gather(key) {
     gameState.resources[action.resource] = Math.min(cur + amount, cap);
     gameState.stats.manualGathers = (gameState.stats.manualGathers || 0) + 1;
     bumpLifetime('manualGathers');
+    if (key === 'food') bumpLifetime('manualFoodGathers');
     // Green Thumb achievement: food gathers may also turn up a herb once herbs are unlocked
     if (key === 'food' && hasAch('greenThumb') && shouldShowResource('herbs') && Math.random() < 0.02) {
         const herbCap = caps.herbs !== undefined ? caps.herbs : 0;
