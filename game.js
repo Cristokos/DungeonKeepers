@@ -3424,15 +3424,22 @@ function updateUI() {
 
     // Coins (now in Population section)
     const coinsNow = gameState.resources.coins || 0;
+    const coinsAtCap = caps.coins !== undefined && coinsNow >= caps.coins;
     setText("coinsDisplay", formatCoinsCompact(coinsNow));
     setText("coinsCap",     formatCoinsCompact(caps.coins));
     const coinsDisplayEl = document.getElementById("coinsDisplay");
     if (coinsDisplayEl) coinsDisplayEl.title = formatCoins(coinsNow);
     const coinsCapEl = document.getElementById("coinsCap");
     if (coinsCapEl) coinsCapEl.title = formatCoins(caps.coins);
+    const coinsRowEl = document.getElementById("res-row-coins");
+    if (coinsRowEl) {
+        coinsRowEl.classList.toggle("res-at-cap", coinsAtCap);
+        const coinsFillPct = caps.coins > 0 ? Math.min(100, (coinsNow / caps.coins) * 100) : 0;
+        coinsRowEl.style.setProperty('--fill-pct', coinsFillPct.toFixed(1));
+    }
     const coinsRateEl = document.getElementById("coinsRate");
     if (coinsRateEl) {
-        const dailyNet = getCoinsDailyRate();
+        const dailyNet = coinsAtCap ? 0 : getCoinsDailyRate();
         if (dailyNet === 0) {
             coinsRateEl.style.display = "none";
         } else {
@@ -4204,7 +4211,7 @@ function devPopulateAchSelect() {
     const sel = document.getElementById('dev-ach-select');
     if (!sel || typeof ACHIEVEMENTS === 'undefined') return;
     const current = sel.value;
-    while (sel.options.length > 1) sel.remove(1);
+    while (sel.lastChild !== sel.firstChild) sel.removeChild(sel.lastChild);
     for (const [tier, label] of [['major', 'Major'], ['minor', 'Minor']]) {
         const group = document.createElement('optgroup');
         group.label = label;
@@ -4247,7 +4254,7 @@ function devPopulateResearchSelect() {
     const sel = document.getElementById('dev-research-select');
     if (!sel || typeof RESEARCH === 'undefined') return;
     const current = sel.value;
-    while (sel.options.length > 1) sel.remove(1);
+    while (sel.lastChild !== sel.firstChild) sel.removeChild(sel.lastChild);
     const done = gameState.research || {};
     const tiers = [...new Set(Object.values(RESEARCH).map(d => d.tier))]
         .sort((a, b) => parseFloat(a) - parseFloat(b));
