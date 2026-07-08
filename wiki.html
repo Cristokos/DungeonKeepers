@@ -10,6 +10,27 @@
     <script>document.write('<scr' + 'ipt src="data/research.js?v=' + window.GAME_VERSION + '"></scr' + 'ipt>');</script>
 </head>
 <body>
+<script>
+(function () {
+    // Mirror the game's color theme so the wiki matches Settings → Display.
+    function applyWikiTheme() {
+        var theme = "default";
+        try {
+            var saved = localStorage.getItem("dungeonKeeperSettings");
+            if (saved) theme = JSON.parse(saved).colorTheme || "default";
+        } catch (e) {}
+        if (theme === "default") {
+            document.body.removeAttribute("data-theme");
+        } else {
+            document.body.setAttribute("data-theme", theme);
+        }
+    }
+    applyWikiTheme();
+    window.addEventListener("storage", function (e) {
+        if (e.key === "dungeonKeeperSettings") applyWikiTheme();
+    });
+})();
+</script>
 <div class="wiki-layout">
 
     <nav class="wiki-nav">
@@ -2289,6 +2310,21 @@
         <!-- CHANGELOG -->
         <section id="wiki-changelog" class="wiki-section wiki-changelog" style="display:none">
             <h2>Changelog</h2>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.97.1</span><span class="cl-date">2026-07-08</span></div>
+                <p class="biome-desc">The Devil's Contract portrait now fades and settles in just after the scroll unrolls, drifts with a slow Ken Burns-style zoom and pan while the contract is open, and the scroll's wooden dowels now carry a subtle grain and highlight texture.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.97.0</span><span class="cl-date">2026-07-08</span></div>
+                <p class="biome-desc">The wiki now mirrors the color theme selected in Settings → Display instead of always using the default palette, and updates live if the theme is changed in another tab.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v0.96.7</span><span class="cl-date">2026-07-08</span></div>
+                <p class="biome-desc">Reworked the Devil's Contract prestige screen so the scroll and the Amnizu's portrait blend into one scene instead of two separate blocks: the portrait now fades softly at its edges and overlaps behind the scroll, and the background dimming is lighter and vignette-masked so it no longer flatly blacks out the game behind it.</p>
+            </div>
 
             <div class="biome-card">
                 <div><span class="cl-ver">v0.96.6</span><span class="cl-date">2026-07-08</span></div>
