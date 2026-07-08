@@ -230,7 +230,7 @@
             <p class="wiki-lead">
                 The <b>Build</b> tab holds manual gather actions — <b>Scavenge Food</b>,
                 <b>Fell a Tree</b>, and <b>Break Stones</b> — alongside all constructable buildings.
-                Hovels add housing. Storage raises every material cap. Production buildings create job
+                Hovels add housing. Sheds (and later, Storage Yards) raise every material cap. Production buildings create job
                 slots that turn idle creatures into steady resource income. New building types unlock
                 automatically once prerequisite counts (or specific research) are met. Hover a building's
                 card to reveal a per-unit pause stepper, letting you idle individual units (e.g. 3 of 10
@@ -426,7 +426,7 @@
                 <div class="biome-card">
                     <div class="biome-header"><span class="biome-name">Sunken Ruins</span><span class="biome-type biome-natural">Natural</span></div>
                     <p class="biome-desc">A half-drowned ancient civilization; your dungeon inhabits crumbling walls ankle-deep in water and mystery.</p>
-                    <div class="biome-start"><b>Start:</b> +30 Food · 1 Free Storage</div>
+                    <div class="biome-start"><b>Start:</b> +30 Food · 1 Free Shed</div>
                     <div class="biome-affinity"><span class="biome-affinity-label">Best:</span><span class="suit-chip suit-excellent">Aquatic</span><span class="suit-chip suit-excellent">Undead</span><span class="biome-affinity-label" style="margin-left:4px">Hard:</span><span class="suit-chip suit-hostile">Construct</span><span class="suit-chip suit-hostile">Giant</span></div>
                 </div>
 
@@ -583,7 +583,7 @@
                 <div class="mod-row"><span class="mod-n">47</span><span class="mod-name">Defensive Terrain</span><span class="mod-cat mod-cat-fut">Future</span><span class="mod-fx">Unlock: Watch Post building (raid defense bonus).</span></div>
                 <div class="mod-row"><span class="mod-n">48</span><span class="mod-name">Underground Access</span><span class="mod-cat mod-cat-fut">Future</span><span class="mod-fx">Unlock: Mine Shaft building (stone/ore production bonus).</span></div>
                 <div class="mod-row"><span class="mod-n">49</span><span class="mod-name">Planar Tear</span><span class="mod-cat mod-cat-fut">Future</span><span class="mod-fx">Unlock: Portal Chamber building (cross-planar resource access).</span></div>
-                <div class="mod-row"><span class="mod-n">50</span><span class="mod-name">Ancient Foundations</span><span class="mod-cat mod-cat-pos">Positive</span><span class="mod-fx">Begin run with 1 free Storage building already constructed.</span></div>
+                <div class="mod-row"><span class="mod-n">50</span><span class="mod-name">Ancient Foundations</span><span class="mod-cat mod-cat-pos">Positive</span><span class="mod-fx">Begin run with 1 free Shed already constructed.</span></div>
                 <div class="mod-row"><span class="mod-n">51</span><span class="mod-name">Creaking Timbers</span><span class="mod-cat mod-cat-neg">Negative</span><span class="mod-fx">Wood buildings degrade: −5% production every 10 days. (Future: degradation)</span></div>
                 <div class="mod-row"><span class="mod-n">52</span><span class="mod-name">Resonant Ley Lines</span><span class="mod-cat mod-cat-fut">Future</span><span class="mod-fx">Research buildings produce +20% faster.</span></div>
                 <div class="mod-row"><span class="mod-n">53</span><span class="mod-name">Unstable Ground</span><span class="mod-cat mod-cat-neg">Negative</span><span class="mod-fx">5% chance each building construction costs double resources.</span></div>
@@ -2224,11 +2224,13 @@
             <p class="wiki-lead">
                 Researching <b>Dungeon Blueprint</b> (the tier-2.10 capstone that also gates Era 3) opens a new <b>Dungeon</b>
                 tab — available the moment the Devil's Contract is, not after signing it. Continuing to build here instead of
-                prestiging is ordinary continued play, just steep: the tab holds <b>"The Bodiless Keeper,"</b> a long research
-                chain (tiers 2.2-2.13) built around the reveal that whatever guides your settlement has never had a body,
-                followed by a fixed construction sequence — <b>Hollow Cavern → Bulwark → Warding Sigil → Dungeon Core</b>.
-                The singleton Dungeon Core is inert until the Bulwark and Warding Sigil are actively staffed, a new
-                "operational dependency" mechanic unique to this arc. The costs are tuned to be impractical without a
+                prestiging is ordinary continued play, just steep. <b>"The Bodiless Keeper,"</b> a long research chain
+                (tiers 2.2-2.13) built around the reveal that whatever guides your settlement has never had a body, is
+                researched from the regular <b>Research</b> tab alongside everything else; completing it unlocks a fixed
+                construction sequence in the Dungeon tab itself — <b>Hollow Cavern → Bulwark → Warding Sigil → Dungeon Core</b>.
+                Hollow Cavern, Bulwark, and Warding Sigil are each a single structure raised through 5 purchasable stages
+                rather than built in bulk. The singleton Dungeon Core is inert until the Bulwark and Warding Sigil are both
+                fully raised to Stage 5, a new "operational dependency" mechanic unique to this arc. The costs are tuned to be impractical without a
                 meaningful Quintessence stockpile from prior prestiges — most keepers will sign the contract a few times
                 before a run is strong enough to push through instead. Binding an entity to the finished Core is a planned
                 future addition.
@@ -2324,6 +2326,21 @@
         <!-- CHANGELOG -->
         <section id="wiki-changelog" class="wiki-section wiki-changelog" style="display:none">
             <h2>Changelog</h2>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v1.02.0</span><span class="cl-date">2026-07-08</span></div>
+                <p class="biome-desc">Renamed the Storage building to Shed (same cost and effect) and added the Storage Yard, a pricier building unlocked at 5 Sheds that grants +100 more cap per building than a Shed, on top of the same Reinforced Shelving / Iron Fittings / racial storage bonuses.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v1.01.2</span><span class="cl-date">2026-07-08</span></div>
+                <p class="biome-desc">Hollow Cavern, Bulwark, and Warding Sigil are no longer worker buildings — each is now a single structure raised through 5 purchasable stages instead of built repeatedly. The Dungeon Core now requires Bulwark and Warding Sigil to both be fully raised to Stage 5 to become operational, rather than just built once.</p>
+            </div>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v1.01.1</span><span class="cl-date">2026-07-08</span></div>
+                <p class="biome-desc">Moved "The Bodiless Keeper" research chain out of the Dungeon tab and into the existing Research tab alongside everything else. Fixed Hollow Cavern being buildable an unlimited number of times for no benefit; it's now a one-time build like the Dungeon Core.</p>
+            </div>
 
             <div class="biome-card">
                 <div><span class="cl-ver">v1.01.0</span><span class="cl-date">2026-07-08</span></div>

@@ -63,6 +63,13 @@ function migrateSave(state) {
     //     // rename/move/default fields introduced in 0.52
     // }
 
+    // 1.02.0: "Storage" building renamed to "Shed" (frees up the name for the new,
+    // larger Storage Yard building). Carry over any existing count under the old key.
+    if (_verLt(from, "1.02.0") && state.buildings && "storage" in state.buildings) {
+        state.buildings.shed = (state.buildings.shed || 0) + state.buildings.storage;
+        delete state.buildings.storage;
+    }
+
     // Stamp the save with the current version so the next load sees it as current.
     state.saveVersion = (typeof window !== "undefined" && window.GAME_VERSION) || from;
     return state;

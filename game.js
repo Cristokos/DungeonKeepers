@@ -50,7 +50,7 @@ const BIOME_DATA = {
     "Deep Caverns":         { type:"Natural",  badge:"badge-natural",  desc:"A natural underground network; your dungeon expands into pre-existing tunnels. Darkness is the price of depth.",                  start:"+40 Stone · 1 Free Hovel",          mods:[{name:"Cavern Network",pos:true},{name:"Mineral Deposits",pos:true},{name:"Underground Access",pos:true},{name:"Perpetual Darkness",pos:false}],                                                                                          best:["Goblinoid","Aberration","Ooze"],               hard:["Fey","Giant"]                                 },
     "Jungle Canopy":        { type:"Natural",  badge:"badge-natural",  desc:"Stifling heat and impossible density; food is everywhere, and so are things that want to eat you.",                               start:"+40 Food · +20 Wood",              mods:[{name:"Fertile Soil",pos:true},{name:"Ancient Grove",pos:true},{name:"Abundant Wildlife",pos:true},{name:"Disease Vectors",pos:false},{name:"Hostile Flora",pos:false}],                                                                   best:["Flora","Fey","Humanoid"],                      hard:["Undead","Giant","Construct"]                  },
     "Arctic Glacier":       { type:"Natural",  badge:"badge-natural",  desc:"A frozen expanse carved by time. Isolation is both your shield and your prison; the cold never relents.",                         start:"+20 Stone",                        mods:[{name:"Isolation Instinct",pos:true},{name:"Hidden Refuge",pos:true},{name:"Harsh Winters",pos:false},{name:"Barren Soil",pos:false},{name:"Crushing Cold",pos:false}],                                                                    best:["Giant (Frost)"],                               hard:["Draconic","Flora","Fey","Aquatic"]             },
-    "Sunken Ruins":         { type:"Natural",  badge:"badge-natural",  desc:"A half-drowned ancient civilization; your dungeon inhabits crumbling walls ankle-deep in water and mystery.",                     start:"+30 Food · 1 Free Storage",        mods:[{name:"Ancient Foundations",pos:true},{name:"Arcane Residue",pos:true},{name:"Flooded Tunnels",pos:false},{name:"Unstable Ground",pos:false}],                                                                                         best:["Aquatic","Undead"],                            hard:["Construct","Giant"]                           },
+    "Sunken Ruins":         { type:"Natural",  badge:"badge-natural",  desc:"A half-drowned ancient civilization; your dungeon inhabits crumbling walls ankle-deep in water and mystery.",                     start:"+30 Food · 1 Free Shed",        mods:[{name:"Ancient Foundations",pos:true},{name:"Arcane Residue",pos:true},{name:"Flooded Tunnels",pos:false},{name:"Unstable Ground",pos:false}],                                                                                         best:["Aquatic","Undead"],                            hard:["Construct","Giant"]                           },
     "Badlands":             { type:"Natural",  badge:"badge-natural",  desc:"Eroded rock formations and choking dust — defensible terrain if you can survive on what little the land provides.",                start:"+25 Stone · +10 Wood",             mods:[{name:"Exposed Rockface",pos:true},{name:"Defensive Terrain",pos:true},{name:"Barren Soil",pos:false},{name:"Inviting Target",pos:false}],                                                                                              best:["Monstrous","Goblinoid","Draconic"],            hard:["Aquatic","Flora","Fey"]                       },
     "Underdark Depths":     { type:"D&D",      badge:"badge-dnd",      desc:"Far below any sunlit surface, in the realm of dark elves and stranger things. Rich beyond measure; strange beyond reckoning.",   start:"+45 Stone · +15 Food (fungi)",     mods:[{name:"Mineral Deposits",pos:true},{name:"Fungal Bloom",pos:true},{name:"Cavern Network",pos:true},{name:"Underground Access",pos:true},{name:"Perpetual Darkness",pos:false}],                                                             best:["Aberration","Goblinoid","Ooze"],               hard:["Giant","Humanoid","Fey"]                      },
     "Ancient Battlefield":  { type:"D&D",      badge:"badge-dnd",      desc:"The ground still remembers the war. Bones outnumber stones; residual magic pools in craters and corroded armor.",                start:"+20 Food · +20 Wood · +20 Stone",  mods:[{name:"Battleground Residue",pos:true},{name:"Ancient Foundations",pos:true},{name:"Contested Territory",pos:false},{name:"Natural Predators",pos:false}],                                                                               best:["Undead","Monstrous","Humanoid"],               hard:["Fey","Flora"]                                 },
@@ -144,7 +144,7 @@ const MOD_DESCRIPTIONS = {
     "Defensive Terrain":      "Unlock: Watch Post building (raid defense bonus).",
     "Underground Access":     "Unlock: Mine Shaft building (stone/ore production bonus).",
     "Planar Tear":            "Unlock: Portal Chamber building (cross-planar resource access).",
-    "Ancient Foundations":    "Begin run with 1 free Storage building already constructed.",
+    "Ancient Foundations":    "Begin run with 1 free Shed already constructed.",
     "Creaking Timbers":       "Wood buildings degrade: −5% production every 10 days.",
     "Resonant Ley Lines":     "Research buildings produce +20% faster.",
     "Unstable Ground":        "5% chance each building construction costs double resources.",
@@ -221,7 +221,7 @@ const gameState = {
         coins: 0,
     },
     buildings: {
-        hovel: 0, farm: 0, lumber: 0, quarry: 0, storage: 0,
+        hovel: 0, farm: 0, lumber: 0, quarry: 0, shed: 0, storageYard: 0,
         mine: 0, coalSeam: 0, herbalistDen: 0, huntingLodge: 0, clayPit: 0, crystalSeam: 0,
         marketStall: 0, tradeCart: 0, house: 0, apartment: 0,
         smelter: 0, alchemyLab: 0, kiln: 0, loom: 0,
@@ -1911,11 +1911,12 @@ function _bldEffectRates(id, def) {
         };
     }
     // Storage buildings — per-resource cap bonus (varies with research + race), excludes lore
-    if (id === 'storage') {
+    if (id === 'shed' || id === 'storageYard') {
         const r2 = gameState.research || {};
         const raceData2   = RACE_DATA[gameState.run && gameState.run.race];
         const raceStorage = (raceData2 && raceData2.effects && raceData2.effects.storageBonus) || 0;
-        return { cap: (r2.reinforcedShelving ? 75 : 50) + (r2.ironFittings ? 15 : 0) + raceStorage };
+        const base = (r2.reinforcedShelving ? 75 : 50) + (r2.ironFittings ? 15 : 0) + raceStorage;
+        return { cap: id === 'storageYard' ? base + 100 : base };
     }
     return { cap: 100 };
 }
@@ -2031,13 +2032,17 @@ function _buildBldTooltipHTML(id, def) {
     }
 
     // Operational-dependency warning — building is inert until its required
-    // support buildings are actively staffed (see isBuildingOperational).
+    // support buildings are fully raised (see isBuildingOperational).
     if (def.requiresOperational && (gameState.buildings[id] || 0) > 0 && !isBuildingOperational(id)) {
-        const missing = Object.keys(def.requiresOperational)
-            .filter(reqId => (gameState.buildings[reqId] || 0) < def.requiresOperational[reqId] || getActiveBuildingFraction(reqId) <= 0)
-            .map(reqId => (ROOMS[reqId] && ROOMS[reqId].name) || reqId)
+        const missing = Object.entries(def.requiresOperational)
+            .filter(([reqId, reqCount]) => (gameState.buildings[reqId] || 0) < reqCount || getActiveBuildingFraction(reqId) <= 0)
+            .map(([reqId, reqCount]) => {
+                const rdef = ROOMS[reqId];
+                const rname = (rdef && rdef.name) || reqId;
+                return (rdef && rdef.maxCount > 1) ? `${rname} (Stage ${reqCount})` : rname;
+            })
             .join(', ');
-        html += `<div class="bld-tt-warning">⚠ Not operational — needs ${missing} actively staffed</div>`;
+        html += `<div class="bld-tt-warning">⚠ Not operational — needs ${missing}</div>`;
     }
 
     // Cost section with visual separator
@@ -2310,17 +2315,20 @@ function getCaps() {
         const bonus = getResearchBonus('capBonus', res);
         if (bonus > 0) caps[res] += bonus;
     }
-    // Storage buildings; reinforcedShelving upgrades per-storage bonus from 50→75;
-    // ironFittings adds +15 on top; race storageBonus further adds to the per-building amount
+    // Storage buildings; reinforcedShelving upgrades per-shed bonus from 50→75;
+    // ironFittings adds +15 on top; race storageBonus further adds to the per-building amount.
+    // Storage Yards use the same tech/race bonuses as a base, plus a flat +100 for being the bigger building.
     const r2 = gameState.research || {};
     const raceData2    = RACE_DATA[gameState.run && gameState.run.race];
     const raceStorage  = (raceData2 && raceData2.effects && raceData2.effects.storageBonus) || 0;
     const storageBonus = (r2.reinforcedShelving ? 75 : 50) + (r2.ironFittings ? 15 : 0) + raceStorage;
-    const n = gameState.buildings.storage || 0;
-    if (n > 0) {
+    const storageYardBonus = storageBonus + 100;
+    const n = gameState.buildings.shed || 0;
+    const nYard = gameState.buildings.storageYard || 0;
+    if (n > 0 || nYard > 0) {
         for (const res of Object.keys(BASE_CAPS)) {
             if (res === 'lore') continue; // lore cap is set separately below
-            caps[res] += storageBonus * n;
+            caps[res] += storageBonus * n + storageYardBonus * nYard;
         }
     }
     // Lore cap: base 500 + 50 per Scriptorium, plus any capBonus from research + Silvanus deity bonus
@@ -3576,7 +3584,7 @@ function updateUI() {
         }
         const countEl = document.getElementById(id + "Count");
         if (countEl) {
-            countEl.textContent = count;
+            countEl.textContent = (def.maxCount && def.maxCount > 1) ? `Stage ${count} / ${def.maxCount}` : count;
         }
         const costEl = document.getElementById(id + "Cost");
         if (costEl) {
@@ -3635,7 +3643,7 @@ function updateUI() {
             'era2-label-countryside': ['farm', 'lumber', 'quarry'],
             'era2-label-warren':      ['hovel', 'house', 'apartment', 'entertainersStage'],
             'era2-label-craftsmen':   ['smelter', 'kiln', 'loom', 'alchemyLab', 'forge', 'arcaneGrinder', 'arcaneBench'],
-            'era2-label-merchant':    ['storage', 'marketStall', 'tradeCart'],
+            'era2-label-merchant':    ['shed', 'storageYard', 'marketStall', 'tradeCart'],
             'era2-label-arcane':      ['mageTower', 'scriptorium'],
             'era2-label-war':         ['armory'],
             'era2-label-extraction':  ['mine', 'coalSeam', 'crystalSeam', 'sulphurVent', 'herbalistDen', 'huntingLodge', 'clayPit', 'ritualCircle', 'spiderNest', 'arcaneCrucible', 'darkAltar', 'mithrilForge'],
@@ -3992,7 +4000,7 @@ const ERA_LOADOUTS = {
     2: {
         population: 20,
         buildings: {
-            hovel: 6, farm: 5, lumber: 4, quarry: 4, storage: 4,
+            hovel: 6, farm: 5, lumber: 4, quarry: 4, shed: 4,
             mine: 4, coalSeam: 3, huntingLodge: 3, herbalistDen: 2, clayPit: 2, crystalSeam: 2,
             smelter: 2, alchemyLab: 1, kiln: 1, loom: 1,
             mageTower: 1, armory: 2, sulphurVent: 1, arcaneGrinder: 1, forge: 1, arcaneBench: 1,
@@ -4011,7 +4019,7 @@ const ERA_LOADOUTS = {
     3: {
         population: 40,
         buildings: {
-            hovel: 8, farm: 8, lumber: 6, quarry: 6, storage: 6,
+            hovel: 8, farm: 8, lumber: 6, quarry: 6, shed: 6, storageYard: 1,
             mine: 6, coalSeam: 4, huntingLodge: 4, herbalistDen: 3, clayPit: 3, crystalSeam: 3,
             smelter: 3, alchemyLab: 2, kiln: 2, loom: 2,
             mageTower: 2, armory: 3, sulphurVent: 2, arcaneGrinder: 2, forge: 2, arcaneBench: 2,
@@ -7821,8 +7829,8 @@ function applyCartographerStartBonus() {
         gameState.resources[key] = (gameState.resources[key] || 0) + amt;
         granted.push(`+${amt} ${m[2]}`);
     }
-    for (const m of biome.start.matchAll(/(\d+)\s+Free\s+(Hovel|Storage)/gi)) {
-        const bld = m[2].toLowerCase() === 'hovel' ? 'hovel' : 'storage';
+    for (const m of biome.start.matchAll(/(\d+)\s+Free\s+(Hovel|Shed)/gi)) {
+        const bld = m[2].toLowerCase() === 'hovel' ? 'hovel' : 'shed';
         gameState.buildings[bld] = (gameState.buildings[bld] || 0) + parseInt(m[1], 10);
         granted.push(`+${m[1]} ${m[2]}`);
     }

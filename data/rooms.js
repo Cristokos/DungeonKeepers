@@ -34,15 +34,23 @@ const ROOMS = {
         workerName: "Quarrier",
         production: { stone: 0.8 },
     },
-    storage: {
-        name: "Storage",
+    shed: {
+        name: "Shed",
         cost: { wood: 20, stone: 10 },
         costScale: 1.13,
-        // cap bonus (+50 to all material resources per storage) is applied in getCaps()
+        // cap bonus (+50 to all material resources per shed) is applied in getCaps()
     },
 
     // ── Stage 2 — Early Unlocks ─────────────────────────────────────────────────
 
+    storageYard: {
+        name: "Storage Yard",
+        desc: "A fenced yard of raised platforms, crates, and covered racks — far more capacity than a single Shed, at a steeper price.",
+        cost: { wood: 150, stone: 100, iron: 30 },
+        costScale: 1.16,
+        unlock: { shed: 5 },
+        // cap bonus (+100 more than a Shed grants, per storage yard) is applied in getCaps()
+    },
     mine: {
         name: "Mine",
         cost: { stone: 25, wood: 10 },
@@ -433,17 +441,20 @@ const ROOMS = {
 
     // ── The Dungeon Core arc ─────────────────────────────────────────────────────
     // A fixed build sequence: hollowCavern -> bulwark -> wardingSigil -> dungeonCore.
-    // dungeonCore requires bulwark and wardingSigil to be actively staffed
-    // (see requiresOperational / isBuildingOperational in game.js) until it is
-    // later stabilized.
+    // hollowCavern/bulwark/wardingSigil are non-worker, single-structure buildings
+    // raised through 5 purchasable stages (maxCount: 5) rather than built in bulk.
+    // dungeonCore requires bulwark and wardingSigil to both be fully raised to
+    // Stage 5 (see requiresOperational / isBuildingOperational in game.js) until
+    // it is later stabilized.
 
     hollowCavern: {
         name: "Hollow Cavern",
         cost: { stone: 4000, wood: 3000, ore: 2500 },
         coinCost: 20000,
-        costScale: 1.3,
+        costScale: 1.75,
+        maxCount: 5,
         requiresResearch: ["hollowFoundation"],
-        desc: "Raw space, carved out of the dark, waiting for a shape.",
+        desc: "Raw space, carved out of the dark, waiting for a shape. Deepens in 5 stages.",
         flavor: "The first cut is the only one that matters. Everything after just follows it.",
     },
 
@@ -451,13 +462,11 @@ const ROOMS = {
         name: "Bulwark",
         cost: { stone: 2500, iron: 1500, steel: 800 },
         coinCost: 12000,
-        costScale: 1.25,
-        jobs: 1,
-        workerName: "Warden",
-        production: { ore: 0.4 },
+        costScale: 1.75,
+        maxCount: 5,
         requiresResearch: ["anchoringRites"],
         unlock: { hollowCavern: 1 },
-        desc: "Wardens reinforce the Hollow against anything that could break in the ordinary way.",
+        desc: "Reinforcement against anything that could break in the ordinary way. Raised in 5 stages.",
         flavor: "Steel first. The stranger things come later.",
     },
 
@@ -465,13 +474,11 @@ const ROOMS = {
         name: "Warding Sigil",
         cost: { crystals: 1800, arcaneDust: 1200, runes: 600 },
         coinCost: 15000,
-        costScale: 1.25,
-        jobs: 1,
-        workerName: "Warder",
-        production: { arcaneDust: 0.4 },
+        costScale: 1.75,
+        maxCount: 5,
         requiresResearch: ["anchoringRites"],
         unlock: { bulwark: 1 },
-        desc: "Wards etched into every wall, keeping out anything that could break in the extraordinary way.",
+        desc: "Wards etched into every wall, keeping out anything that could break in the extraordinary way. Layered in 5 stages.",
         flavor: "Steel keeps out an army. This keeps out everything else.",
     },
 
@@ -482,8 +489,8 @@ const ROOMS = {
         maxCount: 1,
         requiresResearch: ["anchoringRites"],
         unlock: { hollowCavern: 1, bulwark: 1, wardingSigil: 1 },
-        requiresOperational: { bulwark: 1, wardingSigil: 1 },
-        desc: "The centerpiece of the Hollow. Inert until the Bulwark and Warding Sigil are actively holding the space around it together.",
+        requiresOperational: { bulwark: 5, wardingSigil: 5 },
+        desc: "The centerpiece of the Hollow. Inert until the Bulwark and Warding Sigil are both fully raised to Stage 5.",
         flavor: "Everything else was preparation. This is the part that was never done before.",
     },
 };

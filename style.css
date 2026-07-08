@@ -1633,7 +1633,7 @@ kbd {
     text-decoration-color: var(--disabled);
 }
 
-/* OPERATIONAL DEPENDENCY (e.g. Dungeon Core needs its stabilizers actively staffed) */
+/* OPERATIONAL DEPENDENCY (e.g. Dungeon Core needs its stabilizers fully raised) */
 .build-btn.building-inoperative {
     border-color: rgba(224,120,120,0.5);
 }

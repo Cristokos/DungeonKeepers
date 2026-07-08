@@ -339,7 +339,7 @@ RESEARCH.bonecraft = {
 RESEARCH.reinforcedShelving = {
     tier: "2.3",
     name: "Reinforced Shelving",
-    desc: "Iron-braced racks and raised floors. Each Storage building now grants +75 cap instead of +50.",
+    desc: "Iron-braced racks and raised floors. Each storage building now grants +75 base cap instead of +50 (Sheds and Storage Yards both benefit).",
     cost: { wood: 320, stone: 160, iron: 120 },
     requiresResearch: ["carpentry"],
     effects: { flag: "reinforcedShelving" },
@@ -445,7 +445,7 @@ RESEARCH.communalArchitecture = {
 RESEARCH.ironFittings = {
     tier: "2.4",
     name: "Iron Fittings",
-    desc: "Iron brackets, corner plates, and raised floor channels reinforce every Storage building's shelving. Each Storage building grants +15 additional cap to all resources.",
+    desc: "Iron brackets, corner plates, and raised floor channels reinforce every storage building's shelving. Each Shed or Storage Yard grants +15 additional cap to all resources.",
     cost: { iron: 160, wood: 200 },
     requiresResearch: ["reinforcedShelving"],
     effects: { flag: "ironFittings" },
