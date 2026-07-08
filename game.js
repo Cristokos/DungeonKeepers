@@ -2458,14 +2458,15 @@ function build(id) {
     saveGame();
 }
 
-// Adjusts how many units of a building are paused (production+consumption skipped),
-// one at a time. Lets players dial down an overbuilt converter without losing units.
+// Adjusts how many units of a building are paused (production+consumption skipped).
+// Respects the click multiplier (Ctrl=10x, Shift=25x, Alt=100x) so overbuilt
+// converters can be dialed down/up in bulk instead of one unit at a time.
 function adjustBuildingPaused(id, delta, event) {
     if (event) event.stopPropagation();
     if (!gameState.buildingDisabled) gameState.buildingDisabled = {};
     const count   = gameState.buildings[id] || 0;
     const current = gameState.buildingDisabled[id] || 0;
-    const next    = Math.max(0, Math.min(count, current + delta));
+    const next    = Math.max(0, Math.min(count, current + delta * _clickMult));
     if (next === 0) delete gameState.buildingDisabled[id];
     else gameState.buildingDisabled[id] = next;
     updateUI();
