@@ -354,15 +354,6 @@ RESEARCH.dryCellar = {
     effects: { capBonus: { food: 70, herbs: 70 } },
 };
 
-RESEARCH.militiaDrill = {
-    tier: "2.3",
-    name: "Militia Drill",
-    desc: "Weekly drills and bunk assignments. Each Armory houses +3 additional creatures.",
-    cost: { iron: 160, wood: 120 },
-    requiresResearch: ["communalLiving"],
-    effects: { housingBonus: { armory: 3 } },
-};
-
 RESEARCH.bookkeeping = {
     tier: "2.3",
     name: "Village Ledger",
@@ -390,16 +381,6 @@ RESEARCH.goldStandard = {
     effects: { flag: "goldStandard" },
 };
 
-
-// Chain D — The War Caster (step 1)
-RESEARCH.warFormations = {
-    tier: "2.4",
-    name: "Combat Formations",
-    desc: "Tactical formations and bunk rotation increase how many fighters an Armory supports. Each Armory houses +5 additional creatures.",
-    cost: { iron: 200, wood: 160 },
-    requiresResearch: ["militiaDrill"],
-    effects: { housingBonus: { armory: 5 } },
-};
 
 // Chain E — The Alchemist's Circle (step 2)
 RESEARCH.refinedAlchemy = {
@@ -852,7 +833,7 @@ RESEARCH.silkenWarren = {
     name: "Silken Warren",
     desc: "Prepare a sealed chamber and convince the spiders to cooperate. Unlocks the Spider Nest.",
     cost: { lore: 320 },
-    requiresResearch: ["bonecraft", "militiaDrill"],
+    requiresResearch: ["bonecraft"],
     effects: { unlockBuildings: ["spiderNest"] },
 };
 
@@ -966,13 +947,13 @@ RESEARCH.silkRope = {
 
 // ── 2.6 — Pre-Endgame ─────────────────────────────────────────────────────────
 
-// Chain D — The War Caster (step 2)
+// Chain D — Guard Doctrine (step 1)
 RESEARCH.shieldGuard = {
     tier: "2.7",
     name: "Shield Guard Doctrine",
     desc: "Trained guards rotate through worksites, keeping workers safe and morale high. All buildings produce 3% more.",
     cost: { lore: 930 },
-    requiresResearch: ["warFormations", "forgeMastery"],
+    requiresResearch: ["forgeMastery"],
     effects: { allProductionBonus: 0.03 },
 };
 
@@ -1112,7 +1093,7 @@ RESEARCH.runicCalibration = {
 
 // ── 2.9 — Final Stretch ───────────────────────────────────────────────────────
 
-// Chain D — The War Caster (step 3)
+// Chain D — Guard Doctrine (step 2)
 RESEARCH.eliteCompany = {
     tier: "2.9",
     name: "Elite Company",

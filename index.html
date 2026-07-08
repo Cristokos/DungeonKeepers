@@ -1044,15 +1044,39 @@
 
             </div>
 
-            <!-- War Quarters -->
+            <!-- Resonance Wing -->
 
-            <h2 class="section-gap" id="era2-label-war">War Quarters</h2>
+            <h2 class="section-gap" id="era2-label-resonance">Resonance Wing</h2>
             <div class="grid">
 
-                <button class="build-btn disabled" onclick="build('armory')" id="btn-armory" style="display:none">
-                    <div class="btn-title">Armory</div>
-                    <div class="btn-count" id="armoryCount">0</div>
-                    <div class="btn-cost" id="armoryCost"></div>
+                <button class="build-btn disabled" onclick="build('resonantFoundry')" id="btn-resonantFoundry" style="display:none">
+                    <div class="btn-title">Resonant Foundry</div>
+                    <div class="btn-count" id="resonantFoundryCount">0</div>
+                    <div class="btn-cost" id="resonantFoundryCost"></div>
+                </button>
+
+                <button class="build-btn disabled" onclick="build('resonantForgeworks')" id="btn-resonantForgeworks" style="display:none">
+                    <div class="btn-title">Resonant Forgeworks</div>
+                    <div class="btn-count" id="resonantForgeworksCount">0</div>
+                    <div class="btn-cost" id="resonantForgeworksCost"></div>
+                </button>
+
+                <button class="build-btn disabled" onclick="build('resonantMillstone')" id="btn-resonantMillstone" style="display:none">
+                    <div class="btn-title">Resonant Millstone</div>
+                    <div class="btn-count" id="resonantMillstoneCount">0</div>
+                    <div class="btn-cost" id="resonantMillstoneCost"></div>
+                </button>
+
+                <button class="build-btn disabled" onclick="build('resonantSanctum')" id="btn-resonantSanctum" style="display:none">
+                    <div class="btn-title">Resonant Sanctum</div>
+                    <div class="btn-count" id="resonantSanctumCount">0</div>
+                    <div class="btn-cost" id="resonantSanctumCost"></div>
+                </button>
+
+                <button class="build-btn disabled" onclick="build('resonantCrucible')" id="btn-resonantCrucible" style="display:none">
+                    <div class="btn-title">Resonant Crucible</div>
+                    <div class="btn-count" id="resonantCrucibleCount">0</div>
+                    <div class="btn-cost" id="resonantCrucibleCost"></div>
                 </button>
 
             </div>
@@ -1490,14 +1514,6 @@
                     </div>
                     <button class="research-btn" id="btn-research-rationing" onclick="doResearch('rationing')">Research</button>
                 </div>
-                <div class="research-card" id="research-militiaDrill">
-                    <div class="research-info">
-                        <div class="research-name">Militia Drill</div>
-                        <div class="research-desc">Weekly drills and bunk assignments. Each Armory houses +3 additional creatures.</div>
-                        <div class="research-cost"></div>
-                    </div>
-                    <button class="research-btn" id="btn-research-militiaDrill" onclick="doResearch('militiaDrill')">Research</button>
-                </div>
 
                 <!-- Chain 9: Advanced Crafting -->
                 <div class="research-card" id="research-forgeMastery" style="display:none">
@@ -1746,14 +1762,6 @@
                 </div>
 
                 <!-- ── New Tier 2.3 ── -->
-                <div class="research-card" id="research-warFormations" style="display:none">
-                    <div class="research-info">
-                        <div class="research-name">Combat Formations</div>
-                        <div class="research-desc">Tactical formations and bunk rotation increase how many fighters an Armory supports. Each Armory houses +5 additional creatures.</div>
-                        <div class="research-cost"></div>
-                    </div>
-                    <button class="research-btn" id="btn-research-warFormations" onclick="doResearch('warFormations')">Research</button>
-                </div>
                 <div class="research-card" id="research-refinedAlchemy" style="display:none">
                     <div class="research-info">
                         <div class="research-name">Refined Alchemy</div>
@@ -2139,7 +2147,7 @@
                 <div class="research-card" id="research-eliteCompany" style="display:none">
                     <div class="research-info">
                         <div class="research-name">Elite Company</div>
-                        <div class="research-desc">A veteran elite company in mithril-reinforced gear. Each Armory houses +8 more creatures and the settlement's overall production rises 5%.</div>
+                        <div class="research-desc">A veteran elite company in mithril-reinforced gear. The settlement's overall production rises 3%.</div>
                         <div class="research-cost"></div>
                     </div>
                     <button class="research-btn" id="btn-research-eliteCompany" onclick="doResearch('eliteCompany')">Research</button>
@@ -2641,20 +2649,6 @@
                     <button class="wbtn" onclick="adjustWorkers('scriptorium', -1)">&#9664;</button>
                     <input  class="winput" type="number" id="winput-scriptorium" value="0" min="0" oninput="setWorkers('scriptorium', this.value)">
                     <button class="wbtn" onclick="adjustWorkers('scriptorium', 1)">&#9654;</button>
-                    <button class="wbtn wbtn-mm" onclick="setWorkersMax(this)" title="Assign max">&#9654;&#9654;</button>
-                </div>
-            </div>
-
-            <div class="worker-row" id="wrow-armory"        style="display:none">
-                <div class="worker-left">
-                    <span class="worker-name">Armory</span>
-                    <span class="worker-slots" id="wslots-armory">0 / 0</span>
-                </div>
-                <div class="worker-controls">
-                    <button class="wbtn wbtn-mm" onclick="setWorkersMin(this)" title="Unassign all">&#9664;&#9664;</button>
-                    <button class="wbtn" onclick="adjustWorkers('armory', -1)">&#9664;</button>
-                    <input  class="winput" type="number" id="winput-armory" value="0" min="0" oninput="setWorkers('armory', this.value)">
-                    <button class="wbtn" onclick="adjustWorkers('armory', 1)">&#9654;</button>
                     <button class="wbtn wbtn-mm" onclick="setWorkersMax(this)" title="Assign max">&#9654;&#9654;</button>
                 </div>
             </div>

@@ -225,9 +225,10 @@ const gameState = {
         mine: 0, coalSeam: 0, herbalistDen: 0, huntingLodge: 0, clayPit: 0, crystalSeam: 0,
         marketStall: 0, tradeCart: 0, house: 0, apartment: 0,
         smelter: 0, alchemyLab: 0, kiln: 0, loom: 0,
-        arcaneGrinder: 0, forge: 0, arcaneBench: 0, mageTower: 0, armory: 0, sulphurVent: 0,
+        arcaneGrinder: 0, forge: 0, arcaneBench: 0, mageTower: 0, sulphurVent: 0,
         scriptorium: 0,
         ritualCircle: 0, spiderNest: 0, arcaneCrucible: 0, darkAltar: 0, mithrilForge: 0,
+        resonantFoundry: 0, resonantForgeworks: 0, resonantMillstone: 0, resonantSanctum: 0, resonantCrucible: 0,
         entertainersStage: 0, shrine: 0, temple: 0,
         pelorSanctuary: 0, gruumshWarPit: 0, sylvanGrove: 0,
         hollowCavern: 0, bulwark: 0, wardingSigil: 0, dungeonCore: 0,
@@ -1184,6 +1185,37 @@ function getBuildingProductionBonus(targetId) {
     return mult;
 }
 
+// Per-unit bonus (as a fraction, e.g. 0.035 = +3.5%) granted by one Resonance
+// building right now: a flat base rate plus +0.1% per Quintessence, uncapped.
+function getQuintConverterPerUnitBonus(baseRate) {
+    const quintessence = (gameState.meta && gameState.meta.quintessence) || 0;
+    return baseRate + quintessence * 0.001;
+}
+
+// Returns the stacked multiplicative bonus from Resonance buildings that carry
+// a quintConverterBonus field targeting a converter (e.g. Resonant Foundry
+// boosts the Smelter). Stacks multiplicatively per unit like
+// getBuildingProductionBonus, but each unit's contribution grows with the
+// player's banked Quintessence instead of being fixed.
+function getQuintConverterBonus(targetId) {
+    let mult = 1;
+    for (const [id, def] of Object.entries(ROOMS)) {
+        if (!def.quintConverterBonus || !def.quintConverterBonus[targetId]) continue;
+        const n = gameState.buildings[id] || 0;
+        if (n === 0) continue;
+        const perUnit = 1 + getQuintConverterPerUnitBonus(def.quintConverterBonus[targetId]);
+        mult *= Math.pow(perUnit, n);
+    }
+    return mult;
+}
+
+// Tooltip text for a Resonance building's own hover card.
+function _quintConverterEffectText(targetName) {
+    const quintessence = (gameState.meta && gameState.meta.quintessence) || 0;
+    const pct = (getQuintConverterPerUnitBonus(0.02) * 100).toFixed(1);
+    return `Boosts ${targetName} output by 2% + 0.1% per Quintessence you hold (stacks multiplicatively, uncapped). At your current ${quintessence} Quintessence, that's +${pct}% per building owned.`;
+}
+
 // Fraction (0..1) of a building's units that are still active (not paused by the player).
 function getActiveBuildingFraction(id) {
     const count = gameState.buildings[id] || 0;
@@ -1373,10 +1405,23 @@ function getResourceBreakdown(res) {
         const activeFrac = getActiveBuildingFraction(id);
         const n = (def.jobs ? (workers[id] || 0) : count) * activeFrac;
         if (n === 0) continue;
-        const convMult = getResearchBonus('converterBonus', id);
+        const convMult = getResearchBonus('converterBonus', id) * getQuintConverterBonus(id);
         const rate = def.converts.outputRate * convMult * n;
         const sub = def.jobs ? `${Math.round(n)}w` : `×${count}`;
         lines.push({ label: def.name, sub, value: rate, drain: false });
+
+        // Surface Resonance buildings (e.g. Resonant Foundry) as a sub-line showing
+        // how much of the line above is attributable to the buff, not additive income.
+        for (const [bonusId, bonusDef] of Object.entries(ROOMS)) {
+            if (!bonusDef.quintConverterBonus || !bonusDef.quintConverterBonus[id]) continue;
+            const bonusCount = gameState.buildings[bonusId] || 0;
+            if (bonusCount === 0) continue;
+            const perUnit = 1 + getQuintConverterPerUnitBonus(bonusDef.quintConverterBonus[id]);
+            const totalMult = Math.pow(perUnit, bonusCount);
+            const bonusRate = rate - rate / totalMult;
+            if (bonusRate === 0) continue;
+            lines.push({ label: `↳ ${bonusDef.name} (included above)`, sub: `×${bonusCount}`, value: bonusRate, drain: false, isBonus: true });
+        }
     }
 
     // Converter inputs (this resource is consumed by a converter)
@@ -2828,7 +2873,7 @@ function runOneTick() {
             if (needed > 0) ratio = Math.min(ratio, (gameState.resources[res] || 0) / needed);
         }
         // Also clamp by output headroom — don't consume inputs if output cap is full
-        const convMult = getResearchBonus('converterBonus', id);
+        const convMult = getResearchBonus('converterBonus', id) * getQuintConverterBonus(id);
         const maxOut = conv.outputRate * convMult * w;
         const outRes = conv.output;
         const outCurrent = gameState.resources[outRes] || 0;
@@ -3390,7 +3435,7 @@ function getNetRates(prod, caps) {
         for (const [res, rate] of Object.entries(def.converts.inputs)) {
             rates[res] = (rates[res] || 0) - rate * w;
         }
-        const convMult = getResearchBonus('converterBonus', id);
+        const convMult = getResearchBonus('converterBonus', id) * getQuintConverterBonus(id);
         rates[outRes] = (rates[outRes] || 0) + def.converts.outputRate * convMult * w;
     }
 
@@ -3645,7 +3690,7 @@ function updateUI() {
             'era2-label-craftsmen':   ['smelter', 'kiln', 'loom', 'alchemyLab', 'forge', 'arcaneGrinder', 'arcaneBench'],
             'era2-label-merchant':    ['shed', 'storageYard', 'marketStall', 'tradeCart'],
             'era2-label-arcane':      ['mageTower', 'scriptorium'],
-            'era2-label-war':         ['armory'],
+            'era2-label-resonance':   ['resonantFoundry', 'resonantForgeworks', 'resonantMillstone', 'resonantSanctum', 'resonantCrucible'],
             'era2-label-extraction':  ['mine', 'coalSeam', 'crystalSeam', 'sulphurVent', 'herbalistDen', 'huntingLodge', 'clayPit', 'ritualCircle', 'spiderNest', 'arcaneCrucible', 'darkAltar', 'mithrilForge'],
             'era2-label-religion':    ['shrine', 'temple', 'pelorSanctuary', 'gruumshWarPit', 'sylvanGrove'],
         };
@@ -3912,12 +3957,15 @@ const BUILDING_ERA = {
     // Era 2 — Advanced industry / arcane
     crystalSeam:   2, smelter:       2, alchemyLab:  2,
     kiln:          2, loom:          2, mageTower:   2,
-    armory:        2, sulphurVent:   2, arcaneGrinder: 2,
+    sulphurVent:   2, arcaneGrinder: 2,
     forge:         2, arcaneBench:   2,
     marketStall:   2, tradeCart:     2, house:        2, apartment:    2,
     // Era 2 late — Endgame / dark
     ritualCircle:  2, arcaneCrucible: 2,
     darkAltar:     2, mithrilForge:  2,
+    // Era 2 — Resonance buildings (quintessence-scaled converter bonuses)
+    resonantFoundry: 2, resonantForgeworks: 2, resonantMillstone: 2,
+    resonantSanctum: 2, resonantCrucible: 2,
     // Era 2 — Morale & Religion
     entertainersStage: 2, shrine: 2, temple: 2,
     pelorSanctuary: 2, gruumshWarPit: 2, sylvanGrove: 2,
@@ -3945,10 +3993,10 @@ const ERA_2_RESEARCH = [
     "shadowMarket", "prototypeTools", "stoneSplitting", "logDrying",
     "deepMining", "crystalLore", "sulphurStudy", "bellowsDesign", "concentratedExtracts",
     "highFireKiln", "loomMastery", "packHunting", "trapLines",
-    "reinforcedShelving", "dryCellar", "militiaDrill", "bookkeeping", "goldStandard", "taxes",
+    "reinforcedShelving", "dryCellar", "bookkeeping", "goldStandard", "taxes",
     "bardMastery", "templeUnlock",
     // 2.4
-    "warFormations", "refinedAlchemy", "quenchingTechniques", "dwarvenShoring", "communalArchitecture",
+    "refinedAlchemy", "quenchingTechniques", "dwarvenShoring", "communalArchitecture",
     "ironFittings", "oilRendering", "prefabTimber", "stockpiledStone",
     "crystalFocus", "forgeMastery", "mortaredMasonry", "roadNetwork",
     "guildCharter", "mintStandard", "arcaneTapping", "arcaneInscription", "loreKeeping", "ironLockbox",
@@ -4003,7 +4051,7 @@ const ERA_LOADOUTS = {
             hovel: 6, farm: 5, lumber: 4, quarry: 4, shed: 4,
             mine: 4, coalSeam: 3, huntingLodge: 3, herbalistDen: 2, clayPit: 2, crystalSeam: 2,
             smelter: 2, alchemyLab: 1, kiln: 1, loom: 1,
-            mageTower: 1, armory: 2, sulphurVent: 1, arcaneGrinder: 1, forge: 1, arcaneBench: 1,
+            mageTower: 1, sulphurVent: 1, arcaneGrinder: 1, forge: 1, arcaneBench: 1,
             scriptorium: 2,
         },
         research: [...ERA_2_RESEARCH],
@@ -4022,7 +4070,7 @@ const ERA_LOADOUTS = {
             hovel: 8, farm: 8, lumber: 6, quarry: 6, shed: 6, storageYard: 1,
             mine: 6, coalSeam: 4, huntingLodge: 4, herbalistDen: 3, clayPit: 3, crystalSeam: 3,
             smelter: 3, alchemyLab: 2, kiln: 2, loom: 2,
-            mageTower: 2, armory: 3, sulphurVent: 2, arcaneGrinder: 2, forge: 2, arcaneBench: 2,
+            mageTower: 2, sulphurVent: 2, arcaneGrinder: 2, forge: 2, arcaneBench: 2,
             scriptorium: 4,
             ritualCircle: 1, spiderNest: 1, arcaneCrucible: 1, darkAltar: 1, mithrilForge: 1,
         },

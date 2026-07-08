@@ -208,14 +208,6 @@ const ROOMS = {
         productionBonus: { crystalSeam: 1.05 },
         unlock: { smelter: 1 },
     },
-    armory: {
-        name: "Armory",
-        cost: { iron: 80, wood: 50 },
-        coinCost: 800,
-        costScale: 1.18,
-        housingBonus: 5,
-        unlock: { smelter: 1 },
-    },
     sulphurVent: {
         name: "Sulphur Vent",
         cost: { stone: 60, iron: 30 },
@@ -253,7 +245,7 @@ const ROOMS = {
         coinCost: 2000,
         costScale: 1.18,
         converts: { inputs: { bones: 0.5, food: 0.5 }, output: "silk", outputRate: 0.1 },
-        unlock: { armory: 1, huntingLodge: 1 },
+        unlock: { huntingLodge: 2 },
         requiresResearch: ["silkenWarren"],
     },
     arcaneCrucible: {
@@ -281,6 +273,67 @@ const ROOMS = {
         costScale: 1.18,
         converts: { inputs: { steel: 1.0, crystals: 0.5 }, output: "mithril", outputRate: 0.02 },
         unlock: { forge: 2, arcaneGrinder: 1 },
+    },
+
+    // ── Resonance Buildings — quintessence-scaled converter bonuses ─────────────
+    // Each stacks multiplicatively per unit like Focused Meditation, but the
+    // per-unit bonus itself grows with banked Quintessence (+2% base, +0.1% per
+    // Quintessence, uncapped) — see getQuintConverterBonus() in game.js.
+
+    resonantFoundry: {
+        name: "Resonant Foundry",
+        desc: "A foundry annex threaded with residual quintessence from past dungeons, quickening the Smelter's work.",
+        cost: { stone: 150, iron: 120 },
+        coinCost: 6000,
+        costScale: 1.22,
+        quintConverterBonus: { smelter: 0.02 },
+        unlock: { smelter: 5 },
+        effect: (r, id) => _quintConverterEffectText('Smelter'),
+        flavor: "Every reset leaves a residue in the ore-veins that never fully cools.",
+    },
+    resonantForgeworks: {
+        name: "Resonant Forgeworks",
+        desc: "Quintessence-etched tongs and anvils that carry the memory of every prior smelt into the Forge's steel.",
+        cost: { stone: 200, iron: 100, steel: 60 },
+        coinCost: 9000,
+        costScale: 1.22,
+        quintConverterBonus: { forge: 0.02 },
+        unlock: { forge: 4 },
+        effect: (r, id) => _quintConverterEffectText('Forge'),
+        flavor: "The hammer remembers every dungeon that came before it.",
+    },
+    resonantMillstone: {
+        name: "Resonant Millstone",
+        desc: "A grinding wheel cut from stone that has weathered a thousand resets, refining more dust from every crystal fed to the Arcane Grinder.",
+        cost: { stone: 150, crystals: 70, arcaneDust: 40 },
+        coinCost: 7000,
+        costScale: 1.22,
+        quintConverterBonus: { arcaneGrinder: 0.02 },
+        unlock: { arcaneGrinder: 4 },
+        effect: (r, id) => _quintConverterEffectText('Arcane Grinder'),
+        flavor: "Grinding stone worn smooth by echoes of a thousand endings.",
+    },
+    resonantSanctum: {
+        name: "Resonant Sanctum",
+        desc: "An inner chamber where banked quintessence bleeds into the Ritual Circle, deepening the essence drawn from each rite.",
+        cost: { stone: 250, arcaneDust: 80, arcaneEssence: 25 },
+        coinCost: 14000,
+        costScale: 1.22,
+        quintConverterBonus: { ritualCircle: 0.02 },
+        unlock: { ritualCircle: 3 },
+        effect: (r, id) => _quintConverterEffectText('Ritual Circle'),
+        flavor: "The circle does not close. It only deepens.",
+    },
+    resonantCrucible: {
+        name: "Resonant Crucible",
+        desc: "A crucible lined with condensed quintessence, folding the memory of past runs into every batch the Mithril Forge produces.",
+        cost: { steel: 150, crystals: 90, mithril: 15 },
+        coinCost: 22000,
+        costScale: 1.22,
+        quintConverterBonus: { mithrilForge: 0.02 },
+        unlock: { mithrilForge: 2 },
+        effect: (r, id) => _quintConverterEffectText('Mithril Forge'),
+        flavor: "What survives the reset is folded, again and again, into the metal.",
     },
 
     // ── Era 1 — Awakening Production Chain ──────────────────────────────────────

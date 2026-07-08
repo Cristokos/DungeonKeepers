@@ -173,10 +173,10 @@
             <table class="wiki-table">
                 <thead><tr><th>Resource</th><th>Base Cap</th><th>Converter</th><th>Ratio (per worker/tick)</th></tr></thead>
                 <tbody>
-                    <tr><td>Iron</td><td>150</td><td>Smelter</td><td>1 Ore → 0.5 Iron</td></tr>
+                    <tr><td>Iron</td><td>150</td><td>Smelter</td><td>1 Ore → 0.5 Iron; each Resonant Foundry (req. 5 Smelters) boosts Smelter output by 2% + 0.1% per Quintessence held, uncapped</td></tr>
                     <tr><td>Potions</td><td>75</td><td>Alchemy Lab</td><td>0.8 Herbs → 0.3 Potions</td></tr>
-                    <tr><td>Arcane Dust</td><td>75</td><td>Arcane Grinder</td><td>0.5 Crystals → 0.3 Arcane Dust</td></tr>
-                    <tr><td>Steel</td><td>100</td><td>Forge</td><td>1 Iron + 0.5 Coal → 0.4 Steel</td></tr>
+                    <tr><td>Arcane Dust</td><td>75</td><td>Arcane Grinder</td><td>0.5 Crystals → 0.3 Arcane Dust; each Resonant Millstone (req. 4 Arcane Grinders) boosts Arcane Grinder output by 2% + 0.1% per Quintessence held, uncapped</td></tr>
+                    <tr><td>Steel</td><td>100</td><td>Forge</td><td>1 Iron + 0.5 Coal → 0.4 Steel; each Resonant Forgeworks (req. 4 Forges) boosts Forge output by 2% + 0.1% per Quintessence held, uncapped</td></tr>
                     <tr><td>Bricks</td><td>120</td><td>Kiln</td><td>1 Clay + 0.5 Stone → 0.6 Bricks</td></tr>
                     <tr><td>Cloth</td><td>100</td><td>Loom</td><td>0.6 Herbs → 0.4 Cloth</td></tr>
                     <tr><td>Runes</td><td>60</td><td>Arcane Bench</td><td>0.5 Crystals + 0.3 Arcane Dust → 0.2 Runes</td></tr>
@@ -187,11 +187,11 @@
             <table class="wiki-table">
                 <thead><tr><th>Resource</th><th>Base Cap</th><th>Converter</th><th>Ratio (per worker/tick)</th></tr></thead>
                 <tbody>
-                    <tr><td>Arcane Essence</td><td>50</td><td>Ritual Circle</td><td>0.3 Arcane Dust → 0.05 Arcane Essence</td></tr>
+                    <tr><td>Arcane Essence</td><td>50</td><td>Ritual Circle</td><td>0.3 Arcane Dust → 0.05 Arcane Essence; each Resonant Sanctum (req. 3 Ritual Circles) boosts Ritual Circle output by 2% + 0.1% per Quintessence held, uncapped</td></tr>
                     <tr><td>Silk</td><td>40</td><td>Spider Nest</td><td>0.5 Bones + 0.5 Food → 0.1 Silk</td></tr>
                     <tr><td>Mana Gold</td><td>40</td><td>Arcane Crucible</td><td>1 Iron + 0.5 Arcane Dust → 0.1 Mana Gold</td></tr>
                     <tr><td>Ichor</td><td>30</td><td>Dark Altar</td><td>1 Bones + 0.1 Arcane Essence → 0.05 Ichor</td></tr>
-                    <tr><td>Mithril</td><td>20</td><td>Mithril Forge</td><td>1 Steel + 0.5 Crystals → 0.02 Mithril</td></tr>
+                    <tr><td>Mithril</td><td>20</td><td>Mithril Forge</td><td>1 Steel + 0.5 Crystals → 0.02 Mithril; each Resonant Crucible (req. 2 Mithril Forges) boosts Mithril Forge output by 2% + 0.1% per Quintessence held, uncapped</td></tr>
                 </tbody>
             </table>
 
@@ -219,7 +219,7 @@
             <h3 class="creature-category">Population &amp; Jobs</h3>
             <p class="wiki-lead">
                 Your creature count grows toward a cap set by your housing. Hovels and other unlockable housing
-                (House, Apartment, Armory) each contribute to that cap. Population in general needs food — a
+                (House, Apartment) each contribute to that cap. Population in general needs food — a
                 sustained deficit causes starvation, which can kill your population. Creatures fill <b>job slots</b>
                 at production and converter buildings to make them function; the Population panel shows employed
                 creatures out of total available slots. Any creature not currently assigned to a job counts as a
@@ -2328,6 +2328,11 @@
             <h2>Changelog</h2>
 
             <div class="biome-card">
+                <div><span class="cl-ver">v1.03.0</span><span class="cl-date">2026-07-08</span></div>
+                <p class="biome-desc">Added five Resonance buildings — Resonant Foundry, Forgeworks, Millstone, Sanctum, and Crucible — that each apply a stacking multiplicative bonus to one converter (Smelter, Forge, Arcane Grinder, Ritual Circle, and Mithril Forge respectively). Each building's per-unit bonus starts at +2% and grows by +0.1% per Quintessence you've banked from prestige runs, with no cap. Removed the unused Armory building and War Quarters section (along with the Militia Drill and Combat Formations research, which only ever boosted Armory housing) and replaced that section with a new "Resonance Wing" housing all five Resonance buildings. Spider Nest now unlocks at 2 Hunting Lodges instead of 1 Hunting Lodge + 1 Armory.</p>
+            </div>
+
+            <div class="biome-card">
                 <div><span class="cl-ver">v1.02.0</span><span class="cl-date">2026-07-08</span></div>
                 <p class="biome-desc">Renamed the Storage building to Shed (same cost and effect) and added the Storage Yard, a pricier building unlocked at 5 Sheds that grants +100 more cap per building than a Shed, on top of the same Reinforced Shelving / Iron Fittings / racial storage bonuses.</p>
             </div>
@@ -3989,7 +3994,7 @@ window.addEventListener('DOMContentLoaded', function () {
     /* Node chain colours */
     var COLORS = {
         taxes:'#7a6010', bookkeeping:'#7a6010', taxCollector:'#7a6010',
-        communalLiving:'#7a6010', ironLockbox:'#7a6010', militiaDrill:'#7a6010', tradeGoods:'#7a6010',
+        communalLiving:'#7a6010', ironLockbox:'#7a6010', tradeGoods:'#7a6010',
         toolcraft:'#6a3c10', foragerLore:'#6a3c10',
         cropRotation:'#1a6a1a', composting:'#1a6a1a', animalHusbandry:'#1a6a1a', rationing:'#1a6a1a',
         herbGarden:'#2a6a2a', concentratedExtracts:'#2a6a2a', loomMastery:'#2a6a2a',
