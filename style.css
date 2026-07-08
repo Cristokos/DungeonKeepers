@@ -839,7 +839,6 @@ h3 {
     transition: width 0.4s ease;
     z-index: 0;
 }
-.res-row.res-at-cap::before { background: rgba(200,131,42,0.13); }
 .res-row > * { position: relative; z-index: 1; }
 
 [id^="res-row-"] { cursor: default; }
