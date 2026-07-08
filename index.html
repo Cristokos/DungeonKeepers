@@ -777,6 +777,7 @@
             <button class="tab-btn" data-tab="village"   onclick="switchTab('village')">Village</button>
             <button class="tab-btn" data-tab="research"  onclick="switchTab('research')">Research</button>
             <button class="tab-btn" data-tab="religion"  onclick="switchTab('religion')" style="display:none">Religion</button>
+            <button class="tab-btn" data-tab="dungeon"   onclick="switchTab('dungeon')" style="display:none">Dungeon</button>
             <button class="tab-btn" data-tab="info"      onclick="switchTab('info')">Info</button>
             <button class="tab-btn" data-tab="settings"  onclick="switchTab('settings')">Settings</button>
             <button class="tab-btn dev-tab" data-tab="dev" onclick="switchTab('dev')">Dev</button>
@@ -2691,6 +2692,36 @@
                 </div>
             </div>
 
+            <div class="worker-row" id="wrow-bulwark" style="display:none">
+                <div class="worker-left">
+                    <span class="worker-name">Bulwark</span>
+                    <span class="worker-sub">Warden</span>
+                    <span class="worker-slots" id="wslots-bulwark">0 / 0</span>
+                </div>
+                <div class="worker-controls">
+                    <button class="wbtn wbtn-mm" onclick="setWorkersMin(this)" title="Unassign all">&#9664;&#9664;</button>
+                    <button class="wbtn" onclick="adjustWorkers('bulwark', -1)">&#9664;</button>
+                    <input  class="winput" type="number" id="winput-bulwark" value="0" min="0" oninput="setWorkers('bulwark', this.value)">
+                    <button class="wbtn" onclick="adjustWorkers('bulwark', 1)">&#9654;</button>
+                    <button class="wbtn wbtn-mm" onclick="setWorkersMax(this)" title="Assign max">&#9654;&#9654;</button>
+                </div>
+            </div>
+
+            <div class="worker-row" id="wrow-wardingSigil" style="display:none">
+                <div class="worker-left">
+                    <span class="worker-name">Warding Sigil</span>
+                    <span class="worker-sub">Warder</span>
+                    <span class="worker-slots" id="wslots-wardingSigil">0 / 0</span>
+                </div>
+                <div class="worker-controls">
+                    <button class="wbtn wbtn-mm" onclick="setWorkersMin(this)" title="Unassign all">&#9664;&#9664;</button>
+                    <button class="wbtn" onclick="adjustWorkers('wardingSigil', -1)">&#9664;</button>
+                    <input  class="winput" type="number" id="winput-wardingSigil" value="0" min="0" oninput="setWorkers('wardingSigil', this.value)">
+                    <button class="wbtn" onclick="adjustWorkers('wardingSigil', 1)">&#9654;</button>
+                    <button class="wbtn wbtn-mm" onclick="setWorkersMax(this)" title="Assign max">&#9654;&#9654;</button>
+                </div>
+            </div>
+
         </div><!-- /tab-workers -->
 
         <!-- TRADE TAB -->
@@ -2707,6 +2738,153 @@
             <div id="trade-routes"></div>
 
         </div><!-- /tab-trade -->
+
+        <!-- DUNGEON TAB -->
+        <div class="tab-body tab-content" id="tab-dungeon" style="display:none">
+
+            <div class="religion-header">
+                <div class="religion-header-row">
+                    <span class="religion-header-label">The Bodiless Keeper</span>
+                </div>
+            </div>
+            <p class="wiki-lead" style="margin:6px 0 16px">You have never had a body. What guides this settlement casts no shadow. The research below is your civilization slowly discovering what that means — and what it would take to change it.</p>
+
+            <h2 class="section-gap">Research</h2>
+            <div id="dungeon-research-panel">
+            <div class="research-list dungeon-research-list" style="margin-top:10px">
+
+                <div class="research-card" id="research-unseenHand">
+                    <div class="research-info">
+                        <div class="research-name">The Unseen Hand</div>
+                        <div class="research-desc"></div>
+                        <div class="research-cost"></div>
+                    </div>
+                    <button class="research-btn" id="btn-research-unseenHand" onclick="doResearch('unseenHand')">Research</button>
+                </div>
+
+                <div class="research-card" id="research-questionsWithoutMouth">
+                    <div class="research-info">
+                        <div class="research-name">Questions Without a Mouth</div>
+                        <div class="research-desc"></div>
+                        <div class="research-cost"></div>
+                    </div>
+                    <button class="research-btn" id="btn-research-questionsWithoutMouth" onclick="doResearch('questionsWithoutMouth')">Research</button>
+                </div>
+
+                <div class="research-card" id="research-cartographersOfSelf">
+                    <div class="research-info">
+                        <div class="research-name">Cartographers of the Self</div>
+                        <div class="research-desc"></div>
+                        <div class="research-cost"></div>
+                    </div>
+                    <button class="research-btn" id="btn-research-cartographersOfSelf" onclick="doResearch('cartographersOfSelf')">Research</button>
+                </div>
+
+                <div class="research-card" id="research-echoesInTheDark">
+                    <div class="research-info">
+                        <div class="research-name">Echoes in the Dark</div>
+                        <div class="research-desc"></div>
+                        <div class="research-cost"></div>
+                    </div>
+                    <button class="research-btn" id="btn-research-echoesInTheDark" onclick="doResearch('echoesInTheDark')">Research</button>
+                </div>
+
+                <div class="research-card" id="research-planarCartography">
+                    <div class="research-info">
+                        <div class="research-name">Planar Cartography</div>
+                        <div class="research-desc"></div>
+                        <div class="research-cost"></div>
+                    </div>
+                    <button class="research-btn" id="btn-research-planarCartography" onclick="doResearch('planarCartography')">Research</button>
+                </div>
+
+                <div class="research-card" id="research-vesselTheory">
+                    <div class="research-info">
+                        <div class="research-name">Vessel Theory</div>
+                        <div class="research-desc"></div>
+                        <div class="research-cost"></div>
+                    </div>
+                    <button class="research-btn" id="btn-research-vesselTheory" onclick="doResearch('vesselTheory')">Research</button>
+                </div>
+
+                <div class="research-card" id="research-hollowDoctrine">
+                    <div class="research-info">
+                        <div class="research-name">The Hollow Doctrine</div>
+                        <div class="research-desc"></div>
+                        <div class="research-cost"></div>
+                    </div>
+                    <button class="research-btn" id="btn-research-hollowDoctrine" onclick="doResearch('hollowDoctrine')">Research</button>
+                </div>
+
+                <div class="research-card" id="research-firstSketchOfTheHollow">
+                    <div class="research-info">
+                        <div class="research-name">First Sketch of the Hollow</div>
+                        <div class="research-desc"></div>
+                        <div class="research-cost"></div>
+                    </div>
+                    <button class="research-btn" id="btn-research-firstSketchOfTheHollow" onclick="doResearch('firstSketchOfTheHollow')">Research</button>
+                </div>
+
+                <div class="research-card" id="research-coreTheory">
+                    <div class="research-info">
+                        <div class="research-name">Theory of the Binding Core</div>
+                        <div class="research-desc"></div>
+                        <div class="research-cost"></div>
+                    </div>
+                    <button class="research-btn" id="btn-research-coreTheory" onclick="doResearch('coreTheory')">Research</button>
+                </div>
+
+                <div class="research-card" id="research-hollowFoundation">
+                    <div class="research-info">
+                        <div class="research-name">The Hollow Foundation</div>
+                        <div class="research-desc"></div>
+                        <div class="research-cost"></div>
+                    </div>
+                    <button class="research-btn" id="btn-research-hollowFoundation" onclick="doResearch('hollowFoundation')">Research</button>
+                </div>
+
+                <div class="research-card" id="research-anchoringRites">
+                    <div class="research-info">
+                        <div class="research-name">Rites of Anchoring</div>
+                        <div class="research-desc"></div>
+                        <div class="research-cost"></div>
+                    </div>
+                    <button class="research-btn" id="btn-research-anchoringRites" onclick="doResearch('anchoringRites')">Research</button>
+                </div>
+
+            </div>
+            </div>
+
+            <h2 class="section-gap">The Hollow</h2>
+            <div class="grid">
+
+                <button class="build-btn disabled" onclick="build('hollowCavern')" id="btn-hollowCavern" style="display:none">
+                    <div class="btn-title">Hollow Cavern</div>
+                    <div class="btn-count" id="hollowCavernCount">0</div>
+                    <div class="btn-cost" id="hollowCavernCost"></div>
+                </button>
+
+                <button class="build-btn disabled" onclick="build('bulwark')" id="btn-bulwark" style="display:none">
+                    <div class="btn-title">Bulwark</div>
+                    <div class="btn-count" id="bulwarkCount">0</div>
+                    <div class="btn-cost" id="bulwarkCost"></div>
+                </button>
+
+                <button class="build-btn disabled" onclick="build('wardingSigil')" id="btn-wardingSigil" style="display:none">
+                    <div class="btn-title">Warding Sigil</div>
+                    <div class="btn-count" id="wardingSigilCount">0</div>
+                    <div class="btn-cost" id="wardingSigilCost"></div>
+                </button>
+
+                <button class="build-btn disabled" onclick="build('dungeonCore')" id="btn-dungeonCore" style="display:none">
+                    <div class="btn-title">Dungeon Core</div>
+                    <div class="btn-count" id="dungeonCoreCount">0</div>
+                    <div class="btn-cost" id="dungeonCoreCost"></div>
+                </button>
+
+            </div>
+
+        </div><!-- /tab-dungeon -->
 
         <!-- RELIGION TAB -->
         <div class="tab-body tab-content" id="tab-religion" style="display:none">

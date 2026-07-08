@@ -1172,6 +1172,111 @@ RESEARCH.dungeonBlueprint = {
     effects: { flag: "eraThreeUnlocked" },
 };
 
+// ── Chain: The Bodiless Keeper ──────────────────────────────────────────────────
+// A long philosophical/spiritual thread spread from 2.2 through 2.9, running in
+// parallel to the rest of the tree. It converges with dungeonBlueprint (the
+// practical/engineering track) at coreTheory, then continues into the Dungeon
+// tab's construction-phase gates (2.11-2.13). Unlocks the Dungeon tab and the
+// research/building chain behind it — see data/rooms.js for the buildings.
+
+RESEARCH.unseenHand = {
+    tier: "2.2",
+    name: "The Unseen Hand",
+    desc: "Your scholars notice, in passing, that whatever guides this settlement casts no shadow and leaves no footprints. They write it down and move on. Someone else won't.",
+    cost: { stone: 150, wood: 120, lore: 20 },
+    effects: { flag: "unseenHand" },
+};
+
+RESEARCH.questionsWithoutMouth = {
+    tier: "2.3",
+    name: "Questions Without a Mouth",
+    desc: "A formal inquiry begins: spirit, memory, or something with no name yet? No one is foolish enough to ask it aloud, but the questions get written down all the same.",
+    cost: { stone: 220, coal: 100, lore: 45 },
+    requiresResearch: ["unseenHand"],
+    effects: { flag: "questionsWithoutMouth" },
+};
+
+RESEARCH.cartographersOfSelf = {
+    tier: "2.4",
+    name: "Cartographers of the Self",
+    desc: "The same arcane instruments used to tap ley energy get turned inward, attempting to map whatever it is that has no shape to map.",
+    cost: { arcaneDust: 140, crystals: 100, lore: 70 },
+    requiresResearch: ["questionsWithoutMouth", "arcaneTapping"],
+    effects: { flag: "cartographersOfSelf" },
+};
+
+RESEARCH.echoesInTheDark = {
+    tier: "2.5",
+    name: "Echoes in the Dark",
+    desc: "Studying how devils formalize their binding contracts sparks the real theory: a spirit could be bound to a form, not just a bargain.",
+    cost: { lore: 480 },
+    requiresResearch: ["cartographersOfSelf", "infernalLore"],
+    effects: { flag: "echoesInTheDark" },
+};
+
+RESEARCH.planarCartography = {
+    tier: "2.6",
+    name: "Planar Cartography",
+    desc: "Mapping which planes house which kinds of power — fiend, aberration, celestial, undead, draconic — and what it would take to reach each one.",
+    cost: { lore: 720, arcaneEssence: 20 },
+    requiresResearch: ["echoesInTheDark"],
+    effects: { flag: "planarCartography" },
+};
+
+RESEARCH.vesselTheory = {
+    tier: "2.7",
+    name: "Vessel Theory",
+    desc: "What would a body actually require, magically and structurally, to hold something that was never meant to have one?",
+    cost: { lore: 950, mithril: 15 },
+    requiresResearch: ["planarCartography"],
+    effects: { flag: "vesselTheory" },
+};
+
+RESEARCH.hollowDoctrine = {
+    tier: "2.8",
+    name: "The Hollow Doctrine",
+    desc: "Synthesis: a constructed Hollow could anchor a bound entity's power. Though no one says it aloud, perhaps it could anchor something else, too.",
+    cost: { lore: 1250, mithril: 25, ichor: 10 },
+    requiresResearch: ["vesselTheory"],
+    effects: { flag: "hollowDoctrine" },
+};
+
+RESEARCH.firstSketchOfTheHollow = {
+    tier: "2.9",
+    name: "First Sketch of the Hollow",
+    desc: "Theory becomes architecture. The first real drawing of a Hollow gets pinned to the wall.",
+    cost: { lore: 1650, ichor: 20, mithril: 30 },
+    requiresResearch: ["hollowDoctrine"],
+    effects: { flag: "firstSketchOfTheHollow" },
+};
+
+RESEARCH.coreTheory = {
+    tier: "2.11",
+    name: "Theory of the Binding Core",
+    desc: "The practical blueprints and the philosophical Hollow are the same project, seen from two directions. Now you know what to build, and why.",
+    cost: { lore: 2600, arcaneEssence: 40, silk: 30, manaGold: 30, ichor: 25, mithril: 20 },
+    requiresResearch: ["dungeonBlueprint", "firstSketchOfTheHollow"],
+    effects: { flag: "coreTheory" },
+};
+
+RESEARCH.hollowFoundation = {
+    tier: "2.12",
+    name: "The Hollow Foundation",
+    desc: "The first stone of the Hollow can now be laid. Unlocks the Dungeon tab's opening excavation.",
+    cost: { lore: 3200, arcaneEssence: 60, silk: 45, manaGold: 45, ichor: 40, mithril: 35 },
+    requiresResearch: ["coreTheory"],
+    effects: { unlockBuildings: ["hollowCavern"] },
+};
+
+RESEARCH.anchoringRites = {
+    tier: "2.13",
+    name: "Rites of Anchoring",
+    desc: "The rites that keep a Hollow from tearing itself apart before it's ready — fortification against the physical, warding against the arcane, and finally the Core itself.",
+    cost: { lore: 3800, arcaneEssence: 80, silk: 60, manaGold: 60, ichor: 55, mithril: 50 },
+    requiresResearch: ["hollowFoundation"],
+    effects: { unlockBuildings: ["bulwark", "wardingSigil", "dungeonCore"] },
+};
+
 // ── Mastery Research ──────────────────────────────────────────────────────────
 // Hidden techniques revealed only by earning their gating achievement.
 // `requiresAchievement` names the achievement id (see data/achievements.js);

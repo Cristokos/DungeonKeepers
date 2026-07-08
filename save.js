@@ -56,6 +56,7 @@ function migrateSave(state) {
     if (!state.meta) state.meta = {};
     if (!state.run)  state.run  = { biome: null, race: null, mods: [] };
     if (!state.resources) state.resources = {};
+    if (!state.flags) state.flags = {};
 
     // Example migration scaffold — grow this as the schema changes:
     // if (_verLt(from, "0.52")) {

@@ -230,7 +230,9 @@ const gameState = {
         ritualCircle: 0, spiderNest: 0, arcaneCrucible: 0, darkAltar: 0, mithrilForge: 0,
         entertainersStage: 0, shrine: 0, temple: 0,
         pelorSanctuary: 0, gruumshWarPit: 0, sylvanGrove: 0,
+        hollowCavern: 0, bulwark: 0, wardingSigil: 0, dungeonCore: 0,
     },
+    flags: {}, // misc one-off persistent flags, e.g. dungeonCoreStabilized
     tradeRoutes: {},
     buildingDisabled: {}, // building id → count of that building's units currently paused (0..count)
     research:          {},
@@ -1190,6 +1192,21 @@ function getActiveBuildingFraction(id) {
     return (count - paused) / count;
 }
 
+// Whether a building's requiresOperational dependencies are currently met — i.e.
+// every listed building is both built and has at least one active (unpaused) unit.
+// Once gameState.flags.dungeonCoreStabilized is set, dependencies are bypassed.
+function isBuildingOperational(id) {
+    const def = ROOMS[id];
+    if (!def || !def.requiresOperational) return true;
+    if (gameState.flags && gameState.flags.dungeonCoreStabilized) return true;
+    for (const [reqId, reqCount] of Object.entries(def.requiresOperational)) {
+        const count = gameState.buildings[reqId] || 0;
+        if (count < reqCount) return false;
+        if (getActiveBuildingFraction(reqId) <= 0) return false;
+    }
+    return true;
+}
+
 function getProduction() {
     const prod      = {};
     for (const res of Object.keys(BASE_CAPS)) prod[res] = 0;
@@ -2013,6 +2030,16 @@ function _buildBldTooltipHTML(id, def) {
         }
     }
 
+    // Operational-dependency warning — building is inert until its required
+    // support buildings are actively staffed (see isBuildingOperational).
+    if (def.requiresOperational && (gameState.buildings[id] || 0) > 0 && !isBuildingOperational(id)) {
+        const missing = Object.keys(def.requiresOperational)
+            .filter(reqId => (gameState.buildings[reqId] || 0) < def.requiresOperational[reqId] || getActiveBuildingFraction(reqId) <= 0)
+            .map(reqId => (ROOMS[reqId] && ROOMS[reqId].name) || reqId)
+            .join(', ');
+        html += `<div class="bld-tt-warning">⚠ Not operational — needs ${missing} actively staffed</div>`;
+    }
+
     // Cost section with visual separator
     const costs = getBuildCost(id);
     const hasCost = def.coinCost || Object.keys(costs).length > 0;
@@ -2407,10 +2434,11 @@ function getEffectiveBuildingCoinCost(coinBase, id) {
 }
 
 function canAfford(id) {
+    const def = ROOMS[id];
+    if (def.maxCount && (gameState.buildings[id] || 0) >= def.maxCount) return false;
     for (const [res, amount] of Object.entries(getBuildCost(id))) {
         if ((gameState.resources[res] || 0) < amount) return false;
     }
-    const def = ROOMS[id];
     if (def.coinCost) {
         const bldCount = gameState.buildings[id] || 0;
         const coinFree = def.coinFreeBelow != null && bldCount < def.coinFreeBelow;
@@ -3506,6 +3534,19 @@ function updateUI() {
         if (btn) {
             btn.style.display = checkUnlock(id) ? "" : "none";
             btn.classList.toggle("disabled", !canAfford(id));
+            const inoperative = def.requiresOperational && count > 0 && !isBuildingOperational(id);
+            btn.classList.toggle("building-inoperative", !!inoperative);
+            let warnEl = btn.querySelector(".btn-operational-warning");
+            if (inoperative) {
+                if (!warnEl) {
+                    warnEl = document.createElement("div");
+                    warnEl.className = "btn-operational-warning";
+                    warnEl.textContent = "⚠ Not operational";
+                    btn.appendChild(warnEl);
+                }
+            } else if (warnEl) {
+                warnEl.remove();
+            }
         }
         // Pause stepper for production/converter buildings — lets players idle some
         // units of an overbuilt building without demolishing them. Hidden until hover.
@@ -3539,16 +3580,20 @@ function updateUI() {
         }
         const costEl = document.getElementById(id + "Cost");
         if (costEl) {
-            const cost = getBuildCost(id);
-            let costStr = Object.entries(cost)
-                .map(([res, n]) => `${fmt(n)} ${RESOURCES[res]?.name || res}`)
-                .join(", ");
-            if (def.coinCost) {
-                const bldCount = gameState.buildings[id] || 0;
-                const coinFree = def.coinFreeBelow != null && bldCount < def.coinFreeBelow;
-                if (!coinFree) costStr += (costStr ? ", " : "") + formatCoins(getEffectiveBuildingCoinCost(def.coinCost, id));
+            if (def.maxCount && count >= def.maxCount) {
+                costEl.textContent = "Complete";
+            } else {
+                const cost = getBuildCost(id);
+                let costStr = Object.entries(cost)
+                    .map(([res, n]) => `${fmt(n)} ${RESOURCES[res]?.name || res}`)
+                    .join(", ");
+                if (def.coinCost) {
+                    const bldCount = gameState.buildings[id] || 0;
+                    const coinFree = def.coinFreeBelow != null && bldCount < def.coinFreeBelow;
+                    if (!coinFree) costStr += (costStr ? ", " : "") + formatCoins(getEffectiveBuildingCoinCost(def.coinCost, id));
+                }
+                costEl.textContent = costStr;
             }
-            costEl.textContent = costStr;
         }
     }
 
@@ -3869,6 +3914,8 @@ const BUILDING_ERA = {
     entertainersStage: 2, shrine: 2, temple: 2,
     pelorSanctuary: 2, gruumshWarPit: 2, sylvanGrove: 2,
     scriptorium: 2,
+    // Era 2 — Dungeon Core arc
+    hollowCavern: 2, bulwark: 2, wardingSigil: 2, dungeonCore: 2,
 };
 
 // Era-gated research: defaults to Era 1 if not listed.
@@ -3918,6 +3965,10 @@ const ERA_2_RESEARCH = [
     "apartmentDesign", "masterCraft", "grandLibrary",
     // 2.10 (gates)
     "planarRites", "amnizuSummons", "dungeonBlueprint",
+    // Chain: The Bodiless Keeper (2.2-2.13)
+    "unseenHand", "questionsWithoutMouth", "cartographersOfSelf", "echoesInTheDark",
+    "planarCartography", "vesselTheory", "hollowDoctrine", "firstSketchOfTheHollow",
+    "coreTheory", "hollowFoundation", "anchoringRites",
 ];
 const ERA_3_RESEARCH = [
     // No Era 3 research designed yet — stub reserved for future content.
@@ -6334,6 +6385,15 @@ function updateEraTabVisibility() {
     if (religionBtn) {
         const showReligion = era >= 2 && !!(gameState.research && gameState.research.shrineUnlock);
         religionBtn.style.display = showReligion ? '' : 'none';
+    }
+
+    // Dungeon top-tab: visible in Era 2 once dungeonBlueprint research is complete.
+    // Ordinary continued play, not a post-prestige unlock — sits alongside the
+    // Devil's Contract offer, which becomes available from the same research.
+    const dungeonBtn = document.querySelector('.tab-btn[data-tab="dungeon"]');
+    if (dungeonBtn) {
+        const showDungeon = era >= 2 && !!(gameState.research && gameState.research.dungeonBlueprint);
+        dungeonBtn.style.display = showDungeon ? '' : 'none';
     }
 
     // Show/hide left-column elements that only belong in Era 2

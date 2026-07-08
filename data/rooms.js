@@ -430,6 +430,62 @@ const ROOMS = {
         desc: "A sacred grove where Druids commune with Silvanus, drawing nature's bounty into your village.",
         flavor: "The roots run deep where the old god walks.",
     },
+
+    // ── The Dungeon Core arc ─────────────────────────────────────────────────────
+    // A fixed build sequence: hollowCavern -> bulwark -> wardingSigil -> dungeonCore.
+    // dungeonCore requires bulwark and wardingSigil to be actively staffed
+    // (see requiresOperational / isBuildingOperational in game.js) until it is
+    // later stabilized.
+
+    hollowCavern: {
+        name: "Hollow Cavern",
+        cost: { stone: 4000, wood: 3000, ore: 2500 },
+        coinCost: 20000,
+        costScale: 1.3,
+        requiresResearch: ["hollowFoundation"],
+        desc: "Raw space, carved out of the dark, waiting for a shape.",
+        flavor: "The first cut is the only one that matters. Everything after just follows it.",
+    },
+
+    bulwark: {
+        name: "Bulwark",
+        cost: { stone: 2500, iron: 1500, steel: 800 },
+        coinCost: 12000,
+        costScale: 1.25,
+        jobs: 1,
+        workerName: "Warden",
+        production: { ore: 0.4 },
+        requiresResearch: ["anchoringRites"],
+        unlock: { hollowCavern: 1 },
+        desc: "Wardens reinforce the Hollow against anything that could break in the ordinary way.",
+        flavor: "Steel first. The stranger things come later.",
+    },
+
+    wardingSigil: {
+        name: "Warding Sigil",
+        cost: { crystals: 1800, arcaneDust: 1200, runes: 600 },
+        coinCost: 15000,
+        costScale: 1.25,
+        jobs: 1,
+        workerName: "Warder",
+        production: { arcaneDust: 0.4 },
+        requiresResearch: ["anchoringRites"],
+        unlock: { bulwark: 1 },
+        desc: "Wards etched into every wall, keeping out anything that could break in the extraordinary way.",
+        flavor: "Steel keeps out an army. This keeps out everything else.",
+    },
+
+    dungeonCore: {
+        name: "Dungeon Core",
+        cost: { arcaneEssence: 400, silk: 300, manaGold: 300, ichor: 250, mithril: 200 },
+        coinCost: 100000,
+        maxCount: 1,
+        requiresResearch: ["anchoringRites"],
+        unlock: { hollowCavern: 1, bulwark: 1, wardingSigil: 1 },
+        requiresOperational: { bulwark: 1, wardingSigil: 1 },
+        desc: "The centerpiece of the Hollow. Inert until the Bulwark and Warding Sigil are actively holding the space around it together.",
+        flavor: "Everything else was preparation. This is the part that was never done before.",
+    },
 };
 
 const GATHER_ACTIONS = {

@@ -1633,6 +1633,18 @@ kbd {
     text-decoration-color: var(--disabled);
 }
 
+/* OPERATIONAL DEPENDENCY (e.g. Dungeon Core needs its stabilizers actively staffed) */
+.build-btn.building-inoperative {
+    border-color: rgba(224,120,120,0.5);
+}
+
+.btn-operational-warning {
+    font-size: 9px;
+    color: #e07878;
+    text-align: center;
+    margin-top: 2px;
+}
+
 /* ── TABS ───────────────────────────────────────────────────────────────────── */
 
 .tab-bar {
