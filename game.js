@@ -1963,7 +1963,11 @@ function _bldEffectRates(id, def) {
         const base = (r2.reinforcedShelving ? 75 : 50) + (r2.ironFittings ? 15 : 0) + raceStorage;
         return { cap: id === 'storageYard' ? base + 100 : base };
     }
-    return { cap: 100 };
+    // Generic flat storage bonus (e.g. Hollow Cavern) — see storageBonusAll in getCaps().
+    if (def.storageBonusAll) {
+        return { cap: def.storageBonusAll };
+    }
+    return {};
 }
 
 
