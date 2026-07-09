@@ -390,6 +390,12 @@ const ACHIEVEMENTS = {
         check: () => (_achStats().daysMorale90 || 0) >= 120,
         progress: () => ({ cur: _achStats().daysMorale90 || 0, goal: 120 }),
     },
+    theBodilessKeeper: {
+        name: "The Bodiless Keeper", icon: "&#128274;", tier: "major",
+        how: "Raise the Dungeon Core.",
+        reward: "None yet — reserved for a future update.",
+        check: () => (gameState.buildings.dungeonCore || 0) >= 1,
+    },
 };
 
 // Display order — minors first within their section, majors in design order.
@@ -406,6 +412,6 @@ const ACH_ORDER = {
         'moraleOfficer', 'nightShift', 'cartographer', 'perfectHarvest', 'essenceSommelier',
         'lorekeeper', 'chronicler', 'boneCollector', 'mithrilTouch', 'repeatCustomer',
         'deepMiner', 'beastOfBurden', 'masterMason', 'silkRoad', 'goldenHoard',
-        'weathered', 'ichorAlchemist', 'runesmith', 'comparativeTheology', 'belovedKeeper',
+        'weathered', 'ichorAlchemist', 'runesmith', 'comparativeTheology', 'belovedKeeper', 'theBodilessKeeper',
     ],
 };

@@ -2034,6 +2034,11 @@ function _positionBldTooltip(e) {
 function _buildBldTooltipHTML(id, def) {
     let html = `<div class="bld-tt-name">${def.name}</div>`;
 
+    // Multi-stage structures (maxCount > 1) show a completion notice once fully raised.
+    if (def.maxCount && def.maxCount > 1 && (gameState.buildings[id] || 0) >= def.maxCount) {
+        html += `<div class="bld-tt-effect">✓ Fully raised (Stage ${def.maxCount} / ${def.maxCount}) — complete</div>`;
+    }
+
     // Description / effect lines (tinted color)
     if (def.desc) html += `<div class="bld-tt-effect">${def.desc}</div>`;
 
