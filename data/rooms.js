@@ -496,9 +496,11 @@ const ROOMS = {
     // A fixed build sequence: hollowCavern -> bulwark -> wardingSigil -> dungeonCore.
     // hollowCavern/bulwark/wardingSigil are non-worker, single-structure buildings
     // raised through 5 purchasable stages (maxCount: 5) rather than built in bulk.
-    // dungeonCore requires bulwark and wardingSigil to both be fully raised to
-    // Stage 5 (see requiresOperational / isBuildingOperational in game.js) until
-    // it is later stabilized.
+    // dungeonCore is not purchasable at all until hollowCavern, bulwark, and
+    // wardingSigil are all fully raised to Stage 5 (see unlock, checked via
+    // checkUnlock in game.js). After purchase, bulwark/wardingSigil must stay
+    // operational at Stage 5 (see requiresOperational / isBuildingOperational in
+    // game.js) until it is later stabilized.
 
     hollowCavern: {
         name: "Hollow Cavern",
@@ -540,13 +542,13 @@ const ROOMS = {
 
     dungeonCore: {
         name: "Dungeon Core",
-        cost: { arcaneEssence: 400, silk: 300, manaGold: 300, ichor: 250, mithril: 200 },
-        coinCost: 100000,
+        cost: { arcaneEssence: 8000, silk: 6000, manaGold: 6000, ichor: 5000, mithril: 4000 },
+        coinCost: 1000000,
         maxCount: 1,
         requiresResearch: ["anchoringRites"],
-        unlock: { hollowCavern: 1, bulwark: 1, wardingSigil: 1 },
+        unlock: { hollowCavern: 5, bulwark: 5, wardingSigil: 5 },
         requiresOperational: { bulwark: 5, wardingSigil: 5 },
-        desc: "The centerpiece of the Hollow. Inert until the Bulwark and Warding Sigil are both fully raised to Stage 5.",
+        desc: "The centerpiece of the Hollow. Unbuildable until the Hollow Cavern, Bulwark, and Warding Sigil are all fully raised to Stage 5.",
         flavor: "Everything else was preparation. This is the part that was never done before.",
     },
 };
