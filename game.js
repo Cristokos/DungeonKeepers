@@ -2376,6 +2376,17 @@ function getCaps() {
             caps[res] += storageBonus * n + storageYardBonus * nYard;
         }
     }
+    // Generic flat storage bonus (e.g. Hollow Cavern): adds storageBonusAll per
+    // owned stage/unit to every material resource cap, same pool as Shed/Storage Yard.
+    for (const [id, def] of Object.entries(ROOMS)) {
+        if (!def.storageBonusAll) continue;
+        const count = gameState.buildings[id] || 0;
+        if (count === 0) continue;
+        for (const res of Object.keys(BASE_CAPS)) {
+            if (res === 'lore') continue;
+            caps[res] += def.storageBonusAll * count;
+        }
+    }
     // Lore cap: base 500 + 50 per Scriptorium, plus any capBonus from research + Silvanus deity bonus
     let _sylvanusLoreBonus = 0;
     if (typeof DEITIES !== 'undefined' && isDeityFavorActive && isDeityFavorActive() && gameState.religion.deity === 'silvanus') {
@@ -4269,8 +4280,11 @@ function devClearBank() {
     saveGame();
 }
 
+const DEV_EXCLUDED_BUILDINGS = new Set(["hollowCavern", "bulwark", "wardingSigil", "dungeonCore"]);
+
 function devAddOneEach() {
     for (const id of Object.keys(ROOMS)) {
+        if (DEV_EXCLUDED_BUILDINGS.has(id)) continue;
         if (!checkUnlock(id)) continue;
         gameState.buildings[id] = (gameState.buildings[id] || 0) + 1;
     }
@@ -4280,9 +4294,26 @@ function devAddOneEach() {
 
 function devMaxAll() {
     for (const id of Object.keys(ROOMS)) {
+        if (DEV_EXCLUDED_BUILDINGS.has(id)) continue;
         if (!checkUnlock(id)) continue;
         gameState.buildings[id] = (gameState.buildings[id] || 0) + 10;
     }
+    updateUI();
+    saveGame();
+}
+
+// Resets the Dungeon Core arc to its unlocked-but-untouched state: grants the
+// research that reveals it (hollowFoundation, anchoringRites), zeroes all four
+// arc buildings, and clears the stabilization flag so requiresOperational gating
+// applies again.
+function devResetDungeonCore() {
+    if (!gameState.research) gameState.research = {};
+    gameState.research.hollowFoundation = true;
+    gameState.research.anchoringRites = true;
+    for (const id of DEV_EXCLUDED_BUILDINGS) {
+        gameState.buildings[id] = 0;
+    }
+    if (gameState.flags) delete gameState.flags.dungeonCoreStabilized;
     updateUI();
     saveGame();
 }
