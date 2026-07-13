@@ -792,6 +792,9 @@
             <!-- Research sub-tabs -->
             <button class="tab-btn sub-tab-btn active" data-tab="research-available" data-group="research" onclick="switchSubTab('research-available')" style="display:none">Available</button>
             <button class="tab-btn sub-tab-btn"        data-tab="research-completed" data-group="research" onclick="switchSubTab('research-completed')" style="display:none">Completed</button>
+            <!-- Dungeon sub-tabs -->
+            <button class="tab-btn sub-tab-btn" data-tab="hollow"   data-group="dungeon" onclick="switchSubTab('hollow')"   style="display:none">The Hollow</button>
+            <button class="tab-btn sub-tab-btn" data-tab="projects" data-group="dungeon" onclick="switchSubTab('projects')" style="display:none">Projects</button>
         </div>
 
         <!-- AWAKENING TAB (Era 1 only) -->
@@ -2799,8 +2802,8 @@
 
         </div><!-- /tab-trade -->
 
-        <!-- DUNGEON TAB -->
-        <div class="tab-body tab-content" id="tab-dungeon" style="display:none">
+        <!-- DUNGEON TAB: The Hollow sub-tab -->
+        <div class="tab-body tab-content" id="tab-hollow" style="display:none">
 
             <div class="religion-header">
                 <div class="religion-header-row">
@@ -2838,7 +2841,56 @@
 
             </div>
 
-        </div><!-- /tab-dungeon -->
+        </div><!-- /tab-hollow -->
+
+        <!-- DUNGEON TAB: Projects sub-tab -->
+        <div class="tab-body tab-content" id="tab-projects" style="display:none">
+
+            <div class="religion-header">
+                <div class="religion-header-row">
+                    <span class="religion-header-label">Great Projects</span>
+                </div>
+            </div>
+            <p class="wiki-lead" style="margin:6px 0 16px">The Dungeon Core's power can be poured into works too vast to finish in one sitting. Each Project is raised in a hundred small workings — once complete, its bounty is bound into the dungeon forever, and the work begins again at a steeper price.</p>
+
+            <h2 class="section-gap">Projects</h2>
+            <div class="grid">
+
+                <button class="build-btn project-btn disabled" onclick="buildProject('vaultOfAges')" id="btn-proj-vaultOfAges">
+                    <div class="btn-title">Vault of Ages</div>
+                    <div class="btn-count" id="proj-vaultOfAges-count">Cycle 0</div>
+                    <div class="project-progress-track"><div class="project-progress-fill" id="proj-vaultOfAges-fill"></div></div>
+                    <div class="project-progress-label" id="proj-vaultOfAges-pct">0%</div>
+                    <div class="btn-cost" id="proj-vaultOfAges-cost"></div>
+                </button>
+
+                <button class="build-btn project-btn disabled" onclick="buildProject('sunkenGranary')" id="btn-proj-sunkenGranary">
+                    <div class="btn-title">Sunken Granary</div>
+                    <div class="btn-count" id="proj-sunkenGranary-count">Cycle 0</div>
+                    <div class="project-progress-track"><div class="project-progress-fill" id="proj-sunkenGranary-fill"></div></div>
+                    <div class="project-progress-label" id="proj-sunkenGranary-pct">0%</div>
+                    <div class="btn-cost" id="proj-sunkenGranary-cost"></div>
+                </button>
+
+                <button class="build-btn project-btn disabled" onclick="buildProject('currencyMint')" id="btn-proj-currencyMint">
+                    <div class="btn-title">Currency Mint</div>
+                    <div class="btn-count" id="proj-currencyMint-count">Cycle 0</div>
+                    <div class="project-progress-track"><div class="project-progress-fill" id="proj-currencyMint-fill"></div></div>
+                    <div class="project-progress-label" id="proj-currencyMint-pct">0%</div>
+                    <div class="btn-cost" id="proj-currencyMint-cost"></div>
+                </button>
+
+                <button class="build-btn project-btn disabled" onclick="buildProject('grandLibrary')" id="btn-proj-grandLibrary">
+                    <div class="btn-title">Grand Library</div>
+                    <div class="btn-count" id="proj-grandLibrary-count">Cycle 0</div>
+                    <div class="project-progress-track"><div class="project-progress-fill" id="proj-grandLibrary-fill"></div></div>
+                    <div class="project-progress-label" id="proj-grandLibrary-pct">0%</div>
+                    <div class="btn-cost" id="proj-grandLibrary-cost"></div>
+                </button>
+
+            </div>
+
+        </div><!-- /tab-projects -->
 
         <!-- RELIGION TAB -->
         <div class="tab-body tab-content" id="tab-religion" style="display:none">
@@ -3212,7 +3264,7 @@
 <script>
     // Load local game scripts in dependency order, cache-busted by GAME_VERSION (see version.js).
     // lz-string must precede save.js (save/load uses LZString for (de)compression).
-    ["lib/lz-string.min.js", "data/resources.js", "data/rooms.js", "data/research.js", "data/religion.js", "data/era1tree.js", "data/randomEvents.js", "data/achievements.js", "save.js", "game.js"].forEach(function (src) {
+    ["lib/lz-string.min.js", "data/resources.js", "data/rooms.js", "data/research.js", "data/religion.js", "data/era1tree.js", "data/randomEvents.js", "data/achievements.js", "data/projects.js", "save.js", "game.js"].forEach(function (src) {
         document.write('<scr' + 'ipt src="' + src + '?v=' + window.GAME_VERSION + '"></scr' + 'ipt>');
     });
 </script>

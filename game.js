@@ -234,6 +234,7 @@ const gameState = {
         hollowCavern: 0, bulwark: 0, wardingSigil: 0, dungeonCore: 0,
     },
     flags: {}, // misc one-off persistent flags, e.g. dungeonCoreStabilized
+    projects: {}, // project id -> { pct: 0-100, cycles: completed loops } — see data/projects.js
     tradeRoutes: {},
     buildingDisabled: {}, // building id → count of that building's units currently paused (0..count)
     research:          {},
@@ -1359,6 +1360,17 @@ function getProduction() {
         }
     }
 
+    // Sunken Granary project: +5% and +1/day flat food production per completed
+    // cycle, stacking permanently. prod values are per-tick; +1/day == +0.5/tick.
+    if (typeof PROJECTS !== 'undefined') {
+        const granaryCycles = getProjectCycles('sunkenGranary');
+        if (granaryCycles > 0) {
+            const eff = PROJECTS.sunkenGranary.effectPerCycle;
+            prod.food = (prod.food || 0) * (1 + (eff.foodPct || 0) * granaryCycles)
+                      + (eff.foodFlat || 0) * granaryCycles / TICKS_PER_DAY;
+        }
+    }
+
     return prod;
 }
 
@@ -2008,6 +2020,25 @@ function initBldTooltips() {
         });
         eaBtn.addEventListener('mouseleave', () => { if (_bldTooltipEl) _bldTooltipEl.style.display = 'none'; });
     }
+
+    // Dungeon Projects — not in ROOMS, wired up manually like Expanded Awareness
+    if (typeof PROJECTS !== 'undefined') {
+        for (const id of Object.keys(PROJECTS)) {
+            const projBtn = document.getElementById('btn-proj-' + id);
+            if (!projBtn) continue;
+            projBtn.addEventListener('mouseenter', () => {
+                if (!_bldTooltipEl) return;
+                _bldTooltipEl.innerHTML = _buildProjectTooltipHTML(id, PROJECTS[id]);
+                _bldTooltipEl.style.display = 'block';
+            });
+            projBtn.addEventListener('mousemove', e => {
+                if (!_bldTooltipEl) return;
+                _bldTooltipEl.innerHTML = _buildProjectTooltipHTML(id, PROJECTS[id]);
+                _positionBldTooltip(e);
+            });
+            projBtn.addEventListener('mouseleave', () => { if (_bldTooltipEl) _bldTooltipEl.style.display = 'none'; });
+        }
+    }
 }
 
 function _buildExpandedAwarenessTooltipHTML() {
@@ -2020,6 +2051,57 @@ function _buildExpandedAwarenessTooltipHTML() {
         `<div class="bld-tt-divider"></div>` +
         `<div class="bld-tt-line${canAfford ? '' : ' bld-tt-cant-afford'}">Anima: ${fmt(cost)}</div>` +
         `<div class="bld-tt-flavor">The mind is not a vessel with fixed walls. It is a space you learn to widen.</div>`;
+}
+
+// Per-cycle effect description lines for a Project, given its effectPerCycle
+// def and how many cycles are currently stacked. Used by _buildProjectTooltipHTML.
+function _projectEffectLines(def, cycles) {
+    const eff = def.effectPerCycle;
+    const lines = [];
+    if (eff.storageFlatAllExceptCoinsLore) {
+        const perCycle = eff.storageFlatAllExceptCoinsLore;
+        lines.push(`+${fmt(perCycle)} storage to all resources except Coins and Lore, per cycle.`);
+        if (cycles > 0) lines.push(`Currently: +${fmt(perCycle * cycles)} (Cycle ${cycles}).`);
+    }
+    if (eff.foodPct || eff.foodFlat) {
+        lines.push(`+${Math.round(eff.foodPct * 100)}% and +${eff.foodFlat}/day flat Food production, per cycle.`);
+        if (cycles > 0) lines.push(`Currently: +${Math.round(eff.foodPct * cycles * 100)}% and +${eff.foodFlat * cycles}/day flat (Cycle ${cycles}).`);
+    }
+    if (eff.coinPct || eff.coinFlat) {
+        lines.push(`+${Math.round(eff.coinPct * 100)}% and +${eff.coinFlat}/day flat Coin income, per cycle.`);
+        if (cycles > 0) lines.push(`Currently: +${Math.round(eff.coinPct * cycles * 100)}% and +${eff.coinFlat * cycles}/day flat (Cycle ${cycles}).`);
+    }
+    if (eff.loreCapFlat || eff.loreCapPct) {
+        lines.push(`+${fmt(eff.loreCapFlat)} and +${Math.round(eff.loreCapPct * 100)}% Lore storage cap, per cycle.`);
+        if (cycles > 0) lines.push(`Currently: +${fmt(eff.loreCapFlat * cycles)} and +${Math.round(eff.loreCapPct * cycles * 100)}% (Cycle ${cycles}).`);
+    }
+    return lines;
+}
+
+function _buildProjectTooltipHTML(id, def) {
+    const state = getProjectState(id);
+    const locked = (gameState.buildings.dungeonCore || 0) < 1;
+    let html = `<div class="bld-tt-name">${def.name}</div>`;
+    if (def.desc) html += `<div class="bld-tt-effect">${def.desc}</div>`;
+    for (const line of _projectEffectLines(def, state.cycles)) {
+        html += `<div class="bld-tt-effect">${line}</div>`;
+    }
+    html += `<div class="bld-tt-effect">Progress: ${state.pct}% toward Cycle ${state.cycles + 1}.</div>`;
+    html += `<div class="bld-tt-divider"></div>`;
+    if (locked) {
+        html += `<div class="bld-tt-line bld-tt-cant-afford">Requires the Dungeon Core.</div>`;
+    } else {
+        const cost = getProjectPurchaseCost(id);
+        const coinCost = getProjectCoinCost(id);
+        const affordable = canAffordProject(id);
+        const costStr = Object.entries(cost)
+            .map(([res, n]) => `${fmt(n)} ${RESOURCES[res]?.name || res}`)
+            .concat(coinCost > 0 ? [formatCoins(coinCost)] : [])
+            .join(", ");
+        html += `<div class="bld-tt-line${affordable ? '' : ' bld-tt-cant-afford'}">${costStr} (per 1%)</div>`;
+    }
+    if (def.flavor) html += `<div class="bld-tt-flavor">${def.flavor}</div>`;
+    return html;
 }
 
 function _positionBldTooltip(e) {
@@ -2396,6 +2478,18 @@ function getCaps() {
             caps[res] += def.storageBonusAll * count;
         }
     }
+    // Vault of Ages project: +1000 to every material resource cap (not lore/coins)
+    // per completed cycle, stacked permanently and independently of any building count.
+    if (typeof PROJECTS !== 'undefined') {
+        const vaultCycles = getProjectCycles('vaultOfAges');
+        if (vaultCycles > 0) {
+            const vaultBonus = (PROJECTS.vaultOfAges.effectPerCycle.storageFlatAllExceptCoinsLore || 0) * vaultCycles;
+            for (const res of Object.keys(BASE_CAPS)) {
+                if (res === 'lore') continue;
+                caps[res] += vaultBonus;
+            }
+        }
+    }
     // Lore cap: base 500 + 50 per Scriptorium, plus any capBonus from research + Silvanus deity bonus
     let _sylvanusLoreBonus = 0;
     if (typeof DEITIES !== 'undefined' && isDeityFavorActive && isDeityFavorActive() && gameState.religion.deity === 'silvanus') {
@@ -2406,6 +2500,15 @@ function getCaps() {
     }
     caps.lore = 500 + (gameState.buildings.scriptorium || 0) * 50
               + getResearchBonus('capBonus', 'lore') + Math.floor(_sylvanusLoreBonus);
+    // Grand Library project: +200 flat and +2% (multiplicative) to lore cap per
+    // completed cycle, stacking permanently.
+    if (typeof PROJECTS !== 'undefined') {
+        const libraryCycles = getProjectCycles('grandLibrary');
+        if (libraryCycles > 0) {
+            const eff = PROJECTS.grandLibrary.effectPerCycle;
+            caps.lore = Math.floor((caps.lore + (eff.loreCapFlat || 0) * libraryCycles) * (1 + (eff.loreCapPct || 0) * libraryCycles));
+        }
+    }
     // Silvanus: each Farm adds +100 to food cap
     if (typeof DEITIES !== 'undefined' && isDeityFavorActive && isDeityFavorActive() && gameState.religion.deity === 'silvanus') {
         caps.food = (caps.food || 0) + (gameState.buildings.farm || 0) * (DEITIES.silvanus.bonuses.farmFoodCapBonus || 0);
@@ -2555,8 +2658,118 @@ function build(id) {
     gameState.stats.buildingsConstructed = (gameState.stats.buildingsConstructed || 0) + bought;
     bumpLifetime('buildingsConstructed', bought);
     bumpLifetimeBuilding(id, bought);
+    if (id === 'dungeonCore' && gameState.buildings.dungeonCore === 1) {
+        addLogEntry("The Dungeon Core awakens — the Projects wing of the Dungeon is now open.", "Projects unlocked", 'progress');
+    }
     updateUI();
     saveGame();
+}
+
+// ── Dungeon Projects ──────────────────────────────────────────────────────────
+// Repeatable, extremely expensive multi-part upgrades bought in 100 discrete 1%
+// increments. On reaching 100% the cycle's effect stacks permanently (see
+// getProjectCycles() and its call sites in getCaps/getProduction/the daily coin
+// tick) and progress resets to 0%, ready to buy into again at a steeper cost.
+// See data/projects.js for PROJECTS definitions.
+
+function getProjectState(id) {
+    if (!gameState.projects) gameState.projects = {};
+    if (!gameState.projects[id]) gameState.projects[id] = { pct: 0, cycles: 0 };
+    return gameState.projects[id];
+}
+
+function getProjectCycles(id) {
+    return (gameState.projects && gameState.projects[id] && gameState.projects[id].cycles) || 0;
+}
+
+function getProjectPurchaseCost(id) {
+    const def = PROJECTS[id];
+    const cycles = getProjectState(id).cycles;
+    const scale = Math.pow(def.cycleCostScale || 2, cycles);
+    const out = {};
+    for (const [res, base] of Object.entries(def.costPerPercent)) {
+        out[res] = Math.floor(base * scale);
+    }
+    return out;
+}
+
+function getProjectCoinCost(id) {
+    const def = PROJECTS[id];
+    if (!def.coinCostPerPercent) return 0;
+    const cycles = getProjectState(id).cycles;
+    return Math.floor(def.coinCostPerPercent * Math.pow(def.cycleCostScale || 2, cycles));
+}
+
+function canAffordProject(id) {
+    if ((gameState.buildings.dungeonCore || 0) < 1) return false;
+    for (const [res, amount] of Object.entries(getProjectPurchaseCost(id))) {
+        if ((gameState.resources[res] || 0) < amount) return false;
+    }
+    if ((gameState.resources.coins || 0) < getProjectCoinCost(id)) return false;
+    return true;
+}
+
+// Applies one completed cycle's permanent stacking bonus. Effects are read
+// live off gameState.projects[id].cycles by getCaps()/getProduction()/the
+// daily coin tick (via getProjectCycles), so nothing needs to happen here
+// beyond incrementing the cycle counter itself.
+function _completeProjectCycle(id) {
+    const state = getProjectState(id);
+    state.cycles += 1;
+    state.pct = 0;
+}
+
+function buildProject(id) {
+    const def = PROJECTS[id];
+    const times = _clickMult;
+    let bought = 0;
+    for (let i = 0; i < times; i++) {
+        if (!canAffordProject(id)) break;
+        const cost = getProjectPurchaseCost(id);
+        for (const [res, amount] of Object.entries(cost)) {
+            gameState.resources[res] -= amount;
+        }
+        gameState.resources.coins = Math.max(0, (gameState.resources.coins || 0) - getProjectCoinCost(id));
+        const state = getProjectState(id);
+        state.pct += 1;
+        bought++;
+        if (state.pct >= 100) _completeProjectCycle(id);
+    }
+    if (bought === 0) return;
+    updateUI();
+    saveGame();
+}
+
+// Refreshes the Projects grid: progress bar/percent, cycle count, cost text,
+// and afford-gated disabled state for each of the 4 static Project buttons.
+function renderProjectsTab() {
+    if (typeof PROJECTS === 'undefined') return;
+    for (const id of Object.keys(PROJECTS)) {
+        const btn = document.getElementById('btn-proj-' + id);
+        if (!btn) continue;
+        const state = getProjectState(id);
+        btn.classList.toggle('disabled', !canAffordProject(id));
+
+        const fillEl = document.getElementById(`proj-${id}-fill`);
+        if (fillEl) fillEl.style.width = state.pct + '%';
+
+        const pctEl = document.getElementById(`proj-${id}-pct`);
+        if (pctEl) pctEl.textContent = state.pct + '%';
+
+        const countEl = document.getElementById(`proj-${id}-count`);
+        if (countEl) countEl.textContent = 'Cycle ' + state.cycles;
+
+        const costEl = document.getElementById(`proj-${id}-cost`);
+        if (costEl) {
+            const cost = getProjectPurchaseCost(id);
+            let costStr = Object.entries(cost)
+                .map(([res, n]) => `${fmt(n)} ${RESOURCES[res]?.name || res}`)
+                .join(", ");
+            const coinCost = getProjectCoinCost(id);
+            if (coinCost > 0) costStr += (costStr ? ", " : "") + formatCoins(coinCost);
+            costEl.textContent = costStr;
+        }
+    }
 }
 
 // Adjusts how many units of a building are paused (production+consumption skipped).
@@ -2995,6 +3208,7 @@ function runOneTick() {
         for (const k of Object.keys(gameState.resources)) _preDaily[k] = gameState.resources[k] || 0;
         // Taxation: base 1 cp/creature/day + taxBonus from research (taxCollector adds 1 more)
         // Morale multiplier: high morale = more willing workers and better tax compliance
+        const _coinsBeforeMint = gameState.resources.coins || 0;
         const taxRate = getResearchBonus('taxBonus');
         if (taxRate > 0) {
             gameState.resources.coins = (gameState.resources.coins || 0) + gameState.population.count * taxRate * getMoraleMult();
@@ -3024,6 +3238,18 @@ function runOneTick() {
             const _coinBal = gameState.resources.coins || 0;
             if (_coinBal > 0 && _coinBal < _coinCap) {
                 gameState.resources.coins = Math.min(_coinCap, _coinBal + _coinBal * 0.001);
+            }
+        }
+        // Currency Mint project: +5% (applied to today's coin gain so far) and
+        // +10 cp/day flat per completed cycle, stacking permanently.
+        if (typeof PROJECTS !== 'undefined') {
+            const mintCycles = getProjectCycles('currencyMint');
+            if (mintCycles > 0) {
+                const eff = PROJECTS.currencyMint.effectPerCycle;
+                const _dailyGainSoFar = Math.max(0, (gameState.resources.coins || 0) - _coinsBeforeMint);
+                gameState.resources.coins = (gameState.resources.coins || 0)
+                    + _dailyGainSoFar * (eff.coinPct || 0) * mintCycles
+                    + (eff.coinFlat || 0) * mintCycles;
             }
         }
         // Trade routes: each resource's signed route count executes once per day
@@ -3478,10 +3704,11 @@ function updateUI() {
     updatePauseBtn();
     updateBankDisplay();
     updateEraTabVisibility();
-    // Re-render the trade/religion tab when active so values stay current
+    // Re-render the trade/religion/projects tab when active so values stay current
     const _activeTabBtn = document.querySelector('.tab-btn.active');
     if (_activeTabBtn && _activeTabBtn.dataset.tab === 'trade') renderTradeTab();
     if (_activeTabBtn && _activeTabBtn.dataset.tab === 'religion') renderReligionTab();
+    if (_activeTabBtn && _activeTabBtn.dataset.tab === 'projects') renderProjectsTab();
     renderEra1Tree();
     renderEra1Actions();
     const caps     = getCaps();
@@ -6492,6 +6719,14 @@ function updateEraTabVisibility() {
         dungeonBtn.style.display = showDungeon ? '' : 'none';
     }
 
+    // Projects dungeon sub-tab: hidden until the Dungeon Core is built, not just
+    // disabled — the great works don't exist as a concept to the player before then.
+    const projectsBtn = document.querySelector('.sub-tab-btn[data-tab="projects"]');
+    if (projectsBtn) {
+        const showProjects = (gameState.buildings.dungeonCore || 0) >= 1;
+        projectsBtn.style.display = showProjects ? '' : 'none';
+    }
+
     // Show/hide left-column elements that only belong in Era 2
     const displayEra2 = era === 1 ? 'none' : '';
     document.querySelectorAll('.era2-only').forEach(el => {
@@ -8365,6 +8600,7 @@ function renderReligionTab() {
 const TAB_GROUPS = {
     village:  { group: 'village',  default: 'build' },
     research: { group: 'research', default: 'research-available' },
+    dungeon:  { group: 'dungeon',  default: 'hollow' },
 };
 
 function switchTab(tabId) {
@@ -8429,6 +8665,7 @@ function switchSubTab(subTabId) {
     if (btn) btn.classList.add("active");
 
     if (subTabId === "trade") renderTradeTab();
+    if (subTabId === "projects") renderProjectsTab();
 }
 
 // ── Bootstrap ─────────────────────────────────────────────────────────────────

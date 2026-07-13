@@ -1645,6 +1645,46 @@ kbd {
     margin-top: 2px;
 }
 
+/* PROJECTS GRID (Dungeon > Projects sub-tab) — taller cards with a 1%-per-purchase
+   progress bar toward the next completed (and permanently stacking) cycle. */
+.build-btn.project-btn {
+    height: 100px;
+}
+
+.project-progress-track {
+    position: absolute;
+    left: 10px;
+    right: 10px;
+    bottom: 26px;
+    height: 6px;
+    border-radius: 3px;
+    background: var(--bg-hover);
+    border: 1px solid var(--border);
+    overflow: hidden;
+}
+
+.project-progress-fill {
+    height: 100%;
+    width: 0%;
+    background: var(--accent);
+    transition: width 0.15s;
+}
+
+.project-progress-label {
+    position: absolute;
+    left: 10px;
+    bottom: 8px;
+    font-size: 10px;
+    color: var(--text-muted);
+}
+
+.build-btn.project-btn:hover .btn-cost {
+    right: 10px;
+    left: auto;
+    bottom: 8px;
+    text-align: right;
+}
+
 /* ── TABS ───────────────────────────────────────────────────────────────────── */
 
 .tab-bar {
