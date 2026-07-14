@@ -1258,6 +1258,49 @@ RESEARCH.anchoringRites = {
     effects: { unlockBuildings: ["bulwark", "wardingSigil", "dungeonCore"] },
 };
 
+// ── Chain: Awaken the Echo ──────────────────────────────────────────────────────
+// A short, mechanical unlock chain (4 nodes — scaled like the 3-node Infernal
+// Compact chain, not the 12-node Bodiless Keeper saga) — this isn't a new
+// philosophical thread, it's the switch that turns on the Dungeon tab's
+// Monsters sub-tab: rooms, raids, and Pure Souls. Requires the Core itself to
+// already exist. See data/dungeonRooms.js for the rooms this gates.
+
+RESEARCH.awakenTheEcho = {
+    tier: "2.14",
+    name: "Awaken the Echo",
+    desc: "The Core remembers the shape of those who gave it form. With a body of its own, it can finally lend that memory a shape of its own — an echo, not a puppet.",
+    cost: { lore: 2000, ichor: 30, mithril: 15 },
+    requiresResearch: ["anchoringRites"],
+    effects: { flag: "monstersUnlocked" },
+};
+
+RESEARCH.temptTheGreedy = {
+    tier: "2.14",
+    name: "Tempt the Greedy",
+    desc: "A dungeon with a Core is a dungeon worth robbing — if word gets out. The first treasure rooms are built to make sure it does.",
+    cost: { lore: 1600, coins: 3000 },
+    requiresResearch: ["awakenTheEcho"],
+    effects: { unlockBuildings: ["glitteringHoard", "baitVault", "spikeCorridor", "runeWard", "puzzleLock"] },
+};
+
+RESEARCH.deepenTheEcho = {
+    tier: "2.14",
+    name: "Deepen the Echo",
+    desc: "The first echoes were a proof of concept. The Core is ready to remember more — and remember it more sharply.",
+    cost: { lore: 2600, ichor: 45, mithril: 25 },
+    requiresResearch: ["temptTheGreedy"],
+    effects: { unlockBuildings: ["crusherGate", "echoDen", "hexLattice", "mirrorMaze"] },
+};
+
+RESEARCH.perfectTheEcho = {
+    tier: "2.14",
+    name: "Perfect the Echo",
+    desc: "The deepest, sharpest memory the Core can hold — a founder's full strength, will, and cunning, echoed back whole. Sharp enough, now, to end most things that come looking for a fight.",
+    cost: { lore: 3600, ichor: 80, mithril: 45 },
+    requiresResearch: ["deepenTheEcho"],
+    effects: { unlockBuildings: ["bruteSanctum", "wardstoneNexus", "weighingScales", "sigilOfBinding", "sphinxsRiddle"] },
+};
+
 // ── Mastery Research ──────────────────────────────────────────────────────────
 // Hidden techniques revealed only by earning their gating achievement.
 // `requiresAchievement` names the achievement id (see data/achievements.js);

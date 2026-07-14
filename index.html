@@ -793,8 +793,9 @@
             <button class="tab-btn sub-tab-btn active" data-tab="research-available" data-group="research" onclick="switchSubTab('research-available')" style="display:none">Available</button>
             <button class="tab-btn sub-tab-btn"        data-tab="research-completed" data-group="research" onclick="switchSubTab('research-completed')" style="display:none">Completed</button>
             <!-- Dungeon sub-tabs -->
-            <button class="tab-btn sub-tab-btn" data-tab="hollow"   data-group="dungeon" onclick="switchSubTab('hollow')"   style="display:none">The Hollow</button>
-            <button class="tab-btn sub-tab-btn" data-tab="projects" data-group="dungeon" onclick="switchSubTab('projects')" style="display:none">Projects</button>
+            <button class="tab-btn sub-tab-btn" data-tab="hollow"    data-group="dungeon" onclick="switchSubTab('hollow')"    style="display:none">The Hollow</button>
+            <button class="tab-btn sub-tab-btn" data-tab="projects"  data-group="dungeon" onclick="switchSubTab('projects')"  style="display:none">Projects</button>
+            <button class="tab-btn sub-tab-btn" data-tab="monsters" data-group="dungeon" onclick="switchSubTab('monsters')" style="display:none">Monsters</button>
         </div>
 
         <!-- AWAKENING TAB (Era 1 only) -->
@@ -2892,6 +2893,144 @@
 
         </div><!-- /tab-projects -->
 
+        <!-- MONSTERS TAB -->
+        <div class="tab-body tab-content" id="tab-monsters" style="display:none">
+
+            <div class="religion-header">
+                <div class="religion-header-row">
+                    <span class="religion-header-label">Monsters</span>
+                </div>
+            </div>
+            <p class="wiki-lead" style="margin:6px 0 16px">The Core does not summon the living — it echoes them. Treasure draws the greedy and the desperate; traps, wards, and puzzles thin their numbers; the dens beyond hold what the Core remembers of your founding race, given shape again to finish what the traps started.</p>
+
+            <div class="info-stat-block" style="margin-bottom:20px">
+                <div class="info-stat"><span>Glory</span>        <span id="dungeon-stat-glory">0</span></div>
+                <div class="info-stat"><span>Danger</span>       <span id="dungeon-stat-danger">0</span></div>
+                <div class="info-stat"><span>Pure Souls</span>   <span id="dungeon-stat-puresouls">0</span></div>
+                <div class="info-stat"><span>Power</span>        <span id="dungeon-stat-power">0</span></div>
+                <div class="info-stat"><span>Arcane</span>       <span id="dungeon-stat-arcane">0</span></div>
+                <div class="info-stat"><span>Intelligence</span> <span id="dungeon-stat-intelligence">0</span></div>
+            </div>
+
+            <h2 class="section-gap">Treasure</h2>
+            <div class="grid">
+                <button class="build-btn disabled" onclick="buildDungeonRoom('glitteringHoard')" id="btn-dr-glitteringHoard">
+                    <div class="btn-title" id="dr-glitteringHoard-name">Glittering Hoard</div>
+                    <div class="btn-desc"  id="dr-glitteringHoard-desc"></div>
+                    <div class="btn-count" id="dr-glitteringHoard-count">Owned: 0</div>
+                    <div class="btn-status" id="dr-glitteringHoard-status"></div>
+                    <div class="btn-cost"  id="dr-glitteringHoard-cost"></div>
+                </button>
+                <button class="build-btn disabled" onclick="buildDungeonRoom('baitVault')" id="btn-dr-baitVault">
+                    <div class="btn-title" id="dr-baitVault-name">Bait Vault</div>
+                    <div class="btn-desc"  id="dr-baitVault-desc"></div>
+                    <div class="btn-count" id="dr-baitVault-count">Owned: 0</div>
+                    <div class="btn-status" id="dr-baitVault-status"></div>
+                    <div class="btn-cost"  id="dr-baitVault-cost"></div>
+                </button>
+            </div>
+
+            <h2 class="section-gap">Physical Power</h2>
+            <div class="grid">
+                <button class="build-btn disabled" onclick="buildDungeonRoom('spikeCorridor')" id="btn-dr-spikeCorridor">
+                    <div class="btn-title" id="dr-spikeCorridor-name">Spike Corridor</div>
+                    <div class="btn-desc"  id="dr-spikeCorridor-desc"></div>
+                    <div class="btn-count" id="dr-spikeCorridor-count">Owned: 0</div>
+                    <div class="btn-status" id="dr-spikeCorridor-status"></div>
+                    <div class="btn-cost"  id="dr-spikeCorridor-cost"></div>
+                </button>
+                <button class="build-btn disabled" onclick="buildDungeonRoom('crusherGate')" id="btn-dr-crusherGate">
+                    <div class="btn-title" id="dr-crusherGate-name">Crusher Gate</div>
+                    <div class="btn-desc"  id="dr-crusherGate-desc"></div>
+                    <div class="btn-count" id="dr-crusherGate-count">Owned: 0</div>
+                    <div class="btn-status" id="dr-crusherGate-status"></div>
+                    <div class="btn-cost"  id="dr-crusherGate-cost"></div>
+                </button>
+                <button class="build-btn disabled" onclick="buildDungeonRoom('echoDen')" id="btn-dr-echoDen">
+                    <div class="btn-title" id="dr-echoDen-name">Echo Den</div>
+                    <div class="btn-desc"  id="dr-echoDen-desc"></div>
+                    <div class="btn-count" id="dr-echoDen-count">Owned: 0</div>
+                    <div class="btn-status" id="dr-echoDen-status"></div>
+                    <div class="btn-cost"  id="dr-echoDen-cost"></div>
+                </button>
+                <button class="build-btn disabled" onclick="buildDungeonRoom('bruteSanctum')" id="btn-dr-bruteSanctum">
+                    <div class="btn-title" id="dr-bruteSanctum-name">Brute Sanctum</div>
+                    <div class="btn-desc"  id="dr-bruteSanctum-desc"></div>
+                    <div class="btn-count" id="dr-bruteSanctum-count">Owned: 0</div>
+                    <div class="btn-status" id="dr-bruteSanctum-status"></div>
+                    <div class="btn-cost"  id="dr-bruteSanctum-cost"></div>
+                </button>
+            </div>
+
+            <h2 class="section-gap">Arcane</h2>
+            <div class="grid">
+                <button class="build-btn disabled" onclick="buildDungeonRoom('runeWard')" id="btn-dr-runeWard">
+                    <div class="btn-title" id="dr-runeWard-name">Rune Ward</div>
+                    <div class="btn-desc"  id="dr-runeWard-desc"></div>
+                    <div class="btn-count" id="dr-runeWard-count">Owned: 0</div>
+                    <div class="btn-status" id="dr-runeWard-status"></div>
+                    <div class="btn-cost"  id="dr-runeWard-cost"></div>
+                </button>
+                <button class="build-btn disabled" onclick="buildDungeonRoom('hexLattice')" id="btn-dr-hexLattice">
+                    <div class="btn-title" id="dr-hexLattice-name">Hex Lattice</div>
+                    <div class="btn-desc"  id="dr-hexLattice-desc"></div>
+                    <div class="btn-count" id="dr-hexLattice-count">Owned: 0</div>
+                    <div class="btn-status" id="dr-hexLattice-status"></div>
+                    <div class="btn-cost"  id="dr-hexLattice-cost"></div>
+                </button>
+                <button class="build-btn disabled" onclick="buildDungeonRoom('wardstoneNexus')" id="btn-dr-wardstoneNexus">
+                    <div class="btn-title" id="dr-wardstoneNexus-name">Wardstone Nexus</div>
+                    <div class="btn-desc"  id="dr-wardstoneNexus-desc"></div>
+                    <div class="btn-count" id="dr-wardstoneNexus-count">Owned: 0</div>
+                    <div class="btn-status" id="dr-wardstoneNexus-status"></div>
+                    <div class="btn-cost"  id="dr-wardstoneNexus-cost"></div>
+                </button>
+                <button class="build-btn disabled" onclick="buildDungeonRoom('sigilOfBinding')" id="btn-dr-sigilOfBinding">
+                    <div class="btn-title" id="dr-sigilOfBinding-name">Sigil of Binding</div>
+                    <div class="btn-desc"  id="dr-sigilOfBinding-desc"></div>
+                    <div class="btn-count" id="dr-sigilOfBinding-count">Owned: 0</div>
+                    <div class="btn-status" id="dr-sigilOfBinding-status"></div>
+                    <div class="btn-cost"  id="dr-sigilOfBinding-cost"></div>
+                </button>
+            </div>
+
+            <h2 class="section-gap">Intelligence</h2>
+            <div class="grid">
+                <button class="build-btn disabled" onclick="buildDungeonRoom('puzzleLock')" id="btn-dr-puzzleLock">
+                    <div class="btn-title" id="dr-puzzleLock-name">Puzzle Lock</div>
+                    <div class="btn-desc"  id="dr-puzzleLock-desc"></div>
+                    <div class="btn-count" id="dr-puzzleLock-count">Owned: 0</div>
+                    <div class="btn-status" id="dr-puzzleLock-status"></div>
+                    <div class="btn-cost"  id="dr-puzzleLock-cost"></div>
+                </button>
+                <button class="build-btn disabled" onclick="buildDungeonRoom('mirrorMaze')" id="btn-dr-mirrorMaze">
+                    <div class="btn-title" id="dr-mirrorMaze-name">Mirror Maze</div>
+                    <div class="btn-desc"  id="dr-mirrorMaze-desc"></div>
+                    <div class="btn-count" id="dr-mirrorMaze-count">Owned: 0</div>
+                    <div class="btn-status" id="dr-mirrorMaze-status"></div>
+                    <div class="btn-cost"  id="dr-mirrorMaze-cost"></div>
+                </button>
+                <button class="build-btn disabled" onclick="buildDungeonRoom('weighingScales')" id="btn-dr-weighingScales">
+                    <div class="btn-title" id="dr-weighingScales-name">The Weighing Scales</div>
+                    <div class="btn-desc"  id="dr-weighingScales-desc"></div>
+                    <div class="btn-count" id="dr-weighingScales-count">Owned: 0</div>
+                    <div class="btn-status" id="dr-weighingScales-status"></div>
+                    <div class="btn-cost"  id="dr-weighingScales-cost"></div>
+                </button>
+                <button class="build-btn disabled" onclick="buildDungeonRoom('sphinxsRiddle')" id="btn-dr-sphinxsRiddle">
+                    <div class="btn-title" id="dr-sphinxsRiddle-name">The Sphinx's Riddle</div>
+                    <div class="btn-desc"  id="dr-sphinxsRiddle-desc"></div>
+                    <div class="btn-count" id="dr-sphinxsRiddle-count">Owned: 0</div>
+                    <div class="btn-status" id="dr-sphinxsRiddle-status"></div>
+                    <div class="btn-cost"  id="dr-sphinxsRiddle-cost"></div>
+                </button>
+            </div>
+
+            <h2 class="section-gap">Raid Log</h2>
+            <div id="raid-log"><p class="log-empty">No raids yet.</p></div>
+
+        </div><!-- /tab-monsters -->
+
         <!-- RELIGION TAB -->
         <div class="tab-body tab-content" id="tab-religion" style="display:none">
 
@@ -3264,7 +3403,7 @@
 <script>
     // Load local game scripts in dependency order, cache-busted by GAME_VERSION (see version.js).
     // lz-string must precede save.js (save/load uses LZString for (de)compression).
-    ["lib/lz-string.min.js", "data/resources.js", "data/rooms.js", "data/research.js", "data/religion.js", "data/era1tree.js", "data/randomEvents.js", "data/achievements.js", "data/projects.js", "save.js", "game.js"].forEach(function (src) {
+    ["lib/lz-string.min.js", "data/resources.js", "data/rooms.js", "data/research.js", "data/religion.js", "data/era1tree.js", "data/randomEvents.js", "data/achievements.js", "data/projects.js", "data/dungeonRooms.js", "data/dungeonRoomSkins.js", "save.js", "game.js"].forEach(function (src) {
         document.write('<scr' + 'ipt src="' + src + '?v=' + window.GAME_VERSION + '"></scr' + 'ipt>');
     });
 </script>

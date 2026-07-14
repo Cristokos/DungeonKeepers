@@ -2244,6 +2244,44 @@
                 (+5% and +1/day flat Food production, per cycle), the <b>Currency Mint</b> (+5% and +10/day flat Coin
                 income, per cycle), and the <b>Grand Library</b> (+200 and +2% Lore storage cap, per cycle).
             </p>
+
+            <h3 class="creature-category">👹 The Monsters Sub-Tab</h3>
+            <p class="wiki-lead">
+                A short research chain — <b>Awaken the Echo → Tempt the Greedy → Deepen the Echo → Perfect the
+                Echo</b> — opens a third Dungeon sub-tab, <b>Monsters</b>. The Core does not conscript your living
+                population; it doesn't need to. It remembers the shape of the race that gave it form, and given a
+                body of its own, it can lend that memory a shape too — spirit-echoes, not puppets. Nothing here draws
+                on your settlement's workers, food, or morale.
+            </p>
+            <p class="wiki-lead">
+                Rooms are purchased and leveled just like Settlement buildings — no maze, no spatial layout, just a
+                growing collection. <b>Treasure</b> rooms (Glittering Hoard, Bait Vault) generate <b>Glory</b>, which
+                draws adventuring parties: the higher your Glory, the more often raids arrive and the larger the
+                parties that show up. Everything else is a combat room with one of three fixed types —
+                <b>Physical Power</b>, <b>Arcane</b>, or <b>Intelligence</b> — each contributing to its own dungeon
+                stat pool, checked against the matching class in an incoming party (Fighters vs. Power, Wizards vs.
+                Arcane, Rogues vs. Intelligence). Physical Power is the only tree with living <b>Dens</b> in this
+                update — Echo Den and Brute Sanctum hold a capacity of spirit-echo monsters that depletes on death and
+                regrows on a timer. Arcane and Intelligence are pure trap and puzzle trees for now: Rune Ward, Hex
+                Lattice, Wardstone Nexus, and Sigil of Binding on the arcane side; Puzzle Lock, Mirror Maze, The
+                Weighing Scales, and The Sphinx's Riddle on the intelligence side. Every combat room has an ongoing
+                upkeep cost paid from existing resources each raid it takes part in — Bones and Food for Physical
+                Power, Arcane Dust/Lore/Arcane Essence for Arcane, and Runes for Intelligence — and a room that can't
+                pay in full still fights, just weaker. All twelve combat rooms and both Treasure rooms are reskinned
+                by your founding race's creature type: an Undead run sees a <i>Barrow Hollow</i> where a Goblinoid run
+                sees a <i>Warren Den</i>, though the numbers underneath never change.
+            </p>
+            <p class="wiki-lead">
+                <b>Danger</b> is the dungeon's other headline stat — a live dial, not a one-way ramp. Killing a raiding
+                party raises it, drawing tougher, more rewarding parties in the future; a party that breaches or turns
+                back lowers it slightly, since word gets out that your dungeon can be beaten. A breach is never a real
+                setback: one random owned combat room takes damage and drops into an automatic repair cooldown
+                (shortenable by upgrades later), but nothing is lost outright — no resources, no progress, no
+                population. Killed parties occasionally leave behind <b>Pure Souls</b>, a rare dungeon-only currency
+                — deliberately not a guaranteed per-kill drop — spent on rooms, traps, and den upgrades. A dedicated
+                <b>Raid Log</b> narrates every raid day by day: which room landed the kill, where a party turned
+                back, or what got wrecked on the way out.
+            </p>
         </section>
 
         <!-- EXTENSION -->
@@ -2335,6 +2373,11 @@
         <!-- CHANGELOG -->
         <section id="wiki-changelog" class="wiki-section wiki-changelog" style="display:none">
             <h2>Changelog</h2>
+
+            <div class="biome-card">
+                <div><span class="cl-ver">v1.08.0</span><span class="cl-date">2026-07-13</span></div>
+                <p class="biome-desc">Added the Monsters system — a new Dungeon sub-tab, gated behind a 4-node research chain (Awaken the Echo → Tempt the Greedy → Deepen the Echo → Perfect the Echo), where the Dungeon Core conjures spirit-echo monsters shaped from your founding race rather than drawing on settlement population. Fourteen rooms across Treasure, Physical Power, Arcane, and Intelligence trees generate Glory (raid frequency), fight off adventuring parties using type-matched Power/Arcane/Intelligence stats, and consume ongoing upkeep from existing resources. A live Danger dial rises on kills and softly falls on breaches or turned-back parties; breaches damage one random room into an automatic repair cooldown with no resource or progress loss. Killed parties rarely drop Pure Souls, a new dungeon-only currency. All combat rooms are reskinned by founding race via a new per-creature-type flavor table, and a dedicated Raid Log narrates each day's outcome separately from the main event log.</p>
+            </div>
 
             <div class="biome-card">
                 <div><span class="cl-ver">v1.07.0</span><span class="cl-date">2026-07-13</span></div>

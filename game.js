@@ -235,6 +235,10 @@ const gameState = {
     },
     flags: {}, // misc one-off persistent flags, e.g. dungeonCoreStabilized
     projects: {}, // project id -> { pct: 0-100, cycles: completed loops } — see data/projects.js
+    dungeonRooms: {}, // room id -> count owned — see data/dungeonRooms.js
+    dungeonRoomState: {}, // room id -> { repairDaysLeft, monstersAlive } — combat-room runtime state
+    dungeonStats: { glory: 0, danger: 0, pureSouls: 0 },
+    raidLog: [], // { text, day, year, seasonIndex } newest-first — separate from the settlement event log
     tradeRoutes: {},
     buildingDisabled: {}, // building id → count of that building's units currently paused (0..count)
     research:          {},
@@ -2772,6 +2776,387 @@ function renderProjectsTab() {
     }
 }
 
+// ── Dungeon Monsters (rooms/traps/dens, raids, Pure Souls) ────────────────────
+// The Dungeon tab's "Monsters" sub-tab, gated behind the awakenTheEcho research
+// chain (data/research.js). Rooms are purchased/leveled exactly like Settlement
+// buildings (count-based, cost*costScale^owned) — see data/dungeonRooms.js for
+// DUNGEON_ROOMS. This section is a parallel implementation to build()/
+// getBuildCost()/checkUnlock() above rather than a merge into ROOMS, since
+// dungeon rooms are not Settlement buildings (different tab, different gating,
+// combat-only fields like statType/ammo/repairDays/monsterCapacity).
+
+function checkDungeonRoomUnlock(id) {
+    const def = DUNGEON_ROOMS[id];
+    if (!def) return false;
+    if (def.unlock) {
+        for (const [reqId, reqCount] of Object.entries(def.unlock)) {
+            if ((gameState.dungeonRooms[reqId] || 0) < reqCount) return false;
+        }
+    }
+    if (def.requiresResearch) {
+        for (const key of def.requiresResearch) {
+            if (!gameState.research || !gameState.research[key]) return false;
+        }
+    }
+    return true;
+}
+
+function getDungeonRoomCost(id) {
+    const def = DUNGEON_ROOMS[id];
+    const n = gameState.dungeonRooms[id] || 0;
+    const scale = def.costScale || 1.2;
+    const out = {};
+    for (const [res, base] of Object.entries(def.cost)) {
+        out[res] = Math.floor(base * Math.pow(scale, n));
+    }
+    return out;
+}
+
+function canAffordDungeonRoom(id) {
+    if (!checkDungeonRoomUnlock(id)) return false;
+    for (const [res, amount] of Object.entries(getDungeonRoomCost(id))) {
+        if ((gameState.resources[res] || 0) < amount) return false;
+    }
+    return true;
+}
+
+function buildDungeonRoom(id) {
+    const times = _clickMult;
+    let bought = 0;
+    for (let i = 0; i < times; i++) {
+        if (!canAffordDungeonRoom(id)) break;
+        const cost = getDungeonRoomCost(id);
+        for (const [res, amount] of Object.entries(cost)) {
+            gameState.resources[res] -= amount;
+        }
+        gameState.dungeonRooms[id] = (gameState.dungeonRooms[id] || 0) + 1;
+        bought++;
+    }
+    if (bought === 0) return;
+    updateUI();
+    saveGame();
+}
+
+// Per-room runtime state (repair cooldown, live monster count for dens).
+// Separate from the owned-count in gameState.dungeonRooms, which never
+// decreases — a breach or a monster death affects state, not ownership.
+function getDungeonRoomState(id) {
+    if (!gameState.dungeonRoomState) gameState.dungeonRoomState = {};
+    if (!gameState.dungeonRoomState[id]) {
+        const def = DUNGEON_ROOMS[id];
+        gameState.dungeonRoomState[id] = {
+            repairDaysLeft: 0,
+            monstersAlive: def && def.monsterCapacity ? def.monsterCapacity : 0,
+        };
+    }
+    return gameState.dungeonRoomState[id];
+}
+
+function isDungeonRoomOperational(id) {
+    return getDungeonRoomState(id).repairDaysLeft <= 0;
+}
+
+// Sums a stat pool (power/intelligence/arcane) additively across all owned,
+// operational rooms of that type — same additive-pool convention as
+// allProductionBonus (flat contributions summed, then used as one total),
+// not costScale-style compounding. A room in repair cooldown, or a den with
+// no live monsters, contributes nothing until it recovers.
+function getDungeonStatTotal(statType) {
+    let total = 0;
+    for (const [id, def] of Object.entries(DUNGEON_ROOMS)) {
+        if (def.statType !== statType) continue;
+        const count = gameState.dungeonRooms[id] || 0;
+        if (count <= 0) continue;
+        if (!isDungeonRoomOperational(id)) continue;
+        if (def.monsterCapacity) {
+            const state = getDungeonRoomState(id);
+            if (state.monstersAlive <= 0) continue;
+            total += def.statValue * count * (state.monstersAlive / def.monsterCapacity);
+        } else {
+            total += def.statValue * count;
+        }
+    }
+    return total;
+}
+
+function getDungeonGlory() {
+    let total = 0;
+    for (const [id, def] of Object.entries(DUNGEON_ROOMS)) {
+        if (def.statType !== null || !def.glory) continue;
+        const count = gameState.dungeonRooms[id] || 0;
+        if (count > 0) total += def.glory * count;
+    }
+    return total;
+}
+
+// All owned combat rooms (any stat type) — the pool a breach damages one
+// random entry from, and the pool traps/dens resolve against in a raid.
+function getOwnedCombatRoomIds() {
+    return Object.keys(DUNGEON_ROOMS).filter(id => {
+        const def = DUNGEON_ROOMS[id];
+        return def.statType !== null && (gameState.dungeonRooms[id] || 0) > 0;
+    });
+}
+
+// Consumes a room's ammo for one raid, proportional to what's actually
+// available (mirrors the converter input-shortfall ratio in the tick()
+// conversion loop). Returns the effectiveness ratio (0-1) so the caller can
+// scale the room's contribution to this raid's outcome.
+function consumeDungeonRoomAmmo(id) {
+    const def = DUNGEON_ROOMS[id];
+    if (!def.ammo) return 1;
+    let ratio = 1;
+    for (const [res, amount] of Object.entries(def.ammo)) {
+        const have = gameState.resources[res] || 0;
+        ratio = Math.min(ratio, amount > 0 ? have / amount : 1);
+    }
+    ratio = Math.max(0, Math.min(1, ratio));
+    if (ratio > 0) {
+        for (const [res, amount] of Object.entries(def.ammo)) {
+            gameState.resources[res] = Math.max(0, (gameState.resources[res] || 0) - amount * ratio);
+        }
+    }
+    return ratio;
+}
+
+const RAID_CLASSES = {
+    fighter: { label: "Fighter", statType: "power" },
+    wizard:  { label: "Wizard",  statType: "arcane" },
+    rogue:   { label: "Rogue",   statType: "intelligence" },
+};
+
+// Bands raids roll from — party size scales with Glory (how much attention
+// the dungeon draws), party strength scales with Danger (how tough the draw
+// currently is). Kept small and discrete in v1 rather than a continuous curve.
+const RAID_GLORY_BANDS = [
+    { minGlory: 0,  partySize: [1, 2] },
+    { minGlory: 15, partySize: [2, 3] },
+    { minGlory: 35, partySize: [3, 4] },
+];
+const RAID_DANGER_BANDS = [
+    { minDanger: 0,  strength: 1 },
+    { minDanger: 25, strength: 1.6 },
+    { minDanger: 55, strength: 2.4 },
+    { minDanger: 80, strength: 3.5 },
+];
+
+function _pickRaidBand(bands, key, value) {
+    let picked = bands[0];
+    for (const band of bands) if (value >= band[key]) picked = band;
+    return picked;
+}
+
+function _rollRaidParty() {
+    const glory = getDungeonGlory();
+    const danger = gameState.dungeonStats.danger || 0;
+    const sizeBand = _pickRaidBand(RAID_GLORY_BANDS, 'minGlory', glory);
+    const strengthBand = _pickRaidBand(RAID_DANGER_BANDS, 'minDanger', danger);
+    const [minSize, maxSize] = sizeBand.partySize;
+    const size = minSize + Math.floor(Math.random() * (maxSize - minSize + 1));
+    const classKeys = Object.keys(RAID_CLASSES);
+    const members = [];
+    for (let i = 0; i < size; i++) {
+        const classKey = classKeys[Math.floor(Math.random() * classKeys.length)];
+        members.push({
+            classKey,
+            statType: RAID_CLASSES[classKey].statType,
+            hp: 10 * strengthBand.strength,
+            alive: true,
+        });
+    }
+    return { members, strength: strengthBand.strength };
+}
+
+// Checked once per day-tick (see tick()'s once-per-day block). Resolves at
+// most one raid per day: a probabilistic check weighted by Glory decides
+// whether a party shows up at all, then the party resolves in one pass
+// against all owned combat rooms (traps/puzzles first, then Physical Power's
+// dens), in build order within each group — no player-orderable sequence in
+// v1. See the design notes atop data/dungeonRooms.js for the outcome model.
+function resolveDailyRaid() {
+    if (!gameState.research || !gameState.research.awakenTheEcho) return;
+    const glory = getDungeonGlory();
+    if (glory <= 0) return;
+
+    const raidChance = Math.min(0.6, 0.05 + glory * 0.01);
+    if (Math.random() > raidChance) return;
+
+    const party = _rollRaidParty();
+    const combatIds = getOwnedCombatRoomIds();
+    // Traps/puzzles first, then Physical Power's dens, by build order (object
+    // key order) within each group.
+    const ordered = [
+        ...combatIds.filter(id => !DUNGEON_ROOMS[id].monsterCapacity),
+        ...combatIds.filter(id => DUNGEON_ROOMS[id].monsterCapacity),
+    ];
+
+    let killerRoomId = null;
+    for (const roomId of ordered) {
+        const def = DUNGEON_ROOMS[roomId];
+        const count = gameState.dungeonRooms[roomId] || 0;
+        if (count <= 0 || !isDungeonRoomOperational(roomId)) continue;
+        const ammoRatio = consumeDungeonRoomAmmo(roomId);
+        if (ammoRatio <= 0) continue;
+
+        let roomPower = def.statValue * count * ammoRatio;
+        if (def.monsterCapacity) {
+            const state = getDungeonRoomState(roomId);
+            if (state.monstersAlive <= 0) continue;
+            roomPower *= state.monstersAlive / def.monsterCapacity;
+        }
+
+        // Hits the first living member matching this room's stat type, falling
+        // back to any living member if none match (a room still does
+        // something even against a party with no matching specialist).
+        const target = party.members.find(m => m.alive && m.statType === def.statType)
+                     || party.members.find(m => m.alive);
+        if (!target) break;
+        target.hp -= roomPower;
+        if (target.hp <= 0) {
+            target.alive = false;
+            killerRoomId = roomId;
+            if (def.monsterCapacity) getDungeonRoomState(roomId).monstersAlive -= 1;
+        }
+        if (party.members.every(m => !m.alive)) break;
+    }
+
+    const deadCount = party.members.filter(m => !m.alive).length;
+    const wiped = deadCount === party.members.length;
+    const partial = deadCount > 0 && !wiped;
+    const breached = deadCount === 0;
+
+    const stats = gameState.dungeonStats;
+    if (wiped) {
+        stats.danger = Math.min(100, (stats.danger || 0) + 4 * party.strength);
+        const commonGain = Math.floor(5 * party.strength);
+        gameState.resources.coins = (gameState.resources.coins || 0) + commonGain * 10;
+        const killerDef = killerRoomId ? DUNGEON_ROOMS[killerRoomId] : null;
+        const baseSoulChance = 0.08 * party.strength;
+        const soulChance = baseSoulChance * (1 + ((killerDef && killerDef.pureSoulsBonusOnKill) || 0));
+        let soulLine = "";
+        if (Math.random() < soulChance) {
+            stats.pureSouls = (stats.pureSouls || 0) + 1;
+            soulLine = " A Pure Soul lingers where they fell.";
+        }
+        const roomName = killerRoomId ? getDungeonRoomDisplay(killerRoomId, gameState.run.race).name : "the dungeon";
+        addRaidLogEntry(`A party of ${party.members.length} was destroyed by ${roomName}.${soulLine}`);
+    } else if (partial) {
+        stats.danger = Math.min(100, (stats.danger || 0) + 1 * party.strength);
+        addRaidLogEntry(`A party of ${party.members.length} lost ${deadCount} of their own and turned back.`);
+    } else if (breached) {
+        stats.danger = Math.max(0, (stats.danger || 0) - 2);
+        if (combatIds.length > 0) {
+            const hitId = combatIds[Math.floor(Math.random() * combatIds.length)];
+            const state = getDungeonRoomState(hitId);
+            state.repairDaysLeft = DUNGEON_ROOMS[hitId].repairDays || 2;
+            const roomName = getDungeonRoomDisplay(hitId, gameState.run.race).name;
+            addRaidLogEntry(`A party of ${party.members.length} broke through, wrecking the ${roomName} on their way out.`);
+        } else {
+            addRaidLogEntry(`A party of ${party.members.length} walked straight through the empty dungeon.`);
+        }
+    }
+}
+
+// Ticks down repair cooldowns and regenerates den monster capacity — called
+// from the same once-per-day block as resolveDailyRaid().
+function advanceDungeonRoomRecovery() {
+    for (const [id, def] of Object.entries(DUNGEON_ROOMS)) {
+        if ((gameState.dungeonRooms[id] || 0) <= 0) continue;
+        const state = getDungeonRoomState(id);
+        if (state.repairDaysLeft > 0) state.repairDaysLeft -= 1;
+        if (def.monsterCapacity && state.monstersAlive < def.monsterCapacity && state.repairDaysLeft <= 0) {
+            // Regenerates 1 monster every regenDays, independent of repair state.
+            state._regenTimer = (state._regenTimer || 0) + 1;
+            if (state._regenTimer >= (def.regenDays || 3)) {
+                state._regenTimer = 0;
+                state.monstersAlive = Math.min(def.monsterCapacity, state.monstersAlive + 1);
+            }
+        }
+    }
+}
+
+function addRaidLogEntry(text) {
+    if (!gameState.raidLog) gameState.raidLog = [];
+    gameState.raidLog.unshift({
+        text,
+        day: gameState.time.day,
+        year: gameState.time.year,
+        seasonIndex: gameState.time.seasonIndex,
+    });
+    if (gameState.raidLog.length > 40) gameState.raidLog.length = 40;
+    renderRaidLog();
+}
+
+function renderRaidLog() {
+    const el = document.getElementById('raid-log');
+    if (!el) return;
+    const entries = gameState.raidLog || [];
+    if (entries.length === 0) {
+        el.innerHTML = '<p class="log-empty">No raids yet.</p>';
+        return;
+    }
+    el.innerHTML = entries.map(r => {
+        const season = SEASONS[r.seasonIndex];
+        return `<div class="log-entry">` +
+            `<div class="log-meta">Day ${r.day}, ${season} — Year ${r.year}</div>` +
+            `<div class="log-text">${r.text}</div>` +
+            `</div>`;
+    }).join('');
+}
+
+// Refreshes the Monsters sub-tab grid: cost text, afford-gated disabled state,
+// dungeon stat totals (Power/Intelligence/Arcane/Glory/Danger/Pure Souls), and
+// per-room repair/monster-capacity readouts.
+function renderMonstersTab() {
+    if (typeof DUNGEON_ROOMS === 'undefined') return;
+    const raceName = gameState.run.race;
+
+    setText('dungeon-stat-power',        Math.floor(getDungeonStatTotal('power')));
+    setText('dungeon-stat-arcane',       Math.floor(getDungeonStatTotal('arcane')));
+    setText('dungeon-stat-intelligence', Math.floor(getDungeonStatTotal('intelligence')));
+    setText('dungeon-stat-glory',        Math.floor(getDungeonGlory()));
+    setText('dungeon-stat-danger',       Math.floor(gameState.dungeonStats.danger || 0));
+    setText('dungeon-stat-puresouls',    Math.floor(gameState.dungeonStats.pureSouls || 0));
+
+    for (const id of Object.keys(DUNGEON_ROOMS)) {
+        const btn = document.getElementById('btn-dr-' + id);
+        if (!btn) continue;
+        const unlocked = checkDungeonRoomUnlock(id);
+        btn.style.display = unlocked ? '' : 'none';
+        if (!unlocked) continue;
+        btn.classList.toggle('disabled', !canAffordDungeonRoom(id));
+
+        const display = getDungeonRoomDisplay(id, raceName);
+        const nameEl = document.getElementById(`dr-${id}-name`);
+        if (nameEl) nameEl.textContent = display.name;
+        const descEl = document.getElementById(`dr-${id}-desc`);
+        if (descEl) descEl.textContent = display.desc;
+
+        const countEl = document.getElementById(`dr-${id}-count`);
+        if (countEl) countEl.textContent = 'Owned: ' + (gameState.dungeonRooms[id] || 0);
+
+        const costEl = document.getElementById(`dr-${id}-cost`);
+        if (costEl) {
+            const cost = getDungeonRoomCost(id);
+            costEl.textContent = Object.entries(cost)
+                .map(([res, n]) => `${fmt(n)} ${RESOURCES[res]?.name || res}`)
+                .join(", ");
+        }
+
+        const statusEl = document.getElementById(`dr-${id}-status`);
+        if (statusEl) {
+            const state = getDungeonRoomState(id);
+            if (state.repairDaysLeft > 0) {
+                statusEl.textContent = `Repairing — ${state.repairDaysLeft} day(s) left`;
+            } else if (DUNGEON_ROOMS[id].monsterCapacity) {
+                statusEl.textContent = `Monsters: ${state.monstersAlive} / ${DUNGEON_ROOMS[id].monsterCapacity}`;
+            } else {
+                statusEl.textContent = '';
+            }
+        }
+    }
+}
+
 // Adjusts how many units of a building are paused (production+consumption skipped).
 // Respects the click multiplier (Ctrl=10x, Shift=25x, Alt=100x) so overbuilt
 // converters can be dialed down/up in bulk instead of one unit at a time.
@@ -3281,6 +3666,12 @@ function runOneTick() {
             }
             if (_routeDays > 0) bumpLifetime('tradeRouteDays', _routeDays);
         }
+        // Dungeon Monsters: recovery ticks first so a room that finishes
+        // repairing/regenerating today can still participate in today's raid.
+        if (typeof DUNGEON_ROOMS !== 'undefined') {
+            advanceDungeonRoomRecovery();
+            resolveDailyRaid();
+        }
         gameState.time.day++;
         const totalDays = DAYS_PER_SEASON * 4;
         if (gameState.time.day > totalDays) {
@@ -3709,6 +4100,7 @@ function updateUI() {
     if (_activeTabBtn && _activeTabBtn.dataset.tab === 'trade') renderTradeTab();
     if (_activeTabBtn && _activeTabBtn.dataset.tab === 'religion') renderReligionTab();
     if (_activeTabBtn && _activeTabBtn.dataset.tab === 'projects') renderProjectsTab();
+    if (_activeTabBtn && _activeTabBtn.dataset.tab === 'monsters') renderMonstersTab();
     renderEra1Tree();
     renderEra1Actions();
     const caps     = getCaps();
@@ -6727,6 +7119,14 @@ function updateEraTabVisibility() {
         projectsBtn.style.display = showProjects ? '' : 'none';
     }
 
+    // Monsters dungeon sub-tab: hidden until the awakenTheEcho research is
+    // complete — rooms/traps/dens don't exist as a concept before then either.
+    const monstersBtn = document.querySelector('.sub-tab-btn[data-tab="monsters"]');
+    if (monstersBtn) {
+        const showMonsters = !!(gameState.research && gameState.research.awakenTheEcho);
+        monstersBtn.style.display = showMonsters ? '' : 'none';
+    }
+
     // Show/hide left-column elements that only belong in Era 2
     const displayEra2 = era === 1 ? 'none' : '';
     document.querySelectorAll('.era2-only').forEach(el => {
@@ -8271,6 +8671,13 @@ function performPrestige(method) {
     gameState.era1        = { unlocked: [], chosen: null, raceOptions: null };
     gameState.religion    = { deity: null, active: false, titheFailed: 0, productionSurgeDays: 0, lastSacrificeDay: 0 };
     gameState.tradeRoutes = {};
+    // Dungeon Monsters is gated behind the Dungeon Core + a research chain,
+    // both of which reset above — reset alongside them rather than persisting
+    // like Projects (which survives prestige by design).
+    gameState.dungeonRooms     = {};
+    gameState.dungeonRoomState = {};
+    gameState.dungeonStats     = { glory: 0, danger: 0, pureSouls: 0 };
+    gameState.raidLog          = [];
     _era1TreeState = '';
     gameState.meta = savedMeta;
 
@@ -8666,6 +9073,7 @@ function switchSubTab(subTabId) {
 
     if (subTabId === "trade") renderTradeTab();
     if (subTabId === "projects") renderProjectsTab();
+    if (subTabId === "monsters") { renderMonstersTab(); renderRaidLog(); }
 }
 
 // ── Bootstrap ─────────────────────────────────────────────────────────────────
@@ -8723,6 +9131,13 @@ const _religionBlds = ['entertainersStage','shrine','temple','pelorSanctuary','g
 for (const _rb of _religionBlds) {
     if (gameState.buildings[_rb] == null) gameState.buildings[_rb] = 0;
 }
+// Dungeon Monsters normalization
+if (!gameState.dungeonRooms)      gameState.dungeonRooms = {};
+if (!gameState.dungeonRoomState)  gameState.dungeonRoomState = {};
+if (!gameState.dungeonStats)      gameState.dungeonStats = { glory: 0, danger: 0, pureSouls: 0 };
+if (gameState.dungeonStats.danger    == null) gameState.dungeonStats.danger    = 0;
+if (gameState.dungeonStats.pureSouls == null) gameState.dungeonStats.pureSouls = 0;
+if (!Array.isArray(gameState.raidLog)) gameState.raidLog = [];
 
 // Stable per-install ID so PostHog (which runs person_profiles: 'identified_only')
 // can de-dupe a player across sessions for unique-user and retention metrics.
